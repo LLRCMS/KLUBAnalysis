@@ -224,10 +224,15 @@ TLorentzVector SmearedJetProducer::getSmearedJetFromIdx(unsigned int jetIdx, big
 double SmearedJetProducer::getResolution(unsigned int jetIdx, bigTree & theBigTree)
 {
   // Build jet from jetIdx
-  TLorentzVector jet(theBigTree.jets_px->at(jetIdx), theBigTree.jets_py->at(jetIdx), theBigTree.jets_pz->at(jetIdx), theBigTree.jets_e ->at(jetIdx));
+  TLorentzVector jet(theBigTree.jets_px->at(jetIdx), theBigTree.jets_py->at(jetIdx),
+					 theBigTree.jets_pz->at(jetIdx), theBigTree.jets_e ->at(jetIdx));
 
   // Get resolution
-  double jet_resolution = resolution_from_file_->getResolution({{JME::Binning::JetPt, jet.Pt()}, {JME::Binning::JetEta, jet.Eta()}, {JME::Binning::Rho, theBigTree.rho}});
+  double jet_resolution = resolution_from_file_->getResolution({
+	  {JME::Binning::JetPt, jet.Pt()},
+	  {JME::Binning::JetEta, jet.Eta()},
+	  {JME::Binning::Rho, theBigTree.rho}
+	});
 
   return jet_resolution;
 }

@@ -6,36 +6,36 @@
 JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
 {
   // Get the correct txt file and set the uncertainty names
-  std::string TXTfile;
+  std::string TXTfile = "weights/JECregrouped/RegroupedV2_";
   if (year == "2016" && !isPostVFP)
   {
-    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile += "Summer19UL16APV_V7_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ =
       {
-	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
-	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016", "Total"
+		"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
+		"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016", "Total"
       };
   }
   else if (year == "2016" && isPostVFP)
   {
-    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile += "Summer19UL16_V7_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ =
       {
-	"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
-	"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016", "Total"
+		"FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2016",
+		"EC2_2016", "Absolute_2016", "HF_2016", "RelativeSample_2016", "Total"
       };
   }
   else if (year == "2017")
   {
-    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile += "Summer19UL17_V5_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ = {
       "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2017",
       "EC2_2017", "Absolute_2017", "HF_2017", "RelativeSample_2017", "Total"
     };
   }
-  else /* year == "2018" */
+  else if (year == "2018")
   {
-    TXTfile = "weights/JECregrouped/RegroupedV2_Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt";
+    TXTfile += "Summer19UL18_V5_MC_UncertaintySources_AK4PFchs.txt";
     m_jec_sources_regrouped_ = {
       "FlavorQCD", "RelativeBal", "HF", "BBEC1", "EC2", "Absolute", "BBEC1_2018",
       "EC2_2018", "Absolute_2018", "HF_2018", "RelativeSample_2018", "Total"
@@ -47,9 +47,9 @@ JECKLUBinterface::JECKLUBinterface (std::string year, bool isPostVFP)
   // Emplace uncertainties in the provider
   for (const auto& sourceName : m_jec_sources_regrouped_)
   {
-    JetCorrectorParameters source_parameters_reduced(TXTfile, sourceName);
-    std::unique_ptr<JetCorrectionUncertainty> source_uncertainty_reduced(new JetCorrectionUncertainty(source_parameters_reduced));
-    jecSourceUncRegroupedProviders_.emplace(sourceName, std::move(source_uncertainty_reduced));
+    JetCorrectorParameters params(TXTfile, sourceName);
+    std::unique_ptr<JetCorrectionUncertainty> uncert(new JetCorrectionUncertainty(params));
+    jecSourceUncRegroupedProviders_.emplace(sourceName, std::move(uncert));
   }
 
   if (DEBUG)
@@ -100,42 +100,42 @@ std::pair<std::vector<double>,std::vector<double>> JECKLUBinterface::getJECUncVe
 
 
 // Returns the shifted TLorentzVector starting from "index of JEC source" and the original TLorentzVector
-TLorentzVector JECKLUBinterface::getJECUncJet(int idx, TLorentzVector nominalJet, float unc)
-{
-  // Declare the shifted jet
-  TLorentzVector shiftedJet;
+// TLorentzVector JECKLUBinterface::getJECUncJet(int idx, TLorentzVector nominalJet, float unc)
+// {
+//   // Declare the shifted jet
+//   TLorentzVector shiftedJet;
 
-  // Get the name of the source
-  std::string sourceName = m_jec_sources_regrouped_.at(idx);
+//   // Get the name of the source
+//   std::string sourceName = m_jec_sources_regrouped_.at(idx);
 
-  // Get the shift
-  jecSourceUncRegroupedProviders_[sourceName]->setJetEta(nominalJet.Eta());
-  jecSourceUncRegroupedProviders_[sourceName]->setJetPt(nominalJet.Pt());
-  float shift = 1.;
-  if (unc > 0) // up variations
-  {
-    shift = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(true);
-  }
-  else // down variations
-  {
-    shift = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(false);
-  }
+//   // Get the shift
+//   jecSourceUncRegroupedProviders_[sourceName]->setJetEta(nominalJet.Eta());
+//   jecSourceUncRegroupedProviders_[sourceName]->setJetPt(nominalJet.Pt());
+//   float shift = 1.;
+//   if (unc > 0) // up variations
+//   {
+//     shift = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(true);
+//   }
+//   else // down variations
+//   {
+//     shift = jecSourceUncRegroupedProviders_[sourceName]->getUncertainty(false);
+//   }
 
-  // Shift the jet
-  shiftedJet.SetPtEtaPhiE(
-    (1.+(shift*unc)) * nominalJet.Pt(),
-    nominalJet.Eta(),
-    nominalJet.Phi(),
-    (1.+(shift*unc)) * nominalJet.E()
-    );
+//   // Shift the jet
+//   shiftedJet.SetPtEtaPhiE(
+//     (1.+(shift*unc)) * nominalJet.Pt(),
+//     nominalJet.Eta(),
+//     nominalJet.Phi(),
+//     (1.+(shift*unc)) * nominalJet.E()
+//     );
 
-  if (DEBUG)
-  {
-    std::cout << "   Original jet: "; nominalJet.Print();
-    std::cout << "   Shift: " << shift << "  unc: " << unc << std::endl;
-    std::cout << "   Shifted jet : "; shiftedJet.Print();
-  }
+//   if (DEBUG)
+//   {
+//     std::cout << "   Original jet: "; nominalJet.Print();
+//     std::cout << "   Shift: " << shift << "  unc: " << unc << std::endl;
+//     std::cout << "   Shifted jet : "; shiftedJet.Print();
+//   }
 
-  // Return the shifted jet
-  return shiftedJet;
-}
+//   // Return the shifted jet
+//   return shiftedJet;
+// }

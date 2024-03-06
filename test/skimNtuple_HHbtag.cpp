@@ -3789,12 +3789,13 @@ int main (int argc, char** argv)
 		{
 		  bool isVBF = false;
 		  vector<pair <int, float> > jets_and_BTag;
-		  for (auto pair : jets_and_sortPar) jets_and_BTag.push_back (make_pair(pair.second, pair.first)); // just for compatibility...
+		  for (auto pair : jets_and_sortPar) {  // just for compatibility...
+			jets_and_BTag.push_back (make_pair(pair.second, pair.first));
+		  }
 
-		  // NB !!! the following function only works if jets_and_sortPar contains <CVSscore, idx>
-		  vector<float> bTagWeight = bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::central);
-		  vector<float> bTagWeight_up = bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::up);
-		  vector<float> bTagWeight_down = bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::down);
+		  vector<float> bTagWeight				= bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::central);
+		  vector<float> bTagWeight_up			= bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::up);
+		  vector<float> bTagWeight_down			= bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::down);
 		  vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted(jets_and_BTag, theBigTree, smears_AK4);
 
 		  theSmallTree.m_bTagweightL = bTagWeight.at(0);
@@ -3878,8 +3879,8 @@ int main (int argc, char** argv)
 			}
 
 		  // bjet1 and bjet2 indexes
-		  const int bjet1idx = HHbtagmax .first ;
-		  const int bjet2idx = HHbtagmax2.first ;
+		  const int bjet1idx = HHbtagmax .first;
+		  const int bjet2idx = HHbtagmax2.first;
 
 		  // Check that both bjets are assigned
 		  if (bjet1idx < 0)
@@ -4012,9 +4013,10 @@ int main (int argc, char** argv)
 			  std::cout << "---------------" << std::endl;
 			}
 
-		  bool bjets_gen_matched = ((tlv_firstBjet .DeltaR(vGenB1)<0.5 && tlv_secondBjet.DeltaR(vGenB2)<0.5) || (tlv_firstBjet.DeltaR(vGenB2)<0.5 && tlv_secondBjet.DeltaR(vGenB1)<0.5) );
-		  bool bjet1_gen_matched = ( tlv_firstBjet .DeltaR(vGenB1)<0.5 || tlv_firstBjet .DeltaR(vGenB2)<0.5 );
-		  bool bjet2_gen_matched = ( tlv_secondBjet.DeltaR(vGenB1)<0.5 || tlv_secondBjet.DeltaR(vGenB2)<0.5 );
+		  bool bjets_gen_matched = ((tlv_firstBjet .DeltaR(vGenB1)<0.5 && tlv_secondBjet.DeltaR(vGenB2)<0.5) ||
+									(tlv_firstBjet.DeltaR(vGenB2)<0.5 && tlv_secondBjet.DeltaR(vGenB1)<0.5));
+		  bool bjet1_gen_matched = tlv_firstBjet .DeltaR(vGenB1)<0.5 || tlv_firstBjet .DeltaR(vGenB2)<0.5;
+		  bool bjet2_gen_matched = tlv_secondBjet.DeltaR(vGenB1)<0.5 || tlv_secondBjet.DeltaR(vGenB2)<0.5;
 
 		  theSmallTree.m_bjets_gen_matched = bjets_gen_matched ? 1 : 0;
 		  theSmallTree.m_bjet1_gen_matched = bjet1_gen_matched ? 1 : 0;
@@ -4029,7 +4031,6 @@ int main (int argc, char** argv)
 		  // ----- up/down variation using 11 JEC sources + total uncertainty
 		  // store the up down variations in vectors
 		  // last position is total uncertainty
-
 		  pair <vector <double>, vector<double>> unc_first_updown  = JECprovider.getJECUncVectors(bjet1idx, theBigTree);
 		  pair <vector <double>, vector<double>> unc_second_updown = JECprovider.getJECUncVectors(bjet2idx, theBigTree);
 
@@ -4062,16 +4063,16 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bH_mass_raw_jetupTot      = tlv_bH_raw_jetupTot.M();
 		  theSmallTree.m_bH_mass_raw_jetdownTot    = tlv_bH_raw_jetdownTot.M();
 
-		  vector <TLorentzVector> tlv_firstBjet_raw_jetup(N_jecSources, tlv_firstBjet_raw);
-		  vector <TLorentzVector> tlv_firstBjet_raw_jetdown(N_jecSources,tlv_firstBjet_raw);
-		  vector <TLorentzVector> tlv_secondBjet_raw_jetup(N_jecSources, tlv_secondBjet_raw);
-		  vector <TLorentzVector> tlv_secondBjet_raw_jetdown(N_jecSources,tlv_secondBjet_raw);
+		  vector <TLorentzVector> tlv_firstBjet_raw_jetup   (N_jecSources, tlv_firstBjet_raw);
+		  vector <TLorentzVector> tlv_firstBjet_raw_jetdown (N_jecSources, tlv_firstBjet_raw);
+		  vector <TLorentzVector> tlv_secondBjet_raw_jetup  (N_jecSources, tlv_secondBjet_raw);
+		  vector <TLorentzVector> tlv_secondBjet_raw_jetdown(N_jecSources, tlv_secondBjet_raw);
 
 		  theSmallTree.m_bjet1_pt_raw = tlv_firstBjet_raw.Pt();
 		  theSmallTree.m_bjet2_pt_raw = tlv_secondBjet_raw.Pt();
 
 		  TLorentzVector tlv_bH_raw(tlv_firstBjet + tlv_secondBjet);
-		  vector <TLorentzVector> tlv_bH_raw_jetup(N_jecSources, tlv_bH_raw);
+		  vector <TLorentzVector> tlv_bH_raw_jetup  (N_jecSources, tlv_bH_raw);
 		  vector <TLorentzVector> tlv_bH_raw_jetdown(N_jecSources, tlv_bH_raw);
 
 		  //JER: in LLR it is saved as jets_JER = JER (in %) * jet_energy:
@@ -4087,16 +4088,16 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bjet2_JER = bjet2_JER;
 
 		  // Total JES up/down variation of JER
-		  double bjet1_JER_jetupTot   = bjet1_JER ;
-		  double bjet2_JER_jetupTot   = bjet2_JER ;
-		  double bjet1_JER_jetdownTot = bjet1_JER ;
-		  double bjet2_JER_jetdownTot = bjet2_JER ;
+		  double bjet1_JER_jetupTot   = bjet1_JER;
+		  double bjet2_JER_jetupTot	  = bjet2_JER;
+		  double bjet1_JER_jetdownTot = bjet1_JER;
+		  double bjet2_JER_jetdownTot = bjet2_JER;
 
 		  if (isMC)
 			{
-			  bjet1_JER_jetupTot   = bjet1_JER * tlv_firstBjet_raw_jetupTot.E() / tlv_firstBjet_raw.E();
-			  bjet2_JER_jetupTot   = bjet2_JER * tlv_secondBjet_raw_jetupTot.E() / tlv_secondBjet_raw.E();
-			  bjet1_JER_jetdownTot = bjet1_JER * tlv_firstBjet_raw_jetdownTot.E() / tlv_firstBjet_raw.E();
+			  bjet1_JER_jetupTot   = bjet1_JER * tlv_firstBjet_raw_jetupTot.E()	   / tlv_firstBjet_raw.E();
+			  bjet2_JER_jetupTot   = bjet2_JER * tlv_secondBjet_raw_jetupTot.E()   / tlv_secondBjet_raw.E();
+			  bjet1_JER_jetdownTot = bjet1_JER * tlv_firstBjet_raw_jetdownTot.E()  / tlv_firstBjet_raw.E();
 			  bjet2_JER_jetdownTot = bjet2_JER * tlv_secondBjet_raw_jetdownTot.E() / tlv_secondBjet_raw.E();
 			}
 
@@ -4109,7 +4110,7 @@ int main (int argc, char** argv)
 		  for (int isource = 0; isource < N_jecSources; isource++)
 			{
 			  // variations propagated to bH
-			  tlv_bH_raw_jetup[isource]   = tlv_firstBjet_raw_jetup.at(isource) + tlv_secondBjet_raw_jetup.at(isource) ;
+			  tlv_bH_raw_jetup[isource]   = tlv_firstBjet_raw_jetup.at(isource)   + tlv_secondBjet_raw_jetup.at(isource);
 			  tlv_bH_raw_jetdown[isource] = tlv_firstBjet_raw_jetdown.at(isource) + tlv_secondBjet_raw_jetdown.at(isource);
 			}
 
@@ -4146,10 +4147,10 @@ int main (int argc, char** argv)
 			  theSmallTree.m_bH_pt_raw_jetdown.push_back((tlv_bH_raw_jetdown[isource]).Pt());
 
 			  // JER variations
-			  theSmallTree.m_bjet1_JER_jetup.push_back(bjet1_JER * tlv_firstBjet_raw_jetup[isource].E() /  tlv_firstBjet_raw.E() );
-			  theSmallTree.m_bjet1_JER_jetdown.push_back(bjet1_JER * tlv_firstBjet_raw_jetdown[isource].E() /  tlv_firstBjet_raw.E()) ;
-			  theSmallTree.m_bjet2_JER_jetup.push_back(bjet2_JER * tlv_secondBjet_raw_jetup[isource].E() /  tlv_secondBjet_raw.E()) ;
-			  theSmallTree.m_bjet2_JER_jetdown.push_back(bjet2_JER * tlv_secondBjet_raw_jetdown[isource].E() /  tlv_secondBjet_raw.E()) ;
+			  theSmallTree.m_bjet1_JER_jetup.push_back  (bjet1_JER * tlv_firstBjet_raw_jetup[isource].E()    /  tlv_firstBjet_raw.E());
+			  theSmallTree.m_bjet1_JER_jetdown.push_back(bjet1_JER * tlv_firstBjet_raw_jetdown[isource].E()  /  tlv_firstBjet_raw.E());
+			  theSmallTree.m_bjet2_JER_jetup.push_back  (bjet2_JER * tlv_secondBjet_raw_jetup[isource].E()   /  tlv_secondBjet_raw.E());
+			  theSmallTree.m_bjet2_JER_jetdown.push_back(bjet2_JER * tlv_secondBjet_raw_jetdown[isource].E() /  tlv_secondBjet_raw.E());
 			}
 
 		  theSmallTree.m_bH_mass_raw = tlv_bH_raw.M();
@@ -4240,8 +4241,8 @@ int main (int argc, char** argv)
 				  if (gen.Pt() > 8) hasgj2 = true;
 				}
 			}
-		  theSmallTree.m_bjet1_hasgenjet = hasgj1 ;
-		  theSmallTree.m_bjet2_hasgenjet = hasgj2 ;
+		  theSmallTree.m_bjet1_hasgenjet = hasgj1;
+		  theSmallTree.m_bjet2_hasgenjet = hasgj2;
 
 		  // Save HT_20, HT_50 and HT_20_BDT(with cut on |eta|<4.7)
 		  TLorentzVector jetVecSum (0,0,0,0);
@@ -4336,10 +4337,10 @@ int main (int argc, char** argv)
 
 		  const TVector2 ptmiss = TVector2(METx, METy) ;
 		  TMatrixD metcov (2, 2) ;
-		  metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
-		  metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
-		  metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
-		  metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+		  metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair);
+		  metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair);
+		  metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair);
+		  metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair);
 		  const TMatrixD stableMetCov = metcov;
 
 		  // MET shifted for JES
@@ -4432,11 +4433,11 @@ int main (int argc, char** argv)
 			  theSmallTree.m_METy_jetdownTot = vMET_shift_jetTot.second.Y();
 			}
 
-		  theSmallTree.m_bH_pt = tlv_bH.Pt () ;
-		  theSmallTree.m_bH_eta = tlv_bH.Eta () ;
-		  theSmallTree.m_bH_phi = tlv_bH.Phi () ;
-		  theSmallTree.m_bH_e = tlv_bH.E () ;
-		  theSmallTree.m_bH_mass = tlv_bH.M () ;
+		  theSmallTree.m_bH_pt	 = tlv_bH.Pt();
+		  theSmallTree.m_bH_eta	 = tlv_bH.Eta();
+		  theSmallTree.m_bH_phi	 = tlv_bH.Phi();
+		  theSmallTree.m_bH_e	 = tlv_bH.E();
+		  theSmallTree.m_bH_mass = tlv_bH.M();
 
 		  theSmallTree.m_bH_MET_deltaEta    = std::abs(tlv_bH.Eta()); // since MET.Eta()==0 by definition, dEta(bH,MET)=|bH.Eta()|
 		  theSmallTree.m_bH_MET_deltaR      = tlv_bH.DeltaR(tlv_MET);
@@ -4452,14 +4453,13 @@ int main (int argc, char** argv)
 
 		  TLorentzVector tlv_HH(tlv_bH + tlv_tauH);
 		  TLorentzVector tlv_HH_raw(tlv_bH_raw + tlv_tauH);
-		  theSmallTree.m_HH_pt = tlv_HH.Pt () ;
-		  theSmallTree.m_HH_eta = tlv_HH.Eta () ;
-		  theSmallTree.m_HH_phi = tlv_HH.Phi () ;
-		  theSmallTree.m_HH_e = tlv_HH.E () ;
-		  theSmallTree.m_HH_mass = tlv_HH.M () ;
-		  theSmallTree.m_HH_mass_raw = tlv_HH_raw.M () ;
-		  theSmallTree.m_HH_deltaR = tlv_bH.DeltaR(tlv_tauH);
-
+		  theSmallTree.m_HH_pt		 = tlv_HH.Pt();
+		  theSmallTree.m_HH_eta		 = tlv_HH.Eta();
+		  theSmallTree.m_HH_phi		 = tlv_HH.Phi();
+		  theSmallTree.m_HH_e		 = tlv_HH.E();
+		  theSmallTree.m_HH_mass	 = tlv_HH.M();
+		  theSmallTree.m_HH_mass_raw = tlv_HH_raw.M();
+		  theSmallTree.m_HH_deltaR	 = tlv_bH.DeltaR(tlv_tauH);
 
 		  // in case the SVFIT mass is calculated
 		  if (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0))
@@ -4689,15 +4689,15 @@ int main (int argc, char** argv)
 
 		  if (DEBUG)  cout << "---------- MT2 DEBUG: " << theSmallTree.m_MT2 << endl;
 
-		  theSmallTree.m_HH_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
-		  theSmallTree.m_HH_deltaEta = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
-		  theSmallTree.m_HHsvfit_deltaPhi = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
-		  theSmallTree.m_bHMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_bH.Phi ()) ;
-		  theSmallTree.m_dib_deltaPhi = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
-		  theSmallTree.m_dib_deltaEta = fabs(tlv_firstBjet.Eta()-tlv_secondBjet.Eta ()) ;
-		  theSmallTree.m_dib_deltaR = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
+		  theSmallTree.m_HH_deltaPhi		 = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
+		  theSmallTree.m_HH_deltaEta		 = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
+		  theSmallTree.m_HHsvfit_deltaPhi	 = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
+		  theSmallTree.m_bHMet_deltaPhi		 = deltaPhi (vMET.Phi(), tlv_bH.Phi ()) ;
+		  theSmallTree.m_dib_deltaPhi		 = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
+		  theSmallTree.m_dib_deltaEta		 = fabs(tlv_firstBjet.Eta()-tlv_secondBjet.Eta ()) ;
+		  theSmallTree.m_dib_deltaR			 = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
 		  theSmallTree.m_dib_deltaR_per_bHpt = theSmallTree.m_dib_deltaR * tlv_bH_raw.Pt();
-		  theSmallTree.m_dib_dEtaSign = tlv_firstBjet.Eta() * tlv_secondBjet.Eta(); // VBF BDT
+		  theSmallTree.m_dib_dEtaSign		 = tlv_firstBjet.Eta() * tlv_secondBjet.Eta(); // VBF BDT
 
 		  theSmallTree.m_BDT_dib_deltaPhi     = ROOT::Math::VectorUtil::DeltaPhi(tlv_firstBjet, tlv_secondBjet);
 		  theSmallTree.m_BDT_dib_abs_deltaPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(tlv_firstBjet, tlv_secondBjet));
@@ -4927,52 +4927,52 @@ int main (int argc, char** argv)
 
 			  theSmallTree.m_VBFjet2_pt         = VBFjet2.Pt() ;
 
-			  theSmallTree.m_VBFjet2_pt_jetup1         = VBFjet2_jetup[0].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup2         = VBFjet2_jetup[1].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup3         = VBFjet2_jetup[2].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup4         = VBFjet2_jetup[3].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup5         = VBFjet2_jetup[4].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup6         = VBFjet2_jetup[5].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup7         = VBFjet2_jetup[6].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup8         = VBFjet2_jetup[7].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup9         = VBFjet2_jetup[8].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup10        = VBFjet2_jetup[9].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetup11        = VBFjet2_jetup[10].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup1  = VBFjet2_jetup[0].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup2	= VBFjet2_jetup[1].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup3	= VBFjet2_jetup[2].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup4	= VBFjet2_jetup[3].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup5	= VBFjet2_jetup[4].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup6	= VBFjet2_jetup[5].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup7	= VBFjet2_jetup[6].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup8	= VBFjet2_jetup[7].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup9	= VBFjet2_jetup[8].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup10	= VBFjet2_jetup[9].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetup11	= VBFjet2_jetup[10].Pt() ;
 
-			  theSmallTree.m_VBFjet2_pt_jetdown1         = VBFjet2_jetdown[0].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown2         = VBFjet2_jetdown[1].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown3         = VBFjet2_jetdown[2].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown4         = VBFjet2_jetdown[3].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown5         = VBFjet2_jetdown[4].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown6         = VBFjet2_jetdown[5].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown7         = VBFjet2_jetdown[6].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown8         = VBFjet2_jetdown[7].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown9         = VBFjet2_jetdown[8].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown10        = VBFjet2_jetdown[9].Pt() ;
-			  theSmallTree.m_VBFjet2_pt_jetdown11        = VBFjet2_jetdown[10].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown1  = VBFjet2_jetdown[0].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown2  = VBFjet2_jetdown[1].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown3  = VBFjet2_jetdown[2].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown4  = VBFjet2_jetdown[3].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown5  = VBFjet2_jetdown[4].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown6  = VBFjet2_jetdown[5].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown7  = VBFjet2_jetdown[6].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown8  = VBFjet2_jetdown[7].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown9  = VBFjet2_jetdown[8].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown10 = VBFjet2_jetdown[9].Pt() ;
+			  theSmallTree.m_VBFjet2_pt_jetdown11 = VBFjet2_jetdown[10].Pt() ;
 
-			  theSmallTree.m_VBFjet2_eta        = VBFjet2.Eta();
-			  theSmallTree.m_VBFjet2_phi        = VBFjet2.Phi();
-			  theSmallTree.m_VBFjet2_e          = VBFjet2.E();
-			  theSmallTree.m_VBFjet2_btag       = (theBigTree.bCSVscore->at (VBFidx2)) ;
-			  theSmallTree.m_VBFjet2_btag_deepCSV = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
+			  theSmallTree.m_VBFjet2_eta			 = VBFjet2.Eta();
+			  theSmallTree.m_VBFjet2_phi			 = VBFjet2.Phi();
+			  theSmallTree.m_VBFjet2_e				 = VBFjet2.E();
+			  theSmallTree.m_VBFjet2_btag			 = theBigTree.bCSVscore->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_btag_deepCSV	 = theBigTree.bDeepCSV_probb->at(VBFidx2) + theBigTree.bDeepCSV_probbb->at(VBFidx2) ;
 			  theSmallTree.m_VBFjet2_btag_deepFlavor = theBigTree.bDeepFlavor_probb->at(VBFidx2) + theBigTree.bDeepFlavor_probbb->at(VBFidx2) + theBigTree.bDeepFlavor_problepb->at(VBFidx2);
 			  theSmallTree.m_VBFjet2_ctag_deepFlavor = theBigTree.bDeepFlavor_probc->at(VBFidx2) ;
-			  theSmallTree.m_VBFjet2_CvsL = getCvsL(theBigTree, VBFidx2);
-			  theSmallTree.m_VBFjet2_CvsB = getCvsB(theBigTree, VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_bb = theBigTree.bParticleNetAK4JetTags_probbb->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_cc = theBigTree.bParticleNetAK4JetTags_probcc->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_b = theBigTree.bParticleNetAK4JetTags_probb->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_c = theBigTree.bParticleNetAK4JetTags_probc->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_g = theBigTree.bParticleNetAK4JetTags_probg->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_uds = theBigTree.bParticleNetAK4JetTags_probuds->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_pu = theBigTree.bParticleNetAK4JetTags_probpu->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_pnet_undef = theBigTree.bParticleNetAK4JetTags_probundef->at(VBFidx2);
-			  theSmallTree.m_VBFjet2_PUjetIDupdated = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
-			  theSmallTree.m_VBFjet2_flav       = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
-			  theSmallTree.m_VBFjet2_hasgenjet  = hasgj2_VBF ;
-			  theSmallTree.m_VBFjet2_PUjetID    = (theBigTree.jets_PUJetIDupdated->at (VBFidx2)); // VBF BDT
-			  theSmallTree.m_bH_VBF1_deltaEta   = fabs(tlv_bH.Eta() - VBFjet1.Eta()); // VBF BDT
+			  theSmallTree.m_VBFjet2_CvsL			 = getCvsL(theBigTree, VBFidx2);
+			  theSmallTree.m_VBFjet2_CvsB			 = getCvsB(theBigTree, VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_bb		 = theBigTree.bParticleNetAK4JetTags_probbb->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_cc		 = theBigTree.bParticleNetAK4JetTags_probcc->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_b			 = theBigTree.bParticleNetAK4JetTags_probb->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_c			 = theBigTree.bParticleNetAK4JetTags_probc->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_g			 = theBigTree.bParticleNetAK4JetTags_probg->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_uds		 = theBigTree.bParticleNetAK4JetTags_probuds->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_pu		 = theBigTree.bParticleNetAK4JetTags_probpu->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_pnet_undef		 = theBigTree.bParticleNetAK4JetTags_probundef->at(VBFidx2);
+			  theSmallTree.m_VBFjet2_PUjetIDupdated	 = theBigTree.jets_PUJetIDupdated->at (VBFidx2) ;
+			  theSmallTree.m_VBFjet2_flav			 = (theBigTree.jets_HadronFlavour->at (VBFidx2)) ;
+			  theSmallTree.m_VBFjet2_hasgenjet		 = hasgj2_VBF ;
+			  theSmallTree.m_VBFjet2_PUjetID		 = (theBigTree.jets_PUJetIDupdated->at (VBFidx2)); // VBF BDT
+			  theSmallTree.m_bH_VBF1_deltaEta		 = fabs(tlv_bH.Eta() - VBFjet1.Eta()); // VBF BDT
 
 			  theSmallTree.m_dau1_z = getZ(tlv_firstLepton.Eta(),VBFjet1.Eta(),VBFjet2.Eta());
 			  theSmallTree.m_dau2_z = getZ(tlv_secondLepton.Eta(),VBFjet1.Eta(),VBFjet2.Eta());
@@ -5064,14 +5064,14 @@ int main (int argc, char** argv)
 			  // PG filter jets at will
 			  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
-			  // skip the H decay candiates
-			  if (int (iJet) == bjet1idx )
+			  // skip the H decay candidates
+			  if (int (iJet) == bjet1idx)
 				{
 				  continue;
 				}
 			  else if(int (iJet) == bjet2idx)
 				{
-				  continue ;
+				  continue;
 				}
 			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
 			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
@@ -5080,7 +5080,7 @@ int main (int argc, char** argv)
 			  // PU jet ID WP = 2: loose
 			  if (PUjetID_WP > -1)
 				{
-				  if ( !(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) && tlv_dummyJet.Pt()<50.) continue;
+				  if (!(CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) and tlv_dummyJet.Pt()<50.) continue;
 				}
 
 			  // remove jets that overlap with the tau selected in the leg 1 and 2
@@ -5100,7 +5100,8 @@ int main (int argc, char** argv)
 				  int mcind = theBigTree.jets_genjetIndex->at(iJet);
 				  if (mcind>=0)
 					{
-					  TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind),theBigTree.genjet_py->at(mcind),theBigTree.genjet_pz->at(mcind),theBigTree.genjet_e->at(mcind));
+					  TLorentzVector thisGenJet(theBigTree.genjet_px->at(mcind), theBigTree.genjet_py->at(mcind),
+												theBigTree.genjet_pz->at(mcind), theBigTree.genjet_e->at(mcind));
 					  if (thisGenJet.Pt() > 8)
 						{
 						  hasgj = true;
