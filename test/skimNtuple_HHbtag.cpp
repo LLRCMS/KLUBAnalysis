@@ -1695,9 +1695,11 @@ int main (int argc, char** argv)
 			ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
 		}
 
-	  // ----------------------------------------------------------
-	  // pair has been assessed , check trigger information
-
+	  TMatrixD metcov (2, 2);
+	  metcov(0,0) = theBigTree.MET_cov00->at(chosenTauPair);
+	  metcov(1,0) = theBigTree.MET_cov10->at(chosenTauPair);
+	  metcov(0,1) = theBigTree.MET_cov01->at(chosenTauPair);
+	  metcov(1,1) = theBigTree.MET_cov11->at(chosenTauPair);
 
 	  // in TauTau channel make sure the first tau is the most isolated one
 	  int tmp_firstDaughterIndex  = theBigTree.indexDau1->at (chosenTauPair) ;
@@ -1790,7 +1792,10 @@ int main (int argc, char** argv)
 												  theBigTree.METy->at(chosenTauPair),
 												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
 												  );
-	  TVector2 vMET(float(met_phi_corr.first), float(met_phi_corr.second));
+	  TLorentzVector tlv_MET;
+	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second,
+						 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
+	  TVector2 vMET(tlv_MET.Px(), tlv_MET.Py());
 	  TVector2 vMUON(0., 0.);
 	  if (pairType==0) {
 		// single muon in evt, vetoing events with 3rd lepton
@@ -2336,15 +2341,6 @@ int main (int argc, char** argv)
 		Would we need to include soft muons somehow as well?
 		(3rd lepton veto already looks for soft leptons (>10 GeV))
 	  */
-	
-	  met_phi_corr = met_phi_correction_pxpy(
-											 theBigTree.METx->at(chosenTauPair),
-											 theBigTree.METy->at(chosenTauPair),
-											 theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-											 );
-	  TLorentzVector tlv_MET;
-	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second, 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
-
 	  TLorentzVector tlv_DeepMET_ResponseTune;
 	  tlv_DeepMET_ResponseTune.SetPtEtaPhiM(theBigTree.ShiftedDeepMETresponseTune_pt, 0, theBigTree.ShiftedDeepMETresponseTune_phi, 0);
 	  TVector2 vDeepMET_ResponseTune(tlv_DeepMET_ResponseTune.Px(), tlv_DeepMET_ResponseTune.Py());
@@ -2355,13 +2351,7 @@ int main (int argc, char** argv)
 
 	  // Temporary SVFit recomputation for data.
 	  if(!isMC){
-		TMatrixD metcov_tmp (2, 2) ;
-		metcov_tmp (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
-		metcov_tmp (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
-		metcov_tmp (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
-		metcov_tmp (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
-
-		SVfitKLUBinterface algo_tmp(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov_tmp, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
+		SVfitKLUBinterface algo_tmp(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
 		std::vector<double> svfitResTmp = algo_tmp.FitAndGetResult();
 		theSmallTree.m_tauH_SVFIT_mass = svfitResTmp.at(3);
 		if (theSmallTree.m_tauH_SVFIT_mass > 0)
@@ -2371,7 +2361,7 @@ int main (int argc, char** argv)
 			theSmallTree.m_tauH_SVFIT_phi  = svfitResTmp.at(2);
 			tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResTmp.at(0), svfitResTmp.at(1), svfitResTmp.at(2), svfitResTmp.at(3));
 
-			theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
+			theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi(vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
 			theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 		  }
 	  }
@@ -2384,15 +2374,8 @@ int main (int argc, char** argv)
 		  float METx = met_phi_corr.first;
 		  float METy = met_phi_corr.second;
 		  TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, smears_AK4);
-		  vMET = metSmeared;
 		  tlv_MET.SetPxPyPzE(metSmeared.Px(), metSmeared.Py(), 0, std::hypot(metSmeared.Px(), metSmeared.Py()));
-
-		  // Recompute SVfit after smearing the MET
-		  TMatrixD metcov (2, 2) ;
-		  metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair) ;
-		  metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair) ;
-		  metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair) ;
-		  metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair) ;
+		  vMET.Set(tlv_MET.Px(), tlv_MET.Py());
 
 		  SVfitKLUBinterface algo_central(0, tlv_firstLepton, tlv_secondLepton, tlv_MET, metcov, pType, theSmallTree.m_dau1_decayMode, theSmallTree.m_dau2_decayMode);
 		  std::vector<double> svfitResSmeared = algo_central.FitAndGetResult();
@@ -2487,8 +2470,8 @@ int main (int argc, char** argv)
 	  theSmallTree.m_lheNOutB = theBigTree.lheNOutB ;
 	  theSmallTree.m_met_phi   = TVector2::Phi_mpi_pi(vMET.Phi());
 	  theSmallTree.m_met_et    = vMET.Mod();
-	  theSmallTree.m_METx      = vMET.X();
-	  theSmallTree.m_METy      = vMET.Y();
+	  theSmallTree.m_METx      = vMET.Px();
+	  theSmallTree.m_METy      = vMET.Py();
 	  theSmallTree.m_met_cov00 = theBigTree.MET_cov00->at (chosenTauPair);
 	  theSmallTree.m_met_cov01 = theBigTree.MET_cov01->at (chosenTauPair);
 	  theSmallTree.m_met_cov10 = theBigTree.MET_cov10->at (chosenTauPair);
@@ -4317,30 +4300,10 @@ int main (int argc, char** argv)
 		  if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
 		  if (DEBUG) cout << "---------------------" << endl;
 
-		  met_phi_corr = met_phi_correction_pxpy(
-		  	theBigTree.METx->at(chosenTauPair),
-		  	theBigTree.METy->at(chosenTauPair),
-		  	theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-		  );
-		  float METx = met_phi_corr.first;
-		  float METy = met_phi_corr.second;
-		  if (doSmearing)
-			{
-			  TVector2 metSmeared = getShiftedMET_smear(METx, METy, theBigTree, smears_AK4);
-			  METx = metSmeared.Px();
-			  METy = metSmeared.Py();
-			}
-
 		  TLorentzVector tlv_bH(tlv_firstBjet + tlv_secondBjet);
 		  TLorentzVector tlv_neutrinos(tlv_bH - tlv_bH_raw);
 		  theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
 
-		  const TVector2 ptmiss = TVector2(METx, METy) ;
-		  TMatrixD metcov (2, 2) ;
-		  metcov (0,0) = theBigTree.MET_cov00->at (chosenTauPair);
-		  metcov (1,0) = theBigTree.MET_cov10->at (chosenTauPair);
-		  metcov (0,1) = theBigTree.MET_cov01->at (chosenTauPair);
-		  metcov (1,1) = theBigTree.MET_cov11->at (chosenTauPair);
 		  const TMatrixD stableMetCov = metcov;
 
 		  // MET shifted for JES
@@ -4488,14 +4451,9 @@ int main (int argc, char** argv)
 		  //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
 		  if (runHHKinFit && pairType <= 3) // FIXME: temporary
 			{
-			  HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
-			  HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton,  ptmiss, stableMetCov, bjet1_JER, bjet2_JER) ;
+			  HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, vMET, stableMetCov, bjet1_JER, bjet2_JER) ;
+			  HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, vMET, stableMetCov, bjet1_JER, bjet2_JER) ;
 
-			  //           kinFits.setAdvancedBalance (&ptmiss, metcov) ;
-			  //           kinFits.setSimpleBalance (ptmiss.Pt (),10) ; //alternative which uses only the absolute value of ptmiss in the fit
-			  //
-			  //           kinFits.addMh1Hypothesis (hypo_mh1) ;
-			  //           kinFits.addMh2Hypothesis (hypo_mh2) ;
 			  kinFits.   addHypo(hypo_mh1,hypo_mh2);
 			  kinFitsraw.addHypo(hypo_mh1,hypo_mh2);
 
@@ -4511,7 +4469,7 @@ int main (int argc, char** argv)
 				  cout<<"B2"<<endl;
 				  cout<<"(pt,eta,phi,e,res) "<<tlv_secondBjet.Pt()<<","<<tlv_secondBjet.Eta()<<","<<tlv_secondBjet.Phi()<<","<<tlv_secondBjet.E()<<","<<bjet2_JER<<endl;
 				  cout<<"MET"<<endl;
-				  cout<<"(Px,Py) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+				  cout<<"(Px,Py) "<<","<<tlv_MET.Px()<<","<<tlv_MET.Py()<<endl;
 				  cout<<"METCOV "<<endl;
 				  cout<<metcov(0,0)<<"  "<<metcov(0,1)<<endl;
 				  cout<<metcov(1,0)<<"  "<<metcov(1,1)<<endl;
@@ -4531,7 +4489,7 @@ int main (int argc, char** argv)
 				  cout<<"INVME B2"<<endl;
 				  cout<<"INVME (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
 				  cout<<"INVME MET"<<endl;
-				  cout<<"INVME (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+				  cout<<"INVME (E,Px,Py,Pz,M) "<<","<<tlv_MET.Px()<<","<<tlv_MET.Py()<<endl;
 				  cout<<"INVME METCOV "<<endl;
 				  cout<<"INVME "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
 				  cout<<"INVME "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
@@ -4559,7 +4517,7 @@ int main (int argc, char** argv)
 				  cout<<"ERANGE B2"<<endl;
 				  cout<<"ERANGE (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
 				  cout<<"ERANGE MET"<<endl;
-				  cout<<"ERANGE (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+				  cout<<"ERANGE (E,Px,Py,Pz,M) "<<","<<tlv_MET.Px()<<","<<tlv_MET.Py()<<endl;
 				  cout<<"ERANGE METCOV "<<endl;
 				  cout<<"ERANGE "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
 				  cout<<"ERANGE "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
@@ -4587,7 +4545,7 @@ int main (int argc, char** argv)
 				  cout<<"ECON B2"<<endl;
 				  cout<<"ECON (E,Px,Py,Pz,M) "<<tlv_secondBjet.E()<<","<<tlv_secondBjet.Px()<<","<<tlv_secondBjet.Py()<<","<<tlv_secondBjet.Pz()<<","<<tlv_secondBjet.M()<<endl;
 				  cout<<"ECON MET"<<endl;
-				  cout<<"ECON (E,Px,Py,Pz,M) "<<","<<ptmiss.Px()<<","<<ptmiss.Py()<<endl;
+				  cout<<"ECON (E,Px,Py,Pz,M) "<<","<<tlv_MET.Px()<<","<<tlv_MET.Py()<<endl;
 				  cout<<"ECON METCOV "<<endl;
 				  cout<<"ECON "<<metcov (0,0)<<"  "<<metcov (0,1)<<endl;// = theBigTree.MET_cov00->at (chosenTauPair) ;
 				  cout<<"ECON "<<metcov (1,0)<<"  "<<metcov (1,1)<<endl;// = theBigTree.MET_cov10->at (chosenTauPair) ;
@@ -4692,7 +4650,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_HH_deltaPhi		 = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
 		  theSmallTree.m_HH_deltaEta		 = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
 		  theSmallTree.m_HHsvfit_deltaPhi	 = deltaPhi (tlv_bH.Phi (), tlv_tauH_SVFIT.Phi ()) ;
-		  theSmallTree.m_bHMet_deltaPhi		 = deltaPhi (vMET.Phi(), tlv_bH.Phi ()) ;
+		  theSmallTree.m_bHMet_deltaPhi		 = deltaPhi (tlv_MET.Phi(), tlv_bH.Phi ()) ;
 		  theSmallTree.m_dib_deltaPhi		 = deltaPhi (tlv_firstBjet.Phi (), tlv_secondBjet.Phi ()) ;
 		  theSmallTree.m_dib_deltaEta		 = fabs(tlv_firstBjet.Eta()-tlv_secondBjet.Eta ()) ;
 		  theSmallTree.m_dib_deltaR			 = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
