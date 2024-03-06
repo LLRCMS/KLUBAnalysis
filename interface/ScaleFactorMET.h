@@ -37,6 +37,7 @@ private:
   void mCheckChannel(std::string);
   double mErrorQuadSumSquared(double, std::string, std::string, std::string);
   double mErrorRatio(double, std::string, std::string);
+  double mImposeBounds(double);
 };
 
 #endif

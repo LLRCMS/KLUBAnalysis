@@ -125,18 +125,15 @@ double ScaleFactorMET::mErrorRatio(double x, std::string period, std::string chn
   double d; // denominator
 
   if (x > mRange.second) {
-	n = funcData[period][chn]->Eval(mRange.second);
-	d = funcMC[period][chn]->Eval(mRange.second);
+	x = mRange.second;
   }
   else if (x < mRange.first) {
-	n = funcData[period][chn]->Eval(mRange.first);
-	d = funcMC[period][chn]->Eval(mRange.first);
-  }
-  else {
-	n = funcData[period][chn]->Eval(x);
-	d = funcMC[period][chn]->Eval(x);
+	x = mRange.first;
   }
   
+  n = funcData[period][chn]->Eval(x);
+  d = funcMC[period][chn]->Eval(x);
+
   double en2 = mErrorQuadSumSquared(x, period, chn, "Data"); // numerator
   double ed2 = mErrorQuadSumSquared(x, period, chn, "MC");   // denominator
   double eratio2 = en2/(n*n) + ed2/(d*d);
@@ -153,23 +150,27 @@ double ScaleFactorMET::getSF(double metnomu, std::string period, std::string chn
 {
   mCheckPeriod(period);
   mCheckChannel(chn);
-  double sf;
-  if (metnomu > mRange.second) {
-	sf = funcSF[period][chn]->Eval(mRange.second);
-  }
-  else if (metnomu < mRange.first) {
-	sf = funcSF[period][chn]->Eval(mRange.first);
-  }
-  else {
-	sf = funcSF[period][chn]->Eval(metnomu);
-  }
-  return sf;
+
+  metnomu = mImposeBounds(metnomu);
+  return funcSF[period][chn]->Eval(metnomu);
 }
 
 double ScaleFactorMET::getSFError(double metnomu, std::string period, std::string chn)
 {
   mCheckPeriod(period);
   mCheckChannel(chn);
-  double err = mErrorRatio(metnomu, period, chn);
-  return err/2.; //equal up and down variations
+
+  metnomu = mImposeBounds(metnomu);
+  return mErrorRatio(metnomu, period, chn); //equal up and down variations
+}
+
+double ScaleFactorMET::mImposeBounds(double x)
+{
+  if (x > mRange.second) {
+	x = mRange.second;
+  }
+  else if (x < mRange.first) {
+	x = mRange.first;
+  }
+  return x;
 }
