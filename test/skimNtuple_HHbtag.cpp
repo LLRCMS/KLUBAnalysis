@@ -170,6 +170,69 @@ void setScaleFactor(std::map<std::string, std::vector<float>>& result_, const st
 }
 
 
+// Legacy triggers take precedence over Single-Tau and MET triggers
+std::unordered_map<std::string,bool> assignTriggerRegions(int ptype, std::string period,
+														  float pt1, float pt2, float eta1, float eta2,
+														  float eleEtaMax, float muEtaMax, float tau_thresh)
+{
+  bool Legacy_region    = false;
+  bool SingleTau_region = false;
+  bool MET_region       = false;
+  
+  if (ptype == 0) { //mutau
+	bool SingleLepton_validity = false;
+	bool CrossLepton_validity  = false;
+	bool SingleTau_validity    = false;
+	
+	if(period=="2018") {
+	  SingleLepton_validity = pt1 >= 26. and eta1 < muEtaMax;
+	  CrossLepton_validity	= pt1 >= 22. and eta1 < 2.1 and pt2 >= 32. and eta2 < 2.1;
+	  SingleTau_validity	= pt2 >= tau_thresh and eta2 < 2.1;
+	}
+	else if(period=="2017") {
+	  SingleLepton_validity = pt1 >= 29. and eta1 < muEtaMax;
+	  CrossLepton_validity	= pt1 >= 22. and eta1 < 2.1 and pt2 >= 32. and eta2 < 2.1;
+	  SingleTau_validity	= pt2 >= tau_thresh and eta2 < 2.1;
+	}
+	else if (period=="2016preVFP" or period=="2016postVFP") {
+	  SingleLepton_validity = pt1 >= 26. and eta1 < muEtaMax;
+	  CrossLepton_validity	= pt1 >= 21. and eta1 < 2.1 and pt2 >= 25. and eta2 < 2.1;
+	  SingleTau_validity	= pt2 >= tau_thresh and eta2 < 2.1;
+	}
+
+	Legacy_region = SingleLepton_validity or CrossLepton_validity;
+	SingleTau_region = SingleTau_validity and !Legacy_region;
+  }
+
+  else if (ptype == 1) { //etau
+	if(period=="2018" or period=="2017") {
+	  bool SingleLepton_validity = pt1 >= 33. and eta1 < eleEtaMax;
+	  bool CrossLepton_validity  = pt1 >= 25. and eta1 < 2.1 and pt2 >= 35. and eta2 < 2.1;
+	  bool SingleTau_validity    = pt2 >= tau_thresh and eta2 < 2.1;
+
+	  Legacy_region = SingleLepton_validity or CrossLepton_validity;
+	  SingleTau_region = SingleTau_validity and !Legacy_region;
+	}
+	else if (period=="2016preVFP" or period=="2016postVFP") {
+	  Legacy_region    = pt1 >= 26. and eta1 < 2.1;
+	  SingleTau_region = pt2 >= tau_thresh and !Legacy_region;
+	}
+  }
+
+  else if (ptype == 2) { //tautau
+	Legacy_region = pt1 >= 40. and pt2 >= 40. and eta1 < 2.1 and eta2 < 2.1;
+	SingleTau_region = (((pt1 >= tau_thresh and eta1 < 2.1) or (pt2 >= tau_thresh and eta2 < 2.1))
+						and !Legacy_region);
+  }
+
+  MET_region = !Legacy_region and !SingleTau_region;
+  std::unordered_map<std::string, bool> ret{
+	{"legacy", Legacy_region},
+	{"tau", SingleTau_region},
+	{"met", MET_region}
+  };
+  return ret;
+}
 
 int main (int argc, char** argv)
 {
@@ -2062,11 +2125,8 @@ int main (int argc, char** argv)
 		{"2017",        std::make_pair(1.08, 0.10)},
 		{"2018",        std::make_pair(0.87, 0.11)}};
 
-	  std::unordered_map<std::string, unsigned> MET_chn_map = {{"etau", 1},
-															   {"mutau", 0},
-															   {"tautau", 2}};
-	  bool MET_region = false;
-	  bool SingleTau_region = false;
+	  std::unordered_map<std::string,bool> trgRegions;
+	  
 	  if (applyTriggers)
 		{
 		  Long64_t triggerbit = theBigTree.triggerbit;
@@ -2187,51 +2247,20 @@ int main (int argc, char** argv)
 			  }
 			}
 
-		  if (pairType == 0) { //mutau
-			if(PERIOD=="2018") {
-			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 32.) or
-							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() < tau_thresh));
-			  SingleTau_region = tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() >= tau_thresh;
-			}
-			else if(PERIOD=="2017") {
-			  MET_region = ((tlv_firstLepton.Pt() < 28. and tlv_secondLepton.Pt() < 32.) or
-							(tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() < tau_thresh));
-			  SingleTau_region = tlv_firstLepton.Pt() < 21. and tlv_secondLepton.Pt() >= tau_thresh;
-			}
-			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = ((tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < 25.) or
-							(tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() < tau_thresh));
-			  SingleTau_region = tlv_firstLepton.Pt() < 20. and tlv_secondLepton.Pt() >= tau_thresh;
-			}
-		  }
+		  trgRegions = assignTriggerRegions(pairType, PERIOD,
+											tlv_firstLepton.Pt(), tlv_secondLepton.Pt(),
+											fabs(tlv_firstLepton.Eta()), fabs(tlv_secondLepton.Eta()),
+											eleEtaMax, muEtaMax, tau_thresh);
 
-		  else if (pairType == 1) { //etau
-			if(PERIOD=="2018" or PERIOD=="2017") {
-			  MET_region = ((tlv_firstLepton.Pt() < 33. and tlv_secondLepton.Pt() < 35.) or
-							(tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < tau_thresh));
-			  SingleTau_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() >= tau_thresh;
-			}
-			else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-			  MET_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() < tau_thresh;
-			  SingleTau_region = tlv_firstLepton.Pt() < 25. and tlv_secondLepton.Pt() >= tau_thresh;
-			}
-		  }
-
-		  else if (pairType == 2) { //tautau
-			MET_region       = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() < tau_thresh) or
-								(tlv_firstLepton.Pt() < tau_thresh and tlv_secondLepton.Pt() < 40));
-			SingleTau_region = ((tlv_firstLepton.Pt() < 40 and tlv_secondLepton.Pt() >= tau_thresh) or
-								(tlv_firstLepton.Pt() >= tau_thresh and tlv_secondLepton.Pt() < 40));
-		  }
-
-		  bool metAccept = passMETTrgNoThresh and !passTrg and MET_region; //!passTrg should be redundant wrt to the region cut
-		  bool singletauAccept = passSingleTau and !passTrg and SingleTau_region; //!passTrg should be redundant wrt to the region cut
+		  bool legacyAccept    = passTrg            and trgRegions["legacy"];
+		  bool metAccept       = passMETTrgNoThresh and trgRegions["met"]; 
+		  bool singletauAccept = passSingleTau      and trgRegions["tau"];
 		  if (!isMC) {
-			passTrg = passTrg and !isMETDataset;
-			metAccept = metAccept and isMETDataset;
+			legacyAccept    = legacyAccept    and !isMETDataset;
+			metAccept       = metAccept       and isMETDataset;
 			singletauAccept = singletauAccept and !isMETDataset;
 		  }
-		  bool triggerAccept = passTrg or metAccept or singletauAccept;
+		  bool triggerAccept = legacyAccept or metAccept or singletauAccept;
 	  
 		  if(DEBUG)
 			{
@@ -3195,14 +3224,14 @@ int main (int argc, char** argv)
 		  // MuTau Channel
 		  if (pType == 0 and isMC)
 			{
-			  if (MET_region)
+			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
 				}
 
-			  else if (SingleTau_region)
+			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
@@ -3210,7 +3239,7 @@ int main (int argc, char** argv)
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if(fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region and !SingleTau_region) 
+			  else if (trgRegions["legacy"]) 
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3332,14 +3361,14 @@ int main (int argc, char** argv)
 		  // EleTau Channel
 		  else if (pType == 1 and isMC)
 			{
-			  if (MET_region)
+			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
 				}
 
-			  else if (SingleTau_region)
+			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
@@ -3347,8 +3376,7 @@ int main (int argc, char** argv)
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and
-					  fabs(tlv_secondLepton.Eta()) < 2.1 and !MET_region and !SingleTau_region)
+			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and trgRegions["legacy"])
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3449,6 +3477,8 @@ int main (int argc, char** argv)
 
 			  else //eta region covered only by single lepton trigger
 				{
+				  assert (trgRegions["legacy"]);
+				  
 				  double SF = 1.;
 				  double SF_Err = 1.;
 				  // dirty trick to deal with bad efficiency values in a (very) low-stat bins
@@ -3473,14 +3503,14 @@ int main (int argc, char** argv)
 		  // TauTau Channel
 		  else if (pType == 2 and isMC)
 			{
-			  if (MET_region)
+			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "tautau");
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
 				}
 
-			  else if (SingleTau_region)
+			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
@@ -3489,6 +3519,8 @@ int main (int argc, char** argv)
 
 			  // DiTau region
 			  else {
+				assert (trgRegions["legacy"]);
+
 				// last entry is uncertainty: 0 central, +1 up, -1 down
 				double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0);
 				double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0);
