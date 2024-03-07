@@ -979,7 +979,6 @@ struct smallTree
       m_HH_zV  = -999.;
       m_HH_A = -999.;
 
-      m_BDT_channel                   = -9. ;
       m_tauH_MET_pt                   = -9. ;
       m_dau2_MET_deltaEta             = -9. ;
       m_bH_MET_deltaEta               = -9. ;
@@ -991,32 +990,6 @@ struct smallTree
       m_mT_tauH_MET                   = -9. ;
       m_mT_tauH_SVFIT_MET             = -9. ;
       m_mT_total                      = -9. ;
-      m_BDT_ditau_deltaPhi            = -9. ;
-      m_BDT_dib_abs_deltaPhi          = -9. ;
-      m_BDT_dib_deltaPhi              = -9. ;
-      m_BDT_dau1MET_deltaPhi          = -9. ;
-      m_BDT_tauHsvfitMet_abs_deltaPhi = -9. ;
-      m_BDT_tauHsvfitMet_deltaPhi     = -9. ;
-      m_BDT_bHMet_deltaPhi            = -9. ;
-      m_BDT_HHsvfit_abs_deltaPhi      = -9. ;
-      m_BDT_HT20                      = 0. ;
-      m_BDT_HT20_jetdown.clear();
-      m_BDT_HT20_jetup.clear();
-      m_BDT_HT20_jetdownTot           = 0. ;
-      m_BDT_HT20_jetupTot             = 0. ;
-      m_BDT_topPairMasses             = -999. ;
-      m_BDT_topPairMasses2            = -999. ;
-      m_BDT_MX                        = -999. ;
-      m_BDT_bH_tauH_MET_InvMass       = -999. ;
-      m_BDT_bH_tauH_SVFIT_InvMass     = -999. ;
-      m_BDT_bH_tauH_InvMass           = -999. ;
-      m_BDT_total_CalcPhi             = -9. ;
-      m_BDT_ditau_CalcPhi             = -9. ;
-      m_BDT_dib_CalcPhi               = -9. ;
-      m_BDT_MET_tauH_SVFIT_cosTheta   = -9. ;
-      m_BDT_MET_bH_cosTheta           = -9. ;
-      m_BDT_b1_bH_cosTheta            = -9. ;
-      m_BDT_tauH_SVFIT_reson_cosTheta = -9. ;
 
       // 4 variables for VBF BDT
       m_VBFjj_dEtaSign   = -99.;
@@ -2012,7 +1985,6 @@ struct smallTree
       m_smallT->Branch ("HH_A",&m_HH_A, "HH_A/F") ;
 
       // For Angela's BDT
-      m_smallT->Branch ("BDT_channel",                    &m_BDT_channel                   , "BDT_channel/F");
       m_smallT->Branch ("tauH_MET_pt",                    &m_tauH_MET_pt                   , "tauH_MET_pt/F");
       m_smallT->Branch ("dau2_MET_deltaEta",              &m_dau2_MET_deltaEta             , "dau2_MET_deltaEta/F");
       m_smallT->Branch ("bH_MET_deltaEta",                &m_bH_MET_deltaEta               , "bH_MET_deltaEta/F");
@@ -2024,32 +1996,6 @@ struct smallTree
       m_smallT->Branch ("mT_tauH_MET",                    &m_mT_tauH_MET                   , "mT_tauH_MET/F");
       m_smallT->Branch ("mT_tauH_SVFIT_MET",              &m_mT_tauH_SVFIT_MET             , "mT_tauH_SVFIT_MET/F");
       m_smallT->Branch ("mT_total",                       &m_mT_total                      , "mT_total/F");
-      m_smallT->Branch ("BDT_ditau_deltaPhi",             &m_BDT_ditau_deltaPhi            , "m_BDT_ditau_deltaPhi/F");
-      m_smallT->Branch ("BDT_dib_abs_deltaPhi",           &m_BDT_dib_abs_deltaPhi          , "BDT_dib_abs_deltaPhi/F");
-      m_smallT->Branch ("BDT_dib_deltaPhi",               &m_BDT_dib_deltaPhi              , "BDT_dib_deltaPhi/F");
-      m_smallT->Branch ("BDT_dau1MET_deltaPhi",           &m_BDT_dau1MET_deltaPhi          , "BDT_dau1MET_deltaPhi/F");
-      m_smallT->Branch ("BDT_tauHsvfitMet_abs_deltaPhi",  &m_BDT_tauHsvfitMet_abs_deltaPhi , "BDT_tauHsvfitMet_abs_deltaPhi/F");
-      m_smallT->Branch ("BDT_tauHsvfitMet_deltaPhi",      &m_BDT_tauHsvfitMet_deltaPhi     , "BDT_tauHsvfitMet_deltaPhi/F");
-      m_smallT->Branch ("BDT_bHMet_deltaPhi",             &m_BDT_bHMet_deltaPhi            , "BDT_bHMet_deltaPhi/F");
-      m_smallT->Branch ("BDT_HHsvfit_abs_deltaPhi",       &m_BDT_HHsvfit_abs_deltaPhi      , "BDT_HHsvfit_abs_deltaPhi/F");
-      m_smallT->Branch ("BDT_HT20",                       &m_BDT_HT20                      , "BDT_HT20/F");
-      m_smallT->Branch ("BDT_HT20_jetup",                 &m_BDT_HT20_jetup);
-      m_smallT->Branch ("BDT_HT20_jetdown",               &m_BDT_HT20_jetdown);
-      m_smallT->Branch ("BDT_HT20_jetupTot",              &m_BDT_HT20_jetupTot             , "BDT_HT20_jetupTot/F");
-      m_smallT->Branch ("BDT_HT20_jetdownTot",            &m_BDT_HT20_jetdownTot           , "BDT_HT20_jetdownTot/F");
-      m_smallT->Branch ("BDT_topPairMasses",              &m_BDT_topPairMasses             , "BDT_topPairMasses/F");
-      m_smallT->Branch ("BDT_topPairMasses2",             &m_BDT_topPairMasses2            , "BDT_topPairMasses2/F");
-      m_smallT->Branch ("BDT_MX",                         &m_BDT_MX                        , "BDT_MX/F");
-      m_smallT->Branch ("BDT_bH_tauH_MET_InvMass",        &m_BDT_bH_tauH_MET_InvMass       , "BDT_bH_tauH_MET_InvMass/F");
-      m_smallT->Branch ("BDT_bH_tauH_SVFIT_InvMass",      &m_BDT_bH_tauH_SVFIT_InvMass     , "BDT_bH_tauH_SVFIT_InvMass/F");
-      m_smallT->Branch ("BDT_bH_tauH_InvMass",            &m_BDT_bH_tauH_InvMass           , "BDT_bH_tauH_InvMass/F");
-      m_smallT->Branch ("BDT_total_CalcPhi",              &m_BDT_total_CalcPhi             , "BDT_total_CalcPhi/F");
-      m_smallT->Branch ("BDT_ditau_CalcPhi",              &m_BDT_ditau_CalcPhi             , "BDT_ditau_CalcPhi/F");
-      m_smallT->Branch ("BDT_dib_CalcPhi",                &m_BDT_dib_CalcPhi               , "BDT_dib_CalcPhi/F");
-      m_smallT->Branch ("BDT_MET_tauH_SVFIT_cosTheta",    &m_BDT_MET_tauH_SVFIT_cosTheta   , "BDT_MET_tauH_SVFIT_cosTheta/F");
-      m_smallT->Branch ("BDT_MET_bH_cosTheta",            &m_BDT_MET_bH_cosTheta           , "BDT_MET_bH_cosTheta/F");
-      m_smallT->Branch ("BDT_b1_bH_cosTheta",             &m_BDT_b1_bH_cosTheta            , "BDT_b1_bH_cosTheta/F");
-      m_smallT->Branch ("BDT_tauH_SVFIT_reson_cosTheta",  &m_BDT_tauH_SVFIT_reson_cosTheta , "BDT_tauH_SVFIT_reson_cosTheta/F");
 
       m_smallT->Branch ("VBFjj_dEtaSign",   &m_VBFjj_dEtaSign   , "VBFjj_dEtaSign/F");
       m_smallT->Branch ("VBFjet2_PUjetID",  &m_VBFjet2_PUjetID  , "VBFjet2_PUjetID/F");
@@ -3038,7 +2984,6 @@ struct smallTree
   Float_t m_HH_A;
 
   // Angela's BDT missing variables
-  Float_t m_BDT_channel; //
   Float_t m_tauH_MET_pt; //
   Float_t m_dau2_MET_deltaEta; //
   Float_t m_bH_MET_deltaEta; //
@@ -3050,32 +2995,6 @@ struct smallTree
   Float_t m_mT_tauH_MET; //
   Float_t m_mT_tauH_SVFIT_MET; //
   Float_t m_mT_total; //
-  Float_t m_BDT_ditau_deltaPhi; //
-  Float_t m_BDT_dib_abs_deltaPhi; //
-  Float_t m_BDT_dib_deltaPhi; //
-  Float_t m_BDT_dau1MET_deltaPhi; //
-  Float_t m_BDT_tauHsvfitMet_abs_deltaPhi; //
-  Float_t m_BDT_tauHsvfitMet_deltaPhi; //
-  Float_t m_BDT_bHMet_deltaPhi; //
-  Float_t m_BDT_HHsvfit_abs_deltaPhi; //
-  Float_t m_BDT_HT20; //
-  std::vector <Float_t> m_BDT_HT20_jetup; //
-  std::vector <Float_t> m_BDT_HT20_jetdown; //
-  Float_t m_BDT_HT20_jetupTot; //
-  Float_t m_BDT_HT20_jetdownTot; //
-  Float_t m_BDT_topPairMasses; //
-  Float_t m_BDT_topPairMasses2; //
-  Float_t m_BDT_MX; //
-  Float_t m_BDT_bH_tauH_MET_InvMass; //
-  Float_t m_BDT_bH_tauH_SVFIT_InvMass; //
-  Float_t m_BDT_bH_tauH_InvMass; //
-  Float_t m_BDT_total_CalcPhi; //
-  Float_t m_BDT_ditau_CalcPhi; //
-  Float_t m_BDT_dib_CalcPhi; //
-  Float_t m_BDT_MET_tauH_SVFIT_cosTheta; //
-  Float_t m_BDT_MET_bH_cosTheta; //
-  Float_t m_BDT_b1_bH_cosTheta; //
-  Float_t m_BDT_tauH_SVFIT_reson_cosTheta; //
 
   // 4 variables for VBF BDT
   Float_t m_VBFjj_dEtaSign   ;

@@ -2442,11 +2442,6 @@ int main (int argc, char** argv)
 		}
 
 	  theSmallTree.m_pairType    = pType ;
-	  // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
-	  if      (theSmallTree.m_pairType == 0) theSmallTree.m_BDT_channel = 1.;
-	  else if (theSmallTree.m_pairType == 1) theSmallTree.m_BDT_channel = 0.;
-	  else if (theSmallTree.m_pairType == 2) theSmallTree.m_BDT_channel = 2.;
-
 
 	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
 		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) : 1) ;
@@ -2543,12 +2538,7 @@ int main (int argc, char** argv)
 	  if (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0))
 		{
 		  theSmallTree.m_mT_tauH_SVFIT_MET             = Calculate_MT(tlv_tauH_SVFIT, tlv_MET);
-		  theSmallTree.m_BDT_tauHsvfitMet_abs_deltaPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(tlv_tauH_SVFIT, tlv_MET));
-		  theSmallTree.m_BDT_tauHsvfitMet_deltaPhi     = ROOT::Math::VectorUtil::DeltaPhi(tlv_tauH_SVFIT, tlv_MET);
 		}
-
-	  theSmallTree.m_BDT_ditau_deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(tlv_firstLepton, tlv_secondLepton);
-	  theSmallTree.m_BDT_dau1MET_deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(tlv_firstLepton, tlv_MET);
 
 	  theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
 	  theSmallTree.m_dau1_eleMVAiso = theBigTree.daughters_iseleWP80->at(firstDaughterIndex) ? 1 : 0;
@@ -3835,8 +3825,14 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bTagweightReshape_jetdown10	 = bTagWeightReshapeshifts.at(38);
 		  theSmallTree.m_bTagweightReshape_jetdown11	 = bTagWeightReshapeshifts.at(39);
 			  
+		  // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
+		  int HHbTag_chn = -9.;
+		  if      (theSmallTree.m_pairType == 0) HHbTag_chn = 1.;
+		  else if (theSmallTree.m_pairType == 1) HHbTag_chn = 0.;
+		  else if (theSmallTree.m_pairType == 2) HHbTag_chn = 2.;
+
 		  // Set HHbtaginterface for ordering jets
-		  HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, theSmallTree.m_BDT_channel,
+		  HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, HHbTag_chn,
 									  tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, smears_AK4);
 
 		  // Get HHbtag scores in a map <jet_idx, HHbtag_score>
@@ -4227,11 +4223,8 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bjet1_hasgenjet = hasgj1;
 		  theSmallTree.m_bjet2_hasgenjet = hasgj2;
 
-		  // Save HT_20, HT_50 and HT_20_BDT(with cut on |eta|<4.7)
+		  // Save HT_20 and HT_50 (with cut on |eta|<4.7)
 		  TLorentzVector jetVecSum (0,0,0,0);
-		  vector <Float_t> BDT_HT20_jetup(N_jecSources);
-		  vector <Float_t> BDT_HT20_jetdown(N_jecSources);
-		  if (DEBUG) cout << "----- BDT HT debug ------" << endl;
 		  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
 			{
 			  // JET PF ID cut
@@ -4265,28 +4258,6 @@ int main (int argc, char** argv)
 				  jetVecSum += tlv_jet ;
 				}
 
-			  if (TMath::Abs(tlv_jet.Eta()) < 4.7)
-				{
-				  if (tlv_jet.Pt () > 20) theSmallTree.m_BDT_HT20 += tlv_jet.Pt();
-				  if (DEBUG) cout << " ---> Jet " << iJet << " - pt: " << tlv_jet.Pt() << " - HT: " << theSmallTree.m_BDT_HT20 << endl;
-
-				  pair <vector <double>, vector<double>> unc_updown = JECprovider.getJECUncVectors(iJet, theBigTree);
-
-				  // JES total shift
-				  TLorentzVector tlv_jetupTot   = getShiftedJet(tlv_jet, +1., unc_updown.first[N_jecSources]);
-				  TLorentzVector tlv_jetdownTot = getShiftedJet(tlv_jet, -1., unc_updown.first[N_jecSources]);
-				  if (tlv_jetupTot.Pt()   > 20) theSmallTree.m_BDT_HT20_jetupTot += tlv_jetupTot.Pt();
-				  if (tlv_jetdownTot.Pt() > 20) theSmallTree.m_BDT_HT20_jetdownTot += tlv_jetdownTot.Pt();
-
-				  // build shifted jet
-				  for (int isource = 0; isource < N_jecSources; isource++)
-					{
-					  TLorentzVector tlv_jetup   = getShiftedJet(tlv_jet, +1., unc_updown.first[isource]);
-					  TLorentzVector tlv_jetdown = getShiftedJet(tlv_jet, -1., unc_updown.second[isource]);
-					  if (tlv_jetup.Pt () > 20)   BDT_HT20_jetup[isource]   += tlv_jetup.Pt();
-					  if (tlv_jetdown.Pt () > 20) BDT_HT20_jetdown[isource] += tlv_jetdown.Pt();
-					}
-				}
 			  if (tlv_jet.Pt () > 50)
 				{
 				  ++theSmallTree.m_njets50 ;
@@ -4295,10 +4266,6 @@ int main (int argc, char** argv)
 			}
 		  theSmallTree.m_HT20Full = theSmallTree.m_HT20 + tlv_firstLepton.Pt() + tlv_secondLepton.Pt() ;
 		  theSmallTree.m_jet20centrality = jetVecSum.Pt() / theSmallTree.m_HT20Full ;
-		  theSmallTree.m_BDT_HT20_jetup   = BDT_HT20_jetup;
-		  theSmallTree.m_BDT_HT20_jetdown = BDT_HT20_jetdown;
-		  if (DEBUG) cout << "  HT = " << theSmallTree.m_BDT_HT20 << endl;
-		  if (DEBUG) cout << "---------------------" << endl;
 
 		  TLorentzVector tlv_bH(tlv_firstBjet + tlv_secondBjet);
 		  TLorentzVector tlv_neutrinos(tlv_bH - tlv_bH_raw);
@@ -4405,14 +4372,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bH_MET_deltaEta    = std::abs(tlv_bH.Eta()); // since MET.Eta()==0 by definition, dEta(bH,MET)=|bH.Eta()|
 		  theSmallTree.m_bH_MET_deltaR      = tlv_bH.DeltaR(tlv_MET);
 		  theSmallTree.m_bH_tauH_MET_deltaR = tlv_bH.DeltaR(tlv_tauH + tlv_MET);
-		  theSmallTree.m_BDT_bHMet_deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(tlv_bH, tlv_MET);
-		  theSmallTree.m_BDT_topPairMasses   = Calculate_topPairMasses(getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_MET)).first;
-		  theSmallTree.m_BDT_topPairMasses2  = Calculate_topPairMasses(getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_MET)).second;
-		  theSmallTree.m_BDT_MX             = Calculate_MX(tlv_firstLepton, tlv_secondLepton, tlv_firstBjet, tlv_secondBjet, tlv_MET);
-		  theSmallTree.m_BDT_bH_tauH_MET_InvMass = ROOT::Math::VectorUtil::InvariantMass(tlv_bH, tlv_tauH + tlv_MET);
-		  theSmallTree.m_BDT_bH_tauH_InvMass     = ROOT::Math::VectorUtil::InvariantMass(tlv_bH, tlv_tauH);
-		  theSmallTree.m_BDT_MET_bH_cosTheta = Calculate_cosTheta_2bodies(getLVfromTLV(tlv_MET), getLVfromTLV(tlv_bH));
-		  theSmallTree.m_BDT_b1_bH_cosTheta  = Calculate_cosTheta_2bodies(getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_bH));
 
 		  TLorentzVector tlv_HH(tlv_bH + tlv_tauH);
 		  TLorentzVector tlv_HH_raw(tlv_bH_raw + tlv_tauH);
@@ -4433,14 +4392,6 @@ int main (int argc, char** argv)
 			  theSmallTree.m_HHsvfit_phi  = tlv_HHsvfit.Phi () ;
 			  theSmallTree.m_HHsvfit_e    = tlv_HHsvfit.E () ;
 			  theSmallTree.m_HHsvfit_mass = tlv_HHsvfit.M () ;
-
-			  theSmallTree.m_BDT_HHsvfit_abs_deltaPhi  = fabs(ROOT::Math::VectorUtil::DeltaPhi(tlv_bH, tlv_tauH_SVFIT));
-			  theSmallTree.m_BDT_bH_tauH_SVFIT_InvMass = ROOT::Math::VectorUtil::InvariantMass(tlv_bH, tlv_tauH_SVFIT);
-			  theSmallTree.m_BDT_total_CalcPhi = Calculate_phi (getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_tauH_SVFIT), getLVfromTLV(tlv_bH));
-			  theSmallTree.m_BDT_ditau_CalcPhi = Calculate_phi1(getLVfromTLV(tlv_firstLepton), getLVfromTLV(tlv_secondLepton), getLVfromTLV(tlv_tauH_SVFIT), getLVfromTLV(tlv_bH));
-			  theSmallTree.m_BDT_dib_CalcPhi   = Calculate_phi1(getLVfromTLV(tlv_firstBjet), getLVfromTLV(tlv_secondBjet), getLVfromTLV(tlv_tauH_SVFIT), getLVfromTLV(tlv_bH));
-			  theSmallTree.m_BDT_MET_tauH_SVFIT_cosTheta   = Calculate_cosTheta_2bodies(getLVfromTLV(tlv_MET), getLVfromTLV(tlv_tauH_SVFIT));
-			  theSmallTree.m_BDT_tauH_SVFIT_reson_cosTheta = Calculate_cosTheta_2bodies(getLVfromTLV(tlv_tauH_SVFIT), getLVfromTLV((tlv_firstLepton+tlv_secondLepton+tlv_firstBjet+tlv_secondBjet+tlv_MET)) );
 			} // in case the SVFIT mass is calculated
 
 		  // compute HHKinFit -- ask a reasonable mass window to suppress most error messages
@@ -4656,9 +4607,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_dib_deltaR			 = tlv_firstBjet.DeltaR(tlv_secondBjet) ;
 		  theSmallTree.m_dib_deltaR_per_bHpt = theSmallTree.m_dib_deltaR * tlv_bH_raw.Pt();
 		  theSmallTree.m_dib_dEtaSign		 = tlv_firstBjet.Eta() * tlv_secondBjet.Eta(); // VBF BDT
-
-		  theSmallTree.m_BDT_dib_deltaPhi     = ROOT::Math::VectorUtil::DeltaPhi(tlv_firstBjet, tlv_secondBjet);
-		  theSmallTree.m_BDT_dib_abs_deltaPhi = fabs(ROOT::Math::VectorUtil::DeltaPhi(tlv_firstBjet, tlv_secondBjet));
 
 		  vector <float> dRBTau;
 		  dRBTau.push_back (tlv_firstLepton.DeltaR(tlv_firstBjet));
