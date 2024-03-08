@@ -2367,7 +2367,6 @@ int main (int argc, char** argv)
 	  }
 	  //theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
 
-
 	  if (doSmearing)
 		{
 		  // Smear MET
@@ -4344,8 +4343,6 @@ int main (int argc, char** argv)
 		  TLorentzVector tlv_neutrinos(tlv_bH - tlv_bH_raw);
 		  theSmallTree.m_met_et_corr = theBigTree.met - tlv_neutrinos.Et() ;
 
-		  const TMatrixD stableMetCov = metcov;
-
 		  // MET shifted for JES
 		  auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
 		  for (int isource = 0; isource < N_jecSources; isource++){
@@ -4475,6 +4472,7 @@ int main (int argc, char** argv)
 		  //if (runHHKinFit && pairType <= 2 && tlv_bH_raw.M() > 50 && tlv_bH_raw.M() < 200 && theBigTree.SVfitMass->at (chosenTauPair) > 50 && theBigTree.SVfitMass->at (chosenTauPair) < 200) // no kinfit for ee / mumu + very loose mass window
 		  if (runHHKinFit && pairType <= 3) // FIXME: temporary
 			{
+			  const TMatrixD stableMetCov = metcov;
 			  HHKinFit2::HHKinFitMasterHeavyHiggs kinFits = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, vMET, stableMetCov, bjet1_JER, bjet2_JER) ;
 			  HHKinFit2::HHKinFitMasterHeavyHiggs kinFitsraw = HHKinFit2::HHKinFitMasterHeavyHiggs(tlv_firstBjet, tlv_secondBjet, tlv_firstLepton, tlv_secondLepton, vMET, stableMetCov, bjet1_JER, bjet2_JER) ;
 
@@ -5445,11 +5443,9 @@ int main (int argc, char** argv)
 			            
 				  theSmallTree.m_dR_subj1_subj2 = tlv_subj1.DeltaR(tlv_subj2);
 			            
-				  if (A1B2 || A2B1) theSmallTree.m_fatjet_hasMatchedSj = true;  //has two sub-jets matched to the resolved jets
-			            
+				  if (A1B2 || A2B1) theSmallTree.m_fatjet_hasMatchedSj = true;  //has two sub-jets matched to the resolved jets			            
 				}
 
-			  // systematics for AK8 jets
 			  pair<vector<double>, vector<double>> unc_AK8_updown = JECprovider.getJECUncVectors(fjIdx, theBigTree);
 
 			  // Total JES up/down variation for AK8 jets
@@ -5465,6 +5461,7 @@ int main (int argc, char** argv)
 			  theSmallTree.m_fatjet_mass_jetupTot	= tlv_fj_jetupTot.M();
 			  theSmallTree.m_fatjet_mass_jetdownTot = tlv_fj_jetdownTot.M();
 
+			  // reduced set of JEC uncertainties for AK8 jets
 			  vector <TLorentzVector> tlv_fj_jetup  (N_jecSources, tlv_fj);
 			  vector <TLorentzVector> tlv_fj_jetdown(N_jecSources, tlv_fj);
 			  if (isMC) {
@@ -5482,10 +5479,34 @@ int main (int argc, char** argv)
 				  theSmallTree.m_fatjet_mass_jetup.push_back  (tlv_fj_jetup[isource].M())	;
 				  theSmallTree.m_fatjet_mass_jetdown.push_back(tlv_fj_jetdown[isource].M()) ;
 				}
+
+			  theSmallTree.m_fatjet_pt_jetup1  = tlv_fj_jetup[0].Pt();
+			  theSmallTree.m_fatjet_pt_jetup2  = tlv_fj_jetup[1].Pt();
+			  theSmallTree.m_fatjet_pt_jetup3  = tlv_fj_jetup[2].Pt();
+			  theSmallTree.m_fatjet_pt_jetup4  = tlv_fj_jetup[3].Pt();
+			  theSmallTree.m_fatjet_pt_jetup5  = tlv_fj_jetup[4].Pt();
+			  theSmallTree.m_fatjet_pt_jetup6  = tlv_fj_jetup[5].Pt();
+			  theSmallTree.m_fatjet_pt_jetup7  = tlv_fj_jetup[6].Pt();
+			  theSmallTree.m_fatjet_pt_jetup8  = tlv_fj_jetup[7].Pt();
+			  theSmallTree.m_fatjet_pt_jetup9  = tlv_fj_jetup[8].Pt();
+			  theSmallTree.m_fatjet_pt_jetup10 = tlv_fj_jetup[9].Pt();
+			  theSmallTree.m_fatjet_pt_jetup11 = tlv_fj_jetup[10].Pt();
+
+			  theSmallTree.m_fatjet_pt_jetdown1  = tlv_fj_jetdown[0].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown2  = tlv_fj_jetdown[1].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown3  = tlv_fj_jetdown[2].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown4  = tlv_fj_jetdown[3].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown5  = tlv_fj_jetdown[4].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown6  = tlv_fj_jetdown[5].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown7  = tlv_fj_jetdown[6].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown8  = tlv_fj_jetdown[7].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown9  = tlv_fj_jetdown[8].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown10 = tlv_fj_jetdown[9].Pt();
+			  theSmallTree.m_fatjet_pt_jetdown11 = tlv_fj_jetdown[10].Pt();
+
 			} // end if fatjet_bTag not empty 
 		} // end if (theBigTree.ak8jets_px->size() > 0)  (end of the boosted section)
-
-
+  
 	  if (isMC) selectedEvents += theBigTree.aMCatNLOweight ;  //FIXME: probably wrong, but unused up to now
 	  else selectedEvents += 1 ;
 	  ++selectedNoWeightsEventsNum ;

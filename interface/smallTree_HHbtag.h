@@ -780,7 +780,8 @@ struct smallTree
       m_bH_pt_raw_jetdown.clear() ;
       m_bH_mass_raw_jetup.clear() ;
       m_bH_mass_raw_jetdown.clear() ;
-      m_bjet1_pt_raw_jetup1 = - 1.;
+
+	  m_bjet1_pt_raw_jetup1 = - 1.;
       m_bjet1_pt_raw_jetup2 = - 1.;
       m_bjet1_pt_raw_jetup3 = - 1.;
       m_bjet1_pt_raw_jetup4 = - 1.;
@@ -828,6 +829,29 @@ struct smallTree
       m_bjet2_pt_raw_jetdown10 = - 1.;
       m_bjet2_pt_raw_jetdown11 = - 1.;
 
+      m_fatjet_pt_jetup1 = - 1.;
+      m_fatjet_pt_jetup2 = - 1.;
+      m_fatjet_pt_jetup3 = - 1.;
+      m_fatjet_pt_jetup4 = - 1.;
+      m_fatjet_pt_jetup5 = - 1.;
+      m_fatjet_pt_jetup6 = - 1.;
+      m_fatjet_pt_jetup7 = - 1.;
+      m_fatjet_pt_jetup8 = - 1.;
+      m_fatjet_pt_jetup9 = - 1.;
+      m_fatjet_pt_jetup10 = - 1.;
+      m_fatjet_pt_jetup11 = - 1.;
+
+	  m_fatjet_pt_jetdown1 = - 1.;
+      m_fatjet_pt_jetdown2 = - 1.;
+      m_fatjet_pt_jetdown3 = - 1.;
+      m_fatjet_pt_jetdown4 = - 1.;
+      m_fatjet_pt_jetdown5 = - 1.;
+      m_fatjet_pt_jetdown6 = - 1.;
+      m_fatjet_pt_jetdown7 = - 1.;
+      m_fatjet_pt_jetdown8 = - 1.;
+      m_fatjet_pt_jetdown9 = - 1.;
+      m_fatjet_pt_jetdown10 = - 1.;
+      m_fatjet_pt_jetdown11 = - 1.;
 
       m_bH_mass_raw_jetup1 = - 1.;
       m_bH_mass_raw_jetup2 = - 1.;
@@ -1852,7 +1876,6 @@ struct smallTree
       m_smallT->Branch ("bH_pt_raw_jetdown",  &m_bH_pt_raw_jetdown);
       m_smallT->Branch ("bH_mass_raw_jetdown",&m_bH_mass_raw_jetdown);
 
-	  
       m_smallT->Branch ("bjet1_pt_raw_jetup1",   &m_bjet1_pt_raw_jetup1,"bjet1_pt_raw_jetup1/F");
       m_smallT->Branch ("bjet1_pt_raw_jetup2",   &m_bjet1_pt_raw_jetup2,"bjet1_pt_raw_jetup2/F");
       m_smallT->Branch ("bjet1_pt_raw_jetup3",   &m_bjet1_pt_raw_jetup3,"bjet1_pt_raw_jetup3/F");
@@ -1901,6 +1924,29 @@ struct smallTree
       m_smallT->Branch ("bjet2_pt_raw_jetdown10",&m_bjet2_pt_raw_jetdown10,"bjet2_pt_raw_jetdown10/F");
       m_smallT->Branch ("bjet2_pt_raw_jetdown11",&m_bjet2_pt_raw_jetdown11,"bjet2_pt_raw_jetdown11/F");
 
+	  m_smallT->Branch ("fatjet_pt_jetup1", &m_fatjet_pt_jetup1,"fatjet_pt_jetup1/F");
+      m_smallT->Branch ("fatjet_pt_jetup2", &m_fatjet_pt_jetup2,"fatjet_pt_jetup2/F");
+      m_smallT->Branch ("fatjet_pt_jetup3", &m_fatjet_pt_jetup3,"fatjet_pt_jetup3/F");
+      m_smallT->Branch ("fatjet_pt_jetup4", &m_fatjet_pt_jetup4,"fatjet_pt_jetup4/F");
+      m_smallT->Branch ("fatjet_pt_jetup5", &m_fatjet_pt_jetup5,"fatjet_pt_jetup5/F");
+      m_smallT->Branch ("fatjet_pt_jetup6", &m_fatjet_pt_jetup6,"fatjet_pt_jetup6/F");
+      m_smallT->Branch ("fatjet_pt_jetup7", &m_fatjet_pt_jetup7,"fatjet_pt_jetup7/F");
+      m_smallT->Branch ("fatjet_pt_jetup8", &m_fatjet_pt_jetup8,"fatjet_pt_jetup8/F");
+      m_smallT->Branch ("fatjet_pt_jetup9", &m_fatjet_pt_jetup9,"fatjet_pt_jetup9/F");
+      m_smallT->Branch ("fatjet_pt_jetup10",&m_fatjet_pt_jetup10,"fatjet_pt_jetup10/F");
+      m_smallT->Branch ("fatjet_pt_jetup11",&m_fatjet_pt_jetup11,"fatjet_pt_jetup11/F");
+
+	  m_smallT->Branch ("fatjet_pt_jetdown1", &m_fatjet_pt_jetdown1,"fatjet_pt_jetdown1/F");
+      m_smallT->Branch ("fatjet_pt_jetdown2", &m_fatjet_pt_jetdown2,"fatjet_pt_jetdown2/F");
+      m_smallT->Branch ("fatjet_pt_jetdown3", &m_fatjet_pt_jetdown3,"fatjet_pt_jetdown3/F");
+      m_smallT->Branch ("fatjet_pt_jetdown4", &m_fatjet_pt_jetdown4,"fatjet_pt_jetdown4/F");
+      m_smallT->Branch ("fatjet_pt_jetdown5", &m_fatjet_pt_jetdown5,"fatjet_pt_jetdown5/F");
+      m_smallT->Branch ("fatjet_pt_jetdown6", &m_fatjet_pt_jetdown6,"fatjet_pt_jetdown6/F");
+      m_smallT->Branch ("fatjet_pt_jetdown7", &m_fatjet_pt_jetdown7,"fatjet_pt_jetdown7/F");
+      m_smallT->Branch ("fatjet_pt_jetdown8", &m_fatjet_pt_jetdown8,"fatjet_pt_jetdown8/F");
+      m_smallT->Branch ("fatjet_pt_jetdown9", &m_fatjet_pt_jetdown9,"fatjet_pt_jetdown9/F");
+      m_smallT->Branch ("fatjet_pt_jetdown10",&m_fatjet_pt_jetdown10,"fatjet_pt_jetdown10/F");
+      m_smallT->Branch ("fatjet_pt_jetdown11",&m_fatjet_pt_jetdown11,"fatjet_pt_jetdown11/F");
 
       m_smallT->Branch ("bH_mass_raw_jetup1",   &m_bH_mass_raw_jetup1,"bH_mass_raw_jetup1/F");
       m_smallT->Branch ("bH_mass_raw_jetup2",   &m_bH_mass_raw_jetup2,"bH_mass_raw_jetup2/F");
@@ -2971,6 +3017,30 @@ struct smallTree
   Float_t m_bjet2_pt_raw_jetdown9 ;
   Float_t m_bjet2_pt_raw_jetdown10;
   Float_t m_bjet2_pt_raw_jetdown11;
+
+  Float_t m_fatjet_pt_jetup1 ;
+  Float_t m_fatjet_pt_jetup2 ;
+  Float_t m_fatjet_pt_jetup3 ;
+  Float_t m_fatjet_pt_jetup4 ;
+  Float_t m_fatjet_pt_jetup5 ;
+  Float_t m_fatjet_pt_jetup6 ;
+  Float_t m_fatjet_pt_jetup7 ;
+  Float_t m_fatjet_pt_jetup8 ;
+  Float_t m_fatjet_pt_jetup9 ;
+  Float_t m_fatjet_pt_jetup10;
+  Float_t m_fatjet_pt_jetup11;
+
+  Float_t m_fatjet_pt_jetdown1 ;
+  Float_t m_fatjet_pt_jetdown2 ;
+  Float_t m_fatjet_pt_jetdown3 ;
+  Float_t m_fatjet_pt_jetdown4 ;
+  Float_t m_fatjet_pt_jetdown5 ;
+  Float_t m_fatjet_pt_jetdown6 ;
+  Float_t m_fatjet_pt_jetdown7 ;
+  Float_t m_fatjet_pt_jetdown8 ;
+  Float_t m_fatjet_pt_jetdown9 ;
+  Float_t m_fatjet_pt_jetdown10;
+  Float_t m_fatjet_pt_jetdown11;
 
   Float_t m_bH_mass_raw_jetup1 ;
   Float_t m_bH_mass_raw_jetup2 ;
