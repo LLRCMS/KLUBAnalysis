@@ -3825,10 +3825,12 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bTagweightReshape_jetdown11	 = bTagWeightReshapeshifts.at(39);
 			  
 		  // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
-		  int HHbTag_chn = -9.;
-		  if      (theSmallTree.m_pairType == 0) HHbTag_chn = 1.;
-		  else if (theSmallTree.m_pairType == 1) HHbTag_chn = 0.;
-		  else if (theSmallTree.m_pairType == 2) HHbTag_chn = 2.;
+		  int HHbTag_chn = -1;
+		  if      (theSmallTree.m_pairType == 0) HHbTag_chn = 1;
+		  else if (theSmallTree.m_pairType == 1) HHbTag_chn = 0;
+		  else if (theSmallTree.m_pairType == 2) HHbTag_chn = 2;
+		  else if (theSmallTree.m_pairType == 3) HHbTag_chn = 3;
+		  assert(HHbTag_chn <= 3 and HHbTag_chn >= 0);
 
 		  // Set HHbtaginterface for ordering jets
 		  HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, HHbTag_chn,
