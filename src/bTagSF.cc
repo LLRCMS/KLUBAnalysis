@@ -257,91 +257,85 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 
 // the collection jets_and_btag in input contain all the final list of jets, already cleaned from PU and leptons
 // returns a collection of weights according to the tested WP
+// noticed that all jets are taken into account via P_Data and P_MC
 vector<float> bTagSF::getEvtWeight (const std::vector<std::pair<float,int>>& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP)
 {
   if (!m_isMC) {
 	return {{1., 1., 1., 1.}};
   }
   
-  vector<double> P_MC   (3, 1.0); // 0 = L, 1 = M, 2 = T
-  vector<double> P_Data (3, 1.0); // 0 = L, 1 = M, 2 = T
+  vector<double> P_MC   (m_nWP, 1.); // 0 = L, 1 = M, 2 = T
+  vector<double> P_Data (m_nWP, 1.); // 0 = L, 1 = M, 2 = T
   double SFreshaping = 1.;        // reshaping SF
 
   TLorentzVector vJet (0,0,0,0);
 
   for (unsigned int ijet = 0; ijet < jets_and_btag.size(); ijet++)
-  {
-    if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
+	{
+	  if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
 
-    int idx = jets_and_btag[ijet].second;
-    float discr = jets_and_btag[ijet].first;
-    vJet.SetPxPyPzE (theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx),
-					 theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
-    vJet = vJet * jets_and_smearFactor[idx];
+	  int idx = jets_and_btag[ijet].second;
+	  float discr = jets_and_btag[ijet].first;
+	  vJet.SetPxPyPzE (theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx),
+					   theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
+	  vJet = vJet * jets_and_smearFactor[idx];
 
-    int flav = theBigTree.jets_HadronFlavour->at(idx);
-    double SF[3];
-    SF[0] = getSF (loose,  systWP, flav, vJet.Pt(), vJet.Eta());
-    SF[1] = getSF (medium, systWP, flav, vJet.Pt(), vJet.Eta());
-    SF[2] = getSF (tight,  systWP, flav, vJet.Pt(), vJet.Eta());
-    if (systWP == central)
-    {
-      SFreshaping *= getSF (reshaping,  systWP, flav, vJet.Pt(), vJet.Eta(), discr);
-    }
-    if (DEBUG) cout << "  >> DEB: SFs " << SF[0] << " " << SF[1] << " " << SF[2] << " " << SFreshaping << endl;
+	  int flav = theBigTree.jets_HadronFlavour->at(idx);
+	  if (systWP == central)
+		{
+		  SFreshaping *= getSF(reshaping,  systWP, flav, vJet.Pt(), vJet.Eta(), discr);
+		  if (DEBUG) cout << "  >> DEB: SFs " << SFreshaping << endl;
+		}
+    
+	  for (unsigned iwp=0; iwp<m_nWP; iwp++)
+		{
+		  double SF = getSF(static_cast<WP>(iwp), systWP, flav, vJet.Pt(), vJet.Eta());
+		  double effBTag = getEff(static_cast<WP>(iwp), flav, channel, vJet.Pt(), vJet.Eta()) ;
+		  bool tagged = discr > _WPtag[iwp];
+		  if (DEBUG) {
+			cout << "  >> DEB: SFs " << SF << endl;
+			cout << "  >> DEB: EFFs " << effBTag << endl;
+			cout << "  >> DEB: tagged " << tagged << endl;
+		  }
 
-    double effBTag[3];
-    effBTag[0] = getEff (static_cast<WP> (0), flav, channel, vJet.Pt(), vJet.Eta()) ;
-    effBTag[1] = getEff (static_cast<WP> (1), flav, channel, vJet.Pt(), vJet.Eta()) ;
-    effBTag[2] = getEff (static_cast<WP> (2), flav, channel, vJet.Pt(), vJet.Eta()) ;
-    if (DEBUG) cout << "  >> DEB: EFFs " << effBTag[0] << " " << effBTag[1] << " " << effBTag[2] << endl;
+		  double tmpMC   = P_MC[iwp];
+		  double tmpData = P_Data[iwp];
+		
+		  if (tagged)
+			{
+			  tmpMC *= effBTag;
+			  tmpData *= effBTag*SF;
+			}
+		  else
+			{
+			  tmpMC *= (1. - effBTag);
+			  tmpData *= (1. - (effBTag*SF));
+			}
+		
+		  P_MC[iwp] = tmpMC;
+		  P_Data[iwp] = tmpData;
 
-    double CSV = jets_and_btag[ijet].first;
-    bool tagged[3];
-    tagged[0] = (CSV > _WPtag[0]);
-    tagged[1] = (CSV > _WPtag[1]);
-    tagged[2] = (CSV > _WPtag[2]);
-    if (DEBUG) cout << "  >> DEB: tagged " << tagged[0] << " " << tagged[1] << " " << tagged[2] << endl;
-    for (int iWP = 0; iWP < 3; iWP++)
-    {
-      //cout << " ---> WP: " << iWP << endl;
-      double tmpMC   = P_MC.at(iWP);
-      double tmpData = P_Data.at(iWP);
+		  if (P_Data[iwp] / P_MC[iwp] < 0.05) {
+			cout << "effBTag: " << effBTag << endl;
+			cout << "SF: " << SF << endl;
+			cout << "tmpMC: " << tmpMC << endl;
+			cout << "tmpData: " << tmpData << endl;
+		  }
+		}
+	}
 
-      if (tagged[iWP])
-      {
-	tmpMC *= effBTag[iWP];
-	tmpData *= effBTag[iWP]*SF[iWP];
-      }
-      else
-      {
-	tmpMC *= (1. - effBTag[iWP]);
-	tmpData *= (1. - (effBTag[iWP]*SF[iWP]) );
-      }
-
-      P_MC.at(iWP)  = tmpMC;
-      P_Data.at(iWP) = tmpData;
-
-	  if (P_Data.at(iWP) / P_MC.at(iWP) < 0.05) {
-		cout << "effBTag: " << effBTag[iWP] << endl;
-		cout << "SF: " << SF[iWP] << endl;
-		cout << "tmpMC: " << tmpMC << endl;
-		cout << "tmpData: " << tmpData << endl;
-	  }
-    }
+  // return value
+  vector<float> weight(m_nWP+1);
+  for (int iwp = 0; iwp<m_nWP; iwp++) {
+	weight[iwp] = P_Data[iwp] / P_MC[iwp];
   }
-  // return ratio
-  vector<float> weight (4);
-  for (int iWP = 0; iWP < 3; iWP++) {
-	weight.at(iWP) = P_Data.at(iWP) / P_MC.at(iWP);
-  }
-  weight.at(3) = SFreshaping;
+  weight[m_nWP] = SFreshaping;
 
   if (SFreshaping < 0.05)
-  {
-    cout << "------ [Warning] Small B_Tag reshape SF!" << endl;
-	cout << "SF reshaping: " << SFreshaping << endl;
-  }
+	{
+	  cout << "------ [Warning] Small B_Tag reshape SF!" << endl;
+	  cout << "SF reshaping: " << SFreshaping << endl;
+	}
 
   return weight;
 }
@@ -384,7 +378,8 @@ std::vector<float> bTagSF::getEvtWeightShifted (const std::vector<std::pair<floa
     // Build jet quantities
     int idx = jets_and_btag[ijet].second;
     float discr = jets_and_btag[ijet].first;
-    vJet.SetPxPyPzE(theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx), theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
+    vJet.SetPxPyPzE(theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx),
+					theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
     vJet = vJet * jets_and_smearFactor[idx];
     int flav = theBigTree.jets_HadronFlavour->at(idx);
 
