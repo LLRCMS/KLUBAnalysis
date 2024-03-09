@@ -26,8 +26,8 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
 	}
   else if (year == "2016APV")
 	{
-	resolutionFile  = filedir + "Summer20UL16APV_JRV3_MC_PtResolution_" + ak + "PFchs.txt";
-	scaleFactorFile = filedir + "Summer20UL16APV_JRV3_MC_SF_" + ak + "PFchs.txt";
+	  resolutionFile  = filedir + "Summer20UL16APV_JRV3_MC_PtResolution_" + ak + "PFchs.txt";
+	  scaleFactorFile = filedir + "Summer20UL16APV_JRV3_MC_SF_" + ak + "PFchs.txt";
 	}
   else if (year == "2017")
 	{
