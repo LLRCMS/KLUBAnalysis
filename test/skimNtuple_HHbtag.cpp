@@ -3670,7 +3670,7 @@ int main (int argc, char** argv)
 	  else if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
 		jet_eta_thresh = 2.4;
 	  }
-	  vector <pair <float, int> > jets_and_sortPar ;
+	  vector <pair <float, int> > jets_and_sortPar;
 	  // loop over jets
 	  TLorentzVector jetVecSum (0,0,0,0);
 	  for (unsigned int iJet = 0 ; iJet < theBigTree.jets_px->size () ; ++iJet)
@@ -3757,7 +3757,7 @@ int main (int argc, char** argv)
 	  // bJetSort defined in interface/skimUtils.h
 	  sort (jets_and_sortPar.begin(), jets_and_sortPar.end(), bJetSort);
 	  
-	  if (jets_and_sortPar.size () >= 2)
+	  if (jets_and_sortPar.size() >= 2)
 		{
 		  bool isVBF = false;
 		  vector<pair <int, float> > jets_and_BTag;
@@ -3824,43 +3824,56 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bTagweightReshape_jetdown10	 = bTagWeightReshapeshifts.at(38);
 		  theSmallTree.m_bTagweightReshape_jetdown11	 = bTagWeightReshapeshifts.at(39);
 			  
-		  // Need to change the channel: LLR-> 0:muTau - 1:eTau  /  PI-> 0:eTau - 1:muTau
+		  // Conversion between LLR and Pisa channel id convention
 		  int HHbTag_chn = -1;
-		  if      (theSmallTree.m_pairType == 0) HHbTag_chn = 1;
-		  else if (theSmallTree.m_pairType == 1) HHbTag_chn = 0;
-		  else if (theSmallTree.m_pairType == 2) HHbTag_chn = 2;
-		  else if (theSmallTree.m_pairType == 3) HHbTag_chn = 3;
+		  if      (theSmallTree.m_pairType == 0) HHbTag_chn = 1; //mutau
+		  else if (theSmallTree.m_pairType == 1) HHbTag_chn = 0; //etau
+		  else if (theSmallTree.m_pairType == 2) HHbTag_chn = 2; //tautau
+		  else if (theSmallTree.m_pairType == 3) HHbTag_chn = 3; //mumu
 		  assert(HHbTag_chn <= 3 and HHbTag_chn >= 0);
 
-		  // Set HHbtaginterface for ordering jets
-		  HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, HHbTag_chn,
-									  tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, smears_AK4);
-
-		  // Get HHbtag scores in a map <jet_idx, HHbtag_score>
-		  std::map<int,float> jets_and_HHbtag = HHbtagTagger.GetScore();
-
-		  // Use a duplicated map to get the two highest values
-		  // through get_max_map() from skimUtils.h
-		  std::map<int,float> HHbtag_idx_map = jets_and_HHbtag;
-		  auto HHbtagmax  = get_max_map(HHbtag_idx_map);
-		  HHbtag_idx_map.erase(HHbtagmax.first);
-		  auto HHbtagmax2 = get_max_map(HHbtag_idx_map);
-
-		  if (DEBUG)
-			{
-			  std::cout << "-------------- jets_and_HHbtag --------------" << std::endl;
-			  for (auto elem : jets_and_HHbtag)
-				{
-				  std::cout << "  - idx: " << elem.first << " / value: " << elem.second << std::endl;
-				}
-			  std::cout << "  B1 idx: " << HHbtagmax.first  << " value: " << HHbtagmax.second  << std::endl;
-			  std::cout << "  B2 idx: " << HHbtagmax2.first << " value: " << HHbtagmax2.second << std::endl;
-			  std::cout << "---------------------------------------------" << std::endl;
-			}
-
 		  // bjet1 and bjet2 indexes
-		  const int bjet1idx = HHbtagmax .first;
-		  const int bjet2idx = HHbtagmax2.first;
+		  int bjet1idx, bjet2idx;
+		  std::map<int,float> jets_and_HHbtag;
+		  
+		  if (HHbTag_chn < 3) { // HH-bTag is for the moment not considering mumu
+			// Set HHbtaginterface for ordering jets
+			HHbtagTagger.SetInputValues(theBigTree, jets_and_sortPar, HHbTag_chn,
+										tlv_firstLepton, tlv_secondLepton, tlv_tauH, tlv_MET, theSmallTree.m_EventNumber, smears_AK4);
+			
+			// Get HHbtag scores in a map <jet_idx, HHbtag_score>
+			jets_and_HHbtag = HHbtagTagger.GetScore();
+
+			std::map<int,float> HHbtag_idx_map = jets_and_HHbtag;
+			auto HHbtagmax  = get_max_map(HHbtag_idx_map); // from skimUtils.h
+			HHbtag_idx_map.erase(HHbtagmax.first);
+			auto HHbtagmax2 = get_max_map(HHbtag_idx_map);
+
+			bjet1idx = HHbtagmax .first;
+			bjet2idx = HHbtagmax2.first;
+
+			if (DEBUG)
+			  {
+				std::cout << "-------------- jets_and_HHbtag --------------" << std::endl;
+				for (auto elem : jets_and_HHbtag)
+				  {
+					std::cout << "  - idx: " << elem.first << " / value: " << elem.second << std::endl;
+				  }
+				std::cout << "  B1 idx: " << HHbtagmax.first  << " value: " << HHbtagmax.second  << std::endl;
+				std::cout << "  B2 idx: " << HHbtagmax2.first << " value: " << HHbtagmax2.second << std::endl;
+				std::cout << "---------------------------------------------" << std::endl;
+			  }
+		  }
+		  else if (HHbTag_chn == 3) { 
+			// Jet IDs of the two highest DeepJet scores
+			bjet1idx = jets_and_sortPar.rbegin()[0].second;
+			bjet2idx = jets_and_sortPar.rbegin()[1].second;
+			if (DEBUG)
+			  {
+				std::cout << "bjet1 DeepJet score: " << jets_and_sortPar.rbegin()[0].first << std::endl;
+				std::cout << "bjet2 DeepJet score: " << jets_and_sortPar.rbegin()[1].first << std::endl;
+			  }
+		  }
 
 		  // Check that both bjets are assigned
 		  if (bjet1idx < 0)
@@ -3988,8 +4001,8 @@ int main (int argc, char** argv)
 		  if (DEBUG)
 			{
 			  std::cout << "------BJETS----" << std::endl;
-			  std::cout << "B1(idx,pt,eta,phi,HHbtag): "<<bjet1idx<<" "<<tlv_firstBjet.Pt()<<" "<<tlv_firstBjet.Eta()<<" "<<tlv_firstBjet.Phi()<<" "<<HHbtagmax.second<<std::endl;
-			  std::cout << "B2(idx,pt,eta,phi,HHbtag): "<<bjet2idx<<" "<<tlv_secondBjet.Pt()<<" "<<tlv_secondBjet.Eta()<<" "<<tlv_secondBjet.Phi()<<" "<<HHbtagmax2.second<<std::endl;
+			  std::cout << "B1(idx,pt,eta,phi): "<<bjet1idx<<" "<<tlv_firstBjet.Pt()<<" "<<tlv_firstBjet.Eta()<<" "<<tlv_firstBjet.Phi()<<std::endl;
+			  std::cout << "B2(idx,pt,eta,phi): "<<bjet2idx<<" "<<tlv_secondBjet.Pt()<<" "<<tlv_secondBjet.Eta()<<" "<<tlv_secondBjet.Phi()<<std::endl;
 			  std::cout << "---------------" << std::endl;
 			}
 
@@ -5103,7 +5116,7 @@ int main (int argc, char** argv)
 		  // --------------------------------------------
 		  // Save HHbtag values in smallTree
 		  // b-jet 1
-		  if (jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end())
+		  if (pType < 3 and jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end())
 			{
 			  theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
 			}
@@ -5114,7 +5127,7 @@ int main (int argc, char** argv)
 			}
 
 		  // b-jet 2
-		  if (jets_and_HHbtag.find(bjet2idx) != jets_and_HHbtag.end())
+		  if (pType < 3 and jets_and_HHbtag.find(bjet2idx) != jets_and_HHbtag.end())
 			{
 			  theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
 			}
@@ -5125,7 +5138,7 @@ int main (int argc, char** argv)
 			}
 
 		  // VBF-jet 1
-		  if (jets_and_HHbtag.find(VBFidx1) != jets_and_HHbtag.end())
+		  if (pType < 3 and jets_and_HHbtag.find(VBFidx1) != jets_and_HHbtag.end())
 			{
 			  theSmallTree.m_VBFjet1_HHbtag = jets_and_HHbtag[VBFidx1];
 			}
@@ -5138,7 +5151,7 @@ int main (int argc, char** argv)
 			}
 
 		  // VBF-jet 2
-		  if (jets_and_HHbtag.find(VBFidx2) != jets_and_HHbtag.end())
+		  if (pType < 3 and jets_and_HHbtag.find(VBFidx2) != jets_and_HHbtag.end())
 			{
 			  theSmallTree.m_VBFjet2_HHbtag = jets_and_HHbtag[VBFidx2];
 			}
@@ -5174,7 +5187,7 @@ int main (int argc, char** argv)
 			  if (tlv_firstLepton.DeltaR(tlv_dummyJet)  < lepCleaningCone) continue;
 			  if (tlv_secondLepton.DeltaR(tlv_dummyJet) < lepCleaningCone) continue;
 
-			  if (jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
+			  if (pType < 3 and jets_and_HHbtag.find(iJet) != jets_and_HHbtag.end())
 				{
 				  theSmallTree.m_jets_HHbtag.push_back(jets_and_HHbtag[iJet]);
 				}
@@ -5193,10 +5206,6 @@ int main (int argc, char** argv)
 		  if (DEBUG)
 			{
 			  std::cout << "---- HHbtag debug ----" << std::endl;
-			  std::cout << "isVBF: " << theSmallTree.m_isVBF << "  - Evt: " << theSmallTree.m_EventNumber << std::endl;
-			  std::cout << "HHbtag scores: ";
-			  for(auto elem : jets_and_HHbtag)  std::cout << " " << elem.first << ":" << elem.second;
-			  std::cout << std::endl;
 			  std::cout << "b1   - idx: " << bjet1idx << " HHbtag: " << theSmallTree.m_bjet1_HHbtag << std::endl;
 			  std::cout << "b2   - idx: " << bjet2idx << " HHbtag: " << theSmallTree.m_bjet2_HHbtag << std::endl;
 			  std::cout << "VBF1 - idx: " << VBFidx1  << " HHbtag: " << theSmallTree.m_VBFjet1_HHbtag << std::endl;
