@@ -257,7 +257,7 @@ float bTagSF::getEff (WP wpt, int jetFlavor, int channel, float pt, float eta)
 
 // the collection jets_and_btag in input contain all the final list of jets, already cleaned from PU and leptons
 // returns a collection of weights according to the tested WP
-vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP)
+vector<float> bTagSF::getEvtWeight (const std::vector<std::pair<float,int>>& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP)
 {
   if (!m_isMC) {
 	return {{1., 1., 1., 1.}};
@@ -273,9 +273,10 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
   {
     if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
 
-    int idx = jets_and_btag.at(ijet).first;
-    float discr = jets_and_btag.at(ijet).second;
-    vJet.SetPxPyPzE (theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx), theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
+    int idx = jets_and_btag[ijet].second;
+    float discr = jets_and_btag[ijet].first;
+    vJet.SetPxPyPzE (theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx),
+					 theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
     vJet = vJet * jets_and_smearFactor[idx];
 
     int flav = theBigTree.jets_HadronFlavour->at(idx);
@@ -295,7 +296,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
     effBTag[2] = getEff (static_cast<WP> (2), flav, channel, vJet.Pt(), vJet.Eta()) ;
     if (DEBUG) cout << "  >> DEB: EFFs " << effBTag[0] << " " << effBTag[1] << " " << effBTag[2] << endl;
 
-    double CSV = jets_and_btag.at(ijet).second;
+    double CSV = jets_and_btag[ijet].first;
     bool tagged[3];
     tagged[0] = (CSV > _WPtag[0]);
     tagged[1] = (CSV > _WPtag[1]);
@@ -354,7 +355,7 @@ vector<float> bTagSF::getEvtWeight (std::vector <std::pair <int, float> >& jets_
 //             "down_jes", "down_lf", "down_hf", "down_hfstats1", "down_hfstats2", "down_lfstats1",
 //             "down_lfstats2", "down_cferr1", "down_cferr2"
 //           }
-std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor)
+std::vector<float> bTagSF::getEvtWeightShifted (const std::vector<std::pair<float, int>>& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor)
 {
   // Systematics names
   std::vector<std::string> systNames = {
@@ -381,8 +382,8 @@ std::vector<float> bTagSF::getEvtWeightShifted (std::vector <std::pair <int, flo
     if (DEBUG) cout << "DEB: ijet " << ijet << " , size = " << jets_and_btag.size() << endl;
 
     // Build jet quantities
-    int idx = jets_and_btag.at(ijet).first;
-    float discr = jets_and_btag.at(ijet).second;
+    int idx = jets_and_btag[ijet].second;
+    float discr = jets_and_btag[ijet].first;
     vJet.SetPxPyPzE(theBigTree.jets_px->at(idx), theBigTree.jets_py->at(idx), theBigTree.jets_pz->at(idx), theBigTree.jets_e->at(idx));
     vJet = vJet * jets_and_smearFactor[idx];
     int flav = theBigTree.jets_HadronFlavour->at(idx);

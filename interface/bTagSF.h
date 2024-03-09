@@ -24,8 +24,8 @@ public:
   void SetWPset(std::string WPset);
   void SetWPset(double loose, double medium, double tight);
 
-  std::vector<float> getEvtWeight (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP);
-  std::vector<float> getEvtWeightShifted (std::vector <std::pair <int, float> >& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor);
+  std::vector<float> getEvtWeight (const std::vector<std::pair<float, int>>& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor, int channel, SFsyst systWP);
+  std::vector<float> getEvtWeightShifted (const std::vector<std::pair<float,int>>& jets_and_btag, bigTree &theBigTree, std::map<int,double> jets_and_smearFactor);
 
 private:
   void m_initialize(std::string, std::string, std::string, std::string, std::string);

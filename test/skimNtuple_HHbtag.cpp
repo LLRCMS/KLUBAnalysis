@@ -3760,15 +3760,11 @@ int main (int argc, char** argv)
 	  if (jets_and_sortPar.size() >= 2)
 		{
 		  bool isVBF = false;
-		  vector<pair <int, float> > jets_and_BTag;
-		  for (auto pair : jets_and_sortPar) {  // just for compatibility...
-			jets_and_BTag.push_back (make_pair(pair.second, pair.first));
-		  }
 
-		  vector<float> bTagWeight				= bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::central);
-		  vector<float> bTagWeight_up			= bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::up);
-		  vector<float> bTagWeight_down			= bTagSFHelper.getEvtWeight(jets_and_BTag, theBigTree, smears_AK4, pType, bTagSF::down);
-		  vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted(jets_and_BTag, theBigTree, smears_AK4);
+		  vector<float> bTagWeight				= bTagSFHelper.getEvtWeight(jets_and_sortPar, theBigTree, smears_AK4, pType, bTagSF::central);
+		  vector<float> bTagWeight_up			= bTagSFHelper.getEvtWeight(jets_and_sortPar, theBigTree, smears_AK4, pType, bTagSF::up);
+		  vector<float> bTagWeight_down			= bTagSFHelper.getEvtWeight(jets_and_sortPar, theBigTree, smears_AK4, pType, bTagSF::down);
+		  vector<float> bTagWeightReshapeshifts = bTagSFHelper.getEvtWeightShifted(jets_and_sortPar, theBigTree, smears_AK4);
 
 		  theSmallTree.m_bTagweightL = bTagWeight.at(0);
 		  theSmallTree.m_bTagweightM = bTagWeight.at(1);
