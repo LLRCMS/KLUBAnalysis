@@ -3984,8 +3984,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bjet1_gen_matched = bjet1_gen_matched ? 1 : 0;
 		  theSmallTree.m_bjet2_gen_matched = bjet2_gen_matched ? 1 : 0;
 
-		  double ptRegr[2] = {tlv_firstBjet.Pt(), tlv_secondBjet.Pt()};
-
 		  // save the b-jets
 		  TLorentzVector tlv_firstBjet_raw(tlv_firstBjet);
 		  TLorentzVector tlv_secondBjet_raw(tlv_secondBjet);
@@ -4191,12 +4189,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_bH_mass_raw_jetdown10   = (tlv_bH_raw_jetdown[9]).M();
 		  theSmallTree.m_bH_mass_raw_jetdown11   = (tlv_bH_raw_jetdown[10]).M();
 		  
-		  // FIXME : here mass is manually set to 0, should we change it?
-		  float ptScale1 = ptRegr[0] / tlv_firstBjet.Pt() ;
-		  float ptScale2 = ptRegr[1] / tlv_secondBjet.Pt() ;
-		  tlv_firstBjet.SetPtEtaPhiE (ptRegr[0], tlv_firstBjet.Eta(), tlv_firstBjet.Phi(), ptScale1*tlv_firstBjet.Energy());
-		  tlv_secondBjet.SetPtEtaPhiE (ptRegr[1], tlv_secondBjet.Eta(), tlv_secondBjet.Phi(), ptScale2*tlv_secondBjet.Energy());
-
 		  theSmallTree.m_bjet1_pt   = tlv_firstBjet.Pt () ;
 		  theSmallTree.m_bjet1_eta  = tlv_firstBjet.Eta () ;
 		  theSmallTree.m_bjet1_phi  = tlv_firstBjet.Phi () ;
