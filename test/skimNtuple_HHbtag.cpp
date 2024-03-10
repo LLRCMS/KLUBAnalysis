@@ -602,13 +602,10 @@ int main (int argc, char** argv)
 
   // ------------------------------
 
-  string bTag_SFFile;
-  string bTag_effFile;
-
-  bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
-  bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
- 
+  string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
+  string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
   cout << "B Tag SF file: " << bTag_SFFile << endl;
+  
   string wpset, wpyear;
   if (PERIOD=="2018") {
 	wpset  = "106X18_DeepFlavor_V1";
