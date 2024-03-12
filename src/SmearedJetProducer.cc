@@ -31,8 +31,10 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
 	}
   else if (year == "2017")
 	{
-	  resolutionFile  = filedir + "Summer19UL17_JRV2_MC_PtResolution_" + ak + "PFchs.txt";
-	  scaleFactorFile = filedir + "Summer19UL17_JRV2_MC_SF_" + ak + "PFchs.txt";
+	  // in 2017 AK4 JER files should be used for both AK4 and AK8 jets
+	  // see https://cms-talk.web.cern.ch/t/jers-for-ak8-in-2017/36614/4
+	  resolutionFile  = filedir + "Summer19UL17_JRV2_MC_PtResolution_AK4PFchs.txt";
+	  scaleFactorFile = filedir + "Summer19UL17_JRV2_MC_SF_AK4PFchs.txt";
 	}
   else if (year == "2018")
 	{
