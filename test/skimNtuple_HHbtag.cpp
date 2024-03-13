@@ -5569,7 +5569,7 @@ int main (int argc, char** argv)
 	  TTreeReaderValue<int> rv_nbjetscand(reader, "nbjetscand");
 
 	  TTreeReaderValue<float> rv_kinfit_mass(reader, "HHKin_mass");
-	  TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_mass_chi2");
+	  TTreeReaderValue<float> rv_kinfit_chi2(reader, "HHKin_chi2");
 	  TTreeReaderValue<float> rv_mt2(reader, "MT2");
 
 	  TTreeReaderValue<float> rv_b_1_deepflav(reader, "bjet1_bID_deepFlavor");

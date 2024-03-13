@@ -724,10 +724,6 @@ struct smallTree
       m_leps_flav.clear () ;
       m_nleps = 0 ;
 
-      //m_mvaValueMuTau = 0;
-      //m_mvaValueTauTau = 0;
-      //m_mvaValueETau = 0;
-
       m_bH_pt_jetup.clear() ;
       m_bH_pt_jetdown.clear() ;
       m_bH_mass_jetup.clear() ;
@@ -843,9 +839,6 @@ struct smallTree
       m_fatjet_mass_jetdownTot = - 1.;
       m_fatjet_pt_jetupTot   = - 1.;
       m_fatjet_pt_jetdownTot = - 1.;
-
-      m_HHKin_mass_convergence = 0;
-      m_HHKin_mass_prob = 0;
 
       m_lheht = 0;
 
@@ -1836,9 +1829,6 @@ struct smallTree
 	  m_smallT->Branch ("fatjet_mass_jetupTot"	, &m_fatjet_mass_jetupTot  , "fatjet_mass_jetupTot/F");
 	  m_smallT->Branch ("fatjet_mass_jetdownTot", &m_fatjet_mass_jetdownTot, "fatjet_mass_jetdownTot/F");
 
-	  m_smallT->Branch ("HHKin_mass_convergence", &m_HHKin_mass_convergence, "HHKin_mass_convergence/I") ;
-      m_smallT->Branch ("HHKin_mass_prob", &m_HHKin_mass_prob, "HHKin_mass_prob/F") ;
-
       m_smallT->Branch ("lheht", &m_lheht, "lheht/F");
       m_smallT->Branch("topReweight",&m_topReweight,"topReweight/F");
       m_smallT->Branch ("VBFjet1_pt",&m_VBFjet1_pt,"VBFjet1_pt/F");
@@ -2743,14 +2733,6 @@ struct smallTree
   std::vector<Float_t> m_leps_e ;
   std::vector<Int_t> m_leps_flav ;
   Int_t m_nleps ;
-
-  // TMVAs
-  //Float_t m_mvaValueMuTau ;
-  //Float_t m_mvaValueTauTau ;
-  //Float_t m_mvaValueETau ;
-
-  Int_t   m_HHKin_mass_convergence;
-  Float_t m_HHKin_mass_prob;
 
   std::vector <Float_t> m_bH_pt_jetup;
   std::vector <Float_t> m_bH_pt_jetdown;
