@@ -246,36 +246,9 @@ struct smallTree
       m_mT2 = -1. ;
 
       m_DeepMET_ResponseTune_px = -999;
-      m_DeepMET_ResponseTune_px_tauup.clear();
-      m_DeepMET_ResponseTune_px_taudown.clear();
-      m_DeepMET_ResponseTune_px_eleup.clear();
-      m_DeepMET_ResponseTune_px_eledown.clear();
-      m_DeepMET_ResponseTune_px_muup = -999;
-      m_DeepMET_ResponseTune_px_mudown = -999;
-
       m_DeepMET_ResponseTune_py = -999;
-      m_DeepMET_ResponseTune_py_tauup.clear();
-      m_DeepMET_ResponseTune_py_taudown.clear();
-      m_DeepMET_ResponseTune_py_eleup.clear();
-      m_DeepMET_ResponseTune_py_eledown.clear();
-      m_DeepMET_ResponseTune_py_muup = -999;
-      m_DeepMET_ResponseTune_py_mudown = -999;
-
       m_DeepMET_ResolutionTune_px = -999;
-      m_DeepMET_ResolutionTune_px_tauup.clear();
-      m_DeepMET_ResolutionTune_px_taudown.clear();
-      m_DeepMET_ResolutionTune_px_eleup.clear();
-      m_DeepMET_ResolutionTune_px_eledown.clear();
-      m_DeepMET_ResolutionTune_px_muup = -999;
-      m_DeepMET_ResolutionTune_px_mudown = -999;
-
       m_DeepMET_ResolutionTune_py = -999;
-      m_DeepMET_ResolutionTune_py_tauup.clear();
-      m_DeepMET_ResolutionTune_py_taudown.clear();
-      m_DeepMET_ResolutionTune_py_eleup.clear();
-      m_DeepMET_ResolutionTune_py_eledown.clear();
-      m_DeepMET_ResolutionTune_py_muup = -999;
-      m_DeepMET_ResolutionTune_py_mudown = -999;
 
       m_dau1_iso  = -1. ;
       m_dau1_eleMVAiso = -1;
@@ -1319,37 +1292,10 @@ struct smallTree
       m_smallT->Branch ("mT1", &m_mT1, "mT1/F") ;
       m_smallT->Branch ("mT2", &m_mT2, "mT2/F") ;
 
-      m_smallT->Branch("DeepMET_ResponseTune_px", &m_DeepMET_ResponseTune_px, "DeepMET_ResponseTune_px/F");
-      m_smallT->Branch("DeepMET_ResponseTune_px_tauup", &m_DeepMET_ResponseTune_px_tauup);
-      m_smallT->Branch("DeepMET_ResponseTune_px_taudown", &m_DeepMET_ResponseTune_px_taudown);
-      m_smallT->Branch("DeepMET_ResponseTune_px_eleup", &m_DeepMET_ResponseTune_px_eleup);
-      m_smallT->Branch("DeepMET_ResponseTune_px_eledown", &m_DeepMET_ResponseTune_px_eledown);
-      m_smallT->Branch("DeepMET_ResponseTune_px_muup", &m_DeepMET_ResponseTune_px_muup, "DeepMET_ResponseTune_px_muup/F");
-      m_smallT->Branch("DeepMET_ResponseTune_px_mudown", &m_DeepMET_ResponseTune_px_mudown, "DeepMET_ResponseTune_px_mudown/F");
-
-      m_smallT->Branch("DeepMET_ResponseTune_py", &m_DeepMET_ResponseTune_py, "DeepMET_ResponseTune_py/F");
-      m_smallT->Branch("DeepMET_ResponseTune_py_tauup", &m_DeepMET_ResponseTune_py_tauup);
-      m_smallT->Branch("DeepMET_ResponseTune_py_taudown", &m_DeepMET_ResponseTune_py_taudown);
-      m_smallT->Branch("DeepMET_ResponseTune_py_eleup", &m_DeepMET_ResponseTune_py_eleup);
-      m_smallT->Branch("DeepMET_ResponseTune_py_eledown", &m_DeepMET_ResponseTune_py_eledown);
-      m_smallT->Branch("DeepMET_ResponseTune_py_muup", &m_DeepMET_ResponseTune_py_muup, "DeepMET_ResponseTune_py_muup/F");
-      m_smallT->Branch("DeepMET_ResponseTune_py_mudown", &m_DeepMET_ResponseTune_py_mudown, "DeepMET_ResponseTune_py_mudown/F");
-
+      m_smallT->Branch("DeepMET_ResponseTune_px",   &m_DeepMET_ResponseTune_px,   "DeepMET_ResponseTune_px/F");
+      m_smallT->Branch("DeepMET_ResponseTune_py",   &m_DeepMET_ResponseTune_py,   "DeepMET_ResponseTune_py/F");
       m_smallT->Branch("DeepMET_ResolutionTune_px", &m_DeepMET_ResolutionTune_px, "DeepMET_ResolutionTune_px");
-      m_smallT->Branch("DeepMET_ResolutionTune_px_tauup", &m_DeepMET_ResolutionTune_px_tauup);
-      m_smallT->Branch("DeepMET_ResolutionTune_px_taudown", &m_DeepMET_ResolutionTune_px_taudown);
-      m_smallT->Branch("DeepMET_ResolutionTune_px_eleup", &m_DeepMET_ResolutionTune_px_eleup);
-      m_smallT->Branch("DeepMET_ResolutionTune_px_eledown", &m_DeepMET_ResolutionTune_px_eledown);
-      m_smallT->Branch("DeepMET_ResolutionTune_px_muup", &m_DeepMET_ResolutionTune_px_muup, "DeepMET_ResolutionTune_px_muup/F");
-      m_smallT->Branch("DeepMET_ResolutionTune_px_mudown", &m_DeepMET_ResolutionTune_px_mudown, "DeepMET_ResolutionTune_px_mudown/F");
-
       m_smallT->Branch("DeepMET_ResolutionTune_py", &m_DeepMET_ResolutionTune_py, "DeepMET_ResolutionTune_py");
-      m_smallT->Branch("DeepMET_ResolutionTune_py_tauup", &m_DeepMET_ResolutionTune_py_tauup);
-      m_smallT->Branch("DeepMET_ResolutionTune_py_taudown", &m_DeepMET_ResolutionTune_py_taudown);
-      m_smallT->Branch("DeepMET_ResolutionTune_py_eleup", &m_DeepMET_ResolutionTune_py_eleup);
-      m_smallT->Branch("DeepMET_ResolutionTune_py_eledown", &m_DeepMET_ResolutionTune_py_eledown);
-      m_smallT->Branch("DeepMET_ResolutionTune_py_muup", &m_DeepMET_ResolutionTune_py_muup, "DeepMET_ResolutionTune_py_muup/F");
-      m_smallT->Branch("DeepMET_ResolutionTune_py_mudown", &m_DeepMET_ResolutionTune_py_mudown, "DeepMET_ResolutionTune_py_mudown/F");
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_eleMVAiso", &m_dau1_eleMVAiso, "dau1_eleMVAiso/I") ;
@@ -2324,36 +2270,9 @@ struct smallTree
   Float_t m_mT2 ;
 
   Float_t m_DeepMET_ResponseTune_px;
-  std::vector<Float_t> m_DeepMET_ResponseTune_px_tauup;
-  std::vector<Float_t> m_DeepMET_ResponseTune_px_taudown;
-  std::vector<Float_t> m_DeepMET_ResponseTune_px_eleup;
-  std::vector<Float_t> m_DeepMET_ResponseTune_px_eledown;
-  Float_t m_DeepMET_ResponseTune_px_muup;
-  Float_t m_DeepMET_ResponseTune_px_mudown;
-
   Float_t m_DeepMET_ResponseTune_py;
-  std::vector<Float_t> m_DeepMET_ResponseTune_py_tauup;
-  std::vector<Float_t> m_DeepMET_ResponseTune_py_taudown;
-  std::vector<Float_t> m_DeepMET_ResponseTune_py_eleup;
-  std::vector<Float_t> m_DeepMET_ResponseTune_py_eledown;
-  Float_t m_DeepMET_ResponseTune_py_muup;
-  Float_t m_DeepMET_ResponseTune_py_mudown;
-
   Float_t m_DeepMET_ResolutionTune_px;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_px_tauup;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_px_taudown;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_px_eleup;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_px_eledown;
-  Float_t m_DeepMET_ResolutionTune_px_muup;
-  Float_t m_DeepMET_ResolutionTune_px_mudown;
-
   Float_t m_DeepMET_ResolutionTune_py;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_py_tauup;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_py_taudown;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_py_eleup;
-  std::vector<Float_t> m_DeepMET_ResolutionTune_py_eledown;
-  Float_t m_DeepMET_ResolutionTune_py_muup;
-  Float_t m_DeepMET_ResolutionTune_py_mudown;
 
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
