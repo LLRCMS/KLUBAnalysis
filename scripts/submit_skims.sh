@@ -218,7 +218,7 @@ function run_skim() {
 ### Input file list production command
 function produce_list() {
 	eval `scram unsetenv -sh` # unset CMSSW environment
-	comm="python ${KLUB_DIR}/${LIST_SCRIPT} -t ${IN_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
+	comm="python3 ${KLUB_DIR}/${LIST_SCRIPT} -t ${IN_TAG} --data_period ${DATA_PERIOD} --user ${DATA_USER} $@"
 	if [[ ${RESUBMIT} -eq 0 ]]; then
 		[[ ${DRYRUN} -eq 1 ]] && echo ${comm} || ${comm}
 	fi
@@ -306,7 +306,7 @@ declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9
 cmsenv # set CMSSW environment
 
 DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
-MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+MASSES=("600" "800" "1000")
 for ds in ${DATA_LIST[@]}; do
 	for mass in ${MASSES[@]}; do
 		pattern="${ds}.+_M-${mass}_";
