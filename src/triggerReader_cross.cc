@@ -242,7 +242,7 @@ bool triggerReader_cross::checkMET(Long64_t triggerbit_1, int *pass_triggerbit, 
   bool OR = false;
   for(unsigned int i = 0; i < _metTriggers.size(); i++)
   {
-    if (CheckBit(triggerbit_1, _metTriggers.at(i)) and metnomu > metnomu_cut) //trigger cut at MET_nomu=200GeV
+    if (CheckBit(triggerbit_1, _metTriggers.at(i)) and metnomu > metnomu_cut)
 	  {
 		std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(),
 													 _allTriggers.at(_metTriggers.at(i)));

@@ -378,8 +378,12 @@ int main (int argc, char** argv)
 	met_thresh = 160.;
 	tau_thresh = 130.;
   }
-  else {
-	met_thresh = 180.;
+  else if (PERIOD=="2017") {
+	met_thresh = 160.;
+	tau_thresh = 190.;
+  }
+  else { // 2018
+	met_thresh = 150.;
 	tau_thresh = 190.;
   }
 
