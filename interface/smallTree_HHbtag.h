@@ -532,8 +532,8 @@ struct smallTree
       m_nfatjets = -1;
       m_fatjet_highest_pT_bTag = -1;
       m_fatjet_pt  = -1.;
-      m_fatjet_eta = -1.;
-      m_fatjet_phi = -1.;
+      m_fatjet_eta = -9.;
+      m_fatjet_phi = -9.;
 	  m_fatjet_e   = -1.;
       m_fatjet_bID_deepFlavor = -1.;
       m_fatjet_massIndependentDeepDoubleBvLJetTags_probHbb = -1.;
@@ -2545,8 +2545,8 @@ struct smallTree
   Int_t   m_nfatjets ;
   Int_t   m_fatjet_highest_pT_bTag ;
   Float_t m_fatjet_pt ;
-  Float_t m_fatjet_eta  ;
-  Float_t m_fatjet_phi  ;
+  Float_t m_fatjet_eta;
+  Float_t m_fatjet_phi;
   Float_t m_fatjet_e  ;
   Float_t m_fatjet_bID_deepFlavor ;
   Float_t m_fatjet_massIndependentDeepDoubleBvLJetTags_probHbb;
