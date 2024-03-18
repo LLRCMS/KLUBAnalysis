@@ -3848,18 +3848,6 @@ int main (int argc, char** argv)
 			  }
 		  }
 
-		  // Check that both bjets are assigned
-		  if (bjet1idx < 0)
-			{
-			  std::cout << "**ERROR: HHbtag score not found for bjet1 --> skipping event !!" << std::endl;
-			  continue;
-			}
-		  if (bjet2idx < 0)
-			{
-			  std::cout << "**ERROR: HHbtag score not found for bjet2 --> skipping event !!" << std::endl;
-			  continue;
-			}
-
 		  //VBF tag
 		  int VBFidx1 = -1;
 		  int VBFidx2 = -1;
