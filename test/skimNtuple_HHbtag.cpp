@@ -38,7 +38,6 @@
 #include "SVfitKLUBinterface.h"
 #include "SmearedJetProducer.h"
 #include "met_phi_corr.h"
-#include "lester_mt2_bisect.h"
 
 #include "ScaleFactor.h"
 #include "ScaleFactorMET.h"
@@ -301,11 +300,6 @@ int main (int argc, char** argv)
   int TT_stitchType = atoi(argv[12]);
   if (!isTTBar) TT_stitchType = 0; // just force if not TT...
   cout << "** INFO: TT stitch type: " << TT_stitchType << " [0: no stitch , 1: fully had, 2: semilept t, 3: semilept tbar, 4: fully lept, 5: semilept all]" << endl;
-
-  bool runMT2 = false;
-  string opt14 (argv[13]);
-  if (opt14 == "1") runMT2 = true;
-  cout << "** INFO: running MT2: " << runMT2 << endl;
 
   bool isHHsignal = false;
   string opt15 (argv[14]);
@@ -2385,19 +2379,7 @@ int main (int argc, char** argv)
 		  cout << " met centr : " << theSmallTree.m_met_et << " / " << theSmallTree.m_met_phi << endl;
 		  cout << "-------------------------" << endl;
 		}
-	
-	  // // in TauTau channel make sure the first tau is the most isolated one
-	  if (pairType == 2 && (theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau1->at (chosenTauPair)) < theBigTree.daughters_byDeepTau2017v2p1VSjetraw->at(theBigTree.indexDau2->at (chosenTauPair))) )
-		{
-		  theSmallTree.m_mT1       = theBigTree.mT_Dau2->at (chosenTauPair) ;
-		  theSmallTree.m_mT2       = theBigTree.mT_Dau1->at (chosenTauPair) ;
-		}
-	  else
-		{
-		  theSmallTree.m_mT1       = theBigTree.mT_Dau1->at (chosenTauPair) ;
-		  theSmallTree.m_mT2       = theBigTree.mT_Dau2->at (chosenTauPair) ;
-		}
-	
+		
 	  theSmallTree.m_tauH_pt   = tlv_tauH.Pt () ;
 	  theSmallTree.m_tauH_eta  = tlv_tauH.Eta () ;
 	  theSmallTree.m_tauH_phi  = tlv_tauH.Phi () ;
@@ -4259,40 +4241,6 @@ int main (int argc, char** argv)
 
 		  theSmallTree.m_HHKin_mass = HHKmass;//kinFits.getMH () ;
 		  theSmallTree.m_HHKin_chi2 = HHKChi2;//kinFits.getChi2 () ;
-
-		  // Stransverse mass
-		  if (runMT2)
-			{
-			  double mVisA = tlv_firstBjet.M(); // mass of visible object on side A.  Must be >=0.
-			  double pxA = tlv_firstBjet.Px();  // x momentum of visible object on side A.
-			  double pyA = tlv_firstBjet.Py();  // y momentum of visible object on side A.
-
-			  double mVisB = tlv_secondBjet.M(); // mass of visible object on side B.  Must be >=0.
-			  double pxB = tlv_secondBjet.Px();  // x momentum of visible object on side B.
-			  double pyB = tlv_secondBjet.Py();  // y momentum of visible object on side B.
-
-			  double pxMiss = tlv_firstLepton.Px() + tlv_secondLepton.Px() + theSmallTree.m_METx; // x component of missing transverse momentum.
-			  double pyMiss = tlv_firstLepton.Py() + tlv_secondLepton.Py() + theSmallTree.m_METy; // y component of missing transverse momentum.
-
-			  double chiA = tlv_firstLepton.M();  // hypothesised mass of invisible on side A.  Must be >=0.
-			  double chiB = tlv_secondLepton.M(); // hypothesised mass of invisible on side B.  Must be >=0.
-
-			  double desiredPrecisionOnMt2 = 0; // Must be >=0.  If 0 alg aims for machine precision.  if >0, MT2 computed to supplied absolute precision.
-
-			  asymm_mt2_lester_bisect::disableCopyrightMessage();
-
-			  double MT2 = asymm_mt2_lester_bisect::get_mT2(
-															mVisA, pxA, pyA,
-															mVisB, pxB, pyB,
-															pxMiss, pyMiss,
-															chiA, chiB,
-															desiredPrecisionOnMt2);
-
-			  theSmallTree.m_MT2 = MT2;
-
-			} // end calcultion of MT2
-
-		  if (DEBUG)  cout << "---------- MT2 DEBUG: " << theSmallTree.m_MT2 << endl;
 
 		  theSmallTree.m_HH_deltaPhi		 = deltaPhi (tlv_bH.Phi (), tlv_tauH.Phi ()) ;
 		  theSmallTree.m_HH_deltaEta		 = fabs(tlv_bH.Eta()- tlv_tauH.Eta ()) ;
