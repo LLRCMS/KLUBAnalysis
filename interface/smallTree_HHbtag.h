@@ -210,26 +210,89 @@ struct smallTree
       m_MHTnoMux      = 0.;
       m_MHTnoMuy      = 0.;
 
-      m_METx_jetup.clear()  ;
-      m_METx_tauup.clear()  ;
-      m_METx_eleup.clear()  ;
-      m_METx_muup = 0. ;
-      m_METx_jetupTot = 0. ;
-      m_METy_jetup.clear()  ;
-      m_METy_tauup.clear()  ;
-      m_METy_eleup.clear()  ;
-      m_METy_muup = 0. ;
-      m_METy_jetupTot = 0. ;
-      m_METx_jetdown.clear()  ;
-      m_METx_taudown.clear()  ;
-      m_METx_eledown.clear()  ;
-      m_METx_mudown = 0. ;
-      m_METx_jetdownTot = 0. ;
-      m_METy_jetdown.clear()  ;
-      m_METy_taudown.clear()  ;
-      m_METy_eledown.clear()  ;
-      m_METy_mudown = 0. ;
-      m_METy_jetdownTot = 0. ;
+	  m_METx_jetup1    = 0.;
+	  m_METx_jetup2	   = 0.;
+	  m_METx_jetup3	   = 0.;
+	  m_METx_jetup4	   = 0.;
+	  m_METx_jetup5	   = 0.;
+	  m_METx_jetup6	   = 0.;
+	  m_METx_jetup7	   = 0.;
+	  m_METx_jetup8	   = 0.;
+	  m_METx_jetup9	   = 0.;
+	  m_METx_jetup10   = 0.;
+	  m_METx_jetup11   = 0.;
+
+	  m_METy_jetup1    = 0.;
+	  m_METy_jetup2	   = 0.;
+	  m_METy_jetup3	   = 0.;
+	  m_METy_jetup4	   = 0.;
+	  m_METy_jetup5	   = 0.;
+	  m_METy_jetup6	   = 0.;
+	  m_METy_jetup7	   = 0.;
+	  m_METy_jetup8	   = 0.;
+	  m_METy_jetup9	   = 0.;
+	  m_METy_jetup10   = 0.;
+	  m_METy_jetup11   = 0.;
+
+	  m_METx_jetdown1  = 0.;
+	  m_METx_jetdown2  = 0.;
+	  m_METx_jetdown3  = 0.;
+	  m_METx_jetdown4  = 0.;
+	  m_METx_jetdown5  = 0.;
+	  m_METx_jetdown6  = 0.;
+	  m_METx_jetdown7  = 0.;
+	  m_METx_jetdown8  = 0.;
+	  m_METx_jetdown9  = 0.;
+	  m_METx_jetdown10 = 0.;
+	  m_METx_jetdown11 = 0.;
+
+	  m_METy_jetdown1  = 0.;
+	  m_METy_jetdown2  = 0.;
+	  m_METy_jetdown3  = 0.;
+	  m_METy_jetdown4  = 0.;
+	  m_METy_jetdown5  = 0.;
+	  m_METy_jetdown6  = 0.;
+	  m_METy_jetdown7  = 0.;
+	  m_METy_jetdown8  = 0.;
+	  m_METy_jetdown9  = 0.;
+	  m_METy_jetdown10 = 0.;
+	  m_METy_jetdown11 = 0.;
+
+	  m_METx_tauup_DM0    = 0.;
+	  m_METx_tauup_DM1    = 0.;
+	  m_METx_tauup_DM10   = 0.;
+	  m_METx_tauup_DM11   = 0.;
+	  m_METy_tauup_DM0    = 0.;
+	  m_METy_tauup_DM1    = 0.;
+	  m_METy_tauup_DM10   = 0.;
+	  m_METy_tauup_DM11   = 0.;
+	  m_METx_taudown_DM0  = 0.;
+	  m_METx_taudown_DM1  = 0.;
+	  m_METx_taudown_DM10 = 0.;
+	  m_METx_taudown_DM11 = 0.;
+	  m_METy_taudown_DM0  = 0.;
+	  m_METy_taudown_DM1  = 0.;
+	  m_METy_taudown_DM10 = 0.;
+	  m_METy_taudown_DM11 = 0.;
+
+	  m_METx_eleup_DM0   = 0.;
+	  m_METx_eleup_DM1   = 0.;
+	  m_METy_eleup_DM0   = 0.;
+	  m_METy_eleup_DM1   = 0.;
+	  m_METx_eledown_DM0 = 0.;
+	  m_METx_eledown_DM1 = 0.;
+	  m_METy_eledown_DM0 = 0.;
+	  m_METy_eledown_DM1 = 0.;
+	  
+      m_METx_muup       = 0.;
+	  m_METy_muup		= 0.;
+	  m_METx_mudown		= 0.;
+	  m_METy_mudown		= 0.;
+
+	  m_METx_jetupTot	= 0.;
+	  m_METy_jetupTot	= 0.;
+	  m_METx_jetdownTot = 0.;
+	  m_METy_jetdownTot = 0.;
 
       m_met_et_corr =-1.;
       m_met_cov00 = -1.;
@@ -1126,34 +1189,95 @@ struct smallTree
       m_smallT->Branch ("MHTnoMux",    &m_MHTnoMux,     "MHTnoMux/F"   );
       m_smallT->Branch ("MHTnoMuy",    &m_MHTnoMuy,     "MHTnoMuy/F"   );
 
+	  m_smallT->Branch ("METx_jetup1",  &m_METx_jetup1,  "METx_jetup1/F");
+	  m_smallT->Branch ("METx_jetup2",  &m_METx_jetup2,  "METx_jetup2/F");
+	  m_smallT->Branch ("METx_jetup3",  &m_METx_jetup3,  "METx_jetup3/F");
+	  m_smallT->Branch ("METx_jetup4",  &m_METx_jetup4,  "METx_jetup4/F");
+	  m_smallT->Branch ("METx_jetup5",  &m_METx_jetup5,  "METx_jetup5/F");
+	  m_smallT->Branch ("METx_jetup6",  &m_METx_jetup6,  "METx_jetup6/F");
+	  m_smallT->Branch ("METx_jetup7",  &m_METx_jetup7,  "METx_jetup7/F");
+	  m_smallT->Branch ("METx_jetup8",  &m_METx_jetup8,  "METx_jetup8/F");
+	  m_smallT->Branch ("METx_jetup9",  &m_METx_jetup9,  "METx_jetup9/F");
+	  m_smallT->Branch ("METx_jetup10", &m_METx_jetup10, "METx_jetup10/F");
+	  m_smallT->Branch ("METx_jetup11", &m_METx_jetup11, "METx_jetup11/F");
 
-      m_smallT->Branch ("METx_jetup",  &m_METx_jetup) ;
-      m_smallT->Branch ("METx_tauup",  &m_METx_tauup) ;
-      m_smallT->Branch ("METx_eleup",  &m_METx_eleup) ;
-      m_smallT->Branch ("METx_muup",   &m_METx_muup, "METx_muup/F") ;
-      m_smallT->Branch ("METx_jetupTot",   &m_METx_jetupTot, "METx_jetupTot/F") ;
-      m_smallT->Branch ("METy_jetup",  &m_METy_jetup) ;
-      m_smallT->Branch ("METy_tauup",  &m_METy_tauup) ;
-      m_smallT->Branch ("METy_eleup",  &m_METy_eleup) ;
-      m_smallT->Branch ("METy_muup",   &m_METy_muup, "METy_muup/F") ;
-      m_smallT->Branch ("METy_jetupTot",   &m_METy_jetupTot, "METy_jetupTot/F") ;
+	  m_smallT->Branch ("METy_jetup1",  &m_METy_jetup1,  "METy_jetup1/F");
+	  m_smallT->Branch ("METy_jetup2",  &m_METy_jetup2,  "METy_jetup2/F");
+	  m_smallT->Branch ("METy_jetup3",  &m_METy_jetup3,  "METy_jetup3/F");
+	  m_smallT->Branch ("METy_jetup4",  &m_METy_jetup4,  "METy_jetup4/F");
+	  m_smallT->Branch ("METy_jetup5",  &m_METy_jetup5,  "METy_jetup5/F");
+	  m_smallT->Branch ("METy_jetup6",  &m_METy_jetup6,  "METy_jetup6/F");
+	  m_smallT->Branch ("METy_jetup7",  &m_METy_jetup7,  "METy_jetup7/F");
+	  m_smallT->Branch ("METy_jetup8",  &m_METy_jetup8,  "METy_jetup8/F");
+	  m_smallT->Branch ("METy_jetup9",  &m_METy_jetup9,  "METy_jetup9/F");
+	  m_smallT->Branch ("METy_jetup10", &m_METy_jetup10, "METy_jetup10/F");
+	  m_smallT->Branch ("METy_jetup11", &m_METy_jetup11, "METy_jetup11/F");
 
-      m_smallT->Branch ("METx_jetdown",  &m_METx_jetdown) ;
-      m_smallT->Branch ("METx_taudown",  &m_METx_taudown) ;
-      m_smallT->Branch ("METx_eledown",  &m_METx_eledown) ;
-      m_smallT->Branch ("METx_mudown",  &m_METx_mudown, "METx_mudown/F") ;
-      m_smallT->Branch ("METx_jetdownTot",   &m_METx_jetdownTot, "METx_jetdownTot/F") ;
-      m_smallT->Branch ("METy_jetdown",  &m_METy_jetdown) ;
-      m_smallT->Branch ("METy_taudown",  &m_METy_taudown) ;
-      m_smallT->Branch ("METy_eledown",  &m_METy_eledown) ;
-      m_smallT->Branch ("METy_mudown",  &m_METy_mudown, "METy_mudown/F") ;
-      m_smallT->Branch ("METy_jetdownTot",   &m_METy_jetdownTot, "METy_jetdownTot/F") ;
+	  m_smallT->Branch ("METx_jetdown1",  &m_METx_jetdown1,  "METx_jetdown1/F");
+	  m_smallT->Branch ("METx_jetdown2",  &m_METx_jetdown2,  "METx_jetdown2/F");
+	  m_smallT->Branch ("METx_jetdown3",  &m_METx_jetdown3,  "METx_jetdown3/F");
+	  m_smallT->Branch ("METx_jetdown4",  &m_METx_jetdown4,  "METx_jetdown4/F");
+	  m_smallT->Branch ("METx_jetdown5",  &m_METx_jetdown5,  "METx_jetdown5/F");
+	  m_smallT->Branch ("METx_jetdown6",  &m_METx_jetdown6,  "METx_jetdown6/F");
+	  m_smallT->Branch ("METx_jetdown7",  &m_METx_jetdown7,  "METx_jetdown7/F");
+	  m_smallT->Branch ("METx_jetdown8",  &m_METx_jetdown8,  "METx_jetdown8/F");
+	  m_smallT->Branch ("METx_jetdown9",  &m_METx_jetdown9,  "METx_jetdown9/F");
+	  m_smallT->Branch ("METx_jetdown10", &m_METx_jetdown10, "METx_jetdown10/F");
+	  m_smallT->Branch ("METx_jetdown11", &m_METx_jetdown11, "METx_jetdown11/F");
 
-      m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F") ;
-      m_smallT->Branch ("met_cov00", &m_met_cov00, "met_cov00/F") ;
-      m_smallT->Branch ("met_cov01", &m_met_cov01, "met_cov01/F") ;
-      m_smallT->Branch ("met_cov10", &m_met_cov10, "met_cov10/F") ;
-      m_smallT->Branch ("met_cov11", &m_met_cov11, "met_cov11/F") ;
+	  m_smallT->Branch ("METy_jetdown1",  &m_METy_jetdown1,  "METy_jetdown1/F");
+	  m_smallT->Branch ("METy_jetdown2",  &m_METy_jetdown2,  "METy_jetdown2/F");
+	  m_smallT->Branch ("METy_jetdown3",  &m_METy_jetdown3,  "METy_jetdown3/F");
+	  m_smallT->Branch ("METy_jetdown4",  &m_METy_jetdown4,  "METy_jetdown4/F");
+	  m_smallT->Branch ("METy_jetdown5",  &m_METy_jetdown5,  "METy_jetdown5/F");
+	  m_smallT->Branch ("METy_jetdown6",  &m_METy_jetdown6,  "METy_jetdown6/F");
+	  m_smallT->Branch ("METy_jetdown7",  &m_METy_jetdown7,  "METy_jetdown7/F");
+	  m_smallT->Branch ("METy_jetdown8",  &m_METy_jetdown8,  "METy_jetdown8/F");
+	  m_smallT->Branch ("METy_jetdown9",  &m_METy_jetdown9,  "METy_jetdown9/F");
+	  m_smallT->Branch ("METy_jetdown10", &m_METy_jetdown10, "METy_jetdown10/F");
+	  m_smallT->Branch ("METy_jetdown11", &m_METy_jetdown11, "METy_jetdown11/F");
+
+	  m_smallT->Branch ("METx_tauup_DM0",    &m_METx_tauup_DM0,	   "METx_tauup_DM0/F");
+	  m_smallT->Branch ("METx_tauup_DM1",	 &m_METx_tauup_DM1,	   "METx_tauup_DM1/F");
+	  m_smallT->Branch ("METx_tauup_DM10",	 &m_METx_tauup_DM10,   "METx_tauup_DM10/F");
+	  m_smallT->Branch ("METx_tauup_DM11",	 &m_METx_tauup_DM11,   "METx_tauup_DM11/F");
+	  m_smallT->Branch ("METy_tauup_DM0",	 &m_METy_tauup_DM0,	   "METy_tauup_DM0/F");
+	  m_smallT->Branch ("METy_tauup_DM1",	 &m_METy_tauup_DM1,	   "METy_tauup_DM1/F");
+	  m_smallT->Branch ("METy_tauup_DM10",	 &m_METy_tauup_DM10,   "METy_tauup_DM10/F");
+	  m_smallT->Branch ("METy_tauup_DM11",	 &m_METy_tauup_DM11,   "METy_tauup_DM11/F");
+	  m_smallT->Branch ("METx_taudown_DM0",	 &m_METx_taudown_DM0,  "METx_taudown_DM0/F");
+	  m_smallT->Branch ("METx_taudown_DM1",	 &m_METx_taudown_DM1,  "METx_taudown_DM1/F");
+	  m_smallT->Branch ("METx_taudown_DM10", &m_METx_taudown_DM10, "METx_taudown_DM10/F");
+	  m_smallT->Branch ("METx_taudown_DM11", &m_METx_taudown_DM11, "METx_taudown_DM11/F");
+	  m_smallT->Branch ("METy_taudown_DM0",	 &m_METy_taudown_DM0,  "METy_taudown_DM0/F");
+	  m_smallT->Branch ("METy_taudown_DM1",	 &m_METy_taudown_DM1,  "METy_taudown_DM1/F");
+	  m_smallT->Branch ("METy_taudown_DM10", &m_METy_taudown_DM10, "METy_taudown_DM10/F");
+	  m_smallT->Branch ("METy_taudown_DM11", &m_METy_taudown_DM11, "METy_taudown_DM11/F");
+
+	  m_smallT->Branch ("METx_eleup_DM0",   &m_METx_eleup_DM0,   "METx_eleup_DM0/F");
+	  m_smallT->Branch ("METx_eleup_DM1",   &m_METx_eleup_DM1,   "METx_eleup_DM1/F");
+	  m_smallT->Branch ("METy_eleup_DM0",   &m_METy_eleup_DM0,   "METy_eleup_DM0/F");
+	  m_smallT->Branch ("METy_eleup_DM1",   &m_METy_eleup_DM1,   "METy_eleup_DM1/F");
+	  m_smallT->Branch ("METx_eledown_DM0", &m_METx_eledown_DM0, "METx_eledown_DM0/F");
+	  m_smallT->Branch ("METx_eledown_DM1", &m_METx_eledown_DM1, "METx_eledown_DM1/F");
+	  m_smallT->Branch ("METy_eledown_DM0", &m_METy_eledown_DM0, "METy_eledown_DM0/F");
+	  m_smallT->Branch ("METy_eledown_DM1", &m_METy_eledown_DM1, "METy_eledown_DM1/F");
+
+      m_smallT->Branch ("METx_muup",   &m_METx_muup,   "METx_muup/F");
+      m_smallT->Branch ("METy_muup",   &m_METy_muup,   "METy_muup/F");
+      m_smallT->Branch ("METx_mudown", &m_METx_mudown, "METx_mudown/F");
+	  m_smallT->Branch ("METy_mudown", &m_METy_mudown, "METy_mudown/F");
+			
+	  m_smallT->Branch ("METx_jetupTot", &m_METx_jetupTot, "METx_jetupTot/F");
+      m_smallT->Branch ("METy_jetupTot", &m_METy_jetupTot, "METy_jetupTot/F");
+	  m_smallT->Branch ("METx_jetdownTot", &m_METx_jetdownTot, "METx_jetdownTot/F") ;
+      m_smallT->Branch ("METy_jetdownTot", &m_METy_jetdownTot, "METy_jetdownTot/F") ;
+
+      m_smallT->Branch ("met_et_corr", &m_met_et_corr, "met_et_corr/F");
+      m_smallT->Branch ("met_cov00",   &m_met_cov00,   "met_cov00/F");
+      m_smallT->Branch ("met_cov01",   &m_met_cov01,   "met_cov01/F");
+      m_smallT->Branch ("met_cov10",   &m_met_cov10,   "met_cov10/F");
+      m_smallT->Branch ("met_cov11",   &m_met_cov11,   "met_cov11/F");
 
       m_smallT->Branch("DeepMET_ResponseTune_px",   &m_DeepMET_ResponseTune_px,   "DeepMET_ResponseTune_px/F");
       m_smallT->Branch("DeepMET_ResponseTune_py",   &m_DeepMET_ResponseTune_py,   "DeepMET_ResponseTune_py/F");
@@ -1939,25 +2063,29 @@ struct smallTree
   Float_t m_MHTnoMux;
   Float_t m_MHTnoMuy;
 
-  std::vector<Float_t> m_METx_jetup ;
-  std::vector<Float_t> m_METx_tauup ;
-  std::vector<Float_t> m_METx_eleup ;
+  Float_t m_METx_jetup1, m_METx_jetup2, m_METx_jetup3, m_METx_jetup4, m_METx_jetup5, m_METx_jetup6, m_METx_jetup7, m_METx_jetup8, m_METx_jetup9, m_METx_jetup10, m_METx_jetup11;
+  Float_t m_METy_jetup1, m_METy_jetup2, m_METy_jetup3, m_METy_jetup4, m_METy_jetup5, m_METy_jetup6, m_METy_jetup7, m_METy_jetup8, m_METy_jetup9, m_METy_jetup10, m_METy_jetup11;
+  Float_t m_METx_jetdown1, m_METx_jetdown2, m_METx_jetdown3, m_METx_jetdown4, m_METx_jetdown5, m_METx_jetdown6, m_METx_jetdown7, m_METx_jetdown8, m_METx_jetdown9, m_METx_jetdown10, m_METx_jetdown11;
+  Float_t m_METy_jetdown1, m_METy_jetdown2, m_METy_jetdown3, m_METy_jetdown4, m_METy_jetdown5, m_METy_jetdown6, m_METy_jetdown7, m_METy_jetdown8, m_METy_jetdown9, m_METy_jetdown10, m_METy_jetdown11;
+
+  Float_t m_METx_tauup_DM0, m_METx_tauup_DM1, m_METx_tauup_DM10, m_METx_tauup_DM11;
+  Float_t m_METy_tauup_DM0, m_METy_tauup_DM1, m_METy_tauup_DM10, m_METy_tauup_DM11;
+  Float_t m_METx_taudown_DM0, m_METx_taudown_DM1, m_METx_taudown_DM10, m_METx_taudown_DM11;
+  Float_t m_METy_taudown_DM0, m_METy_taudown_DM1, m_METy_taudown_DM10, m_METy_taudown_DM11;
+
+  Float_t m_METx_eleup_DM0, m_METx_eleup_DM1;
+  Float_t m_METy_eleup_DM0, m_METy_eleup_DM1;
+  Float_t m_METx_eledown_DM0, m_METx_eledown_DM1;
+  Float_t m_METy_eledown_DM0, m_METy_eledown_DM1;
+  
   Float_t m_METx_muup;
-  Float_t m_METx_jetupTot;
-  std::vector<Float_t> m_METx_jetdown ;
-  std::vector<Float_t> m_METx_taudown ;
-  std::vector<Float_t> m_METx_eledown ;
   Float_t m_METx_mudown;
-  Float_t m_METx_jetdownTot;
-  std::vector<Float_t> m_METy_jetup ;
-  std::vector<Float_t> m_METy_tauup ;
-  std::vector<Float_t> m_METy_eleup ;
   Float_t m_METy_muup;
-  Float_t m_METy_jetupTot;
-  std::vector<Float_t> m_METy_jetdown ;
-  std::vector<Float_t> m_METy_taudown ;
-  std::vector<Float_t> m_METy_eledown ;
   Float_t m_METy_mudown;
+  
+  Float_t m_METx_jetupTot;
+  Float_t m_METx_jetdownTot;
+  Float_t m_METy_jetupTot;
   Float_t m_METy_jetdownTot;
 
   Float_t m_met_et_corr;

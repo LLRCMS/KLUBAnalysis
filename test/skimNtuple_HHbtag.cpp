@@ -4719,84 +4719,100 @@ int main (int argc, char** argv)
 
 	  // MET shifted for JES
 	  auto vMET_shift_jet = getShiftedMET_jet(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
-	  for (int isource = 0; isource < N_jecSources; isource++){
-		theSmallTree.m_METx_jetup.push_back(vMET_shift_jet.first.at(isource).X());
-		theSmallTree.m_METy_jetup.push_back(vMET_shift_jet.first.at(isource).Y());
-		theSmallTree.m_METx_jetdown.push_back(vMET_shift_jet.second.at(isource).X());
-		theSmallTree.m_METy_jetdown.push_back(vMET_shift_jet.second.at(isource).Y());
-	  }
 
-	  // theSmallTree.m_METx_jetup1  = vMET_shift_jet.first.at(0).X();
-	  // theSmallTree.m_METx_jetup2  = vMET_shift_jet.first.at(1).X();
-	  // theSmallTree.m_METx_jetup3  = vMET_shift_jet.first.at(2).X();
-	  // theSmallTree.m_METx_jetup4  = vMET_shift_jet.first.at(3).X();
-	  // theSmallTree.m_METx_jetup5  = vMET_shift_jet.first.at(4).X();
-	  // theSmallTree.m_METx_jetup6  = vMET_shift_jet.first.at(5).X();
-	  // theSmallTree.m_METx_jetup7  = vMET_shift_jet.first.at(6).X();
-	  // theSmallTree.m_METx_jetup8  = vMET_shift_jet.first.at(7).X();
-	  // theSmallTree.m_METx_jetup9  = vMET_shift_jet.first.at(8).X();
-	  // theSmallTree.m_METx_jetup10 = vMET_shift_jet.first.at(9).X();
-	  // theSmallTree.m_METx_jetup11 = vMET_shift_jet.first.at(10).X();
+	  theSmallTree.m_METx_jetup1  = vMET_shift_jet.first.at(0).X();
+	  theSmallTree.m_METx_jetup2  = vMET_shift_jet.first.at(1).X();
+	  theSmallTree.m_METx_jetup3  = vMET_shift_jet.first.at(2).X();
+	  theSmallTree.m_METx_jetup4  = vMET_shift_jet.first.at(3).X();
+	  theSmallTree.m_METx_jetup5  = vMET_shift_jet.first.at(4).X();
+	  theSmallTree.m_METx_jetup6  = vMET_shift_jet.first.at(5).X();
+	  theSmallTree.m_METx_jetup7  = vMET_shift_jet.first.at(6).X();
+	  theSmallTree.m_METx_jetup8  = vMET_shift_jet.first.at(7).X();
+	  theSmallTree.m_METx_jetup9  = vMET_shift_jet.first.at(8).X();
+	  theSmallTree.m_METx_jetup10 = vMET_shift_jet.first.at(9).X();
+	  theSmallTree.m_METx_jetup11 = vMET_shift_jet.first.at(10).X();
 
-	  // theSmallTree.m_METy_jetup1  = vMET_shift_jet.first.at(0).Y();
-	  // theSmallTree.m_METy_jetup2  = vMET_shift_jet.first.at(1).Y();
-	  // theSmallTree.m_METy_jetup3  = vMET_shift_jet.first.at(2).Y();
-	  // theSmallTree.m_METy_jetup4  = vMET_shift_jet.first.at(3).Y();
-	  // theSmallTree.m_METy_jetup5  = vMET_shift_jet.first.at(4).Y();
-	  // theSmallTree.m_METy_jetup6  = vMET_shift_jet.first.at(5).Y();
-	  // theSmallTree.m_METy_jetup7  = vMET_shift_jet.first.at(6).Y();
-	  // theSmallTree.m_METy_jetup8  = vMET_shift_jet.first.at(7).Y();
-	  // theSmallTree.m_METy_jetup9  = vMET_shift_jet.first.at(8).Y();
-	  // theSmallTree.m_METy_jetup10 = vMET_shift_jet.first.at(9).Y();
-	  // theSmallTree.m_METy_jetup11 = vMET_shift_jet.first.at(10).Y();
+	  theSmallTree.m_METy_jetup1  = vMET_shift_jet.first.at(0).Y();
+	  theSmallTree.m_METy_jetup2  = vMET_shift_jet.first.at(1).Y();
+	  theSmallTree.m_METy_jetup3  = vMET_shift_jet.first.at(2).Y();
+	  theSmallTree.m_METy_jetup4  = vMET_shift_jet.first.at(3).Y();
+	  theSmallTree.m_METy_jetup5  = vMET_shift_jet.first.at(4).Y();
+	  theSmallTree.m_METy_jetup6  = vMET_shift_jet.first.at(5).Y();
+	  theSmallTree.m_METy_jetup7  = vMET_shift_jet.first.at(6).Y();
+	  theSmallTree.m_METy_jetup8  = vMET_shift_jet.first.at(7).Y();
+	  theSmallTree.m_METy_jetup9  = vMET_shift_jet.first.at(8).Y();
+	  theSmallTree.m_METy_jetup10 = vMET_shift_jet.first.at(9).Y();
+	  theSmallTree.m_METy_jetup11 = vMET_shift_jet.first.at(10).Y();
 
-	  // theSmallTree.m_METx_jetdown1  = vMET_shift_jet.first.at(0).X();
-	  // theSmallTree.m_METx_jetdown2  = vMET_shift_jet.first.at(1).X();
-	  // theSmallTree.m_METx_jetdown3  = vMET_shift_jet.first.at(2).X();
-	  // theSmallTree.m_METx_jetdown4  = vMET_shift_jet.first.at(3).X();
-	  // theSmallTree.m_METx_jetdown5  = vMET_shift_jet.first.at(4).X();
-	  // theSmallTree.m_METx_jetdown6  = vMET_shift_jet.first.at(5).X();
-	  // theSmallTree.m_METx_jetdown7  = vMET_shift_jet.first.at(6).X();
-	  // theSmallTree.m_METx_jetdown8  = vMET_shift_jet.first.at(7).X();
-	  // theSmallTree.m_METx_jetdown9  = vMET_shift_jet.first.at(8).X();
-	  // theSmallTree.m_METx_jetdown10 = vMET_shift_jet.first.at(9).X();
-	  // theSmallTree.m_METx_jetdown11 = vMET_shift_jet.first.at(10).X();
-	  
-	  // theSmallTree.m_METx_jetdown1 = vMET_shift_jet.second.at(0).X();
-	  // theSmallTree.m_METx_jetdown2 = vMET_shift_jet.second.at(1).X();
+	  theSmallTree.m_METx_jetdown1  = vMET_shift_jet.second.at(0).X();
+	  theSmallTree.m_METx_jetdown2  = vMET_shift_jet.second.at(1).X();
+	  theSmallTree.m_METx_jetdown3  = vMET_shift_jet.second.at(2).X();
+	  theSmallTree.m_METx_jetdown4  = vMET_shift_jet.second.at(3).X();
+	  theSmallTree.m_METx_jetdown5  = vMET_shift_jet.second.at(4).X();
+	  theSmallTree.m_METx_jetdown6  = vMET_shift_jet.second.at(5).X();
+	  theSmallTree.m_METx_jetdown7  = vMET_shift_jet.second.at(6).X();
+	  theSmallTree.m_METx_jetdown8  = vMET_shift_jet.second.at(7).X();
+	  theSmallTree.m_METx_jetdown9  = vMET_shift_jet.second.at(8).X();
+	  theSmallTree.m_METx_jetdown10 = vMET_shift_jet.second.at(9).X();
+	  theSmallTree.m_METx_jetdown11 = vMET_shift_jet.second.at(10).X();
 
-	  // theSmallTree.m_METy_jetdown1 = vMET_shift_jet.second.at(0).Y();
-	  // theSmallTree.m_METy_jetdown2 = vMET_shift_jet.second.at(1).Y();
+	  theSmallTree.m_METy_jetdown1  = vMET_shift_jet.second.at(0).Y();
+	  theSmallTree.m_METy_jetdown2  = vMET_shift_jet.second.at(1).Y();
+	  theSmallTree.m_METy_jetdown3  = vMET_shift_jet.second.at(2).Y();
+	  theSmallTree.m_METy_jetdown4  = vMET_shift_jet.second.at(3).Y();
+	  theSmallTree.m_METy_jetdown5  = vMET_shift_jet.second.at(4).Y();
+	  theSmallTree.m_METy_jetdown6  = vMET_shift_jet.second.at(5).Y();
+	  theSmallTree.m_METy_jetdown7  = vMET_shift_jet.second.at(6).Y();
+	  theSmallTree.m_METy_jetdown8  = vMET_shift_jet.second.at(7).Y();
+	  theSmallTree.m_METy_jetdown9  = vMET_shift_jet.second.at(8).Y();
+	  theSmallTree.m_METy_jetdown10 = vMET_shift_jet.second.at(9).Y();
+	  theSmallTree.m_METy_jetdown11 = vMET_shift_jet.second.at(10).Y();
 
-	  
 	  if (isMC)
 		{
-		  // Shifted MET for TES/EES
+		  // Shifted MET for TES/EES (and unpacK: first is tes, second is ees)
 		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
-
-		  //unpack: first is tes, second is ees
 		  auto vMET_shift_tes = vMET_shifts_tes_ees.first;
 		  auto vMET_shift_ees = vMET_shifts_tes_ees.second;
 
-		  for (int idm = 0; idm < N_tauhDM; idm++)
-			{
-			  theSmallTree.m_METx_tauup.push_back(vMET_shift_tes.first.at(idm).X());
-			  theSmallTree.m_METy_tauup.push_back(vMET_shift_tes.first.at(idm).Y());
-			  theSmallTree.m_METx_taudown.push_back(vMET_shift_tes.second.at(idm).X());
-			  theSmallTree.m_METy_taudown.push_back(vMET_shift_tes.second.at(idm).Y());
+		  // Shifted MET for TES
+		  theSmallTree.m_METx_tauup_DM0  = vMET_shift_tes.first.at(0).X();
+		  theSmallTree.m_METx_tauup_DM1  = vMET_shift_tes.first.at(1).X();
+		  theSmallTree.m_METx_tauup_DM10 = vMET_shift_tes.first.at(2).X();
+		  theSmallTree.m_METx_tauup_DM11 = vMET_shift_tes.first.at(3).X();
 
-			  if (idm <N_tauhDM_EES){
-				theSmallTree.m_METx_eleup.push_back(vMET_shift_ees.first.at(idm).X());
-				theSmallTree.m_METy_eleup.push_back(vMET_shift_ees.first.at(idm).Y());
-				theSmallTree.m_METx_eledown.push_back(vMET_shift_ees.second.at(idm).X());
-				theSmallTree.m_METy_eledown.push_back(vMET_shift_ees.second.at(idm).Y());
-			  }
-			}
+		  theSmallTree.m_METy_tauup_DM0  = vMET_shift_tes.first.at(0).Y();
+		  theSmallTree.m_METy_tauup_DM1  = vMET_shift_tes.first.at(1).Y();
+		  theSmallTree.m_METy_tauup_DM10 = vMET_shift_tes.first.at(2).Y();
+		  theSmallTree.m_METy_tauup_DM11 = vMET_shift_tes.first.at(3).Y();
 
+		  theSmallTree.m_METx_taudown_DM0  = vMET_shift_tes.first.at(0).X();
+		  theSmallTree.m_METx_taudown_DM1  = vMET_shift_tes.first.at(1).X();
+		  theSmallTree.m_METx_taudown_DM10 = vMET_shift_tes.first.at(2).X();
+		  theSmallTree.m_METx_taudown_DM11 = vMET_shift_tes.first.at(3).X();
+
+		  theSmallTree.m_METy_taudown_DM0  = vMET_shift_tes.first.at(0).Y();
+		  theSmallTree.m_METy_taudown_DM1  = vMET_shift_tes.first.at(1).Y();
+		  theSmallTree.m_METy_taudown_DM10 = vMET_shift_tes.first.at(2).Y();
+		  theSmallTree.m_METy_taudown_DM11 = vMET_shift_tes.first.at(3).Y();
+
+		  // Shifted MET for EES
+		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees.first.at(0).X();
+		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees.first.at(1).X();
+
+		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_ees.first.at(0).Y();
+		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_ees.first.at(1).Y();
+
+		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_ees.first.at(0).X();
+		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_ees.first.at(1).X();
+
+		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees.first.at(0).Y();
+		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees.first.at(1).Y();
+		  
 		  // Shifted MET for MES
 		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
-		  theSmallTree.m_METx_muup = vMET_shift_mes.first.X();
-		  theSmallTree.m_METy_muup = vMET_shift_mes.first.Y();
+		  theSmallTree.m_METx_muup   = vMET_shift_mes.first.X();
+		  theSmallTree.m_METy_muup   = vMET_shift_mes.first.Y();
 		  theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();
 		  theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
 
