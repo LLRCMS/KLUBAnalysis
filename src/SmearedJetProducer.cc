@@ -4,7 +4,7 @@
 #define DEBUG false
 
 // Constructor
-SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int variation, bool isPostVFP)
+SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int variation, bool isAK8)
 {
   // Enable the smearing procedure
   enabled_ = doSmearing;
@@ -17,26 +17,30 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
 
   // Get the correct txt file and set the uncertainty names
   std::string resolutionFile, scaleFactorFile;
+  std::string filedir = "weights/JERfiles_UL/";
+  std::string ak = isAK8 ? "AK8" : "AK4";
   if (year == "2016")
-  {
-    if(isPostVFP){
-      resolutionFile  = "weights/JERfiles_UL/Summer20UL16_JRV3_MC_PtResolution_AK4PFchs.txt";
-      scaleFactorFile = "weights/JERfiles_UL/Summer20UL16_JRV3_MC_SF_AK4PFchs.txt";
-    } else {
-      resolutionFile  = "weights/JERfiles_UL/Summer20UL16APV_JRV3_MC_PtResolution_AK4PFchs.txt";
-      scaleFactorFile = "weights/JERfiles_UL/Summer20UL16APV_JRV3_MC_SF_AK4PFchs.txt";
-    }
-  }
+	{
+	  resolutionFile  = filedir + "Summer20UL16_JRV3_MC_PtResolution_" + ak + "PFchs.txt";
+	  scaleFactorFile = filedir + "Summer20UL16_JRV3_MC_SF_" + ak + "PFchs.txt";
+	}
+  else if (year == "2016APV")
+	{
+	  resolutionFile  = filedir + "Summer20UL16APV_JRV3_MC_PtResolution_" + ak + "PFchs.txt";
+	  scaleFactorFile = filedir + "Summer20UL16APV_JRV3_MC_SF_" + ak + "PFchs.txt";
+	}
   else if (year == "2017")
-  {
-    resolutionFile  = "weights/JERfiles_UL/Summer19UL17_JRV2_MC_PtResolution_AK4PFchs.txt";
-    scaleFactorFile = "weights/JERfiles_UL/Summer19UL17_JRV2_MC_SF_AK4PFchs.txt";
-  }
-  else /* year == "2018" */
-  {
-    resolutionFile  = "weights/JERfiles_UL/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt";
-    scaleFactorFile = "weights/JERfiles_UL/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt";
-  }
+	{
+	  // in 2017 AK4 JER files should be used for both AK4 and AK8 jets
+	  // see https://cms-talk.web.cern.ch/t/jers-for-ak8-in-2017/36614/4
+	  resolutionFile  = filedir + "Summer19UL17_JRV2_MC_PtResolution_AK4PFchs.txt";
+	  scaleFactorFile = filedir + "Summer19UL17_JRV2_MC_SF_AK4PFchs.txt";
+	}
+  else if (year == "2018")
+	{
+	  resolutionFile  = filedir + "Summer19UL18_JRV2_MC_PtResolution_" + ak + "PFchs.txt";
+	  scaleFactorFile = filedir + "Summer19UL18_JRV2_MC_SF_" + ak + "PFchs.txt";
+	}
 
   std::cout << "** INFO - SmearedJetProducer - resolutionFile : " << resolutionFile << std::endl;
   std::cout << "** INFO - SmearedJetProducer - scaleFactorFile: " << scaleFactorFile << std::endl;
@@ -46,7 +50,7 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
   scale_factor_from_file_.reset(new JME::JetResolutionScaleFactor(scaleFactorFile));
 
   // Initialize genMatching thresholds
-  dR_max_ = 0.2;
+  dR_max_ = isAK8 ? 0.4 : 0.2;
   dPt_max_factor_ = 3.;
 }
 
@@ -184,7 +188,7 @@ double SmearedJetProducer::getSmearFactor(TLorentzVector jet, bigTree& theBigTre
 TLorentzVector SmearedJetProducer::getSmearedJet(TLorentzVector jet, bigTree & theBigTree)
 {
   // Get the smear factor
-  double smearFactor = SmearedJetProducer::getSmearFactor(jet, theBigTree);
+  double smearFactor = SmearedJetProducer::getSmearFactor(jet, theBigTree, true);
 
   // Declare the smeared jet and smear it
   TLorentzVector smearedJet = jet * smearFactor;
@@ -205,7 +209,7 @@ TLorentzVector SmearedJetProducer::getSmearedJetFromIdx(unsigned int jetIdx, big
   TLorentzVector jet(theBigTree.jets_px->at(jetIdx), theBigTree.jets_py->at(jetIdx), theBigTree.jets_pz->at(jetIdx), theBigTree.jets_e ->at(jetIdx));
 
   // Get the smear factor
-  double smearFactor = SmearedJetProducer::getSmearFactor(jet, theBigTree);
+  double smearFactor = SmearedJetProducer::getSmearFactor(jet, theBigTree, true);
 
   // Declare the smeared jet and smear it
   TLorentzVector smearedJet = jet * smearFactor;
@@ -222,10 +226,15 @@ TLorentzVector SmearedJetProducer::getSmearedJetFromIdx(unsigned int jetIdx, big
 double SmearedJetProducer::getResolution(unsigned int jetIdx, bigTree & theBigTree)
 {
   // Build jet from jetIdx
-  TLorentzVector jet(theBigTree.jets_px->at(jetIdx), theBigTree.jets_py->at(jetIdx), theBigTree.jets_pz->at(jetIdx), theBigTree.jets_e ->at(jetIdx));
+  TLorentzVector jet(theBigTree.jets_px->at(jetIdx), theBigTree.jets_py->at(jetIdx),
+					 theBigTree.jets_pz->at(jetIdx), theBigTree.jets_e ->at(jetIdx));
 
   // Get resolution
-  double jet_resolution = resolution_from_file_->getResolution({{JME::Binning::JetPt, jet.Pt()}, {JME::Binning::JetEta, jet.Eta()}, {JME::Binning::Rho, theBigTree.rho}});
+  double jet_resolution = resolution_from_file_->getResolution({
+	  {JME::Binning::JetPt, jet.Pt()},
+	  {JME::Binning::JetEta, jet.Eta()},
+	  {JME::Binning::Rho, theBigTree.rho}
+	});
 
   return jet_resolution;
 }
