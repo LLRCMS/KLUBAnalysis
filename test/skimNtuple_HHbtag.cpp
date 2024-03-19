@@ -3064,9 +3064,9 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "mutau");
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "mutau");
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
 				}
 
 			  else if (trgRegions["tau"])
@@ -3201,9 +3201,9 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "etau");
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "etau");
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
 				}
 
 			  else if (trgRegions["tau"])
@@ -3328,7 +3328,6 @@ int main (int argc, char** argv)
 				    SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  }
-				  
 
 				  trigSF = SF;
 				  trigSF_ele_up   = SF + 1. * SF_Err;
@@ -3343,9 +3342,9 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD, "tautau");
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD, "tautau");
+				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
 				}
 
 			  else if (trgRegions["tau"])
