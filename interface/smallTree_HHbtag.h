@@ -307,14 +307,10 @@ struct smallTree
 
       m_dau1_iso  = -1. ;
       m_dau1_eleMVAiso = -1;
-      m_dau1_CUTiso = -1 ;
       m_dau1_deepTauVsJet = -1;
       m_dau1_deepTauVsEle = -1;
       m_dau1_deepTauVsMu = -1;
 
-      m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
-      m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
-      m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
       m_dau1_pt  = -1. ;
 
       m_dau1_pt_muup   = -1.;
@@ -371,13 +367,9 @@ struct smallTree
       m_hasgenmatch2 = false;
 
       m_dau2_iso  = -1. ;
-      m_dau2_CUTiso = -1 ;
       m_dau2_deepTauVsJet = -1;
       m_dau2_deepTauVsEle = -1;
       m_dau2_deepTauVsMu = -1;
-      m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits= false;
-      m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits= false;
-      m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits= false;
 
       m_genH1_pt = -1;
       m_genH1_eta = -1;
@@ -659,12 +651,6 @@ struct smallTree
       m_tauH_SVFIT_METphi = -1. ;
       m_tauH_SVFIT_METrho = -1. ;
 
-
-      m_tauH_SVFIT_mass_up   = -1. ;
-      m_tauH_SVFIT_mass_down = -1. ;
-      m_tauH_SVFIT_mass_METup   = -1. ;
-      m_tauH_SVFIT_mass_METdown = -1. ;
-
       m_bH_pt = -1. ;
       m_bH_eta = -1. ;
       m_bH_phi = -1. ;
@@ -699,7 +685,6 @@ struct smallTree
       m_dib_deltaEta = -1. ;
       m_ditau_deltaR = -1. ;
       m_dib_deltaR = -1. ;
-      m_ditau_deltaR_per_tauHsvfitpt = -1. ;
       m_dib_deltaR_per_bHpt = -1. ;
       m_btau_deltaRmin = -1. ;
       m_btau_deltaRmax = -1. ;
@@ -966,11 +951,6 @@ struct smallTree
       m_bH_MET_deltaR                 = -9. ;
       m_bH_tauH_MET_deltaR            = -9. ;
       m_ditau_deltaR_per_tauH_MET_pt  = -9. ;
-      m_p_zeta                        = -9. ;
-      m_p_zeta_visible                = -9. ;
-      m_mT_tauH_MET                   = -9. ;
-      m_mT_tauH_SVFIT_MET             = -9. ;
-      m_mT_total                      = -9. ;
 
       // fake taus in MC
       m_isTau1real = -1; // -1 if data
@@ -1136,7 +1116,7 @@ struct smallTree
       m_smallT->Branch ("idFakeSF_mutauFR_eta1p2to1p7_down", &m_idFakeSF_mutauFR_eta1p2to1p7_down, "idFakeSF_mutauFR_eta1p2to1p7_down/F");
       m_smallT->Branch ("idFakeSF_mutauFR_etaGt1p7_down"   , &m_idFakeSF_mutauFR_etaGt1p7_down   , "idFakeSF_mutauFR_etaGt1p7_down/F");
 
-  m_smallT->Branch ("idFakeSF_etauFR_barrel_up"        , &m_idFakeSF_etauFR_barrel_up        , "idFakeSF_etauFR_barrel_up/F");
+	  m_smallT->Branch ("idFakeSF_etauFR_barrel_up"        , &m_idFakeSF_etauFR_barrel_up        , "idFakeSF_etauFR_barrel_up/F");
       m_smallT->Branch ("idFakeSF_etauFR_endcap_up"        , &m_idFakeSF_etauFR_endcap_up        , "idFakeSF_etauFR_endcap_up/F");
       m_smallT->Branch ("idFakeSF_etauFR_barrel_down"      , &m_idFakeSF_etauFR_barrel_down      , "idFakeSF_etauFR_barrel_down/F");
       m_smallT->Branch ("idFakeSF_etauFR_endcap_down"      , &m_idFakeSF_etauFR_endcap_down      , "idFakeSF_etauFR_endcap_down/F");
@@ -1286,17 +1266,11 @@ struct smallTree
 
       m_smallT->Branch ("dau1_iso", &m_dau1_iso, "dau1_iso/F") ;
       m_smallT->Branch ("dau1_eleMVAiso", &m_dau1_eleMVAiso, "dau1_eleMVAiso/I") ;
-      m_smallT->Branch ("dau1_CUTiso", &m_dau1_CUTiso, "dau1_CUTiso/I") ;
       m_smallT->Branch ("dau1_deepTauVsJet",&m_dau1_deepTauVsJet,"dau1_deepTauVsJet/I");
       m_smallT->Branch ("dau1_deepTauVsEle",&m_dau1_deepTauVsEle,"dau1_deepTauVsEle/I");
       m_smallT->Branch ("dau1_deepTauVsMu",&m_dau1_deepTauVsMu,"dau1_deepTauVsMu/I");
 
-      m_smallT->Branch ("dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
-      m_smallT->Branch ("dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
-      m_smallT->Branch ("dau1_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau1_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
-
       m_smallT->Branch ("dau1_pt", &m_dau1_pt, "dau1_pt/F") ;
-
 	  m_smallT->Branch ("dau1_pt_muup",    &m_dau1_pt_muup,   "dau1_pt_muup/F");
       m_smallT->Branch ("dau1_pt_mudown",  &m_dau1_pt_mudown, "dau1_pt_mudown/F");
       m_smallT->Branch ("dau1_e_muup",     &m_dau1_e_muup,    "dau1_e_muup/F");
@@ -1351,13 +1325,9 @@ struct smallTree
       m_smallT->Branch("hasgenmatch2", &m_hasgenmatch2, "hasgenmatch2/O");
 
       m_smallT->Branch ("dau2_iso", &m_dau2_iso, "dau2_iso/F") ;
-      m_smallT->Branch ("dau2_CUTiso", &m_dau2_CUTiso, "dau2_CUTiso/I") ;
       m_smallT->Branch ("dau2_deepTauVsJet",&m_dau2_deepTauVsJet,"dau2_deepTauVsJet/I");
       m_smallT->Branch ("dau2_deepTauVsEle",&m_dau2_deepTauVsEle,"dau2_deepTauVsEle/I");
       m_smallT->Branch ("dau2_deepTauVsMu",&m_dau2_deepTauVsMu,"dau2_deepTauVsMu/I");
-      m_smallT->Branch ("dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits, "dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits/O") ;
-      m_smallT->Branch ("dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits, "dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits/O") ;
-      m_smallT->Branch ("dau2_byTightCombinedIsolationDeltaBetaCorr3Hits", &m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits, "dau2_byTightCombinedIsolationDeltaBetaCorr3Hits/O") ;
 
       m_smallT->Branch("genH1_pt", &m_genH1_pt  , "genH1_pt/F");
       m_smallT->Branch("genH1_eta", &m_genH1_eta  , "genH1_eta/F");
@@ -1639,17 +1609,12 @@ struct smallTree
       m_smallT->Branch ("tauH_SVFIT_phi", &m_tauH_SVFIT_phi, "tauH_SVFIT_phi/F") ;
       m_smallT->Branch ("tauH_SVFIT_METphi", &m_tauH_SVFIT_METphi, "tauH_SVFIT_METphi/F") ;
       m_smallT->Branch ("tauH_SVFIT_METrho", &m_tauH_SVFIT_METrho, "tauH_SVFIT_METrho/F") ;
-      m_smallT->Branch ("tauH_SVFIT_mass_up", &m_tauH_SVFIT_mass_up, "tauH_SVFIT_mass_up/F") ;
-      m_smallT->Branch ("tauH_SVFIT_mass_down", &m_tauH_SVFIT_mass_down, "tauH_SVFIT_mass_down/F") ;
-      m_smallT->Branch ("tauH_SVFIT_mass_METup", &m_tauH_SVFIT_mass_METup, "tauH_SVFIT_mass_METup/F") ;
-      m_smallT->Branch ("tauH_SVFIT_mass_METdown", &m_tauH_SVFIT_mass_METdown, "tauH_SVFIT_mass_METdown/F") ;
 
       m_smallT->Branch ("bH_pt", &m_bH_pt, "bH_pt/F") ;
       m_smallT->Branch ("bH_eta", &m_bH_eta, "bH_eta/F") ;
       m_smallT->Branch ("bH_phi", &m_bH_phi, "bH_phi/F") ;
       m_smallT->Branch ("bH_e", &m_bH_e, "bH_e/F") ;
       m_smallT->Branch ("bH_mass", &m_bH_mass, "bH_mass/F") ;
-
 
       m_smallT->Branch ("HHsvfit_pt", &m_HHsvfit_pt, "HHsvfit_pt/F") ;
       m_smallT->Branch ("HHsvfit_eta", &m_HHsvfit_eta, "HHsvfit_eta/F") ;
@@ -1662,7 +1627,6 @@ struct smallTree
       m_smallT->Branch ("HH_e", &m_HH_e, "HH_e/F") ;
       m_smallT->Branch ("HH_mass", &m_HH_mass, "HH_mass/F") ;
 
-
       m_smallT->Branch ("HHKin_mass", &m_HHKin_mass, "HHKin_mass/F") ;
       m_smallT->Branch ("HHKin_chi2", &m_HHKin_chi2, "HHKin_chi2/F") ;
       m_smallT->Branch ("HH_deltaPhi", &m_HH_deltaPhi, "HH_deltaPhi/F") ;
@@ -1672,14 +1636,13 @@ struct smallTree
       m_smallT->Branch ("tauHMet_deltaPhi", &m_tauHMet_deltaPhi, "tauHMet_deltaPhi/F") ;
       m_smallT->Branch ("tauHsvfitMet_deltaPhi", &m_tauHsvfitMet_deltaPhi, "tauHsvfitMet_deltaPhi/F") ;
       m_smallT->Branch ("bHMet_deltaPhi", &m_bHMet_deltaPhi, "bHMet_deltaPhi/F") ;
-      //      m_smallT->Branch ("", &m_, "/F") ;
+
       m_smallT->Branch ("ditau_deltaPhi", &m_ditau_deltaPhi, "ditau_deltaPhi/F") ;
       m_smallT->Branch ("ditau_deltaEta", &m_ditau_deltaEta, "ditau_deltaEta/F") ;
       m_smallT->Branch ("dib_deltaPhi", &m_dib_deltaPhi, "dib_deltaPhi/F") ;
       m_smallT->Branch ("dib_deltaEta", &m_dib_deltaEta, "dib_deltaEta/F") ;
       m_smallT->Branch ("ditau_deltaR",   &m_ditau_deltaR,    "ditau_deltaR/F") ;
       m_smallT->Branch ("dib_deltaR",     &m_dib_deltaR,      "dib_deltaR/F") ;
-      m_smallT->Branch ("ditau_deltaR_per_tauHsvfitpt", &m_ditau_deltaR_per_tauHsvfitpt, "ditau_deltaR_per_tauHsvfitpt/F") ;
       m_smallT->Branch ("dib_deltaR_per_bHpt", &m_dib_deltaR_per_bHpt, "dib_deltaR_per_bHpt/F") ;
 
       m_smallT->Branch ("btau_deltaRmin", &m_btau_deltaRmin,  "btau_deltaRmin/F") ;
@@ -1853,11 +1816,6 @@ struct smallTree
       m_smallT->Branch ("bH_MET_deltaR",                  &m_bH_MET_deltaR                 , "bH_MET_deltaR/F");
       m_smallT->Branch ("bH_tauH_MET_deltaR",             &m_bH_tauH_MET_deltaR            , "bH_tauH_MET_deltaR/F");
       m_smallT->Branch ("ditau_deltaR_per_tauH_MET_pt",   &m_ditau_deltaR_per_tauH_MET_pt  , "ditau_deltaR_per_tauH_MET_pt/F");
-      m_smallT->Branch ("p_zeta",                         &m_p_zeta                        , "p_zeta/F");
-      m_smallT->Branch ("p_zeta_visible",                 &m_p_zeta_visible                , "p_zeta_visible/F");
-      m_smallT->Branch ("mT_tauH_MET",                    &m_mT_tauH_MET                   , "mT_tauH_MET/F");
-      m_smallT->Branch ("mT_tauH_SVFIT_MET",              &m_mT_tauH_SVFIT_MET             , "mT_tauH_SVFIT_MET/F");
-      m_smallT->Branch ("mT_total",                       &m_mT_total                      , "mT_total/F");
 
       m_smallT->Branch ("isTau1real",     &m_isTau1real     , "isTau1real/I");
       m_smallT->Branch ("isTau2real",     &m_isTau2real     , "isTau2real/I");
@@ -2039,12 +1997,6 @@ struct smallTree
   Int_t m_isMC ;
   Int_t m_isOS ;
 
-  //FIXME what about these?
-  //    Int_t           metfilterbit;
-  //    Float_t         met;
-  //    Float_t         metphi;
-
-  // MET
   Float_t m_met_phi ;
   Float_t m_met_et ;
   Float_t m_METx ;
@@ -2102,17 +2054,11 @@ struct smallTree
   // the largest pT daughter visible candidate
   Float_t m_dau1_iso ;
   Int_t   m_dau1_eleMVAiso;
-  Int_t   m_dau1_CUTiso; // for taus only
   Int_t   m_dau1_deepTauVsJet;
   Int_t   m_dau1_deepTauVsEle;
   Int_t   m_dau1_deepTauVsMu;
 
-  Bool_t m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits;
-  Bool_t m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits;
-  Bool_t m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits;
-
   Float_t m_dau1_pt ;
-
   Float_t m_dau1_pt_muup;
   Float_t m_dau1_pt_mudown;
   Float_t m_dau1_e_muup;
@@ -2149,13 +2095,9 @@ struct smallTree
 
   // the smallest pT daughter visible candidate
   Float_t m_dau2_iso ;
-  Int_t   m_dau2_CUTiso; // for taus only
   Int_t   m_dau2_deepTauVsJet;
   Int_t   m_dau2_deepTauVsEle;
   Int_t   m_dau2_deepTauVsMu;
-  Bool_t m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits;
-  Bool_t m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits;
-  Bool_t m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits;
 
   Float_t m_genH1_pt;
   Float_t m_genH1_eta;
@@ -2437,17 +2379,12 @@ struct smallTree
   Float_t m_tauH_e ;
   Float_t m_tauH_mass ;
 
-
   Float_t m_tauH_SVFIT_mass ;
   Float_t m_tauH_SVFIT_pt ;
   Float_t m_tauH_SVFIT_eta ;
   Float_t m_tauH_SVFIT_phi ;
   Float_t m_tauH_SVFIT_METphi ;
   Float_t m_tauH_SVFIT_METrho ;
-  Float_t m_tauH_SVFIT_mass_up ;
-  Float_t m_tauH_SVFIT_mass_down ;
-  Float_t m_tauH_SVFIT_mass_METup ;
-  Float_t m_tauH_SVFIT_mass_METdown ;
 
   // the bb-H candidate
   Float_t m_bH_pt ;
@@ -2488,7 +2425,6 @@ struct smallTree
   Float_t m_dib_deltaEta ;
   Float_t m_ditau_deltaR   ;
   Float_t m_dib_deltaR     ;
-  Float_t m_ditau_deltaR_per_tauHsvfitpt ;
   Float_t m_dib_deltaR_per_bHpt ;
   Float_t m_btau_deltaRmin ;
   Float_t m_btau_deltaRmax ;
@@ -2760,11 +2696,6 @@ struct smallTree
   Float_t m_bH_MET_deltaR; //
   Float_t m_bH_tauH_MET_deltaR; //
   Float_t m_ditau_deltaR_per_tauH_MET_pt; //
-  Float_t m_p_zeta; //
-  Float_t m_p_zeta_visible; //
-  Float_t m_mT_tauH_MET; //
-  Float_t m_mT_tauH_SVFIT_MET; //
-  Float_t m_mT_total; //
 
   // fake taus
   Int_t m_isTau1real;

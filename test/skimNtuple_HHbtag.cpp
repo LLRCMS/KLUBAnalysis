@@ -822,36 +822,6 @@ int main (int argc, char** argv)
 	  hhreweighter = new HHReweight5D(coeffFile, hhreweighterInputMap, EFTbm, string(wpyear), order_rew, uncertainty_rew, cms_fake_rew);
 	}
 
-
-  // ------------------------------
-  // indexes of tau ID bits
-
-  map <string, int> tauIDsMap;
-  for (int ibin = 0; ibin < hTauIDS->GetNbinsX(); ++ibin)
-	{
-	  if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byLooseCombinedIsolationDeltaBetaCorr3Hits") )
-		tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
-
-	  if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byMediumCombinedIsolationDeltaBetaCorr3Hits") )
-		tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
-
-	  if (string(hTauIDS->GetXaxis()->GetBinLabel(ibin+1)) == string("byTightCombinedIsolationDeltaBetaCorr3Hits") )
-		tauIDsMap ["byLooseCombinedIsolationDeltaBetaCorr3Hits"] = ibin ;
-	}
-
-  // cut based tau ID
-  vector<int> tauCUTIDIdx;
-  tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byLooseCombinedIsolationDeltaBetaCorr3Hits"));
-  tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byMediumCombinedIsolationDeltaBetaCorr3Hits"));
-  tauCUTIDIdx.push_back(getTauIDIdx(hTauIDS, "byTightCombinedIsolationDeltaBetaCorr3Hits"));
-  if (find(tauCUTIDIdx.begin(), tauCUTIDIdx.end(), -1) != tauCUTIDIdx.end())
-	{
-	  cout << "** WARNING!! did not find some cut-based tau IDs" << endl;
-	  for (unsigned int i = 0; i < tauCUTIDIdx.size(); ++i)
-		cout << tauCUTIDIdx.at(i) << " " ;
-	  cout << endl;
-	}
-
   // DNN Tau ID vs jet
   vector<int> deepTauVsJetIdx;
   deepTauVsJetIdx.push_back(getTauIDIdx(hTauIDS, "byVVVLooseDeepTau2017v2p1VSjet"));
@@ -2220,7 +2190,6 @@ int main (int argc, char** argv)
 			tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResTmp.at(0), svfitResTmp.at(1), svfitResTmp.at(2), svfitResTmp.at(3));
 
 			theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi(vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
-			theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 		  }
 	  }
 	  //theSmallTree.m_tauH_SVFIT_mass = theBigTree.SVfitMass->at (chosenTauPair) ;
@@ -2245,7 +2214,6 @@ int main (int argc, char** argv)
 			  tlv_tauH_SVFIT.SetPtEtaPhiM(svfitResSmeared.at(0), svfitResSmeared.at(1), svfitResSmeared.at(2), svfitResSmeared.at(3));
 
 			  theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
-			  theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 			}
 		}
 
@@ -2265,7 +2233,6 @@ int main (int argc, char** argv)
 									   ) ;
 
 		  theSmallTree.m_tauHsvfitMet_deltaPhi = deltaPhi (vMET.Phi(), tlv_tauH_SVFIT.Phi ()) ;
-		  theSmallTree.m_ditau_deltaR_per_tauHsvfitpt = tlv_firstLepton.DeltaR(tlv_secondLepton) * tlv_tauH_SVFIT.Pt();
 		}
 
 	  if (DEBUG)
@@ -2273,8 +2240,6 @@ int main (int argc, char** argv)
 		  cout << "------- SVFIT ------" << endl;
 		  cout << " is calculated ? " << theBigTree.SVfitMass->at(chosenTauPair) << endl;
 		  cout << " pt/eta/phi: " << tlv_tauH_SVFIT.Pt() << " / " << tlv_tauH_SVFIT.Eta() << " / " << tlv_tauH_SVFIT.Phi() << endl;
-		  cout << " is calculated UP ? " << theSmallTree.m_tauH_SVFIT_mass_up << endl;
-		  cout << " is calculated DOWN ? " << theSmallTree.m_tauH_SVFIT_mass_down << endl;
 		  cout << "--------------------" << endl;
 		}
 
@@ -2345,8 +2310,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_mhtnomu_et    = vMHTnoMu.Mod();
 	  theSmallTree.m_MHTnoMux      = vMHTnoMu.X();
 	  theSmallTree.m_MHTnoMuy      = vMHTnoMu.Y();
-
-
 	
 	  // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
 	  theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
@@ -2375,34 +2338,11 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau2_MET_deltaEta            = fabs(tlv_secondLepton.Eta()); // since MET.Eta()==0 by definition, dEta(tau2,MET)=|tau2.Eta()|
 	  theSmallTree.m_ditau_deltaR_per_tauH_MET_pt = theSmallTree.m_ditau_deltaR * theSmallTree.m_tauH_MET_pt;
 
-	  theSmallTree.m_p_zeta         = Calculate_Pzeta(tlv_firstLepton, tlv_secondLepton, tlv_MET);
-	  theSmallTree.m_p_zeta_visible = Calculate_visiblePzeta(tlv_firstLepton, tlv_secondLepton);
-
-	  theSmallTree.m_mT_tauH_MET       = Calculate_MT(tlv_tauH + tlv_MET, tlv_MET);
-	  theSmallTree.m_mT_total          = Calculate_TotalMT(tlv_firstLepton, tlv_secondLepton, tlv_MET);
-	  if (theBigTree.SVfitMass->at(chosenTauPair) > -900. || (doSmearing && theSmallTree.m_tauH_SVFIT_mass > 0))
-		{
-		  theSmallTree.m_mT_tauH_SVFIT_MET             = Calculate_MT(tlv_tauH_SVFIT, tlv_MET);
-		}
-
 	  theSmallTree.m_dau1_iso = getIso (firstDaughterIndex, tlv_firstLepton.Pt (), theBigTree) ;
 	  theSmallTree.m_dau1_eleMVAiso = theBigTree.daughters_iseleWP80->at(firstDaughterIndex) ? 1 : 0;
-	  theSmallTree.m_dau1_CUTiso = makeIsoDiscr (firstDaughterIndex, tauCUTIDIdx, theBigTree) ;
 	  theSmallTree.m_dau1_deepTauVsJet = makeIsoDiscr (firstDaughterIndex, deepTauVsJetIdx , theBigTree) ;
 	  theSmallTree.m_dau1_deepTauVsEle = makeIsoDiscr (firstDaughterIndex, deepTauVsEleIdx , theBigTree) ;
 	  theSmallTree.m_dau1_deepTauVsMu = makeIsoDiscr (firstDaughterIndex, deepTauVsMuIdx , theBigTree) ;
-
-	  int ibit = tauIDsMap["byLooseCombinedIsolationDeltaBetaCorr3Hits"] ;
-	  theSmallTree.m_dau1_byLooseCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
-	  theSmallTree.m_dau2_byLooseCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
-
-	  ibit = tauIDsMap["byMediumCombinedIsolationDeltaBetaCorr3Hits"] ;
-	  theSmallTree.m_dau1_byMediumCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
-	  theSmallTree.m_dau2_byMediumCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
-
-	  ibit = tauIDsMap["byTightCombinedIsolationDeltaBetaCorr3Hits"] ;
-	  theSmallTree.m_dau1_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (firstDaughterIndex)  & (1 << ibit) ) ? true : false ;
-	  theSmallTree.m_dau2_byTightCombinedIsolationDeltaBetaCorr3Hits = ( theBigTree.tauID->at (secondDaughterIndex) & (1 << ibit) ) ? true : false ;
 
 	  if(isHHsignal){
 		theSmallTree.m_genB1_pt = vGenB1.Pt();
@@ -2570,7 +2510,6 @@ int main (int argc, char** argv)
 	  // 2 = from electrons collection
 	  // 3 = from tauH collection
 	  theSmallTree.m_dau2_iso = getIso (secondDaughterIndex, tlv_secondLepton.Pt (), theBigTree) ;
-	  theSmallTree.m_dau2_CUTiso = makeIsoDiscr (secondDaughterIndex, tauCUTIDIdx, theBigTree) ;
 	  theSmallTree.m_dau2_deepTauVsJet = makeIsoDiscr (secondDaughterIndex, deepTauVsJetIdx , theBigTree) ;
 	  theSmallTree.m_dau2_deepTauVsEle = makeIsoDiscr (secondDaughterIndex, deepTauVsEleIdx , theBigTree) ;
 	  theSmallTree.m_dau2_deepTauVsMu = makeIsoDiscr (secondDaughterIndex, deepTauVsMuIdx , theBigTree) ;
