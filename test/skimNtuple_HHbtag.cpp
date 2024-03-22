@@ -3652,7 +3652,7 @@ int main (int argc, char** argv)
 				std::cout << "---------------------------------------------" << std::endl;
 			  }
 		  }
-		  else if (HHbTag_chn == 3) { 
+		  else { 
 			// Jet IDs of the two highest DeepJet scores
 			bjet1idx = jets_and_sortPar.rbegin()[0].second;
 			bjet2idx = jets_and_sortPar.rbegin()[1].second;
@@ -4366,26 +4366,27 @@ int main (int argc, char** argv)
 		  // --------------------------------------------
 		  // Save HHbtag values in smallTree
 		  // b-jet 1
-		  if (pType < 3 and jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end())
+		  if (pType < 3)
 			{
-			  theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
-			}
-		  else
-			{
-			  std::cout << "**ERROR: HHbtag score not found for bjet1, setting to -1 !!" << endl;
-			  theSmallTree.m_bjet1_HHbtag = -1.;
-			}
+			  if (jets_and_HHbtag.find(bjet1idx) != jets_and_HHbtag.end()) {
+				theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
+			  }
+			  else {
+				std::cout << "**ERROR: HHbtag score not found for bjet1, setting to -1!" << endl;
+				theSmallTree.m_bjet1_HHbtag = -2.;
+			  }
 
-		  // b-jet 2
-		  if (pType < 3 and jets_and_HHbtag.find(bjet2idx) != jets_and_HHbtag.end())
-			{
-			  theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
+			  if (jets_and_HHbtag.find(bjet2idx) != jets_and_HHbtag.end()) {
+				theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
+			  }
+			  else {
+				std::cout << "**ERROR: HHbtag score not found for bjet2, setting to -1!" << endl;
+				theSmallTree.m_bjet2_HHbtag = -2.;
+			  }
 			}
-		  else
-			{
-			  std::cout << "**ERROR: HHbtag score not found for bjet2, setting to -1 !!" << endl;
-			  theSmallTree.m_bjet2_HHbtag = -1.;
-			}
+		  else {
+			theSmallTree.m_bjet1_HHbtag = -3.;
+		  }
 
 		  //Other jets
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
