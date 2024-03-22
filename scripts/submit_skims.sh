@@ -180,7 +180,7 @@ REGEX_MAP=(
     ["DYJetsToLL_1J"]="DY_1J"
     ["DYJetsToLL_2J"]="DY_2J"
 
-    ["WJetsToLNu_T.+madgraph"]="WJest_Incl" # for 0 < HT < 70
+    ["WJetsToLNu_T.+madgraph"]="WJets_HT0To70" # for 0 < HT < 70
     ["WJetsToLNu_HT-70To100"]="WJets_HT70To100"
     ["WJetsToLNu_HT-100To200"]="WJets_HT100To200"
     ["WJetsToLNu_HT-200To400"]="WJets_HT200To400"
@@ -448,7 +448,7 @@ eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
 
-DATA_LIST=( "GluGluToRad" ) ## "GluGluToBulkGrav" )
+DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
 MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
 for ds in ${DATA_LIST[@]}; do
 	for mass in ${MASSES[@]}; do
