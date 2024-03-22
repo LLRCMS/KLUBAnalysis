@@ -109,7 +109,6 @@ struct smallTree
       m_trigSF_DM1_down = -1.;
       m_trigSF_DM10_down = -1.;
       m_trigSF_DM11_down = -1.;
-      m_trigSF_cross = -1.;
 	  m_trigSF_met_up = -1.;
 	  m_trigSF_met_down = -1.;
 	  m_trigSF_stau_up = -1.;
@@ -1047,7 +1046,6 @@ struct smallTree
       m_smallT->Branch ("trigSF_DM1_down",  &m_trigSF_DM1_down,  "trigSF_DM1_down/F") ;
       m_smallT->Branch ("trigSF_DM10_down", &m_trigSF_DM10_down, "trigSF_DM10_down/F") ;
       m_smallT->Branch ("trigSF_DM11_down", &m_trigSF_DM11_down, "trigSF_DM11_down/F") ;
-      m_smallT->Branch ("trigSF_cross", &m_trigSF_cross, "trigSF_cross/F") ;
 	  m_smallT->Branch ("trigSF_met_up", &m_trigSF_met_up, "trigSF_met_up/F") ;
 	  m_smallT->Branch ("trigSF_met_down", &m_trigSF_met_down, "trigSF_met_down/F") ;
 	  m_smallT->Branch ("trigSF_stau_up", &m_trigSF_stau_up, "trigSF_stau_up/F") ;
@@ -1912,7 +1910,6 @@ struct smallTree
   Float_t m_trigSF_DM1_down ;
   Float_t m_trigSF_DM10_down ;
   Float_t m_trigSF_DM11_down ;
-  Float_t m_trigSF_cross ;
   Float_t m_trigSF_met_up ;
   Float_t m_trigSF_met_down ;
   Float_t m_trigSF_stau_up ;

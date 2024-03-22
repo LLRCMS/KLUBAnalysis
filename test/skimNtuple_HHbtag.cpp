@@ -2926,7 +2926,6 @@ int main (int argc, char** argv)
 	  float trigSF_DM1_down		= 1.0;
 	  float trigSF_DM10_down	= 1.0;
 	  float trigSF_DM11_down	= 1.0;
-	  float trigSF_cross		= 1.0;
 	  float trigSF_met_up   	= 1.0;
 	  float trigSF_met_down   	= 1.0;
 	  float trigSF_stau_up   	= 1.0;
@@ -2952,7 +2951,7 @@ int main (int argc, char** argv)
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if (trgRegions["legacy"])
+			  else if (trgRegions["legacy_cross"])
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3046,11 +3045,6 @@ int main (int argc, char** argv)
 				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
 				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
 				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
-
-				  //trig SF for analysis only with cross-trigger
-				  double SFl = muTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-				  double SFtau = tauTrgSF_mutau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-				  trigSF_cross = SFl*SFtau;
 				}
 			  else // eta region covered only by single lepton trigger
 				{
@@ -3082,7 +3076,7 @@ int main (int argc, char** argv)
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and trgRegions["legacy"])
+			  else if(PERIOD != "2016preVFP" and PERIOD != "2016postVFP" and trgRegions["legacy_cross"])
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3176,11 +3170,6 @@ int main (int argc, char** argv)
 				  trigSF_DM1_down  = Eff_Data_down[1]  / Eff_MC_down[1];
 				  trigSF_DM10_down = Eff_Data_down[2]  / Eff_MC_down[2];
 				  trigSF_DM11_down = Eff_Data_down[3]  / Eff_MC_down[3];
-
-				  //trig SF for analysis only with cross-trigger
-				  double SFl   = eTauTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFtau = tauTrgSF_etau->getSF(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-				  trigSF_cross = SFl*SFtau;
 				}
 
 			  else //eta region covered only by single lepton trigger
@@ -3193,11 +3182,11 @@ int main (int argc, char** argv)
 				  // should only affect one bin in sf_el_2016post_HLTEle25.root
 				  if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.)
 					{
-					  SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
+					  SF     = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
 					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
 					}
 				  else {
-				    SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				    SF     = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  }
 
@@ -3297,7 +3286,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_DM1_down  = isMC ? trigSF_DM1_down  : 1.0;
 	  theSmallTree.m_trigSF_DM10_down = isMC ? trigSF_DM10_down : 1.0;
 	  theSmallTree.m_trigSF_DM11_down = isMC ? trigSF_DM11_down : 1.0;
-	  theSmallTree.m_trigSF_cross	  = isMC ? trigSF_cross     : 1.0;
 	  theSmallTree.m_trigSF_met_up	  = isMC ? trigSF_met_up    : 1.0;
 	  theSmallTree.m_trigSF_met_down  = isMC ? trigSF_met_down  : 1.0;
 	  theSmallTree.m_trigSF_stau_up	  = isMC ? trigSF_stau_up   : 1.0;
