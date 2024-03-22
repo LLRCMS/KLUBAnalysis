@@ -21,7 +21,7 @@ private:
   std::map<std::string, TGraphAsymmErrors *> eff_data;
   std::map<std::string, TGraphAsymmErrors *> eff_mc;
 
-  TH1D * etaBinsH;
+  TH1D *etaBinsH;
 
   void SetAxisBins(TGraphAsymmErrors*);
   bool check_SameBinning(TGraphAsymmErrors*, TGraphAsymmErrors*);

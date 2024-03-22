@@ -2989,7 +2989,6 @@ int main (int argc, char** argv)
 	  float trigSF_DM1_down		= 1.0;
 	  float trigSF_DM10_down	= 1.0;
 	  float trigSF_DM11_down	= 1.0;
-	  float trigSF_single		= 1.0;
 	  float trigSF_cross		= 1.0;
 	  float trigSF_met_up   	= 1.0;
 	  float trigSF_met_down   	= 1.0;
@@ -3016,7 +3015,7 @@ int main (int argc, char** argv)
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
-			  else if (trgRegions["legacy"]) 
+			  else if (trgRegions["legacy"])
 				{
 				  int passSingle = 1, passCross = 1;
 
@@ -3131,8 +3130,6 @@ int main (int argc, char** argv)
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
-			  //trig SF for analysis only with single-mu trigger
-			  trigSF_single = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 			}
 
 		  // EleTau Channel
@@ -3272,8 +3269,6 @@ int main (int argc, char** argv)
 				  trigSF_ele_up   = SF + 1. * SF_Err;
 				  trigSF_ele_down = SF - 1. * SF_Err;
 				}
-			  //trig SF for analysis only with single-e trigger
-			  trigSF_single =  eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 			}
 
 		  // TauTau Channel
@@ -3366,7 +3361,6 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_DM1_down	= (isMC ? trigSF_DM1_down : 1.0);
 	  theSmallTree.m_trigSF_DM10_down	= (isMC ? trigSF_DM10_down : 1.0);
 	  theSmallTree.m_trigSF_DM11_down	= (isMC ? trigSF_DM11_down : 1.0);
-	  theSmallTree.m_trigSF_single		= (isMC ? trigSF_single : 1.0);
 	  theSmallTree.m_trigSF_cross		= (isMC ? trigSF_cross : 1.0);
 	  theSmallTree.m_trigSF_met_up		= (isMC ? trigSF_met_up : 1.0);
 	  theSmallTree.m_trigSF_met_down	= (isMC ? trigSF_met_down : 1.0);
