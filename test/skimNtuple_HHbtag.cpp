@@ -367,17 +367,18 @@ int main (int argc, char** argv)
 	assert (datasetType==0);
   }
 
-  float met_thresh, tau_thresh;
+  // MET scale Factors
+  ScaleFactorMET metSF(PERIOD);
+
+  float tau_thresh;
+  float met_thresh = metSF.getMinThreshold();
   if (PERIOD=="2016preVFP" or PERIOD=="2016postVFP") {
-	met_thresh = 160.;
 	tau_thresh = 130.;
   }
   else if (PERIOD=="2017") {
-	met_thresh = 160.;
 	tau_thresh = 190.;
   }
   else { // 2018
-	met_thresh = 150.;
 	tau_thresh = 190.;
   }
 
@@ -747,9 +748,6 @@ int main (int argc, char** argv)
     //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
   }
-
-  // MET scale Factors
-  ScaleFactorMET metSF;
     
   // electron/muon IdAndIso SF
   ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
@@ -3005,9 +3003,9 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
 
 			  else if (trgRegions["tau"])
@@ -3142,9 +3140,9 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
 
 			  else if (trgRegions["tau"])
@@ -3283,9 +3281,9 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod(), PERIOD);
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod(), PERIOD);
+				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
 
 			  else if (trgRegions["tau"])
@@ -4236,7 +4234,6 @@ int main (int argc, char** argv)
 
 		  // loop over jets
 		  int genjets = 0;
-		  int jets  = 0;
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
 			{
 			  // PG filter jets at will
