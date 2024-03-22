@@ -2956,8 +2956,8 @@ int main (int argc, char** argv)
 				{
 				  int passSingle = 1, passCross = 1;
 
-				  float lep1_thresh = trgAssigner.getLepton1Threshold(PERIOD, "mutau");
-				  float lep2_thresh = trgAssigner.getLepton2Threshold(PERIOD, "mutau");
+				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "mutau");
+				  float lep2_thresh = trgAssigner.getLepton2PtThresh(PERIOD, "mutau");
 				  if (tlv_firstLepton.Pt()  < lep1_thresh) passSingle = 0;
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
@@ -3054,6 +3054,8 @@ int main (int argc, char** argv)
 				}
 			  else // eta region covered only by single lepton trigger
 				{
+				  assert (trgRegions["legacy"]);
+				  
 				  double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  trigSF = SF;
@@ -3084,8 +3086,8 @@ int main (int argc, char** argv)
 				{
 				  int passSingle = 1, passCross = 1;
 
-				  float lep1_thresh = trgAssigner.getLepton1Threshold(PERIOD, "etau");
-				  float lep2_thresh = trgAssigner.getLepton2Threshold(PERIOD, "etau");
+				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "etau");
+				  float lep2_thresh = trgAssigner.getLepton2PtThresh(PERIOD, "etau");
 				  if (tlv_firstLepton.Pt() < lep1_thresh) passSingle = 0;
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
