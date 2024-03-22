@@ -2,8 +2,10 @@
 // Contact: bruno.alves@cern.ch
 #include "ScaleFactorMET.h"
 
-ScaleFactorMET::ScaleFactorMET()
+ScaleFactorMET::ScaleFactorMET(std::string period): mPeriod(period)
 {
+  mCheckPeriod();
+  
   const std::string fname = "eff_Data_Mu_MC_TT_DY_WJets_mumu_metnomu_et_TRG_METNoMu120_CUTS_mhtnomu_et_L_0p0_default";
   const std::string name16pre  = "weights/trigger_SF_UL/2016preVFP/";
   const std::string name16post = "weights/trigger_SF_UL/2016postVFP/";
@@ -16,33 +18,22 @@ ScaleFactorMET::ScaleFactorMET()
 	{"2018",		name18	   + fname + ".root"},
   };
 	
-  // open files
-  for (auto& in : inputs) {
-	fileIn[in.first] = std::unique_ptr<TFile>{TFile::Open(in.second.c_str(), "READ")};
-	mCheckFile(fileIn[in.first], in.second);
-  }
+  // open file
+  fileIn = std::unique_ptr<TFile>{TFile::Open(inputs[mPeriod].c_str(), "READ")};
+  mCheckFile(fileIn, inputs[mPeriod]);
 
   // view TF1's
-  for (auto& in : inputs) {
-	funcSF[in.first]   = fileIn[in.first]->Get<TF1>("SigmoidFuncSF");
-	funcData[in.first] = fileIn[in.first]->Get<TF1>("SigmoidFuncData");
-	funcMC[in.first]   = fileIn[in.first]->Get<TF1>("SigmoidFuncMC");
-  }
+  funcSF   = fileIn->Get<TF1>("SigmoidFuncSF");
+  funcData = fileIn->Get<TF1>("SigmoidFuncData");
+  funcMC   = fileIn->Get<TF1>("SigmoidFuncMC");
 
-  // access TF1's ranges to address out-of-bounds events
-  mRange = std::make_pair(funcSF[mPeriods[0]]->GetMinimumX(),
-						  funcSF[mPeriods[0]]->GetMaximumX());
-  // the bounds should be the same for all functions
-  for (auto& in : inputs) {
-	assert(funcSF[in.first]->GetMinimumX() == mRange.first);
-	assert(funcSF[in.first]->GetMaximumX() == mRange.second);
-  }
+  // sanity check
+  assert(funcSF->GetMinimumX() == mRange.at(mPeriod).first);
+  assert(funcSF->GetMaximumX() == mRange.at(mPeriod).second);
 }
 
 ScaleFactorMET::~ScaleFactorMET() {
-  for (auto& in : inputs) {
-	fileIn[in.first]->Close();
-  }
+  fileIn->Close();
 }
 
 void ScaleFactorMET::mCheckFile(std::unique_ptr<TFile>& f, std::string input)
@@ -54,11 +45,11 @@ void ScaleFactorMET::mCheckFile(std::unique_ptr<TFile>& f, std::string input)
   }
 }
 
-void ScaleFactorMET::mCheckPeriod(std::string period)
+void ScaleFactorMET::mCheckPeriod()
 {
-  if (std::find(mPeriods.begin(), mPeriods.end(), period) == std::end(mPeriods)) {
-	std::cout << "ERROR in ScaleFactorMET::mCheckPeriod(string period)" << std::endl;
-	std::cout << "Period " << period << " is not supported. " << std::endl;
+  if (std::find(mPeriods.begin(), mPeriods.end(), mPeriod) == std::end(mPeriods)) {
+	std::cout << "ERROR in ScaleFactorMET::mCheckPeriod()" << std::endl;
+	std::cout << "Period " << mPeriod << " is not supported. " << std::endl;
 	std::exit(1);
   }
 }
@@ -66,14 +57,14 @@ void ScaleFactorMET::mCheckPeriod(std::string period)
 /* propagation of errors of sigmoid function
    assumes no correlations for simplicity
    returns the squared error for efficiency */ 
-double ScaleFactorMET::mErrorQuadSumSquared(double x, std::string period, std::string mode)
+double ScaleFactorMET::mErrorQuadSumSquared(double x, std::string mode)
 {
   TF1* func;
   if (mode == "Data") {
-	func = funcData[period];
+	func = funcData;
   }
   else if (mode == "MC") {
-	func = funcMC[period];
+	func = funcMC;
   }
   else {
 	std::cout << "ERROR in ScaleFactorMET::mErrorQuadSum(string inputRootFile)" << std::endl;
@@ -94,23 +85,23 @@ double ScaleFactorMET::mErrorQuadSumSquared(double x, std::string period, std::s
 
 /* propagation of errors of division function
    assumes no correlations for simplicity */
-double ScaleFactorMET::mErrorRatio(double x, std::string period)
+double ScaleFactorMET::mErrorRatio(double x)
 {
   double n; // numerator
   double d; // denominator
 
-  if (x > mRange.second) {
-	x = mRange.second;
+  if (x > mRange.at(mPeriod).second) {
+	x = mRange.at(mPeriod).second;
   }
-  else if (x < mRange.first) {
-	x = mRange.first;
+  else if (x < mRange.at(mPeriod).first) {
+	x = mRange.at(mPeriod).first;
   }
   
-  n = funcData[period]->Eval(x);
-  d = funcMC[period]->Eval(x);
+  n = funcData->Eval(x);
+  d = funcMC->Eval(x);
 
-  double en2 = mErrorQuadSumSquared(x, period, "Data"); // numerator
-  double ed2 = mErrorQuadSumSquared(x, period, "MC");   // denominator
+  double en2 = mErrorQuadSumSquared(x, "Data"); // numerator
+  double ed2 = mErrorQuadSumSquared(x, "MC");   // denominator
   double eratio2 = en2/(n*n) + ed2/(d*d);
 
   /* add quadratically the 5% "channel transfer" error
@@ -120,30 +111,32 @@ double ScaleFactorMET::mErrorRatio(double x, std::string period)
   
   return (n/d) * sqrt(eratio2);
 }
-  
-double ScaleFactorMET::getSF(double metnomu, std::string period)
+
+float ScaleFactorMET::getMinThreshold()
 {
-  mCheckPeriod(period);
+  return mRange.at(mPeriod).first;
+}
+  
+double ScaleFactorMET::getSF(double metnomu)
+{
 
   metnomu = mImposeBounds(metnomu);
-  return funcSF[period]->Eval(metnomu);
+  return funcSF->Eval(metnomu);
 }
 
-double ScaleFactorMET::getSFError(double metnomu, std::string period)
+double ScaleFactorMET::getSFError(double metnomu)
 {
-  mCheckPeriod(period);
-
   metnomu = mImposeBounds(metnomu);
-  return mErrorRatio(metnomu, period); //equal up and down variations
+  return mErrorRatio(metnomu); //equal up and down variations
 }
 
 double ScaleFactorMET::mImposeBounds(double x)
 {
-  if (x > mRange.second) {
-	x = mRange.second;
+  if (x > mRange.at(mPeriod).second) {
+	x = mRange.at(mPeriod).second;
   }
-  else if (x < mRange.first) {
-	x = mRange.first;
+  else if (x < mRange.at(mPeriod).first) {
+	x = mRange.at(mPeriod).first;
   }
   return x;
 }
