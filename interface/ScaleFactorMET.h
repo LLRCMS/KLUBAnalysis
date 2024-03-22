@@ -40,7 +40,6 @@ private:
 
   void mCheckFile(std::unique_ptr<TFile>&, std::string);
   void mCheckPeriod();
-  void mCheckChannel(std::string);
   double mErrorQuadSumSquared(double, std::string);
   double mErrorRatio(double);
   double mImposeBounds(double);
