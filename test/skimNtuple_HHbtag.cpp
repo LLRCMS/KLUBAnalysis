@@ -4234,7 +4234,6 @@ int main (int argc, char** argv)
 
 		  // loop over jets
 		  int genjets = 0;
-		  int jets  = 0;
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
 			{
 			  // PG filter jets at will
