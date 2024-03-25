@@ -899,7 +899,8 @@ int main (int argc, char** argv)
 		}
 	}
 
-  const float eleEtaMax=2.5, muEtaMax=2.4;
+  const float eleEtaMax = oph.getEtaCut("ele");
+  const float muEtaMax  = oph.getEtaCut("muon");
   
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1453,7 +1454,7 @@ int main (int argc, char** argv)
 			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
 											  0.15, OfflineProducerHelper::MuTight,
 											  0.15, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
-			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 10., muEtaMax,
+			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
 											  0.30, OfflineProducerHelper::MuTight,
 											  0.30, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
 

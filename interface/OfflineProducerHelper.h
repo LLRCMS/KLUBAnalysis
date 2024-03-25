@@ -143,7 +143,7 @@ public:
   static bool pairSort (const tauPair_t& pA, const tauPair_t& pB);
   static bool pairSortRawIso (const tauPair_t& pA, const tauPair_t& pB);
   float DeltaRDau(bigTree* tree, int dau1idx, int dau2idx);
-
+  const float getEtaCut(string);
 
   // --------------------------------
   // gen related functions
@@ -158,7 +158,7 @@ public:
 private:
   std::vector<TString> triggerlist;
   std::vector<TString> tauidlist;
-  float eleEtaMax=2.5, muEtaMax=2.4, tauEtaMax=2.3;
+  const float eleEtaMax=2.5, muEtaMax=2.4, tauEtaMax=2.3;
 };
 
 #endif
