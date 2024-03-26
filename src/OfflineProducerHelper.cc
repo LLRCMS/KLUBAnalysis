@@ -241,7 +241,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   return result;
 }
 
-const float getEtaCut(string lepton)
+const float OfflineProducerHelper::getEtaCut(std::string lepton)
 {
   if (lepton == "tau")
 	return tauEtaMax;
