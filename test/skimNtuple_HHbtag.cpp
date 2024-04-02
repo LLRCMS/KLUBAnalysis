@@ -317,7 +317,7 @@ int main (int argc, char** argv)
   else { // 2018
 	tau_thresh = 190.;
   }
-
+  
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -450,7 +450,7 @@ int main (int argc, char** argv)
 	  cout << endl;
 
 	}
-
+  
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
@@ -836,7 +836,7 @@ int main (int argc, char** argv)
 	}
 
   const float eleEtaMax = oph.getEtaCut("ele");
-  const float muEtaMax  = oph.getEtaCut("muon");
+  const float muEtaMax  = oph.getEtaCut("mu");
   
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
