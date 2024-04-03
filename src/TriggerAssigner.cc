@@ -119,9 +119,10 @@ TriggerAssigner::assignTriggerRegions(int ptype, std::string period,
 	Legacy_region = SingleLepton_validity;
   }
 
-  if (ptype > 3) {
-	std::cout << "ERROR: Channel not implemented." << std::endl;
-	std::exit(0);
+  if (ptype == 4) { //ee
+	bool SingleLepton_validity = ((pt1 >= mLep1Thresh[period]["etau"] and eta1 < eleEtaMax) or
+								  (pt2 >= mLep1Thresh[period]["etau"] and eta2 < eleEtaMax));
+	Legacy_region = SingleLepton_validity;
   }
 
   MET_region = !Legacy_region and !SingleTau_region;
