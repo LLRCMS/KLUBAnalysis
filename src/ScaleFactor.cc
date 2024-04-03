@@ -256,7 +256,7 @@ std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
   if (Which == "data"){
     it =  eff_data.find(EtaLabel);
     if ( it == eff_data.end()) {
-      std::cout << "ERROR in ScaleFactor::get_EfficiencyData(double pt, double eta) from src/ScaleFactor.cc : no object corresponding to eta label "<< EtaLabel << " for data " << std::endl; exit(1);
+      std::cout << "ERROR in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc : no object corresponding to eta label "<< EtaLabel << " for data " << std::endl; exit(1);
     }
   }
 
@@ -272,19 +272,21 @@ std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
 
 
 int ScaleFactor::FindPtBin(std::map<std::string, TGraphAsymmErrors*> eff_map,
-						   std::string EtaLabel, double Pt, double Eta)
+						   std::string EtaLabel, double Pt, double Eta, int pType)
 {
   int Npoints = eff_map[EtaLabel]->GetN();
-  double ptMAX = (eff_map[EtaLabel]->GetX()[Npoints-1])+(eff_map[EtaLabel]->GetErrorXhigh(Npoints-1));
-  double ptMIN = (eff_map[EtaLabel]->GetX()[0])-(eff_map[EtaLabel]->GetErrorXlow(0));
+  double ptMAX = eff_map[EtaLabel]->GetX()[Npoints-1] + eff_map[EtaLabel]->GetErrorXhigh(Npoints-1);
+  double ptMIN = eff_map[EtaLabel]->GetX()[0] - eff_map[EtaLabel]->GetErrorXlow(0);
 
   if (Pt >= ptMAX) { // if pt is overflow, return last pt bin
 	return Npoints;
   }
   else if (Pt < ptMIN) { // if pt is underflow, return nonsense number and warning
-    std::cout << "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from src/ScaleFactor.cc: "
-			  << "pT too low (pt=" << Pt << ", eta=" << Eta << "), min value is " << ptMIN << ". "
-			  << "Returned efficiency =1. Weight will be 1. " << std::endl;
+    std::cout << "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: "
+			  << "pT too low (pt=" << Pt << ", "
+			  << "eta=" << Eta << "), min value is " << ptMIN
+			  << " (pType = " << pType << "). "
+			  << "Returned efficiency = 1. Weight will be 1. " << std::endl;
     return -99;
   }
   else { // if pt is in range
@@ -299,33 +301,33 @@ int ScaleFactor::FindPtBin(std::map<std::string, TGraphAsymmErrors*> eff_map,
 }
 
 
-double ScaleFactor::get_EfficiencyData(double pt, double eta){
+double ScaleFactor::get_EfficiencyData(double pt, double eta, int pType){
 
   double eff;
   std::string label = FindEtaLabel(eta, "data");
 
-  int ptbin = FindPtBin(eff_data, label, pt, eta);
+  int ptbin = FindPtBin(eff_data, label, pt, eta, pType);
   if (ptbin == -99){eff =1;} // if pt is underflow
   else eff = eff_data[label]->GetY()[ptbin-1];
 
-  if (eff > 1.) {std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from src/ScaleFactor.cc: Efficiency in data > 1. Set eff = 1." << std::endl; eff=1;}
-  if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from src/ScaleFactor.cc: Negative efficiency in data. Set eff = 0." <<std::endl; eff=0;}
+  if (eff > 1.) {std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: Efficiency in data > 1. Set eff = 1." << std::endl; eff=1;}
+  if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: Negative efficiency in data. Set eff = 0." <<std::endl; eff=0;}
 
   return eff;
 
 }
 
 
-double ScaleFactor::get_EfficiencyMC(double pt, double eta) {
+double ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) {
 
   double eff;
   std::string label = FindEtaLabel(eta, "mc");
-  int ptbin = FindPtBin(eff_mc, label, pt, eta);
+  int ptbin = FindPtBin(eff_mc, label, pt, eta, pType);
   if (ptbin == -99){eff =1;} // if pt is underflow
   else eff= eff_mc[label]->GetY()[ptbin-1];
 
-  if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from src/ScaleFactor.cc : Efficiency in MC > 1. Set eff = 1." << std::endl; eff =1;}
-  if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta) from src/ScaleFactor.cc : Negative efficiency in MC. Set eff = 0." <<std::endl; eff =0;}
+  if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Efficiency in MC > 1. Set eff = 1." << std::endl; eff =1;}
+  if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Negative efficiency in MC. Set eff = 0." <<std::endl; eff =0;}
 
   return eff;
 
@@ -333,24 +335,24 @@ double ScaleFactor::get_EfficiencyMC(double pt, double eta) {
 
 
 
-double ScaleFactor::get_ScaleFactor(double pt, double eta){
+double ScaleFactor::get_ScaleFactor(double pt, double eta, int pType) {
 
-  double efficiency_data = get_EfficiencyData(pt, eta);
-  double efficiency_mc = get_EfficiencyMC(pt, eta);
+  double efficiency_data = get_EfficiencyData(pt, eta, pType);
+  double efficiency_mc = get_EfficiencyMC(pt, eta, pType);
   double SF;
 
   if ( efficiency_mc != 0) {SF = efficiency_data/efficiency_mc;}
   else {
-    SF=1.; std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double pt, double eta) from src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 1. ";
+    SF=1.; std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double pt, double eta, int pType) from src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 1. ";
   }
 
   return SF;
 
 }
-double ScaleFactor::get_direct_ScaleFactor(double pt, double eta){
+double ScaleFactor::get_direct_ScaleFactor(double pt, double eta, int pType){
 
   std::string label = FindEtaLabel(eta, "data");
-  int ptbin = FindPtBin(eff_data, label, pt, eta); // when available, SF stored in eff_data (lazy implementation that should be improved)
+  int ptbin = FindPtBin(eff_data, label, pt, eta, pType); // when available, SF stored in eff_data (lazy implementation that should be improved)
   double SF;
 
   if (ptbin == -99){SF =1;} // if pt is underflow
@@ -361,49 +363,49 @@ double ScaleFactor::get_direct_ScaleFactor(double pt, double eta){
 }
 
 
-double ScaleFactor::get_EfficiencyDataError(double pt, double eta){
+double ScaleFactor::get_EfficiencyDataError(double pt, double eta, int pType) {
 
   double eff_error;
   std::string label = FindEtaLabel(eta, "data");
-  int ptbin = FindPtBin(eff_data, label, pt, eta);
+  int ptbin = FindPtBin(eff_data, label, pt, eta, pType);
   if (ptbin == -99){eff_error =0.;} // if pt is underflow
   else eff_error= eff_data[label]->GetErrorYhigh(ptbin-1);
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
 
-  double effData = get_EfficiencyData(pt,eta);
+  double effData = get_EfficiencyData(pt, eta, pType);
   if (eff_error > effData) eff_error = 0.5*effData;
   return eff_error;
 }
 
 
 
-double ScaleFactor::get_EfficiencyMCError(double pt, double eta){
+double ScaleFactor::get_EfficiencyMCError(double pt, double eta, int pType) {
 
   double eff_error;
   std::string label = FindEtaLabel(eta,"mc");
-  int ptbin = FindPtBin(eff_mc, label, pt, eta);
+  int ptbin = FindPtBin(eff_mc, label, pt, eta, pType);
   if (ptbin == -99){eff_error =0.;} // if pt is underflow
   else eff_error= eff_mc[label]->GetErrorYhigh(ptbin-1);
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
 
-  double effMC = get_EfficiencyMC(pt,eta);
+  double effMC = get_EfficiencyMC(pt, eta, pType);
   if (eff_error > effMC ) eff_error = 0.5*effMC;
   return eff_error;
 }
 
-double ScaleFactor::get_ScaleFactorError(double pt, double eta){
+double ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) {
 
   double SF_error = 0.;
 
-  double effData = get_EfficiencyData(pt, eta);
-  double effMC = get_EfficiencyMC(pt, eta);
-  double errData = get_EfficiencyDataError(pt, eta);
-  double errMC =  get_EfficiencyMCError(pt, eta);
+  double effData = get_EfficiencyData(pt, eta, pType);
+  double effMC   = get_EfficiencyMC(pt, eta, pType);
+  double errData = get_EfficiencyDataError(pt, eta, pType);
+  double errMC   = get_EfficiencyMCError(pt, eta, pType);
 
-  if (errData == 0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from src/ScaleFactor.cc: uncertainty on data point = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
-  if (errMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from src/ScaleFactor.cc: uncertainty on MC = 0, can not calculate uncerttainty on scale factor. Uncertainty set to 0." << std::endl;}
-  if (effData ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from src/ScaleFactor.cc: efficiency in data = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
-  if (effMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta) from src/ScaleFactor.cc: efficiency in MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+  if (errData == 0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: uncertainty on data point = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+  if (errMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: uncertainty on MC = 0, can not calculate uncerttainty on scale factor. Uncertainty set to 0." << std::endl;}
+  if (effData ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: efficiency in data = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+  if (effMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: efficiency in MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
   else {
     SF_error = pow((errData/effData),2) + pow((errMC/effMC),2);
     SF_error = pow(SF_error, 0.5)*(effData/effMC);
