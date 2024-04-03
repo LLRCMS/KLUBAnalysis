@@ -674,14 +674,12 @@ int main (int argc, char** argv)
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016pre_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root",
 								 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-    //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016pre_HLTEle25.root",true);
   }
   else if (PERIOD == "2016postVFP") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016post_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root",
 								 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-    //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
     eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
   }
     

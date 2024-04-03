@@ -31,8 +31,6 @@ private:
 public:
   ScaleFactor(){};
   ~ScaleFactor(){};
-  void init_ScaleFactor(TString);
-  void init_ScaleFactor(TString, std::string);
   void init_ScaleFactor(TString, std::string, bool);
   void init_EG_ScaleFactor(TString, bool);
   double get_EfficiencyData(double, double); //pt, eta
