@@ -3189,7 +3189,7 @@ int main (int argc, char** argv)
 				  trigSF_DM11_down = Eff_Data_down[3]  / Eff_MC_down[3];
 				}
 
-			  else //eta region covered only by single lepton trigger
+			  else //eta region covered only by single lepton trigger (including all 2016)
 				{
 				  assert (trgRegions["legacy"]);
 				  

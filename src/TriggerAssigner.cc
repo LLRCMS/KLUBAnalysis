@@ -27,14 +27,14 @@ void TriggerAssigner::mCheckChannel(std::string channel)
   }
 }
 
-void TriggerAssigner::mCheckPeriod(std::string period, bool no16)
+void TriggerAssigner::mCheckPeriod(std::string period, std::string channel, bool no16)
 {
   if (std::find(mPeriods.begin(), mPeriods.end(), period) == std::end(mPeriods)) {
 	std::cout << "ERROR in TriggerAssigner::mCheckPeriod()" << std::endl;
 	std::cout << "Period " << period << " is not supported. " << std::endl;
 	std::exit(1);
   }
-  if (no16 and period.find("16") != std::string::npos) {
+  if (no16 and channel == "etau" and period.find("16") != std::string::npos) {
 	std::cout << "ERROR in TriggerAssigner::mCheckPeriod()" << std::endl;
 	std::cout << "Period " << period << " cannot be used in this context." << std::endl;
 	std::exit(1);  
@@ -42,14 +42,14 @@ void TriggerAssigner::mCheckPeriod(std::string period, bool no16)
 }
 
 float TriggerAssigner::getLepton1PtThresh(std::string period, std::string channel) {
-  mCheckPeriod(period, false);
   mCheckChannel(channel);
+  mCheckPeriod(period, channel, false);
   return mLep1Thresh[period][channel];
 }
 
 float TriggerAssigner::getLepton2PtThresh(std::string period, std::string channel) {
-  mCheckPeriod(period, true);
   mCheckChannel(channel);
+  mCheckPeriod(period, channel, true);
   return mLep2Thresh[period][channel];
 }
 
