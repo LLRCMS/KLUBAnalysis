@@ -113,7 +113,7 @@ TriggerAssigner::assignTriggerRegions(int ptype, std::string period,
 						and !Legacy_region);
   }
   
-  if (ptype == 3) { //mumu
+  else if (ptype == 3) { //mumu
 	bool SingleLepton_validity = ((pt1 >= mLep1Thresh[period]["mutau"] and eta1 < muEtaMax) or
 								  (pt2 >= mLep1Thresh[period]["mutau"] and eta2 < muEtaMax));
 	Legacy_region = SingleLepton_validity;
