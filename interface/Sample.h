@@ -41,15 +41,9 @@ public:
   };
 
   // standard ctor/dtor
-  Sample(std::string name, std::string filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
   Sample(std::string name, std::vector<std::string> filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
   
-  // build from a list of other samples, histos are added together
-  // NOTE: efficiency, ttree, and the other methods used for filling are not updated,
-  // so just use this method to make a sum of all the histos of a sample after separate histos have already been filled
-  // Sample(std::string name, std::vector<Sample const *> sampleList);
-
-  ~Sample();
+  ~Sample() {};
   std::string getName() const {return name_;}
 
   void  setType (sType sampleType) {sampleType_ = sampleType;}
@@ -57,7 +51,6 @@ public:
 
   // file handling and preparation
   bool openFileAndTree();
-  // void getEfficiency(std::string histoname="h_eff");
   long long int getEntries(){return nentries_;}
   void setEffBin(int ibin){
     std::cout << "  ---> INFO: setting eff. bin " << ibin << " for sample " << name_ << std::endl;
@@ -76,20 +69,16 @@ public:
   void clearWeights() {weights_.clear();}
   void clearExtWeights() {weights_ext_.clear();}
 
-  //TChain* getTree() {return tree_.get();}
   TChain* getTree() {return tree_;}
 
   const std::vector<Weight>& getWeights() const {return weights_;}
   std::vector<Weight>& getWeights() {return weights_;}
-  // void addWeight  (std::string wstring); // if no syst, just weight name
 
 private:
-  // TFile* fIn_;
   std::vector<std::string> filelistname_;
   std::string treename_;
   std::string histoname_;
   TChain* tree_;
-  //std::unique_ptr<TChain> tree_;
   std::string name_;
 
   int    bin_eff_den_;

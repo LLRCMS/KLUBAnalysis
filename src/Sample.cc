@@ -3,25 +3,11 @@
 #include <assert.h>
 #include <regex>
 
-using namespace std;
-
-Sample::Sample(string name, string filelistname, string treename, string histoname, int binEffDen):
-  name_(name), eff_(0.), evt_num_(0.), evt_den_(0.), nentries_(0.), treename_(treename), histoname_(histoname), bin_eff_den_(binEffDen)
-{
-  tree_ = new TChain (treename.c_str());
-  filelistname_.push_back(filelistname);
-}
-
-Sample::Sample(string name, std::vector<std::string> filelistname, string treename, string histoname, int binEffDen):
+Sample::Sample(std::string name, std::vector<std::string> filelistname, std::string treename, std::string histoname, int binEffDen):
   name_(name), eff_(0.), evt_num_(0.), evt_den_(0.), nentries_(0.), bin_eff_den_(binEffDen), treename_(treename), histoname_(histoname)
 {
   tree_ = new TChain (treename.c_str());
   filelistname_ = filelistname;
-}
-
-Sample::~Sample ()
-{
-  // delete tree_;
 }
 
 bool Sample::openFileAndTree()
@@ -47,7 +33,7 @@ bool Sample::openFileAndTree()
 			return false;
 		  }
 		}
-	  string line;
+	  std::string line;
 	  while (std::getline(fList, line))
 		{
 		  line = line.substr(0, line.find("#", 0)); // remove comments introduced by #
@@ -89,53 +75,7 @@ bool Sample::openFileAndTree()
 void Sample::scaleAll(double scale)
 {
   // 1D
-  for (uint isel = 0; isel < plots_.size(); ++isel)
-  {
-    // cout << "isel " << isel << "/" << plots_.size() << endl;
-    for (uint ivar = 0; ivar < plots_.at(isel).size(); ++ivar)
-    {
-      // cout << "ivar " << ivar << "/" << plots_.at(isel).size() << endl;
-      for (uint isyst = 0; isyst < plots_.at(isel).at(ivar).size(); ++isyst)
-      {
-	// cout << "isyst " << isyst << "/" << plots_.at(isel).at(ivar).size() << endl;
-	// cout << " >>>>> : >>>>> scaling histo " << plots_.at(isel).at(ivar).at(isyst)->GetName() << " integral = " << plots_.at(isel).at(ivar).at(isyst)->Integral() << " by " << scale << endl;
-	plots_.at(isel).at(ivar).at(isyst)->Scale(scale);
-	// cout << "DONE" << endl;
-      }
-    }
-  }
-
-  // 2D
-  for (uint isel = 0; isel < plots2D_.size(); ++isel)
-	{
-	  // cout << "isel " << isel << "/" << plots_.size() << endl;
-	  for (uint ivar = 0; ivar < plots2D_.at(isel).size(); ++ivar)
-		{
-		  // cout << "ivar " << ivar << "/" << plots_.at(isel).size() << endl;
-		  for (uint isyst = 0; isyst < plots2D_.at(isel).at(ivar).size(); ++isyst)
-			{
-			  // cout << "isyst " << isyst << "/" << plots_.at(isel).at(ivar).size() << endl;
-			  plots2D_.at(isel).at(ivar).at(isyst)->Scale(scale);
-			  // cout << "DONE" << endl;
-			}
-		}
-	}
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-// void Sample::getEfficiency(string histoname)
-// {
-//     TH1F * effHisto = (TH1F *) fIn_->Get (histoname.c_str()) ;
-//     if (effHisto->GetBinContent (1) == 0)
-//     {
-//         evt_num_ = 0. ;
-//         evt_den_ = 0. ;
-//         eff_ = 0. ;
-//         return;
-//     }
-
-//     evt_num_ = effHisto->GetBinContent (2) ;
-//     evt_den_ = effHisto->GetBinContent (1) ;
-//     eff_ = (float) evt_num_ / (float) evt_den_ ;
-// }
+  for (uint isel = 0; isel < plots_.size(); ++isel) {
+    for (uint ivar = 0; ivar < plots_.at(isel).size(); ++ivar) {
+      for (uint isyst = 0; isyst < plots_.at(isel).at(ivar).size(); ++isyst) {
+		plots_.at(isel).at(ivar).at(isyst)->Scale(scale

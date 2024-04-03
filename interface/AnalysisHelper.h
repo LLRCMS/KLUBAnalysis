@@ -17,6 +17,7 @@
 #ifndef ANALYSISHELPER_H
 #define ANALYSISHELPER_H
 
+#include <array>
 #include <vector>
 #include <string>
 #include <memory>
@@ -40,7 +41,7 @@ public:
 
   typedef ordered_map <std::string, std::shared_ptr<Sample>> sampleColl; // the type of a collection of samples
 
-  AnalysisHelper(std::string cfgname, std::string merge_section);
+  AnalysisHelper(std::string cfgname, std::string merge_section, int idxsplit, int njobs);
   ~AnalysisHelper();
 
   CfgParser& mainCfg() {return *mainCfg_;}
@@ -69,7 +70,6 @@ public:
   void saveOutputsToFile(std::string);
 
   void setVerbosity (int v) {verbosity_ = v;}
-  void setSplitting (int idxsplit, int nsplit);
   void dump(int detail=0);
 
 private:
@@ -83,8 +83,8 @@ private:
   std::string pack2DName (std::string name1, std::string name2);
   void prepareSamplesHistos();
   void prepareSamples2DHistos();
-  // std::vector<const Weight*> getWeightsWithSyst (const Selection& sel, const Sample& sample); // pointers to all weights that have at least one syst defined
-
+  void setSplitting (int idxsplit, int nsplit);
+  
   std::unique_ptr<CfgParser> mainCfg_;
   std::unique_ptr<CfgParser> cutCfg_;
   std::unique_ptr<CfgParser> sampleCfg_;
@@ -122,7 +122,7 @@ public:
     return (double) x;
   }
 
-  double operator()(float& x)  const
+  double operator()(float& x) const
   {
     return (double) x;
   }
@@ -134,7 +134,7 @@ public:
 
   double operator()(bool& x) const
   {
-    return (x ? 1.0 : 0.0);
+    return x ? 1.0 : 0.0;
   }
 };
 
