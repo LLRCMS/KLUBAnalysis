@@ -2960,7 +2960,7 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross  = 0;
 
 				  // lepton trigger
-				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 1., SFL_MC_Err = 1.;
+				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
 				  if (passSingle) {
 					SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 					SFL_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
@@ -2975,7 +2975,7 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 1., SFl_MC_Err = 1.;
+				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
 				  if (passCross) {
 					SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 					SFl_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
@@ -3099,7 +3099,7 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
 				  //lepton trigger
-				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 1., SFL_MC_Err = 1.;
+				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
 				  if (passSingle) {
 					SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 					SFL_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
@@ -3114,7 +3114,7 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //e leg
-				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 1., SFl_MC_Err = 1.;
+				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
 				  if (passCross) {
 					SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 					SFl_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
