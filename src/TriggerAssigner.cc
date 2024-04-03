@@ -112,11 +112,22 @@ TriggerAssigner::assignTriggerRegions(int ptype, std::string period,
 	SingleTau_region = (((pt1 >= tau_thresh and eta1 < mEtaThresh) or (pt2 >= tau_thresh and eta2 < mEtaThresh))
 						and !Legacy_region);
   }
+  
+  if (ptype == 3) { //mumu
+	bool SingleLepton_validity = ((pt1 >= mLep1Thresh[period]["mutau"] and eta1 < muEtaMax) or
+								  (pt2 >= mLep1Thresh[period]["mutau"] and eta2 < muEtaMax));
+	Legacy_region = SingleLepton_validity;
+  }
+
+  if (ptype > 3) {
+	std::cout << "ERROR: Channel not implemented." << std::endl;
+	std::exit(0);
+  }
 
   MET_region = !Legacy_region and !SingleTau_region;
   std::unordered_map<std::string, bool> ret{
 	{"legacy", Legacy_region},
-	{"legacy_cross", Legacy_region and eta2 < mEtaThresh},
+	{"legacy_cross", Legacy_region and eta2 < mEtaThresh}, //all cross triggers have this eta cut
 	{"tau", SingleTau_region},
 	{"met", MET_region}
   };

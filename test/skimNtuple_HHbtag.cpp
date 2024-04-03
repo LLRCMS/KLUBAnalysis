@@ -3279,11 +3279,20 @@ int main (int argc, char** argv)
 		  // MuMu Channel
 		  else if (pType == 3 && isMC)
 			{
-			  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-			  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-			  trigSF = SF;
-			  trigSF_mu_up   = SF + 1. * SF_Err;
-			  trigSF_mu_down = SF - 1. * SF_Err;
+			  if (trgRegions["met"])
+				{
+				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				}
+			  else if (trgRegions["legacy"])
+				{
+				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  trigSF = SF;
+				  trigSF_mu_up   = SF + 1. * SF_Err;
+				  trigSF_mu_down = SF - 1. * SF_Err;
+				}
 			}
 
 		  // EleEle Channel
