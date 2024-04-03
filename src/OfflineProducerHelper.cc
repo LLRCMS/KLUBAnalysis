@@ -209,20 +209,20 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
   if (pairType == EMu)
   {
-    leg1 = eleBaseline (tree, dau1index, 13., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = muBaseline  (tree, dau2index, 13., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = eleBaseline (tree, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
+    leg2 = muBaseline  (tree, dau2index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
   }
 
   if (pairType == EE)
   {
-    leg1 = eleBaseline (tree, dau1index, 25., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = eleBaseline (tree, dau2index, 25., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
+    leg1 = eleBaseline (tree, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
+    leg2 = eleBaseline (tree, dau2index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
   }
 
   if (pairType == MuMu)
   {
-    leg1 = muBaseline (tree, dau1index, 10., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
-    leg2 = muBaseline (tree, dau2index, 10., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = muBaseline (tree, dau1index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg2 = muBaseline (tree, dau2index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
   }
 
   bool result = (leg1 && leg2);
@@ -239,6 +239,20 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   result = (result && drMin);
 
   return result;
+}
+
+const float OfflineProducerHelper::getEtaCut(std::string lepton)
+{
+  if (lepton == "tau")
+	return tauEtaMax;
+  else if (lepton == "mu")
+	return muEtaMax;
+  else if (lepton == "ele")
+	return eleEtaMax;
+  else {
+	std::cout << "[OfflineProducerHelper::getEtaCut] ERROR: Wrong lepton type." << std::endl;
+	std::exit(1);
+  }
 }
 
 bool

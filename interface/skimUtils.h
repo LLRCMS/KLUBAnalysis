@@ -297,9 +297,9 @@ vector<int> findSubjetIdxs (unsigned int iFatJet, bigTree & theBigTree)
 
 
 // -----------------------------------------
-// Implement operator < for b tag . first : CSV score ;  second : index
+// Implement operator < for b tag . first : DeepJet score ;  second : index
 bool bJetSort (const pair<float, int>& i, const pair<float, int>& j) {
-  if (i.first != j.first) return (i.first < j.first) ; // lowest CVS
+  if (i.first != j.first) return (i.first < j.first) ; // lowest DeepJet
   return i.second > j.second ; // highest index == lowest pt
 }
 
@@ -508,29 +508,30 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
   for (unsigned int idau = 0 ; idau < theBigTree.daughters_px->size () ; ++idau)
   {
     // build original jet
-    TLorentzVector tlv_dau (theBigTree.daughters_px->at(idau), theBigTree.daughters_py->at(idau), theBigTree.daughters_pz->at(idau), theBigTree.daughters_e->at(idau));
+    TLorentzVector tlv_dau(theBigTree.daughters_px->at(idau), theBigTree.daughters_py->at(idau),
+						   theBigTree.daughters_pz->at(idau), theBigTree.daughters_e->at(idau));
 
     // get uncertainty
     vector <double> unc_TES;
     vector <double> unc_EESup;
     vector <double> unc_EESdw;
-    unc_TES.push_back(theBigTree.daughters_TESshiftDM0 ->at (idau)); // first daughter, DM 0
-    unc_TES.push_back(theBigTree.daughters_TESshiftDM1 ->at (idau)); // first daughter, DM 1
-    unc_TES.push_back(theBigTree.daughters_TESshiftDM10 ->at (idau)); // first daughter, DM 10
-    unc_TES.push_back(theBigTree.daughters_TESshiftDM11 ->at (idau)); // first daughter, DM 11
-    unc_EESup.push_back(theBigTree.daughters_EESshiftDM0up ->at (idau)); // first daughter, DM 0
-    unc_EESup.push_back(theBigTree.daughters_EESshiftDM1up ->at (idau)); // first daughter, DM 1
-    unc_EESdw.push_back(theBigTree.daughters_EESshiftDM0dw ->at (idau)); // first daughter, DM 0
-    unc_EESdw.push_back(theBigTree.daughters_EESshiftDM1dw ->at (idau)); // first daughter, DM 1
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM0->at(idau)); // first daughter, DM 0
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM1->at(idau)); // first daughter, DM 1
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM10->at(idau)); // first daughter, DM 10
+    unc_TES.push_back(theBigTree.daughters_TESshiftDM11->at(idau)); // first daughter, DM 11
+    unc_EESup.push_back(theBigTree.daughters_EESshiftDM0up->at(idau)); // first daughter, DM 0
+    unc_EESup.push_back(theBigTree.daughters_EESshiftDM1up->at(idau)); // first daughter, DM 1
+    unc_EESdw.push_back(theBigTree.daughters_EESshiftDM0dw->at(idau)); // first daughter, DM 0
+    unc_EESdw.push_back(theBigTree.daughters_EESshiftDM1dw->at(idau)); // first daughter, DM 1
 
     // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
     // just for protection, probably it's not needed
     vector<bool> isthisDM =
       {
-	(theBigTree.decayMode->at (idau) == 0 ? true : false),
-	(theBigTree.decayMode->at (idau) == 1 ? true : false),
-	(theBigTree.decayMode->at (idau) == 10? true : false),
-	(theBigTree.decayMode->at (idau) == 11? true : false)
+		(theBigTree.decayMode->at (idau) == 0 ? true : false),
+		(theBigTree.decayMode->at (idau) == 1 ? true : false),
+		(theBigTree.decayMode->at (idau) == 10? true : false),
+		(theBigTree.decayMode->at (idau) == 11? true : false)
       };
 
     bool dauHasTES = (theBigTree.genmatch->at(idau)  == 5 ? true : false);

@@ -44,15 +44,14 @@ public:
   //  0: nominal
   // +1: up
   // -1: down
-  SmearedJetProducer (std::string year, bool doSmearing, int variation, bool isPostVFP = false);
+  SmearedJetProducer (std::string year, bool doSmearing, int variation, bool isAK8);
   ~SmearedJetProducer ();
 
   // Returns the matched genJet
   TLorentzVector matchedGenJet(TLorentzVector jet, double resolution, bigTree & theBigTree);
 
   // Returns the smear factor to be applied to the jet TLorentzVector
-  double getSmearFactor(TLorentzVector jet, bigTree & theBigTree,
-						bool ptJetCut = true);
+  double getSmearFactor(TLorentzVector jet, bigTree & theBigTree, bool ptJetCut);
 
   // Returns the smeared jet starting from the original TLorentzVector
   TLorentzVector getSmearedJet(TLorentzVector jet, bigTree & theBigTree);

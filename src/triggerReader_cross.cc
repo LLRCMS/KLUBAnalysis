@@ -242,7 +242,7 @@ bool triggerReader_cross::checkMET(Long64_t triggerbit_1, int *pass_triggerbit, 
   bool OR = false;
   for(unsigned int i = 0; i < _metTriggers.size(); i++)
   {
-    if (CheckBit(triggerbit_1, _metTriggers.at(i)) and metnomu > metnomu_cut) //trigger cut at MET_nomu=200GeV
+    if (CheckBit(triggerbit_1, _metTriggers.at(i)) and metnomu > metnomu_cut)
 	  {
 		std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(),
 													 _allTriggers.at(_metTriggers.at(i)));
@@ -388,7 +388,7 @@ bool triggerReader_cross::checkORMuEleNew  (Long64_t triggerbit_1, Long64_t matc
       {
 	firedPath = _allTriggers.at(_mmTriggers.at(i));
 	boost::regex re_tau1{"Mu(\\d+)"};
-	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 1.0);
+	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau1, pt_tau1, 2.0);
 	etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
 	etaCut2 = (fabs(eta_tau2) < 2.1); //electron threshold
       }
@@ -599,7 +599,7 @@ bool triggerReader_cross::checkORMuTauNew  (Long64_t triggerbit_1, Long64_t matc
 	firedPath = _allTriggers.at(_mtCrossTriggers.at(i));
 	boost::regex re_tau1{"Mu(\\d+)"};
 	boost::regex re_tau2{"Tau(\\d+)|TauHPS(\\d+)"};
-	ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 1.0, 5.0);  // 1.0 GeV from HTT twiki Run2 Legacy analisys
+	ptCut = checkPtCutCross(thisPath, firedPath, re_tau1, re_tau2, pt_tau1, pt_tau2, 2.0, 5.0);
 	etaCut1 = (fabs(eta_tau1) < 2.1); //muon threshold
 	etaCut2 = (fabs(eta_tau2) < 2.1); //cross trigger tau threshold
       }

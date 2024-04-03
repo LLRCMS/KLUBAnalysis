@@ -342,24 +342,28 @@ std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
 }
 
 
-int ScaleFactor::FindPtBin( std::map<std::string, TGraphAsymmErrors *> eff_map, std::string EtaLabel, double Pt){
-
+int ScaleFactor::FindPtBin(std::map<std::string, TGraphAsymmErrors *> eff_map,
+						   std::string EtaLabel, double Pt, double Eta)
+{
   int Npoints = eff_map[EtaLabel]->GetN();
   double ptMAX = (eff_map[EtaLabel]->GetX()[Npoints-1])+(eff_map[EtaLabel]->GetErrorXhigh(Npoints-1));
   double ptMIN = (eff_map[EtaLabel]->GetX()[0])-(eff_map[EtaLabel]->GetErrorXlow(0));
   // if pt is overflow, return last pt bin
   if (Pt >= ptMAX ) return Npoints;
   // if pt is underflow, return nonsense number and warning
-  else if (Pt < ptMIN){
-    std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from src/ScaleFactor.cc: pT too low (pt = " << Pt << "), min value is " << ptMIN << ". Returned efficiency =1. Weight will be 1. " << std::endl;
-    return -99;}
+  else if (Pt < ptMIN) {
+    std::cout << "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta) from src/ScaleFactor.cc: "
+			  << "pT too low (pt=" << Pt << ", eta=" << Eta << "), min value is " << ptMIN << ". "
+			  << "Returned efficiency =1. Weight will be 1. " << std::endl;
+    return -99;
+  }
   // if pt is in range
   else {
     //return eff_map[EtaLabel]->GetXaxis()->FindFixBin(Pt);
     for (int graphBin=0; graphBin < Npoints; graphBin++) {
       if (Pt >= eff_map[EtaLabel]->GetPointX(graphBin) - eff_map[EtaLabel]->GetErrorXlow(graphBin)
-	  && Pt < eff_map[EtaLabel]->GetPointX(graphBin) + eff_map[EtaLabel]->GetErrorXhigh(graphBin))
-	return graphBin+1;
+		  && Pt < eff_map[EtaLabel]->GetPointX(graphBin) + eff_map[EtaLabel]->GetErrorXhigh(graphBin))
+		return graphBin+1;
     }
   }
 }
@@ -368,9 +372,9 @@ int ScaleFactor::FindPtBin( std::map<std::string, TGraphAsymmErrors *> eff_map, 
 double ScaleFactor::get_EfficiencyData(double pt, double eta){
 
   double eff;
-  std::string label = FindEtaLabel(eta,"data");
+  std::string label = FindEtaLabel(eta, "data");
 
-  int ptbin = FindPtBin(eff_data, label, pt);
+  int ptbin = FindPtBin(eff_data, label, pt, eta);
   if (ptbin == -99){eff =1;} // if pt is underflow
   else eff = eff_data[label]->GetY()[ptbin-1];
 
@@ -385,8 +389,8 @@ double ScaleFactor::get_EfficiencyData(double pt, double eta){
 double ScaleFactor::get_EfficiencyMC(double pt, double eta) {
 
   double eff;
-  std::string label = FindEtaLabel(eta,"mc");
-  int ptbin = FindPtBin(eff_mc, label, pt);
+  std::string label = FindEtaLabel(eta, "mc");
+  int ptbin = FindPtBin(eff_mc, label, pt, eta);
   if (ptbin == -99){eff =1;} // if pt is underflow
   else eff= eff_mc[label]->GetY()[ptbin-1];
 
@@ -415,8 +419,8 @@ double ScaleFactor::get_ScaleFactor(double pt, double eta){
 }
 double ScaleFactor::get_direct_ScaleFactor(double pt, double eta){
 
-  std::string label = FindEtaLabel(eta,"data");
-  int ptbin = FindPtBin(eff_data, label, pt); // when available, SF stored in eff_data (lazy implementation that should be improved)
+  std::string label = FindEtaLabel(eta, "data");
+  int ptbin = FindPtBin(eff_data, label, pt, eta); // when available, SF stored in eff_data (lazy implementation that should be improved)
   double SF;
 
   if (ptbin == -99){SF =1;} // if pt is underflow
@@ -430,8 +434,8 @@ double ScaleFactor::get_direct_ScaleFactor(double pt, double eta){
 double ScaleFactor::get_EfficiencyDataError(double pt, double eta){
 
   double eff_error;
-  std::string label = FindEtaLabel(eta,"data");
-  int ptbin = FindPtBin(eff_data, label, pt);
+  std::string label = FindEtaLabel(eta, "data");
+  int ptbin = FindPtBin(eff_data, label, pt, eta);
   if (ptbin == -99){eff_error =0.;} // if pt is underflow
   else eff_error= eff_data[label]->GetErrorYhigh(ptbin-1);
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
@@ -447,7 +451,7 @@ double ScaleFactor::get_EfficiencyMCError(double pt, double eta){
 
   double eff_error;
   std::string label = FindEtaLabel(eta,"mc");
-  int ptbin = FindPtBin(eff_mc, label, pt);
+  int ptbin = FindPtBin(eff_mc, label, pt, eta);
   if (ptbin == -99){eff_error =0.;} // if pt is underflow
   else eff_error= eff_mc[label]->GetErrorYhigh(ptbin-1);
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow

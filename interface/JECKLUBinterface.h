@@ -52,7 +52,7 @@ public:
   // To be used (mainly) in skimOutputter*.cpp
   // unc = +1 --> up variation
   // unc = -1 --> down variation
-  TLorentzVector getJECUncJet(int idx, TLorentzVector nominalJet, float unc);
+  // TLorentzVector getJECUncJet(int idx, TLorentzVector nominalJet, float unc);
 
 private:
   std::vector<std::string> m_jec_sources_regrouped_;

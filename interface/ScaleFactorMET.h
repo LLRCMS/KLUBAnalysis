@@ -15,28 +15,34 @@
 
 class ScaleFactorMET {
 public:
-  ScaleFactorMET();
+  ScaleFactorMET(std::string);
   ~ScaleFactorMET();
   
-  double getSF(double, std::string, std::string);
-  double getSFError(double, std::string, std::string);
-
+  double getSF(double);
+  double getSFError(double);
+  float getMinThreshold();
+  
   template <typename T>
   using uMap = std::unordered_map<std::string, T>;
   
 private:
-  uMap<uMap<std::string>> inputs;
-  uMap<uMap<std::unique_ptr<TFile>>> fileIn;
-  uMap<uMap<TF1*>> funcSF, funcData, funcMC;
+  uMap<std::string> inputs;
+  std::unique_ptr<TFile> fileIn;
+  TF1 *funcSF, *funcData, *funcMC;
+  std::string mPeriod;
   std::array<std::string, 4> mPeriods = {{"2016preVFP", "2016postVFP", "2017", "2018"}};
-  std::array<std::string, 3> mChannels = {{"etau", "mutau", "tautau"}};
-  std::pair<double, double> mRange;
+  const uMap<std::pair<double, double>> mRange = {
+	{"2016preVFP",  {160., 325.}},
+	{"2016postVFP", {160., 325.}},
+	{"2017",        {160., 325.}},
+	{"2018",        {150., 325.}}
+  };
 
   void mCheckFile(std::unique_ptr<TFile>&, std::string);
-  void mCheckPeriod(std::string);
-  void mCheckChannel(std::string);
-  double mErrorQuadSumSquared(double, std::string, std::string, std::string);
-  double mErrorRatio(double, std::string, std::string);
+  void mCheckPeriod();
+  double mErrorQuadSumSquared(double, std::string);
+  double mErrorRatio(double);
+  double mImposeBounds(double);
 };
 
 #endif
