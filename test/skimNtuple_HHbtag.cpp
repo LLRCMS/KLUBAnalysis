@@ -2959,13 +2959,15 @@ int main (int argc, char** argv)
 				  if (tlv_firstLepton.Pt()  < lep1_thresh) passSingle = 0;
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross  = 0;
 
-				  //lepton trigger
-				  double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-				  double SFL_MC   = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   fabs(tlv_firstLepton.Eta()), pType);
-
-				  double SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-				  double SFL_MC_Err   = muTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),   fabs(tlv_firstLepton.Eta()), pType);
-
+				  // lepton trigger
+				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 1., SFL_MC_Err = 1.;
+				  if (passSingle) {
+					SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFL_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFL_MC_Err   = muTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+				  }
+				  
 				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
 				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
 				  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
@@ -2973,12 +2975,14 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-				  double SFl_MC   = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   fabs(tlv_firstLepton.Eta()), pType);
-
-				  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-				  double SFl_MC_Err   = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),   fabs(tlv_firstLepton.Eta()), pType);
-
+				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 1., SFl_MC_Err = 1.;
+				  if (passCross) {
+					SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFl_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFl_MC_Err   = muTauTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+				  }
+				  
 				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
 				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
 				  double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
@@ -3048,9 +3052,19 @@ int main (int argc, char** argv)
 			  else // eta region covered only by single lepton trigger
 				{
 				  assert (trgRegions["legacy"]);
+				  double SF = 1., SF_Err = 0.;
+					
+				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "mutau");
+				  if (tlv_firstLepton.Pt() < lep1_thresh) {
+					cout <<  "[WARNING] Unexpected event in mutau channel: pT = " << tlv_firstLepton.Pt()
+						 << ", eta = " << tlv_firstLepton.Eta() << "."
+						 << " The weight will be set to one." << endl;
+				  }
+				  else {
+					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      tlv_firstLepton.Eta(), pType);
+					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  }
 				  
-				  double SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      tlv_firstLepton.Eta(), pType);
-				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  trigSF = SF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
@@ -3085,12 +3099,14 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
 				  //lepton trigger
-				  double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				  double SFL_MC   = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-
-				  double SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				  double SFL_MC_Err   = eTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-
+				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 1., SFL_MC_Err = 1.;
+				  if (passSingle) {
+					SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFL_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFL_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  }
+				  
 				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
 				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
 				  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
@@ -3098,11 +3114,13 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //e leg
-				  double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				  double SFl_MC   = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-
-				  double SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				  double SFl_MC_Err   = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
+				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 1., SFl_MC_Err = 1.;
+				  if (passCross) {
+					SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFl_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
+					SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFl_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
+				  }
 
 				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
 				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
@@ -3175,18 +3193,25 @@ int main (int argc, char** argv)
 				{
 				  assert (trgRegions["legacy"]);
 				  
-				  double SF = 1.;
-				  double SF_Err = 1.;
-				  // dirty trick to deal with bad efficiency values in a (very) low-stat bins
-				  // should only affect one bin in sf_el_2016post_HLTEle25.root
-				  if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.)
-					{
+				  double SF = 1., SF_Err = 0.;
+
+				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "etau");
+				  if (tlv_firstLepton.Pt() < lep1_thresh) {
+					cout <<  "[WARNING] Unexpected event in etau channel: pT = " << tlv_firstLepton.Pt()
+						 << ", eta = " << tlv_firstLepton.Eta() << "."
+						 << " The weight will be set to one." << endl;
+				  }
+				  else {
+					// dirty trick to deal with bad efficiency values in a (very) low-stat bins
+					// should only affect one bin in sf_el_2016post_HLTEle25.root
+					if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.) {
 					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
 					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
 					}
-				  else {
-				    SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					else {
+					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					}
 				  }
 
 				  trigSF = SF;
