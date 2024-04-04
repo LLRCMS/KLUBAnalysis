@@ -317,7 +317,7 @@ int main (int argc, char** argv)
   else { // 2018
 	tau_thresh = 190.;
   }
-
+  
   // ------------------  decide what to do for the reweight of HH samples
   enum HHrewTypeList {
     kNone    = 0, //no reweighting
@@ -450,7 +450,7 @@ int main (int argc, char** argv)
 	  cout << endl;
 
 	}
-
+  
   // input and output setup
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   TChain * bigChain = new TChain ("HTauTauTree/HTauTauTree") ;
@@ -660,8 +660,8 @@ int main (int argc, char** argv)
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2018_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
 								 "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-    eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle24Tau30.root",true);
-    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle32.root",true);
+    eTauTrgSF ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle24Tau30.root", true);
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2018_HLTEle32.root", true);
   }
   else if (PERIOD == "2017") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2017_HLTMu20Tau27.root", true);
@@ -674,15 +674,13 @@ int main (int argc, char** argv)
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016pre_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_SingleMuonTriggers.root",
 								 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-    //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
-    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016pre_HLTEle25.root",true);
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016pre_HLTEle25.root", true);
   }
   else if (PERIOD == "2016postVFP") {
     muTauTrgSF->init_EG_ScaleFactor(customTrgSFDir + "sf_mu_2016post_HLTMu20Tau27.root", true);
     muTrgSF   ->init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_SingleMuonTriggers.root",
 								 "NUM_IsoMu24_or_IsoTkMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt", true);
-    //eTauTrgSF ->init_ScaleFactor("weights/trigger_SF_Legacy/2016/Electron_Ele24_eff.root"); //threshold higher than single lepton
-    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root",true);
+    eTrgSF    ->init_EG_ScaleFactor(customTrgSFDir + "sf_el_2016post_HLTEle25.root", true);
   }
     
   // electron/muon IdAndIso SF
@@ -836,7 +834,7 @@ int main (int argc, char** argv)
 	}
 
   const float eleEtaMax = oph.getEtaCut("ele");
-  const float muEtaMax  = oph.getEtaCut("muon");
+  const float muEtaMax  = oph.getEtaCut("mu");
   
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -2730,18 +2728,18 @@ int main (int argc, char** argv)
 	
 	  if (isMC) {
 		if (pType == 0 or pType == 3) {
-		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta);
+		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta, pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta, pType);
 		}
 		else if (pType == 1 or pType == 4) {
-		  idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta);
+		  idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
 		}
 	  }
 
 	  if(isMC and pType == 3) { //MuMu
-		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta)*myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta);
+		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta, pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta, pType);
 	  }
 	  else if(isMC and pType == 4) { //EleEle
-		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta);
+		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
 	  }
 
 	  float except_VsJet, except_vsMu, except_vsEle;
@@ -2959,15 +2957,17 @@ int main (int argc, char** argv)
 				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "mutau");
 				  float lep2_thresh = trgAssigner.getLepton2PtThresh(PERIOD, "mutau");
 				  if (tlv_firstLepton.Pt()  < lep1_thresh) passSingle = 0;
-				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
+				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross  = 0;
 
-				  //lepton trigger
-				  double SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-				  double SFL_MC   = muTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-
-				  double SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-				  double SFL_MC_Err   = muTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-
+				  // lepton trigger
+				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
+				  if (passSingle) {
+					SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFL_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFL_MC_Err   = muTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+				  }
+				  
 				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
 				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
 				  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
@@ -2975,12 +2975,14 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-				  double SFl_MC   = muTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-
-				  double SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-				  double SFl_MC_Err   = muTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()));
-
+				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
+				  if (passCross) {
+					SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFl_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					SFl_MC_Err   = muTauTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+				  }
+				  
 				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
 				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
 				  double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
@@ -3050,9 +3052,19 @@ int main (int argc, char** argv)
 			  else // eta region covered only by single lepton trigger
 				{
 				  assert (trgRegions["legacy"]);
+				  double SF = 1., SF_Err = 0.;
+					
+				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "mutau");
+				  if (tlv_firstLepton.Pt() < lep1_thresh) {
+					cout <<  "[WARNING] Unexpected event in mutau channel: pT = " << tlv_firstLepton.Pt()
+						 << ", eta = " << tlv_firstLepton.Eta() << "."
+						 << " The weight will be set to one." << endl;
+				  }
+				  else {
+					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      tlv_firstLepton.Eta(), pType);
+					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  }
 				  
-				  double SF = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
 				  trigSF = SF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
@@ -3087,12 +3099,14 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
 				  //lepton trigger
-				  double SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFL_MC   = eTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-
-				  double SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFL_MC_Err   = eTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-
+				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
+				  if (passSingle) {
+					SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFL_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFL_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  }
+				  
 				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
 				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
 				  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
@@ -3100,11 +3114,13 @@ int main (int argc, char** argv)
 
 				  //cross-trigger
 				  //e leg
-				  double SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFl_MC   = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-
-				  double SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				  double SFl_MC_Err   = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
+				  if (passCross) {
+					SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFl_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
+					SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SFl_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
+				  }
 
 				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
 				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
@@ -3173,22 +3189,29 @@ int main (int argc, char** argv)
 				  trigSF_DM11_down = Eff_Data_down[3]  / Eff_MC_down[3];
 				}
 
-			  else //eta region covered only by single lepton trigger
+			  else //eta region covered only by single lepton trigger (including all 2016)
 				{
 				  assert (trgRegions["legacy"]);
 				  
-				  double SF = 1.;
-				  double SF_Err = 1.;
-				  // dirty trick to deal with bad efficiency values in a (very) low-stat bins
-				  // should only affect one bin in sf_el_2016post_HLTEle25.root
-				  if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.)
-					{
-					  SF     = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
-					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta());
-					}
+				  double SF = 1., SF_Err = 0.;
+
+				  float lep1_thresh = trgAssigner.getLepton1PtThresh(PERIOD, "etau");
+				  if (tlv_firstLepton.Pt() < lep1_thresh) {
+					cout <<  "[WARNING] Unexpected event in etau channel: pT = " << tlv_firstLepton.Pt()
+						 << ", eta = " << tlv_firstLepton.Eta() << "."
+						 << " The weight will be set to one." << endl;
+				  }
 				  else {
-				    SF     = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-				    SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
+					// dirty trick to deal with bad efficiency values in a (very) low-stat bins
+					// should only affect one bin in sf_el_2016post_HLTEle25.root
+					if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.) {
+					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
+					}
+					else {
+					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					}
 				  }
 
 				  trigSF = SF;
@@ -3256,21 +3279,38 @@ int main (int argc, char** argv)
 		  // MuMu Channel
 		  else if (pType == 3 && isMC)
 			{
-			  double SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-			  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-			  trigSF = SF;
-			  trigSF_mu_up   = SF + 1. * SF_Err;
-			  trigSF_mu_down = SF - 1. * SF_Err;
+			  if (trgRegions["met"])
+				{
+				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				}
+			  else if (trgRegions["legacy"])
+				{
+				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  trigSF = SF;
+				  trigSF_mu_up   = SF + 1. * SF_Err;
+				  trigSF_mu_down = SF - 1. * SF_Err;
+				}
 			}
 
 		  // EleEle Channel
 		  else if (pType == 4 && isMC)
 			{
-			  double SF     = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-			  double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta());
-			  trigSF = SF;
-			  trigSF_ele_up   = SF + 1. * SF_Err;
-			  trigSF_ele_down = SF - 1. * SF_Err;
+			  if (trgRegions["met"])
+				{
+				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				}
+			  else if (trgRegions["legacy"]) {
+				double SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				trigSF = SF;
+				trigSF_ele_up   = SF + 1. * SF_Err;
+				trigSF_ele_down = SF - 1. * SF_Err;
+			  }
 			}
 		} // end if(applytriggers)
 
