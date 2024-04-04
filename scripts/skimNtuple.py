@@ -43,6 +43,7 @@ def parse_input_file_list(indir, insample):
         mes = 'Exactly one file must be found, but {} were found.\n'.format(len(sample))
         mes += '  Input folder: {}.\n'.format(indir)
         mes += '  Pattern being searched: {}.\n'.format(glob_pattern)
+        mes += '  Samples found: {}.\n'.format(sample)
         raise ValueError(mes)
 
     with open(sample[0], 'r') as f:

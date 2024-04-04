@@ -82,7 +82,7 @@ def make_input_lists(args):
         if not alist: 
             warnings.warn('Folder for dataset {} is empty'.format(sample))
         else:
-            with open(op.join(out_dir, args.sample+'.txt'), 'w') as f:
+            with open(op.join(out_dir, args.outtxt+'.txt'), 'w') as f:
                 for l in alist:
                     f.write(l + '\n')
 
@@ -90,21 +90,18 @@ if __name__ == "__main__":
     usage = 'Produces lists with input files for skim jobs. \n'
     usage += 'Run example: `python scripts/makeListOnStorage.py -t Jul2022 --data_period UL18 -d 1`.'
     parser = ArgumentParser(description=usage, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('-t', '--tag', dest='tag', required=True, type=str,
-                        help='Tag used for the input big ntuples')
-    parser.add_argument('-d', '--data_period', dest='data_period', required=True, type=str,
+    parser.add_argument('-t', '--tag', required=True, type=str, help='Tag used for the input big ntuples')
+    parser.add_argument('-d', '--data_period', required=True, type=str,
                         help='Which data period to choose: Legacy2018, UL18, ...')
-    parser.add_argument('-u', '--user', dest='user', required=True, type=str,
-                        help='User who produced the input data')
+    parser.add_argument('-u', '--user', required=True, type=str, help='User who produced the input data')
     parser.add_argument('-x', '--institute', dest='institute', default='llr',
-                        choices=('llr', 'uhh', 'mib'),
-                        required=False, type=str, help='Which set of machines to use: LLR, Hamburg or Milano.')
+                        choices=('llr', 'uhh', 'mib'), required=False, type=str,
+                        help='Which set of machines to use: LLR, Hamburg or Milano.')
     help_sample = ( 'For which sample to create the input list.\n' +
                     'Passing "all" runs the macro over everything.' )
-    parser.add_argument('-s', '--sample', dest='sample',
-                        required=True, type=str,
-                        help=help_sample)
-    parser.add_argument('-k', '--kind', dest='kind', required=True, type=str,
+    parser.add_argument('-s', '--sample', required=True, type=str, help=help_sample)
+    parser.add_argument('-o', '--outtxt', required=True, type=str, help="Name of the txt output file.")
+    parser.add_argument('-k', '--kind', required=True, type=str,
                         choices=('Data', 'Sig', 'MC'),
                         help='Sample type.')
 
