@@ -41,9 +41,11 @@ with open(scriptpath, 'w') as s:
                str(FLAGS.njobs) + ' ' + tagdir)
     s.write('\n'.join(('#!/bin/bash',
                         'export X509_USER_PROXY=~/.t3/proxy.cert',
+                        'export EXTRA_CLING_ARGS=-O2',
+                        '. /opt/exp_soft/cms/t3/eos-login -username bfontana -wn',
                         'source /cvmfs/cms.cern.ch/cmsset_default.sh',
                         'cd {}'.format(os.getcwd()),
-                        'export SCRAM_ARCH=slc6_amd64_gcc491',
+                        # 'export SCRAM_ARCH=slc6_amd64_gcc491',
                         'eval `scram r -sh`',
                         'source scripts/setup.sh',
                         command + '\n')))

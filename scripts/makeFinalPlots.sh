@@ -223,7 +223,7 @@ echo "-------------------------------"
 OPTIONS="--quit --ratio --saveratio " #"--binwidth"
 if [[ ${NOSIG} -eq 0 ]]; then
     #OPTIONS+=" --signals ggFRadion280 ggFRadion400 ggFRadion550 ggFRadion800 ggFRadion1500 "
-	OPTIONS+=" --signals GGF_Radion500 GGF_Radion1000 "
+	OPTIONS+=" --signals GGF_Radion700 "
 else
     OPTIONS+=" --nosig "
 fi
@@ -291,7 +291,12 @@ VAR_MAP=(
 	["HHbregrsvfit_eta"]="eta_{HH}^{PNet} "
     ["HH_mass"]="m_{HH}[GeV] "
     ["HHKin_mass"]="m_{HHKin}[GeV] "
-    ["DNNoutSM_kl_1"]="DNN "
+    ["hbtresdnn_mass600_spin2_hh"]="pDNN[GeV] "
+	["hbtresdnn_mass600_spin2_tt"]="pDNN[GeV] "
+	["hbtresdnn_mass800_spin2_hh"]="pDNN[GeV] "
+	["hbtresdnn_mass800_spin2_tt"]="pDNN[GeV] "
+	["hbtresdnn_mass1000_spin2_hh"]="pDNN[GeV] "
+	["hbtresdnn_mass1000_spin2_tt"]="pDNN[GeV] "
 )
 
 declare -A EXTRAS
@@ -325,7 +330,12 @@ EXTRAS=(
 	["HHbregrsvfit_eta"]=" "
     ["HH_mass"]=" --logy --equalwidth "
     ["HHKin_mass"]=" --logy --equalwidth "
-    ["DNNoutSM_kl_1"]=" --logy "
+    ["hbtresdnn_mass600_spin2_hh"]=" --logy "
+	["hbtresdnn_mass600_spin2_tt"]=" --logy "
+    ["hbtresdnn_mass800_spin2_hh"]=" --logy "
+	["hbtresdnn_mass800_spin2_tt"]=" --logy "
+    ["hbtresdnn_mass1000_spin2_hh"]=" --logy "
+	["hbtresdnn_mass1000_spin2_tt"]=" --logy "
 )
 
 declare -A SIGSCALE_CHANNEL_MAP
@@ -359,7 +369,12 @@ SIGSCALE_CHANNEL_MAP=(
 	["HHbregrsvfit_eta"]="40 40 2 4000 "
     ["HH_mass"]="1 1 1 150 "
     ["HHKin_mass"]="1 1 1 150 "
-    ["DNNoutSM_kl_1"]="5 5 1 500 "
+	["hbtresdnn_mass600_spin2_hh"]="5 5 1 500 "
+	["hbtresdnn_mass600_spin2_tt"]="5 5 1 500 "
+	["hbtresdnn_mass800_spin2_hh"]="5 5 1 500 "
+	["hbtresdnn_mass800_spin2_tt"]="5 5 1 500 "
+	["hbtresdnn_mass1000_spin2_hh"]="5 5 1 500 "
+	["hbtresdnn_mass1000_spin2_tt"]="5 5 1 500 "
 )
 
 if [[ ${COMPARE} -eq 0 ]]; then

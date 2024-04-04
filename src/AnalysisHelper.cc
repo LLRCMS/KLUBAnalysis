@@ -21,7 +21,7 @@ AnalysisHelper::AnalysisHelper(std::string cfgname, std::string merge_section, i
   idxsplit_ = 0;
 
   std::cout << "@@ Parsing main config : " << cfgname << std::endl;
-  mainCfg_ = unique_ptr<CfgParser>(new CfgParser(cfgname));
+  mainCfg_ = std::unique_ptr<CfgParser>(new CfgParser(cfgname));
   bool success = readMainInfo();
   if (!success) {
     std::cerr << "[ERROR::AnalysisHelper] Some information could not be retrieved from the configuration." << std::endl;
@@ -41,13 +41,13 @@ AnalysisHelper::~AnalysisHelper()
 
 bool AnalysisHelper::sanityChecks()
 {
-  vector<std::string> data = mainCfg_->readStringListOpt("general::data");
-  vector<std::string> bkgs = mainCfg_->readStringListOpt("general::backgrounds");
+  std::vector<std::string> data = mainCfg_->readStringListOpt("general::data");
+  std::vector<std::string> bkgs = mainCfg_->readStringListOpt("general::backgrounds");
 
-  vector<std::string> samps_plot = mainCfg_->readListOfOpts("merge_plots");
+  std::vector<std::string> samps_plot = mainCfg_->readListOfOpts("merge_plots");
   for (std::string s : samps_plot)
 	{
-	  vector<std::string> tmp = mainCfg_->readStringListOpt(std::string("merge_plots::")+s);
+	  std::vector<std::string> tmp = mainCfg_->readStringListOpt(std::string("merge_plots::")+s);
 	  for (auto& x : tmp) {
 		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
 			std::find(data.begin(), data.end(), x) == data.end() ) {
@@ -57,10 +57,10 @@ bool AnalysisHelper::sanityChecks()
 	  }
 	}
 
-  vector<std::string> samps_limits = mainCfg_->readListOfOpts("merge_limits");
+  std::vector<std::string> samps_limits = mainCfg_->readListOfOpts("merge_limits");
   for (std::string s : samps_limits)
 	{
-	  vector<std::string> tmp = mainCfg_->readStringListOpt(std::string("merge_limits::")+s);
+	  std::vector<std::string> tmp = mainCfg_->readStringListOpt(std::string("merge_limits::")+s);
 	  for (auto& x : tmp) {
 		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
 			std::find(data.begin(), data.end(), x) == data.end() ) {
@@ -85,8 +85,8 @@ bool AnalysisHelper::readMainInfo()
   std::cout << "@@ sample cfg    : " << sampleCfgName << std::endl;
   std::cout << "@@ selection cfg : " << cutCfgName << std::endl;
 
-  cutCfg_ = unique_ptr<CfgParser>(new CfgParser(cutCfgName));
-  sampleCfg_ = unique_ptr<CfgParser>(new CfgParser(sampleCfgName));
+  cutCfg_ = std::unique_ptr<CfgParser>(new CfgParser(cutCfgName));
+  sampleCfg_ = std::unique_ptr<CfgParser>(new CfgParser(sampleCfgName));
 
   if (!(mainCfg_->hasOpt("general::lumi"))) return false;
   lumi_ = mainCfg_->readFloatOpt("general::lumi");
@@ -107,7 +107,7 @@ bool AnalysisHelper::readMainInfo()
   if (mainCfg_->hasSect(merge_section_))
 	{
 	  std::cout << "@@ will merge these samples [" << merge_section_ << "]" << " : " << std::endl;
-	  vector<std::string> samps_to_merge = mainCfg_->readListOfOpts(merge_section_);
+	  std::vector<std::string> samps_to_merge = mainCfg_->readListOfOpts(merge_section_);
 	  for (std::string s: samps_to_merge)
 		{
 		  std::cout << "==== " << s << std::endl;
@@ -136,7 +136,7 @@ void AnalysisHelper::saveOutputsToFile(std::string outFolder)
   system (Form("cp %s %s", (sampleCfg_->getCfgName()).c_str() , outFolder.c_str()));
 
   TFile* fOut = TFile::Open(outFile.c_str(), "recreate");
-  vector <ordered_map <std::string, std::shared_ptr<Sample>> *> allToSave;
+  std::vector <ordered_map <std::string, std::shared_ptr<Sample>> *> allToSave;
   allToSave.push_back(&data_samples_);
   allToSave.push_back(&sig_samples_);
   allToSave.push_back(&bkg_samples_);
@@ -170,14 +170,14 @@ void AnalysisHelper::saveOutputsToFile(std::string outFolder)
 
 void AnalysisHelper::readSamples()
 {
-  vector<std::string> dataSampleNameList = mainCfg_->readStringListOpt("general::data");
-  vector<std::string> sigSampleNameList  = mainCfg_->readStringListOpt("general::signals");
-  vector<std::string> bkgSampleNameList  = mainCfg_->readStringListOpt("general::backgrounds");
+  std::vector<std::string> dataSampleNameList = mainCfg_->readStringListOpt("general::data");
+  std::vector<std::string> sigSampleNameList  = mainCfg_->readStringListOpt("general::signals");
+  std::vector<std::string> bkgSampleNameList  = mainCfg_->readStringListOpt("general::backgrounds");
   
   std::cout << "@@ Samples : reading samples DATA : " << std::endl;
   for (std::string name : dataSampleNameList)
 	{
-	  shared_ptr<Sample> smp = openSample(name);
+	  std::shared_ptr<Sample> smp = openSample(name);
 	  smp->setType(Sample::kData);
 	  smp->clearWeights(); // no weights should be applied on data -- remove manually all weights read
 	  smp->clearExtWeights(); // no weights should be applied on data -- remove manually all weights read
@@ -188,7 +188,7 @@ void AnalysisHelper::readSamples()
   std::cout << "@@ Samples : reading samples sig  : " << std::endl;
   for (std::string name : sigSampleNameList)
 	{
-	  shared_ptr<Sample> smp = openSample(name);
+	  std::shared_ptr<Sample> smp = openSample(name);
 	  smp->setType(Sample::kSig);
 	  sig_samples_.append(name, smp);
 	}
@@ -197,7 +197,7 @@ void AnalysisHelper::readSamples()
   std::cout << "@@ Samples : reading samples bkg  : " << std::endl;
   for (std::string name : bkgSampleNameList)
 	{
-	  shared_ptr<Sample> smp = openSample(name);
+	  std::shared_ptr<Sample> smp = openSample(name);
 	  smp->setType(Sample::kBkg);
 	  bkg_samples_.append(name, smp);
 
@@ -214,13 +214,14 @@ void AnalysisHelper::readSamples()
   return;
 }
 
-shared_ptr<Sample> AnalysisHelper::openSample(std::string sampleName)
+std::shared_ptr<Sample> AnalysisHelper::openSample(std::string sampleName)
 {
   if (DEBUG) {
 	std::cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << std::endl;
   }
 
-  std::string filename = sampleCfg_->readStringOpt(Form("samples::%s", sampleName.c_str()));
+  std::string filename = ( sampleCfg_->readStringOpt(Form("samples::base")) +
+						   sampleCfg_->readStringOpt(Form("samples::%s", sampleName.c_str())) );
   std::vector<std::string> filenames = {{
 	  filename + std::string("/goodfiles.txt"),
 	  filename + std::string("/goodfiles_resub1.txt"), filename + std::string("/goodfiles_resub2.txt"),
@@ -229,7 +230,14 @@ shared_ptr<Sample> AnalysisHelper::openSample(std::string sampleName)
 	  filename + std::string("/goodfiles_resub7.txt"), filename + std::string("/goodfiles_resub8.txt"),
 	  filename + std::string("/goodfiles_resub9.txt")
 	}};
-  shared_ptr<Sample> sample(new Sample(sampleName, filenames));
+
+  std::shared_ptr<Sample> sample(new Sample(sampleName, filenames,
+											"HTauTauTree",
+											sampleCfg_->readStringOpt(Form("evaluation::tree")),
+											sampleCfg_->readStringOpt(Form("samples::base")),
+											sampleCfg_->readStringOpt(Form("evaluation::base")),
+											"h_eff", 1));
+
   if (sampleCfg_->hasOpt(Form("userEffBin::%s", sampleName.c_str())))
     {
 	  int ubin = sampleCfg_->readIntOpt(Form("userEffBin::%s",sampleName.c_str()));
@@ -383,7 +391,7 @@ void AnalysisHelper::prepareSamplesHistos()
 
 				  if (hasUserBinning or hasUserBinning_thisSel)
 					{
-					  vector<float> vBins;
+					  std::vector<float> vBins;
 					  if (hasUserBinning_thisSel) {
 						vBins = cutCfg_->readFloatListOpt(Form("binning::%s", sel_var.c_str()));
 					  }
@@ -431,7 +439,7 @@ void AnalysisHelper::prepareSamplesHistos()
 						}
 					  else
 						{
-						  vector<float> vBins = cutCfg_->readFloatListOpt(Form("histos::%s", varName.c_str()));
+						  std::vector<float> vBins = cutCfg_->readFloatListOpt(Form("histos::%s", varName.c_str()));
 						  nbins = (int) (vBins.at(0) + 0.5); // just to avoid numerical errors
 						  xlow = vBins.at(1);
 						  xup  = vBins.at(2);
@@ -446,12 +454,12 @@ void AnalysisHelper::prepareSamplesHistos()
 				  std::string hname = formHistoName(sampleName, selName, varName, nominal_name_);
 				  std::shared_ptr<TH1F> hist;
 				  if (hasUserBinning) {
-					hist = make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
-											 nbins, binning);
+					hist = std::make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
+												  nbins, binning);
 				  }
 				  else {
-					hist = make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
-											 nbins, xlow, xup);
+					hist = std::make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
+												  nbins, xlow, xup);
 				  }
 				  systcoll.append(nominal_name_, hist);
 
@@ -481,10 +489,12 @@ void AnalysisHelper::prepareSamplesHistos()
 							  hname = formHistoName (sampleName, selName, varName, currW.getSystName(isys));
 							  std::shared_ptr<TH1F> histS;
 							  if (hasUserBinning) {
-								histS = make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(), nbins, binning);
+								histS = std::make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
+															   nbins, binning);
 							  }
 							  else {
-								histS = make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(), nbins, xlow, xup);
+								histS = std::make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
+															   nbins, xlow, xup);
 							  }
 							  systcoll.append(currW.getSystName(isys), histS);
 							}
@@ -499,12 +509,12 @@ void AnalysisHelper::prepareSamplesHistos()
 							  hname = formHistoName(sampleName, selName, varName, currW.getSystName(isys));
 							  std::shared_ptr<TH1F> histS;
 							  if (hasUserBinning) {
-								histS = make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
-														  nbins, binning);
+								histS = std::make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
+															   nbins, binning);
 							  }
 							  else {
-								histS = make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
-														  nbins, xlow, xup);
+								histS = std::make_shared<TH1F>(hname.c_str(), (hname+std::string(";")+varName+std::string(";events")).c_str(),
+															   nbins, xlow, xup);
 							  }
 							  systcoll.append(currW.getSystName(isys), histS);
 							}
@@ -536,10 +546,10 @@ void AnalysisHelper::prepareSamplesHistos()
 void AnalysisHelper::prepareSamples2DHistos()
 {
   // to loop all in once
-  vector <sampleColl*> allToInit;
+  std::vector <sampleColl*> allToInit;
   allToInit.insert(allToInit.end(), {&data_samples_, &sig_samples_, &bkg_samples_});
 
-  vector<int> doselW;
+  std::vector<int> doselW;
   doselW.insert(doselW.end(), {0, 1, 1}); // no sel W for data!
 
   for (uint ismpc = 0; ismpc < allToInit.size(); ++ismpc) // loop on (data, sig, bkg)
@@ -565,7 +575,7 @@ void AnalysisHelper::prepareSamples2DHistos()
 				  bool hasUserBinning1 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
 				  bool hasUserBinning2 = cutCfg_->hasOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
 
-				  vector<float> binning;
+				  std::vector<float> binning;
 				  if (!hasUserBinning1 or !hasUserBinning2) { // at least one must have been specified
 					binning = cutCfg_->readFloatListOpt(Form("histos2D::%s", packedVarName.c_str()));
 				  }
@@ -582,7 +592,7 @@ void AnalysisHelper::prepareSamples2DHistos()
 
 				  if (hasUserBinning1)
 					{
-					  vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
+					  std::vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName1.c_str()));
 					  nbins1 = vBins.size() -1;
 
 					  if (nbins1 < 1) // wrong
@@ -606,7 +616,7 @@ void AnalysisHelper::prepareSamples2DHistos()
 
 				  if (hasUserBinning2)
 					{
-					  vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
+					  std::vector<float> vBins = cutCfg_->readFloatListOpt(Form("binning2D::%s@%s", packedVarName.c_str(), varName2.c_str()));
 					  nbins2 = vBins.size() -1;
 
 					  if (nbins2 < 1) // wrong
@@ -639,20 +649,20 @@ void AnalysisHelper::prepareSamples2DHistos()
 				  std::string hname = formHisto2DName(sampleName, selName, varName1, varName2, nominal_name_);
 				  std::shared_ptr<TH2F> hist;
 				  if (hasUserBinning1 and hasUserBinning2) {
-					hist = make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
-											 nbins1, binning1, nbins2, binning2);
+					hist = std::make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
+												  nbins1, binning1, nbins2, binning2);
 				  }
 				  else if (hasUserBinning1 and !hasUserBinning2) {
-					hist = make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
-											 nbins1, binning1, nbins2, xlow2, xup2);
+					hist = std::make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
+												  nbins1, binning1, nbins2, xlow2, xup2);
 				  }
 				  else if (!hasUserBinning1 and hasUserBinning2)  {
-					hist = make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
-											 nbins1, xlow1, xup1, nbins2, binning2);
+					hist = std::make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
+												  nbins1, xlow1, xup1, nbins2, binning2);
 				  }
 				  else {
-					hist = make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
-											 nbins1, xlow1, xup1, nbins2, xlow2, xup2);
+					hist = std::make_shared<TH2F>(hname.c_str(), (hname+std::string(";")+varName1+std::string(";")+varName2).c_str(),
+												  nbins1, xlow1, xup1, nbins2, xlow2, xup2);
 				  }
 				  systcoll.append(nominal_name_, hist);
 
@@ -689,12 +699,12 @@ std::vector<std::pair<std::string, std::string>> AnalysisHelper::readWeightSysts
 	  return systs;
 	}
 
-  vector<std::string> v = cutCfg_->readStringListOpt(Form("%s::%s", section.c_str(), name.c_str()));
+  std::vector<std::string> v = cutCfg_->readStringListOpt(Form("%s::%s", section.c_str(), name.c_str()));
   for (std::string elem : v)
 	{
 	  std::string delimiter = ":";
 	  size_t pos = 0;
-	  vector<std::string> tokens;
+	  std::vector<std::string> tokens;
 	  while ((pos = elem.find(delimiter)) != std::string::npos)
 		{
 		  tokens.push_back(elem.substr(0, pos));
@@ -722,7 +732,7 @@ Selection AnalysisHelper::readSingleSelection (std::string name)
 	}
 
   Selection s(name, "");
-  vector<std::string> selDef = cutCfg_->readStringListOpt(Form("selections::%s", name.c_str())) ;
+  std::vector<std::string> selDef = cutCfg_->readStringListOpt(Form("selections::%s", name.c_str())) ;
   for (std::string part : selDef)
 	{
 	  if (cutCfg_->hasOpt(Form("selections::%s", part.c_str()))) {
@@ -737,7 +747,7 @@ Selection AnalysisHelper::readSingleSelection (std::string name)
   if (!cutCfg_->hasOpt(Form("selectionWeights::%s", name.c_str())))
     return s;
 
-  vector<std::string> weights = cutCfg_->readStringListOpt(Form("selectionWeights::%s", name.c_str()));
+  std::vector<std::string> weights = cutCfg_->readStringListOpt(Form("selectionWeights::%s", name.c_str()));
   for (std::string wname : weights)
 	{
 	  Weight w (wname);
@@ -889,7 +899,7 @@ void AnalysisHelper::printSamples(bool printWeights, bool printSysts)
 
 std::string AnalysisHelper::formHistoName (std::string sample, std::string sel, std::string var, std::string syst)
 {
-  string name = sample + "_" + sel + "_" + var;
+  std::string name = sample + "_" + sel + "_" + var;
   if (syst != nominal_name_) {
 	name += "_";
 	name += syst;
@@ -917,8 +927,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   TChain* tree = sample.getTree();
 
   // setup selection group
-  shared_ptr<TTreeFormulaGroup> fg = make_shared<TTreeFormulaGroup>(true);
-  vector<TTreeFormula*> vTTF;
+  std::shared_ptr<TTreeFormulaGroup> fg = std::make_shared<TTreeFormulaGroup>(true);
+  std::vector<TTreeFormula*> vTTF;
   for (unsigned int isel = 0; isel < selections_.size(); ++isel)
 	{
 	  // note: no need to call later delete, because fg is set as the owner of the member TTF
@@ -1094,16 +1104,17 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   }
 
   // decide types
-  TObjArray *branchList = tree->GetListOfBranches();
+  std::map<std::string, std::string> branches = sample.getBranches();
   for (auto it = valuesMap.begin(); it != valuesMap.end(); ++it)
 	{
-	  TBranch* br = (TBranch*)branchList->FindObject(it->first.c_str());
-	  if (!br) {
-		std::cerr << "** ERROR: AnalysisHelper::fillHistosSample : sample : " << sample.getName()
-				  << " does not have branch " << it->first << ", expect a crash..." << std::endl;
+	  auto it_find = branches.find(it->first);
+	  if (it_find == branches.end()) {
+		std::string mes = ( "** ERROR: AnalysisHelper::fillHistosSample : sample : " + sample.getName()
+							+ " does not have branch " + it->first + "." );
+		throw std::runtime_error(mes);
 	  }
-
-	  std::string brName = br->GetTitle();
+	  
+	  std::string brName = branches[it->first];
 	  if (brName.find(std::string("/F")) != std::string::npos) // F : a 32 bit floating point (Float_t)
 		{
 		  it->second = float(0.0);
@@ -1127,7 +1138,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 	  else
 		{
 		  std::cerr << "** AnalysisHelper : error : could not detect the type of var " << it->first
-					<< " (title: " << br->GetTitle() << " , name: " << br->GetName() << " , className: " << br->GetClassName() << ")" << std::endl;
+					<< " (title: " << brName << ")" << std::endl;
 		  std::cerr << "   ... assuming float, but errors could happen" << std::endl;
 		  it->second = float(0.0);
 		  tree->SetBranchAddress(it->first.c_str(), &boost::get<float>(it->second));
@@ -1185,7 +1196,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 			{
 			  int isNAN = TMath::IsNaN(boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]));
 			  if (isNAN== 1) {
-				std::cout << "NaN weight: " << currSel.getWeights().at(iw).getName()<<endl;
+				std::cout << "NaN weight: " << currSel.getWeights().at(iw).getName() << std::endl;
 			  }
 			  wEvSel *= (isNAN == 1) ? 0 :boost::apply_visitor(get_variant_as_double(), valuesMap[currSel.getWeights().at(iw).getName()]);
 			}
@@ -1262,7 +1273,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   std::cout << "  fillHistos();" << std::endl;
   if (DEBUG) {
 	for (uint is = 0; is < bkg_samples_.size(); ++is) {
-	  std::cout << "  " << is << " >> " << setw(25) << left << bkg_samples_.at(is)->getName() << setw(13) << " nweights: " << bkg_samples_.at(is)->getWeights().size() << std::endl;
+	  std::cout << "  " << is << " >> " << std::setw(25) << std::left << bkg_samples_.at(is)->getName()
+				<< std::setw(13) << " nweights: " << bkg_samples_.at(is)->getWeights().size() << std::endl;
 	}
   }
 
@@ -1278,16 +1290,14 @@ void AnalysisHelper::activateBranches(Sample& sample)
   tree->SetBranchStatus("*", 0);
 
   // activate all vars
-  for (std::string var : variables_)
-	{
-	  tree->SetBranchStatus(var.c_str(), 1);
-	}
+  for (std::string var : variables_) {
+	tree->SetBranchStatus(var.c_str(), 1);
+  }
 
-  for (auto var2d : variables2D_)
-	{
-	  tree->SetBranchStatus(var2d.first.c_str(), 1);
-	  tree->SetBranchStatus(var2d.second.c_str(), 1);
-	}
+  for (auto var2d : variables2D_) {
+	tree->SetBranchStatus(var2d.first.c_str(), 1);
+	tree->SetBranchStatus(var2d.second.c_str(), 1);
+  }
 
   if (DEBUG) {
 	std::cout << " ..........DEBUG: activated var branches" << std::endl;
@@ -1329,17 +1339,16 @@ void AnalysisHelper::activateBranches(Sample& sample)
   }
 
   // // activate all variables for cuts
-  TObjArray* branchList =  tree->GetListOfBranches();
-  int nBranch = tree->GetNbranches(); // all trees in the chain are identical
-  for (int iB = 0 ; iB < nBranch; ++iB)
+  std::map<std::string, std::string> branches = sample.getBranches();
+  for (auto const& br : branches)
 	{
-	  std::string bName = branchList->At(iB)->GetName();
+	  std::string bName = br.first;
 	  for (uint isel = 0; isel < selections_.size(); isel++)
 		{
 		  std::string theCut = selections_.at(isel).getValue().GetTitle(); // gives the content of tCut as char*
 		  if (theCut.find(bName) != std::string::npos)
 			{
-			  tree->SetBranchStatus (bName.c_str(), 1);
+			  tree->SetBranchStatus(bName.c_str(), 1);
 			}
 		}
 	}
@@ -1360,7 +1369,7 @@ std::pair <std::string, std::string> AnalysisHelper::unpack2DName (std::string p
 {
   std::stringstream packedNameS(packedName);
   std::string segment;
-  vector<std::string> unpackedNames;
+  std::vector<std::string> unpackedNames;
   while(std::getline(packedNameS, segment, ':'))
     unpackedNames.push_back(segment);
   if (unpackedNames.size() != 2)
@@ -1391,7 +1400,7 @@ void AnalysisHelper::fillHistos()
   }
 }
 
-void AnalysisHelper::setSplitting (int idxsplit, int nsplit)
+void AnalysisHelper::setSplitting(int idxsplit, int nsplit)
 {
   if (idxsplit >= nsplit)
 	{
@@ -1449,11 +1458,11 @@ void AnalysisHelper::dump(int detail)
 	}
   std::cout << std::endl;
 
-
   std::cout << "@@@@@@@@ SELECTIONS @@@@@@@@" << std::endl;
   std::cout << "@ selection list: " << std::endl;
   for (uint is = 0; is < selections_.size(); ++is)
-    std::cout << "  " << is << " >> " << setw(25) << left << selections_.at(is).getName() << setw(13) << " nweights: " << selections_.at(is).getWeights().size() << std::endl;
+    std::cout << "  " << is << " >> " << std::setw(25) << std::left << selections_.at(is).getName()
+			  << std::setw(13) << " nweights: " << selections_.at(is).getWeights().size() << std::endl;
   if (detail >=1)
 	{
 	  std::cout << "@ printing selections... " << std::endl;
@@ -1464,16 +1473,19 @@ void AnalysisHelper::dump(int detail)
   std::cout << "@@@@@@@@ SAMPLES @@@@@@@@" << std::endl;
   std::cout << "@ data sample list: " << std::endl;
   for (uint is = 0; is < data_samples_.size(); ++is)
-    std::cout << "  " << is << " >> " << setw(25) << left << data_samples_.at(is)->getName() << setw(13) << " nweights: " << data_samples_.at(is)->getWeights().size() << std::endl;
+    std::cout << "  " << is << " >> " << std::setw(25) << std::left << data_samples_.at(is)->getName()
+			  << std::setw(13) << " nweights: " << data_samples_.at(is)->getWeights().size() << std::endl;
 
   std::cout << "@ sig sample list: " << std::endl;
   for (uint is = 0; is < sig_samples_.size(); ++is)
-    std::cout << "  " << is << " >> " << setw(25) << left << sig_samples_.at(is)->getName() << setw(13) << " nweights: " << sig_samples_.at(is)->getWeights().size() << std::endl;
+    std::cout << "  " << is << " >> " << std::setw(25) << std::left << sig_samples_.at(is)->getName()
+			  << std::setw(13) << " nweights: " << sig_samples_.at(is)->getWeights().size() << std::endl;
 
   std::cout << "@ bkg sample list: " << std::endl;
   for (uint is = 0; is < bkg_samples_.size(); ++is)
 	{
-	  std::cout << "  " << is << " >> " << setw(25) << left << bkg_samples_.at(is)->getName() << setw(13) << " nweights: " << bkg_samples_.at(is)->getWeights().size() << std::endl;
+	  std::cout << "  " << is << " >> " << std::setw(25) << std::left << bkg_samples_.at(is)->getName()
+				<< std::setw(13) << " nweights: " << bkg_samples_.at(is)->getWeights().size() << std::endl;
 	}
 
   std::cout << std::endl;
@@ -1501,11 +1513,11 @@ void AnalysisHelper::mergeSamples()
 
 	  // create an empty new sample.
 	  // NOTE: call this method after you finished to fill histos, the new sample has no tree associated and can't be filled!
-	  shared_ptr<Sample> snew (new Sample(newname, ""));
+	  std::shared_ptr<Sample> snew(new Sample(newname, {{""}}, "HTauTauTree", "h_eff", 1));
 
 	  // take the first histo in the list of masters
 	  std::string snamefirst = sample_merge_list_.at(isnew).at(0);
-	  shared_ptr<Sample> smaster = nullptr;
+	  std::shared_ptr<Sample> smaster = nullptr;
 	  ordered_map <std::string, std::shared_ptr<Sample>>* chosenMap = nullptr;
 	  int type = -1;
 

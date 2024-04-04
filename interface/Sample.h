@@ -1,7 +1,7 @@
 /*
 ** class: Sample
 ** author: L. Cadamuro (LLR)
-** date: 26/05/2016
+** date: 26/05/2016 (updated by B. Alves on 2024)
 ** description: class representing a data sample (either data or MC). Handles file opening and histograms.
 **              input files are listed in a txt file "filename".
 */
@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <regex>
 #include "Weight.h"
 #include "Weight_ext.h"
 #include "ordered_map.h"
@@ -41,7 +42,11 @@ public:
   };
 
   // standard ctor/dtor
-  Sample(std::string name, std::vector<std::string> filelistname, std::string treename="HTauTauTree", std::string histoname="h_eff", int binEffDen = 1);
+  Sample(std::string, std::vector<std::string>,
+		 std::string, std::string, int);
+  Sample(std::string, std::vector<std::string>,
+		 std::string, std::string,
+		 std::string, std::string, std::string, int);
   
   ~Sample() {};
   std::string getName() const {return name_;}
@@ -69,25 +74,28 @@ public:
   void clearWeights() {weights_.clear();}
   void clearExtWeights() {weights_ext_.clear();}
 
-  TChain* getTree() {return tree_;}
+  TChain* getTree() {return skim_;}
+  std::map<std::string, std::string> getBranches();
+  unsigned getNBranches();
 
   const std::vector<Weight>& getWeights() const {return weights_;}
   std::vector<Weight>& getWeights() {return weights_;}
 
 private:
-  std::vector<std::string> filelistname_;
-  std::string treename_;
-  std::string histoname_;
-  TChain* tree_;
+  bool friend_added_ = false;
   std::string name_;
-
-  int    bin_eff_den_;
   double eff_;
-  double evt_num_;
-  double evt_den_;
+  double evt_num_, evt_den_;
+  long long int nentries_;
+  std::vector<std::string> filelistname_;
+  int bin_eff_den_;
+  std::string skimname_, evalname_;
+  std::string skimpath_ = "", evalpath_ = "";
+  std::string histoname_;
+  TChain *skim_ = nullptr, *eval_ = nullptr;
+
   sType  sampleType_; // used in general to label the type of sample
 
-  long long int nentries_;
   selColl plots_;
   selColl2D plots2D_;
 

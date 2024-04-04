@@ -62,13 +62,13 @@ readSamples (std::vector<mysample> & samples, std::vector<std::string> & samples
 {
   for (unsigned int iSample = 0 ; iSample < samplesList.size () ; ++iSample)
   {
+    TString sampleBaseFolder = lConfigParser->readStringOpt((TString ("samples::base")).Data());
     TString sampleFolder = lConfigParser->readStringOpt (
       (TString ("samples::") + samplesList.at (iSample).c_str ()).Data()
       ) ;
-    std::cout << "reading " << samplesList.at (iSample) << " from : " << sampleFolder << "\n" ;
-    //vector<Sample> sample (new Sample(samplesList.at (iSample) , (sampleFolder + string("/goodfiles.txt")).Data()));
-    //#samples.push_back (sample);
-    samples.push_back (mysample (samplesList.at (iSample), sampleFolder + "/total.root", readOption)) ;
+    std::cout << "reading " << samplesList.at (iSample) << " from : " << sampleBaseFolder + sampleFolder << "\n" ;
+
+	samples.push_back (mysample (samplesList.at (iSample), sampleBaseFolder + sampleFolder + "/total.root", readOption)) ;
     int done = samples.back ().sampleTree->GetEntries () ;
     std::cout << " --> read " << done << " events\n" ;
   }

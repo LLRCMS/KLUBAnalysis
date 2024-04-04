@@ -5,16 +5,14 @@
 // c++ -lm -o test testAnalysisHelper.cpp AnalysisHelper.cc CfgParser.cc Sample.cc Selection.cc Weight.cc TTreeFormulaGroup.cc --std=c++11 `root-config --glibs --cflags` -lTreePlayer
 int main(int argc, char** argv)
 {
-  if (argc != 5)
-  {
+  if (argc != 5) {
 	std::cout << "[ERROR::testAnalysisHelper] Expecting five input arguments." << std::endl;
     return 1;
   }
 
-  bool split = true;
   int idx    = atoi(argv[2]);
   int njobs  = atoi(argv[3]);
-  string outFolder = argv[4];
+  std::string outFolder = argv[4];
 
   std::array<std::string, 2> merge_sections = {{"merge_plots", "merge_limits"}};
 
@@ -23,6 +21,7 @@ int main(int argc, char** argv)
 	  AnalysisHelper ah(argv[1], ms, idx, njobs);
 	  ah.readSelections();
 	  ah.readVariables();
+
 	  ah.readSamples();
 	  
 	  ah.prepareHistos();
