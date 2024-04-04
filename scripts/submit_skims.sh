@@ -169,7 +169,7 @@ REGEX_MAP=(
     ["TTTo2L2Nu"]="TT_FullyLep"
     ["TTToSemiLeptonic"]="TT_SemiLep"
 
-	["DYJets.+_M-50_T.+amc"]="DY_Incl"
+    ["DYJets.+_M-50_T.+amc"]="DY_Incl"
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="DY_PtZ0To50"
     ["DYJetsToLL_LHEFilterPtZ-50To100"]="DY_PtZ50To100"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="DY_PtZ100To250"
@@ -480,7 +480,6 @@ MC_MAP=(
     ["TTToSemiLeptonic"]="-n 400 -x ${SemiLepXSec} -q long"
 
     ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
-    # ["DYJets.+_M-10to50.+v2"]="-n 300 -x 20490.0 --DY 0 -q short" # low mass
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 200  -x 377.12 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
