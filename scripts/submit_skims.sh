@@ -459,7 +459,7 @@ for ds in ${DATA_LIST[@]}; do
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Sig --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
 			echo ${sample}
-			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q short
+			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q short --ishhsignal
 		fi
 	done
 done
