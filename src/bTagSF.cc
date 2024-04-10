@@ -75,7 +75,9 @@ void bTagSF::m_initialize(std::string SFfilename, std::string effFileName, std::
 
 bTagSF::~bTagSF()
 {
-  if (m_fileEff) delete m_fileEff;
+  if (m_isMC and m_fileEff) {
+	delete m_fileEff;
+  }
 }
 
 void bTagSF::SetWPset(std::string WPset)
