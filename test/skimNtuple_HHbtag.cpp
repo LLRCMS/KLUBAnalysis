@@ -525,9 +525,9 @@ int main (int argc, char** argv)
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
 
   // ------------------------------
-
-  string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
-  string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
+  string home = gConfigParser->readStringOption("parameters::home");
+  string bTag_SFFile = home + gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
+  string bTag_effFile = home + gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
   cout << "B Tag SF file: " << bTag_SFFile << endl;
   
   string wpset, wpyear;
@@ -550,7 +550,7 @@ int main (int argc, char** argv)
   bTagSF bTagSFHelper(bTag_SFFile, bTag_effFile, "", wpyear, wpset, isMC);
 
   // ------------------------------
-  std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
+  std::string PUjetID_SF_directory = home + gConfigParser->readStringOption("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
   string puYear;
   if (PERIOD=="2018") {
@@ -582,7 +582,7 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // HHbtag model
-  std::string HHbtag_model = gConfigParser->readStringOption ("HHbtag::weights");
+  std::string HHbtag_model = home + gConfigParser->readStringOption("HHbtag::weights");
   cout << "** INFO: HHbtag_model: " << HHbtag_model << endl;
   std::array<std::string, 2> models;
   for(size_t n = 0; n < 2; ++n)
@@ -743,10 +743,12 @@ int main (int argc, char** argv)
   TH2* hhreweighterInputMap = nullptr;
   if (HHrewType != kNone)
 	{
-	  string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
+	  string inMapFile   = home + gConfigParser->readStringOption("HHReweight::inputFile");
 	  string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
-	  string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
-	  if (order_rew == string("lo")) coeffFile = gConfigParser->readStringOption("HHReweight::coeffFileLO");
+	  string coeffFile   = home + gConfigParser->readStringOption("HHReweight::coeffFileNLO");
+	  if (order_rew == string("lo")) {
+		coeffFile = home + gConfigParser->readStringOption("HHReweight::coeffFileLO");
+	  }
 	  cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
 	  cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
 	  TFile* fHHDiffRew = new TFile(inMapFile.c_str());
@@ -4859,13 +4861,13 @@ int main (int argc, char** argv)
 	  const double MU_MASS = 0.1056583715; //GeV
 
 	  // Reaf from configs
-	  std::string model_dir = gConfigParser->readStringOption ("DNN::weights");
+	  std::string model_dir = home + gConfigParser->readStringOption("DNN::weights");
 	  std::cout << "DNN::weights   : " << model_dir << std::endl;
 
 	  vector<float> DNN_kl;
 	  DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
 
-	  std::string features_file = gConfigParser->readStringOption ("DNN::features");
+	  std::string features_file = home + gConfigParser->readStringOption("DNN::features");
 	  std::cout << "DNN::features  : " << features_file << std::endl;
 
 	  // Read from file the requested features to be computed
