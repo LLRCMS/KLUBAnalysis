@@ -1059,34 +1059,29 @@ int main (int argc, char** argv)
 				{
 				  if (isLast)
 					{
-					  if (idx1 >= 0)
-						{
-						  cout << "** ERROR: ttH - more than 1 H identified" << endl;
-						  continue;
-						}
-					  else
-						{
-						  idx1 = igen;
-						}
+					  if (idx1 >= 0) {
+						cout << "** WARNING: ttH - more than 1 H identified" << endl;
+						continue;
+					  }
+					  else {
+						idx1 = igen;
+					  }
 					}
 				}
 			} // end loop on gen part to find H from ttH
 
 		  // Find decay mode of the Higgs
-		  if (idx1 == -1)
-			{
-			  cout << "** ERROR: ttH - couldn't find 1 H" << endl;
+		  if (idx1 == -1) {
+			cout << "** WARNING: ttH - couldn't find 1 H" << endl;
+			continue;
+		  }
+		  else {
+			int ttHdecayMode = theBigTree.genpart_HZDecayMode->at(idx1);
+			if (ttHdecayMode <= 6) {
+			  if (DEBUG) cout << "** ttH stitcher: found ttH->TauTau event with decay mode: " << ttHdecayMode << " --> rejecting event!" << endl;
 			  continue;
 			}
-		  else
-			{
-			  int ttHdecayMode = theBigTree.genpart_HZDecayMode->at(idx1);
-			  if (ttHdecayMode <= 6)
-				{
-				  if (DEBUG) cout << "** ttH stitcher: found ttH->TauTau event with decay mode: " << ttHdecayMode << " --> rejecting event!" << endl;
-				  continue;
-				}
-			}
+		  }
 		} // end ttHToNonBB only
 
 	  // HH reweight for non resonant
@@ -1140,20 +1135,18 @@ int main (int argc, char** argv)
 				  // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
 				  if (isFirst)
 					{
-					  if (idx1 >= 0 && idx2 >= 0)
-						{
-						  cout << "** ERROR: more than 2 H identified (first)" << endl;
-						  continue;
-						}
+					  if (idx1 >= 0 && idx2 >= 0) {
+						cout << "** WARNING: more than 2 H identified (first)" << endl;
+						continue;
+					  }
 					  (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
 					}
 				  if (isLast)
 					{
-					  if (idx1last >= 0 && idx2last >= 0)
-						{
-						  cout << "** ERROR: more than 2 H identified (last)" << endl;
-						  // continue; // no need to skip the event in this case -- dec mode just for studies
-						}
+					  if (idx1last >= 0 && idx2last >= 0) {
+						cout << "** WARNING: more than 2 H identified (last)" << endl;
+						// continue; // no need to skip the event in this case -- dec mode just for studies
+					  }
 					  (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
 					}
 				}
@@ -1163,7 +1156,7 @@ int main (int argc, char** argv)
 				  if (idx1hs == -1) idx1hs = igen;
 				  else if (idx2hs == -1) idx2hs = igen;
 				  else {
-					cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+					cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
 				  }
 				}
 			  
@@ -1172,7 +1165,7 @@ int main (int argc, char** argv)
 				  if (idx1hs == -1) idx1hs = igen;
 				  else if (idx2hs == -1) idx2hs = igen;
 				  else {
-					cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+					cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
 				  }
 				}
 
@@ -1181,19 +1174,17 @@ int main (int argc, char** argv)
 				{
 				  if (idx1hs_b == -1) idx1hs_b = igen;
 				  else if (idx2hs_b == -1) idx2hs_b = igen;
-				  else
-					{
-					  cout << "** ERROR: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
-					}
+				  else {
+					cout << "** WARNING: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
+				  }
 				}
 
 			}
 		
-		  if (idx1 == -1 || idx2 == -1)
-			{
-			  cout << "** ERROR: couldn't find 2 H (first)" << endl;
-			  continue;
-			}
+		  if (idx1 == -1 || idx2 == -1) {
+			cout << "** WARNING: couldn't find 2 H (first)" << endl;
+			continue;
+		  }
 
 		  if (idx1last != -1 && idx2last != -1) // this is not critical if not found
 			{
@@ -1211,8 +1202,9 @@ int main (int argc, char** argv)
 			  // int hsIdx1 = hsProds.first;
 			  // int hsIdx2 = hsProds.second;
 			}
-		  else
-			cout << "** ERROR: couldn't find 2 H (last)" << endl;
+		  else {
+			cout << "** WARNING: couldn't find 2 H (last)" << endl;
+		  }
 
 		  if (idx1hs != -1 && idx2hs != -1)
 			{
@@ -1227,17 +1219,16 @@ int main (int argc, char** argv)
 			  else if (abs(pdg2hs) == 13) t2hs = 0;
 			  else                        t2hs = 2;
 
-			  if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8))
-				{
-				  cout << "** ERROR: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
-					   << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
-				}
+			  if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8)) {
+				cout << "** WARNING: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
+					 << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
+			  }
 			  vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
 			  vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
 			}
-		  else
-			cout << "** ERROR: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
-
+		  else {
+			cout << "** WARNING: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
+		  }
 
 		  vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
 		  vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
@@ -1261,8 +1252,9 @@ int main (int argc, char** argv)
 			  vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
 			  vGenB2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs_b), theBigTree.genpart_py->at(idx2hs_b), theBigTree.genpart_pz->at(idx2hs_b), theBigTree.genpart_e->at(idx2hs_b) );
 			}
-		  else
-			cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+		  else {
+			cout << "** WARNING: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+		  }
 
 		  if (HHrewType == kDiffRew)      HHweight = hhreweighter->getWeight(mHH, ct1);
 		  else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
@@ -1280,7 +1272,7 @@ int main (int argc, char** argv)
 	  if (genHHDecMode < 0)
 		{
 		  genHHDecMode = 0; // dummy protection if couldn't find initial H
-		  cout << "** ERROR: negative dec mode, for safety set it ot 0" << endl;
+		  cout << "** WARNING: negative dec mode, for safety set it ot 0" << endl;
 		}
 	  double EvtW;
 	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) { // good PU weights
@@ -4362,7 +4354,7 @@ int main (int argc, char** argv)
 				theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
 			  }
 			  else {
-				std::cout << "**ERROR: HHbtag score not found for bjet1, setting to -1!" << endl;
+				std::cout << "** WARNING: HHbtag score not found for bjet1, setting to -1!" << endl;
 				theSmallTree.m_bjet1_HHbtag = -2.;
 			  }
 
@@ -4370,7 +4362,7 @@ int main (int argc, char** argv)
 				theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
 			  }
 			  else {
-				std::cout << "**ERROR: HHbtag score not found for bjet2, setting to -1!" << endl;
+				std::cout << "** WARNING: HHbtag score not found for bjet2, setting to -1!" << endl;
 				theSmallTree.m_bjet2_HHbtag = -2.;
 			  }
 			}
