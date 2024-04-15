@@ -10,7 +10,7 @@ OUT_TAG=""
 IN_TAG="Oct2023"
 DATA_PERIOD="UL18"
 DATA_USER="${USER}"
-DATA_PERIOD_CHOICES=( "UL2016preVFP" "UL2016postVFP" "UL17" "UL18" )
+DATA_PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
 
 ### Argument parsing
 HELP_STR="Prints this help message."
@@ -273,10 +273,10 @@ if [ ${DATA_PERIOD} == "UL18" ]; then
 elif [ ${DATA_PERIOD} == "UL17" ]; then
 	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2017/PU_UL2017_SF.txt"
 	YEAR="2017"
-elif [ ${DATA_PERIOD} == "UL16preVFP" ]; then
+elif [ ${DATA_PERIOD} == "UL16" ]; then
 	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016/PU_UL2016_SF.txt"
 	YEAR="2016preVFP"
-elif [ ${DATA_PERIOD} == "UL16postVFP" ]; then
+elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016APV/PU_UL2016APV_SF.txt"
 	YEAR="2016postVFP"
 fi
@@ -459,7 +459,7 @@ for ds in ${DATA_LIST[@]}; do
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Sig --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
 			echo ${sample}
-			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q short --ishhsignal
+			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q long --ishhsignal 1
 		fi
 	done
 done
