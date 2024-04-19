@@ -92,25 +92,62 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [ ${DATA_PERIOD} == "UL18" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
+	YEAR="2018"
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2017/PU_UL2017_SF.txt"
+	YEAR="2017"
+elif [ ${DATA_PERIOD} == "UL16" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016/PU_UL2016_SF.txt"
+	YEAR="2016preVFP"
+elif [ ${DATA_PERIOD} == "UL16APV" ]; then
+	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016APV/PU_UL2016APV_SF.txt"
+	YEAR="2016postVFP"
+fi
+
+AYEAR=${YEAR:0:4}
 declare -A REGEX_MAP
 REGEX_MAP=(
 	# Data
-	["EGamma__Run2018A"]="EGammaA"
-    ["EGamma__Run2018B"]="EGammaB"
-    ["EGamma__Run2018C"]="EGammaC"
-    ["EGamma__Run2018D"]="EGammaD"
-    ["Tau__Run2018A"]="TauA"
-    ["Tau__Run2018B"]="TauB"
-    ["Tau__Run2018C"]="TauC"
-    ["Tau__Run2018D"]="TauD"
-    ["SingleMuon__Run2018A"]="MuonA"
-    ["SingleMuon__Run2018B"]="MuonB"
-    ["SingleMuon__Run2018C"]="MuonC"
-    ["SingleMuon__Run2018D"]="MuonD"
-    ["MET__Run2018A"]="META"
-    ["MET__Run2018B"]="METB"
-    ["MET__Run2018C"]="METC"
-    ["MET__Run2018D"]="METD"
+	["EGamma__Run${AYEAR}A"]="EGammaA"
+    ["EGamma__Run${AYEAR}B"]="EGammaB"
+    ["EGamma__Run${AYEAR}C"]="EGammaC"
+    ["EGamma__Run${AYEAR}D"]="EGammaD"
+	["SingleElectron__Run${AYEAR}B"]="EGammaB"
+	["SingleElectron__Run${AYEAR}C"]="EGammaC"
+	["SingleElectron__Run${AYEAR}D"]="EGammaD"
+	["SingleElectron__Run${AYEAR}E"]="EGammaE"
+	["SingleElectron__Run${AYEAR}F"]="EGammaF"
+	["SingleElectron__Run${AYEAR}G"]="EGammaG"
+	["SingleElectron__Run${AYEAR}H"]="EGammaH"
+
+    ["Tau__Run${AYEAR}A"]="TauA"
+    ["Tau__Run${AYEAR}B"]="TauB"
+    ["Tau__Run${AYEAR}C"]="TauC"
+    ["Tau__Run${AYEAR}D"]="TauD"
+	["Tau__Run${AYEAR}E"]="TauE"
+	["Tau__Run${AYEAR}F"]="TauF"
+	["Tau__Run${AYEAR}G"]="TauG"
+	["Tau__Run${AYEAR}H"]="TauH"
+		
+    ["SingleMuon__Run${AYEAR}A"]="MuonA"
+    ["SingleMuon__Run${AYEAR}B"]="MuonB"
+    ["SingleMuon__Run${AYEAR}C"]="MuonC"
+    ["SingleMuon__Run${AYEAR}D"]="MuonD"
+	["SingleMuon__Run${AYEAR}E"]="MuonE"
+	["SingleMuon__Run${AYEAR}F"]="MuonF"
+	["SingleMuon__Run${AYEAR}G"]="MuonG"
+	["SingleMuon__Run${AYEAR}H"]="MuonH"
+		
+    ["MET__Run${AYEAR}A"]="META"
+    ["MET__Run${AYEAR}B"]="METB"
+    ["MET__Run${AYEAR}C"]="METC"
+    ["MET__Run${AYEAR}D"]="METD"
+	["MET__Run${AYEAR}E"]="METE"
+	["MET__Run${AYEAR}F"]="METF"
+	["MET__Run${AYEAR}G"]="METG"
+	["MET__Run${AYEAR}H"]="METH"
 
 	# Signal
 	["GluGluToRadionToHHTo2B2Tau_M-250_"]="Rad250"
@@ -267,19 +304,6 @@ SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Sig/"
 BKG_DIR=${IN_DIR}${DATA_PERIOD}"_MC/"
 DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
 
-if [ ${DATA_PERIOD} == "UL18" ]; then
-	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2018/PU_UL2018_SF.txt"
-	YEAR="2018"
-elif [ ${DATA_PERIOD} == "UL17" ]; then
-	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2017/PU_UL2017_SF.txt"
-	YEAR="2017"
-elif [ ${DATA_PERIOD} == "UL16" ]; then
-	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016/PU_UL2016_SF.txt"
-	YEAR="2016preVFP"
-elif [ ${DATA_PERIOD} == "UL16APV" ]; then
-	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016APV/PU_UL2016APV_SF.txt"
-	YEAR="2016postVFP"
-fi
 CFG="config/skim_${DATA_PERIOD}.cfg"
 PREF="SKIMS_"
 TAG_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
@@ -403,28 +427,100 @@ eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_DATA=( $(/usr/bin/gfal-ls -lH ${LIST_DATA_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
 
-DATA_MAP=(
-    ["EGamma__Run2018A"]="-n 50 -q long"
-    ["EGamma__Run2018B"]="-n 50 -q long"
-    ["EGamma__Run2018C"]="-n 50 -q long"
-    ["EGamma__Run2018D"]="-n 50 -q long"
-    
-    ["Tau__Run2018A"]="-n 50 -q long --datasetType 2"
-    ["Tau__Run2018B"]="-n 50 -q long --datasetType 2"
-    ["Tau__Run2018C"]="-n 50 -q long --datasetType 2"
-    ["Tau__Run2018D"]="-n 50 -q long --datasetType 2"
-    
-    ["SingleMuon__Run2018A"]="-n 100 -q long"
-    ["SingleMuon__Run2018B"]="-n 100 -q long"
-    ["SingleMuon__Run2018C"]="-n 100 -q long"
-    ["SingleMuon__Run2018D"]="-n 100 -q long"
-    
-    ["MET__Run2018A"]="-n 50 -q long --datasetType 1"
-    ["MET__Run2018B"]="-n 50 -q long --datasetType 1"
-    ["MET__Run2018C"]="-n 50 -q long --datasetType 1"
-    ["MET__Run2018D"]="-n 50 -q long --datasetType 1"
-)
-
+if [ ${DATA_PERIOD} == "UL18" ]; then
+	DATA_MAP=(
+		["EGamma__Run2018A"]="-n 50 -q long"
+		["EGamma__Run2018B"]="-n 50 -q long"
+		["EGamma__Run2018C"]="-n 50 -q long"
+		["EGamma__Run2018D"]="-n 50 -q long"
+		
+		["Tau__Run2018A"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2018B"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2018C"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2018D"]="-n 50 -q long --datasetType 2"
+		
+		["SingleMuon__Run2018A"]="-n 100 -q long"
+		["SingleMuon__Run2018B"]="-n 100 -q long"
+		["SingleMuon__Run2018C"]="-n 100 -q long"
+		["SingleMuon__Run2018D"]="-n 100 -q long"
+		
+		["MET__Run2018A"]="-n 50 -q long --datasetType 1"
+		["MET__Run2018B"]="-n 50 -q long --datasetType 1"
+		["MET__Run2018C"]="-n 50 -q long --datasetType 1"
+		["MET__Run2018D"]="-n 50 -q long --datasetType 1"
+	)
+elif [ ${DATA_PERIOD} == "UL17" ]; then
+	DATA_MAP=(
+		["SingleElectron__Run2017B"]="-n 50 -q long"
+		["SingleElectron__Run2017C"]="-n 50 -q long"
+		["SingleElectron__Run2017D"]="-n 50 -q long"
+		["SingleElectron__Run2017E"]="-n 50 -q long"
+		["SingleElectron__Run2017F"]="-n 50 -q long"
+		
+		["Tau__Run2017B"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2017C"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2017D"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2017E"]="-n 50 -q long --datasetType 2"
+		["Tau__Run2017F"]="-n 50 -q long --datasetType 2"
+		
+		["SingleMuon__Run2017B"]="-n 100 -q long"
+		["SingleMuon__Run2017C"]="-n 100 -q long"
+		["SingleMuon__Run2017D"]="-n 100 -q long"
+		["SingleMuon__Run2017E"]="-n 100 -q long"
+		["SingleMuon__Run2017F"]="-n 100 -q long"
+		
+		["MET__Run2017B"]="-n 50 -q long --datasetType 1"
+		["MET__Run2017C"]="-n 50 -q long --datasetType 1"
+		["MET__Run2017D"]="-n 50 -q long --datasetType 1"
+		["MET__Run2017E"]="-n 50 -q long --datasetType 1"
+		["MET__Run2017F"]="-n 50 -q long --datasetType 1"
+	)
+elif [ ${DATA_PERIOD} == "UL16" ]; then
+	DATA_MAP=(
+		["SingleElectron__Run1016F"]="-n 10 -q long"
+		["SingleElectron__Run1016G"]="-n 10 -q long"
+		["SingleElectron__Run1016H"]="-n 10 -q long"
+		
+		["Tau__Run1016F"]="-n 10 -q long --datasetType 2"
+		["Tau__Run1016G"]="-n 10 -q long --datasetType 2"
+		["Tau__Run1016H"]="-n 10 -q long --datasetType 2"
+		
+		["SingleMuon__Run2016F"]="-n 20 -q long"
+		["SingleMuon__Run2016G"]="-n 20 -q long"
+		["SingleMuon__Run2016H"]="-n 20 -q long"
+		
+		["MET__Run1016F"]="-n 10 -q long --datasetType 1"
+		["MET__Run1016G"]="-n 10 -q long --datasetType 1"
+		["MET__Run1016H"]="-n 10 -q long --datasetType 1"
+	)
+elif [ ${DATA_PERIOD} == "UL16APV" ]; then
+	DATA_MAP=(
+		["SingleElectron__Run1016B"]="-n 10 -q long"
+		["SingleElectron__Run1016C"]="-n 10 -q long"
+		["SingleElectron__Run1016D"]="-n 10 -q long"
+		["SingleElectron__Run1016E"]="-n 10 -q long"
+		["SingleElectron__Run1016F"]="-n 10 -q long"
+		
+		["Tau__Run1016B"]="-n 10 -q long --datasetType 2"
+		["Tau__Run1016C"]="-n 10 -q long --datasetType 2"
+		["Tau__Run1016D"]="-n 10 -q long --datasetType 2"
+		["Tau__Run1016E"]="-n 10 -q long --datasetType 2"
+		["Tau__Run1016F"]="-n 10 -q long --datasetType 2"
+		
+		["SingleMuon__Run2016B"]="-n 20 -q long"
+		["SingleMuon__Run2016C"]="-n 20 -q long"
+		["SingleMuon__Run2016D"]="-n 20 -q long"
+		["SingleMuon__Run2016E"]="-n 20 -q long"
+		["SingleMuon__Run2016F"]="-n 20 -q long"
+		
+		["MET__Run1016B"]="-n 10 -q long --datasetType 1"
+		["MET__Run1016C"]="-n 10 -q long --datasetType 1"
+		["MET__Run1016D"]="-n 10 -q long --datasetType 1"
+		["MET__Run1016E"]="-n 10 -q long --datasetType 1"
+		["MET__Run1016F"]="-n 10 -q long --datasetType 1"
+	)
+fi
+	
 # Skimming submission
 for ds in ${!DATA_MAP[@]}; do
 	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
