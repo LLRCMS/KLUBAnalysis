@@ -248,7 +248,9 @@ REGEX_MAP=(
     ["ttHToNonbb"]="ttHToNonbb"
     ["ttHTobb"]="ttHTobb"
     ["ttHToTauTau"]="ttHToTauTau"
-    
+    ["ttHJetToNonbb"]="ttHToNonbb" # 2016 only
+	["ttHJetTobb"]="ttHTobb"       # 2016 only
+
     ["_WW_TuneCP5"]="WW"
     ["_WZ_TuneCP5"]="WZ"
     ["_ZZ_TuneCP5"]="ZZ"
@@ -477,35 +479,35 @@ elif [ ${DATA_PERIOD} == "UL17" ]; then
 	)
 elif [ ${DATA_PERIOD} == "UL16" ]; then
 	DATA_MAP=(
-		["SingleElectron__Run1016F"]="-n 10 -q long"
-		["SingleElectron__Run1016G"]="-n 10 -q long"
-		["SingleElectron__Run1016H"]="-n 10 -q long"
+		["SingleElectron__Run2016F"]="-n 10 -q long"
+		["SingleElectron__Run2016G"]="-n 10 -q long"
+		["SingleElectron__Run2016H"]="-n 10 -q long"
 		
-		["Tau__Run1016F"]="-n 10 -q long --datasetType 2"
-		["Tau__Run1016G"]="-n 10 -q long --datasetType 2"
-		["Tau__Run1016H"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016F"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016G"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016H"]="-n 10 -q long --datasetType 2"
 		
 		["SingleMuon__Run2016F"]="-n 20 -q long"
 		["SingleMuon__Run2016G"]="-n 20 -q long"
 		["SingleMuon__Run2016H"]="-n 20 -q long"
 		
-		["MET__Run1016F"]="-n 10 -q long --datasetType 1"
-		["MET__Run1016G"]="-n 10 -q long --datasetType 1"
-		["MET__Run1016H"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016F"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016G"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016H"]="-n 10 -q long --datasetType 1"
 	)
 elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 	DATA_MAP=(
-		["SingleElectron__Run1016B"]="-n 10 -q long"
-		["SingleElectron__Run1016C"]="-n 10 -q long"
-		["SingleElectron__Run1016D"]="-n 10 -q long"
-		["SingleElectron__Run1016E"]="-n 10 -q long"
-		["SingleElectron__Run1016F"]="-n 10 -q long"
+		["SingleElectron__Run2016B"]="-n 10 -q long"
+		["SingleElectron__Run2016C"]="-n 10 -q long"
+		["SingleElectron__Run2016D"]="-n 10 -q long"
+		["SingleElectron__Run2016E"]="-n 10 -q long"
+		["SingleElectron__Run2016F"]="-n 10 -q long"
 		
-		["Tau__Run1016B"]="-n 10 -q long --datasetType 2"
-		["Tau__Run1016C"]="-n 10 -q long --datasetType 2"
-		["Tau__Run1016D"]="-n 10 -q long --datasetType 2"
-		["Tau__Run1016E"]="-n 10 -q long --datasetType 2"
-		["Tau__Run1016F"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016B"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016C"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016D"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016E"]="-n 10 -q long --datasetType 2"
+		["Tau__Run2016F"]="-n 10 -q long --datasetType 2"
 		
 		["SingleMuon__Run2016B"]="-n 20 -q long"
 		["SingleMuon__Run2016C"]="-n 20 -q long"
@@ -513,11 +515,11 @@ elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 		["SingleMuon__Run2016E"]="-n 20 -q long"
 		["SingleMuon__Run2016F"]="-n 20 -q long"
 		
-		["MET__Run1016B"]="-n 10 -q long --datasetType 1"
-		["MET__Run1016C"]="-n 10 -q long --datasetType 1"
-		["MET__Run1016D"]="-n 10 -q long --datasetType 1"
-		["MET__Run1016E"]="-n 10 -q long --datasetType 1"
-		["MET__Run1016F"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016B"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016C"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016D"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016E"]="-n 10 -q long --datasetType 1"
+		["MET__Run2016F"]="-n 10 -q long --datasetType 1"
 	)
 fi
 	
@@ -613,10 +615,6 @@ MC_MAP=(
 
     ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
     ["ZH_HToBB_ZToQQ"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR} -q short"
-
-    ["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
-    ["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
-    ["ttHToTauTau"]="-n 600 -x 0.5071 -y 0.0632 -q short"
     
     ["_WW_TuneCP5"]="-n 30 -x 118.7 -q short"
     ["_WZ_TuneCP5"]="-n 30 -x 47.13 -q short"
@@ -627,6 +625,8 @@ MC_MAP=(
     ["_WZZ"]="-n 10 -x 0.057 -q short"
     ["_ZZZ"]="-n 10 -x 0.0147 -q short"
 
+	["ttHToTauTau"]="-n 600 -x 0.5071 -y 0.0632 -q short"
+	
     ["TTWJetsToLNu"]="-n 200 -x 0.2043 -q short"
     ["TTWJetsToQQ"]="-n 11 -x 0.4062 -q short"
     ["TTZToLLNuNu"]="-n 250 -x 0.2529 -q short"
@@ -640,6 +640,18 @@ MC_MAP=(
 
     ["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
 )
+if [ ${DATA_PERIOD} == "UL18" ] || [ ${DATA_PERIOD} == "UL17" ] || [ ${DATA_PERIOD} == "UL16APV" ]; then
+    MC_MAP+=(
+		["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
+		["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+	)
+elif [ ${DATA_PERIOD} == "UL16" ]; then
+    MC_MAP+=(
+		["ttHJetToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
+		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+	)
+fi
+	
 
 # Sanity checks for Drell-Yan stitching
 DY_PATTERN=".*DY.*"
