@@ -6,16 +6,15 @@ ScaleFactorMET::ScaleFactorMET(std::string period): mPeriod(period)
 {
   mCheckPeriod();
   
-  const std::string fname = "eff_Data_Mu_MC_TT_DY_WJets_mumu_metnomu_et_TRG_METNoMu120_CUTS_mhtnomu_et_L_0p0_default";
   const std::string name16pre  = "weights/trigger_SF_UL/2016preVFP/";
   const std::string name16post = "weights/trigger_SF_UL/2016postVFP/";
   const std::string name17     = "weights/trigger_SF_UL/2017/";
   const std::string name18     = "weights/trigger_SF_UL/2018/";
   inputs = {
-	{"2016preVFP",  name16pre  + fname + ".root"},
-	{"2016postVFP", name16post + fname + ".root"},
-	{"2017",		name17	   + fname + ".root"},
-	{"2018",		name18	   + fname + ".root"},
+	{"2016preVFP",  name16pre  + "150_mumu_fit_2016APV.root"},
+	{"2016postVFP", name16post + "150_mumu_fit_2016.root"},
+	{"2017",		name17	   + "150_mumu_fit_2017.root"},
+	{"2018",		name18	   + "150_mumu_fit_2018.root"},
   };
 	
   // open file
@@ -89,13 +88,6 @@ double ScaleFactorMET::mErrorRatio(double x)
 {
   double n; // numerator
   double d; // denominator
-
-  if (x > mRange.at(mPeriod).second) {
-	x = mRange.at(mPeriod).second;
-  }
-  else if (x < mRange.at(mPeriod).first) {
-	x = mRange.at(mPeriod).first;
-  }
   
   n = funcData->Eval(x);
   d = funcMC->Eval(x);
@@ -119,9 +111,16 @@ float ScaleFactorMET::getMinThreshold()
   
 double ScaleFactorMET::getSF(double metnomu)
 {
-
   metnomu = mImposeBounds(metnomu);
-  return funcSF->Eval(metnomu);
+
+  double sf;
+  if (mPeriod != "2017" and metnomu == mRange.at(mPeriod).second) {
+	sf = 1.;
+  }
+  else {
+	sf = funcSF->Eval(metnomu);
+  }
+  return sf;
 }
 
 double ScaleFactorMET::getSFError(double metnomu)

@@ -2938,6 +2938,8 @@ int main (int argc, char** argv)
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 	  float trigSF				= 1.0;
+	  float trigSFnoMET 		= 1.0;
+	  float trigSFnoTau 		= 1.0;
 	  float trigSF_ele_up		= 1.0;
 	  float trigSF_mu_up		= 1.0;
 	  float trigSF_DM0_up		= 1.0;
@@ -2963,6 +2965,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -2970,6 +2974,8 @@ int main (int argc, char** argv)
 			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = 1.;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
 				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
 				}
@@ -3063,6 +3069,8 @@ int main (int argc, char** argv)
 					}
 
 				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSFnoMET       = trigSF;
+				  trigSFnoTau       = trigSF;
 				  trigSF_mu_up		= Eff_Data_mu_up	/ Eff_MC_mu_up;
 				  trigSF_mu_down	= Eff_Data_mu_down	/ Eff_MC_mu_down;
 				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
@@ -3090,7 +3098,9 @@ int main (int argc, char** argv)
 					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  }
 				  
-				  trigSF = SF;
+				  trigSF         = SF;
+				  trigSFnoMET    = trigSF;
+				  trigSFnoTau    = trigSF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
@@ -3102,6 +3112,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3109,6 +3121,8 @@ int main (int argc, char** argv)
 			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = 1.;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
 				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
 				}
@@ -3202,6 +3216,8 @@ int main (int argc, char** argv)
 					}
 
 				  trigSF		   = Eff_Data		   / Eff_MC;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = trigSF;
 				  trigSF_ele_up	   = Eff_Data_ele_up   / Eff_MC_ele_up;
 				  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
 				  trigSF_DM0_up	   = Eff_Data_up[0]	   / Eff_MC_up[0];
@@ -3239,7 +3255,9 @@ int main (int argc, char** argv)
 					}
 				  }
 
-				  trigSF = SF;
+				  trigSF          = SF;
+				  trigSFnoMET     = trigSF;
+				  trigSFnoTau     = trigSF;
 				  trigSF_ele_up   = SF + 1. * SF_Err;
 				  trigSF_ele_down = SF - 1. * SF_Err;
 				}
@@ -3251,6 +3269,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3258,6 +3278,8 @@ int main (int argc, char** argv)
 			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = 1.;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
 				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
 				}
@@ -3290,6 +3312,8 @@ int main (int argc, char** argv)
 				  }
 				
 				trigSF			 = SF1         * SF2;
+				trigSFnoMET      = trigSF;
+				trigSFnoTau      = trigSF;
 				trigSF_DM0_up	 = SF1_up[0]   * SF2_up[0];
 				trigSF_DM1_up	 = SF1_up[1]   * SF2_up[1];
 				trigSF_DM10_up	 = SF1_up[2]   * SF2_up[2];
@@ -3307,6 +3331,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3315,6 +3341,8 @@ int main (int argc, char** argv)
 				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  trigSF = SF;
+				  trigSFnoMET    = trigSF;
+				  trigSFnoTau	 = trigSF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
@@ -3326,6 +3354,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3333,6 +3363,8 @@ int main (int argc, char** argv)
 				double SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				trigSF = SF;
+				trigSFnoMET     = trigSF;
+				trigSFnoTau     = trigSF;
 				trigSF_ele_up   = SF + 1. * SF_Err;
 				trigSF_ele_down = SF - 1. * SF_Err;
 			  }
@@ -3340,6 +3372,8 @@ int main (int argc, char** argv)
 		} // end if(applytriggers)
 
 	  theSmallTree.m_trigSF			  = isMC ? trigSF           : 1.0;
+	  theSmallTree.m_trigSFnoMET	  = isMC ? trigSFnoMET      : 1.0;
+	  theSmallTree.m_trigSFnoTau	  = isMC ? trigSFnoTau      : 1.0;
 	  theSmallTree.m_trigSF_ele_up	  = isMC ? trigSF_ele_up    : 1.0;
 	  theSmallTree.m_trigSF_mu_up	  = isMC ? trigSF_mu_up     : 1.0;
 	  theSmallTree.m_trigSF_DM0_up	  = isMC ? trigSF_DM0_up    : 1.0;
