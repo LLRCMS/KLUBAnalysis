@@ -206,7 +206,7 @@ REGEX_MAP=(
     ["TTTo2L2Nu"]="TT_FullyLep"
     ["TTToSemiLeptonic"]="TT_SemiLep"
 
-    ["DYJets.+_M-50_T.+amc"]="DY_Incl"
+    ["DYJetsToLL_M-50_TuneCP5_13TeV-amc"]="DY_Incl"
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="DY_PtZ0To50"
     ["DYJetsToLL_LHEFilterPtZ-50To100"]="DY_PtZ50To100"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="DY_PtZ100To250"
@@ -574,7 +574,7 @@ ZH_HToBB_ZToLL_BR=`echo "(0.033696 +0.033662 + 0.033632)*0.5824" | bc`
 
 MC_MAP=(
     ["TTToHadronic"]="-n 120 -x ${FullyHadXSec} -q short"
-    ["TTTo2L2Nu"]="-n 3001 -x ${FullyLepXSec} -q short"
+    ["TTTo2L2Nu"]="-n 3069 -x ${FullyLepXSec} -q short"
     ["TTToSemiLeptonic"]="-n 400 -x ${SemiLepXSec} -q long"
 
     ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
@@ -651,7 +651,6 @@ elif [ ${DATA_PERIOD} == "UL16" ]; then
 		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
 	)
 fi
-	
 
 # Sanity checks for Drell-Yan stitching
 DY_PATTERN=".*DY.*"
