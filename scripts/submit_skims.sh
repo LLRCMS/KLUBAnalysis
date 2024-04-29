@@ -285,7 +285,11 @@ LIST_SCRIPT="scripts/makeListOnStorage.py"
 LIST_DIR="root://eos.grif.fr//eos/grif/cms/llr/store/user/${DATA_USER}/"
 
 EXEC_FILE="${EXEC_FILE}/skimNtuple_HHbtag.exe"
-LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
+if [ ${DATA_PERIOD} == "UL16" ] || [ ${DATA_PERIOD} == "UL16APV" ]; then
+	LIST_DIR=${LIST_DIR}"HHNtuples_res/UL16/"
+else
+	LIST_DIR=${LIST_DIR}"HHNtuples_res/"${DATA_PERIOD}"/"
+fi
 
 ### Check if the voms command was run
 eval `scram unsetenv -sh` # unset CMSSW environment

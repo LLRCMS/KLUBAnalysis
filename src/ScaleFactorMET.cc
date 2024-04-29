@@ -27,8 +27,8 @@ ScaleFactorMET::ScaleFactorMET(std::string period): mPeriod(period)
   funcMC   = fileIn->Get<TF1>("SigmoidFuncMC");
 
   // sanity check
-  assert(funcSF->GetMinimumX() == mRange.at(mPeriod).first);
-  assert(funcSF->GetMaximumX() == mRange.at(mPeriod).second);
+  assert(funcSF->GetXmin() == mRange.at(mPeriod).first);
+  assert(funcSF->GetXmax() == mRange.at(mPeriod).second);
 }
 
 ScaleFactorMET::~ScaleFactorMET() {
