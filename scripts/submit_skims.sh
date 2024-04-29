@@ -217,7 +217,7 @@ REGEX_MAP=(
     ["DYJetsToLL_1J"]="DY_1J"
     ["DYJetsToLL_2J"]="DY_2J"
 
-    ["WJetsToLNu_T.+madgraph"]="WJets_HT0To70" # for 0 < HT < 70
+    ["WJetsToLNu_TuneCP5_13TeV-madgraph"]="WJets_HT0To70" # for 0 < HT < 70
     ["WJetsToLNu_HT-70To100"]="WJets_HT70To100"
     ["WJetsToLNu_HT-100To200"]="WJets_HT100To200"
     ["WJetsToLNu_HT-200To400"]="WJets_HT200To400"
@@ -577,7 +577,7 @@ MC_MAP=(
     ["TTTo2L2Nu"]="-n 3069 -x ${FullyLepXSec} -q short"
     ["TTToSemiLeptonic"]="-n 400 -x ${SemiLepXSec} -q long"
 
-    ["DYJets.+_M-50_T.+amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
+    ["DYJetsToLL_M-50_TuneCP5_13TeV-amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 200  -x 377.12 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
@@ -588,7 +588,7 @@ MC_MAP=(
     ["DYJetsToLL_1J"]="-n 200 -x 902.95   -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_2J"]="-n 200 -x 342.96   -g ${STITCHING_ON} --DY 0 -q long"
 
-    ["WJetsToLNu_T.+madgraph"]="-n 40 -x 48917.48 -y 1.213784 -z 70 -q short" # for 0 < HT < 70
+    ["WJetsToLNu_TuneCP5_13TeV-madgraph"]="-n 40 -x 48917.48 -y 1.213784 -z 70 -q short" # for 0 < HT < 70
     ["WJetsToLNu_HT-70To100"]="-n 100 -x 1362 -y 1.213784 -q short"
     ["WJetsToLNu_HT-100To200"]="-n 100 -x 1345 -y 1.213784 -q short"
     ["WJetsToLNu_HT-200To400"]="-n 250 -x 359.7 -y 1.213784 -q short"
