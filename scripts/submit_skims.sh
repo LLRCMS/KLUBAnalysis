@@ -217,7 +217,7 @@ REGEX_MAP=(
     ["DYJetsToLL_1J"]="DY_1J"
     ["DYJetsToLL_2J"]="DY_2J"
 
-    ["WJetsToLNu_T.+madgraph"]="WJets_HT0To70" # for 0 < HT < 70
+    ["WJetsToLNu_TuneCP5_13TeV-madgraph"]="WJets_HT0To70" # for 0 < HT < 70
     ["WJetsToLNu_HT-70To100"]="WJets_HT70To100"
     ["WJetsToLNu_HT-100To200"]="WJets_HT100To200"
     ["WJetsToLNu_HT-200To400"]="WJets_HT200To400"
