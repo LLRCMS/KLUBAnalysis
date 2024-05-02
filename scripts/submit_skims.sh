@@ -100,10 +100,10 @@ elif [ ${DATA_PERIOD} == "UL17" ]; then
 	YEAR="2017"
 elif [ ${DATA_PERIOD} == "UL16" ]; then
 	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016/PU_UL2016_SF.txt"
-	YEAR="2016preVFP"
+	YEAR="2016postVFP"
 elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016APV/PU_UL2016APV_SF.txt"
-	YEAR="2016postVFP"
+	YEAR="2016preVFP"
 fi
 
 AYEAR=${YEAR:0:4}
