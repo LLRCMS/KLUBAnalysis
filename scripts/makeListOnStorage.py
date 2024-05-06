@@ -22,8 +22,11 @@ def make_input_lists(args):
     store = {'llr': '/eos/grif/cms/llr/store/user/' + args.user + '/HHNtuples_res',
              'uhh': '???',
              'mib': '???'}[args.institute]
-    store    = op.join(store, args.data_period)
-
+    if '16' in args.data_period:
+        store = op.join(store, 'UL16')
+    else:
+        store = op.join(store, args.data_period)
+        
     prefix   = args.kind
     path     = xrd_door + op.join(store, prefix + '_' + args.tag)
 

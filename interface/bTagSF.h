@@ -36,7 +36,7 @@ private:
   BTagCalibrationReader m_readers [m_nWP+1]; // [loose, medium, tight, reshaping]
 
   // related to b tag efficiency
-  TFile* m_fileEff;
+  TFile* m_fileEff = nullptr;
   TH1F* m_hEff [m_nWP][3][4]; // [0: loose, 1: medium, 2: tight] [0: b, 1: c 2: udsg] [0: MuTau, 1: EleTau, :2: TauTau, 3: ALL]
 
   double _WPtag[m_nWP]; // loose, medium, tight WP

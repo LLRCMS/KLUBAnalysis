@@ -525,9 +525,9 @@ int main (int argc, char** argv)
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
 
   // ------------------------------
-
-  string bTag_SFFile = gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
-  string bTag_effFile = gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
+  string home = gConfigParser->readStringOption("parameters::home");
+  string bTag_SFFile = home + gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
+  string bTag_effFile = home + gConfigParser->readStringOption("bTagScaleFactors::effFileDeepFlavor");
   cout << "B Tag SF file: " << bTag_SFFile << endl;
   
   string wpset, wpyear;
@@ -550,7 +550,7 @@ int main (int argc, char** argv)
   bTagSF bTagSFHelper(bTag_SFFile, bTag_effFile, "", wpyear, wpset, isMC);
 
   // ------------------------------
-  std::string PUjetID_SF_directory = gConfigParser->readStringOption ("PUjetIDScaleFactors::files");
+  std::string PUjetID_SF_directory = home + gConfigParser->readStringOption("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
   string puYear;
   if (PERIOD=="2018") {
@@ -582,7 +582,7 @@ int main (int argc, char** argv)
   // ------------------------------
 
   // HHbtag model
-  std::string HHbtag_model = gConfigParser->readStringOption ("HHbtag::weights");
+  std::string HHbtag_model = home + gConfigParser->readStringOption("HHbtag::weights");
   cout << "** INFO: HHbtag_model: " << HHbtag_model << endl;
   std::array<std::string, 2> models;
   for(size_t n = 0; n < 2; ++n)
@@ -743,10 +743,12 @@ int main (int argc, char** argv)
   TH2* hhreweighterInputMap = nullptr;
   if (HHrewType != kNone)
 	{
-	  string inMapFile   = gConfigParser->readStringOption("HHReweight::inputFile");
+	  string inMapFile   = home + gConfigParser->readStringOption("HHReweight::inputFile");
 	  string inHistoName = gConfigParser->readStringOption("HHReweight::histoName");
-	  string coeffFile   = gConfigParser->readStringOption("HHReweight::coeffFileNLO");
-	  if (order_rew == string("lo")) coeffFile = gConfigParser->readStringOption("HHReweight::coeffFileLO");
+	  string coeffFile   = home + gConfigParser->readStringOption("HHReweight::coeffFileNLO");
+	  if (order_rew == string("lo")) {
+		coeffFile = home + gConfigParser->readStringOption("HHReweight::coeffFileLO");
+	  }
 	  cout << "** INFO: reading histo named: " << inHistoName << " from file: " << inMapFile << endl;
 	  cout << "** INFO: HH reweight coefficient file is: " << coeffFile << endl;
 	  TFile* fHHDiffRew = new TFile(inMapFile.c_str());
@@ -804,16 +806,33 @@ int main (int argc, char** argv)
 	  cout << endl;
 	}
 
-  // -----------------------------------
   // event counters for efficiency study
   EffCounter ec;
-  ec.AddMarker ("all");
-  ec.AddMarker ("METfilter");
-  ec.AddMarker ("NoBadMuons");
-  ec.AddMarker ("PairExists");
-  ec.AddMarker ("PairFoundBaseline");
-  ec.AddMarker ("Trigger");
-  ec.AddMarker ("TwoJets");
+  ec.AddMarker("all");
+  ec.AddMarker("METfilter");
+  ec.AddMarker("NoBadMuons");
+  ec.AddMarker("PairExists");
+  ec.AddMarker("PairFoundBaseline");
+  ec.AddMarker("Trigger");
+  ec.AddMarker("TwoJets");
+
+  std::map<std::string, int> channels = {{"MuTau",  0},
+										 {"ETau",   1},
+										 {"TauTau", 2},
+										 {"MuMu",   3},
+										 {"EE",     4},
+										 {"EMu",    5}};
+
+  // event counters for acceptance x efficiency plots
+  EffCounter eAccEff;
+  if (isHHsignal) {
+	for(auto const& chn : channels) {
+	  eAccEff.AddMarker(chn.first);
+	  eAccEff.AddMarker(chn.first + "_legacy");
+	  eAccEff.AddMarker(chn.first + "_singletau");
+	  eAccEff.AddMarker(chn.first + "_met");
+	}
+  }
 
   // for hh signal only -- split by gen decay
   EffCounter* ecHHsig;
@@ -880,12 +899,6 @@ int main (int argc, char** argv)
 		{
 		  if ( abs(theBigTree.aMCatNLOweight) > 0.5 ) continue;
 		} // end isHHNLO
-
-      // skip event if I want a specific SUSY point from the fastsim
-      //if (susyModel != string("NOTSUSY"))
-      //{
-      //  if (string(theBigTree.susyModel.Data()) != susyModel) continue;
-      //}
 
 	  float stitchWeight = 1.;
 	  if (DY_tostitch)
@@ -1007,8 +1020,6 @@ int main (int argc, char** argv)
 				  cout << "** WARNING: unknown TT stytch type " << TT_stitchType << endl;
 				}
 
-			  // cout << "WAS ACCEPTED" << endl;
-
 			  if(DEBUG)
 				{
 				  cout << "@ TOP pt reweight: " << endl;
@@ -1050,34 +1061,29 @@ int main (int argc, char** argv)
 				{
 				  if (isLast)
 					{
-					  if (idx1 >= 0)
-						{
-						  cout << "** ERROR: ttH - more than 1 H identified" << endl;
-						  continue;
-						}
-					  else
-						{
-						  idx1 = igen;
-						}
+					  if (idx1 >= 0) {
+						cout << "** WARNING: ttH - more than 1 H identified" << endl;
+						continue;
+					  }
+					  else {
+						idx1 = igen;
+					  }
 					}
 				}
 			} // end loop on gen part to find H from ttH
 
 		  // Find decay mode of the Higgs
-		  if ( idx1 == -1)
-			{
-			  cout << "** ERROR: ttH - couldn't find 1 H" << endl;
+		  if (idx1 == -1) {
+			cout << "** WARNING: ttH - couldn't find 1 H" << endl;
+			continue;
+		  }
+		  else {
+			int ttHdecayMode = theBigTree.genpart_HZDecayMode->at(idx1);
+			if (ttHdecayMode <= 6) {
+			  if (DEBUG) cout << "** ttH stitcher: found ttH->TauTau event with decay mode: " << ttHdecayMode << " --> rejecting event!" << endl;
 			  continue;
 			}
-		  else
-			{
-			  int ttHdecayMode = theBigTree.genpart_HZDecayMode->at(idx1);
-			  if (ttHdecayMode <= 6)
-				{
-				  if (DEBUG) cout << "** ttH stitcher: found ttH->TauTau event with decay mode: " << ttHdecayMode << " --> rejecting event!" << endl;
-				  continue;
-				}
-			}
+		  }
 		} // end ttHToNonBB only
 
 	  // HH reweight for non resonant
@@ -1131,49 +1137,38 @@ int main (int argc, char** argv)
 				  // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
 				  if (isFirst)
 					{
-					  if (idx1 >= 0 && idx2 >= 0)
-						{
-						  cout << "** ERROR: more than 2 H identified (first)" << endl;
-						  continue;
-						}
+					  if (idx1 >= 0 && idx2 >= 0) {
+						cout << "** WARNING: more than 2 H identified (first)" << endl;
+						continue;
+					  }
 					  (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
 					}
 				  if (isLast)
 					{
-					  if (idx1last >= 0 && idx2last >= 0)
-						{
-						  cout << "** ERROR: more than 2 H identified (last)" << endl;
-						  // continue; // no need to skip the event in this case -- dec mode just for studies
-						}
+					  if (idx1last >= 0 && idx2last >= 0) {
+						cout << "** WARNING: more than 2 H identified (last)" << endl;
+						// continue; // no need to skip the event in this case -- dec mode just for studies
+					  }
 					  (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
 					}
 				}
 
-			  if ( (abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
+			  if ((abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
 				{
 				  if (idx1hs == -1) idx1hs = igen;
 				  else if (idx2hs == -1) idx2hs = igen;
-				  else
-					{
-					  cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-					  // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
-					  // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
-					  // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
-					}
+				  else {
+					cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+				  }
 				}
 			  
-			  if ( abs(pdg) == 66615 && mothIsHardScatt)
+			  if (abs(pdg) == 66615 && mothIsHardScatt)
 				{
-				  // cout << "  <<< preso" << endl;
 				  if (idx1hs == -1) idx1hs = igen;
 				  else if (idx2hs == -1) idx2hs = igen;
-				  else
-					{
-					  cout << "** ERROR: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-					  // cout << "idx1: " << idx1hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx1hs) << " px = " << theBigTree.genpart_px->at(idx1hs) << endl;
-					  // cout << "idx2: " << idx2hs << " --> pdg = " << theBigTree.genpart_pdg->at(idx2hs) << " px = " << theBigTree.genpart_px->at(idx2hs) << endl;
-					  // cout << "THIS: " << pdg << " px=" << theBigTree.genpart_px->at(igen) << endl;
-					}
+				  else {
+					cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+				  }
 				}
 
 			  // FRA DEBUG - find the bjets from the Higgs decay
@@ -1181,20 +1176,17 @@ int main (int argc, char** argv)
 				{
 				  if (idx1hs_b == -1) idx1hs_b = igen;
 				  else if (idx2hs_b == -1) idx2hs_b = igen;
-				  else
-					{
-					  cout << "** ERROR: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
-					}
+				  else {
+					cout << "** WARNING: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
+				  }
 				}
 
 			}
-
 		
-		  if (idx1 == -1 || idx2 == -1)
-			{
-			  cout << "** ERROR: couldn't find 2 H (first)" << endl;
-			  continue;
-			}
+		  if (idx1 == -1 || idx2 == -1) {
+			cout << "** WARNING: couldn't find 2 H (first)" << endl;
+			continue;
+		  }
 
 		  if (idx1last != -1 && idx2last != -1) // this is not critical if not found
 			{
@@ -1212,8 +1204,9 @@ int main (int argc, char** argv)
 			  // int hsIdx1 = hsProds.first;
 			  // int hsIdx2 = hsProds.second;
 			}
-		  else
-			cout << "** ERROR: couldn't find 2 H (last)" << endl;
+		  else {
+			cout << "** WARNING: couldn't find 2 H (last)" << endl;
+		  }
 
 		  if (idx1hs != -1 && idx2hs != -1)
 			{
@@ -1228,17 +1221,16 @@ int main (int argc, char** argv)
 			  else if (abs(pdg2hs) == 13) t2hs = 0;
 			  else                        t2hs = 2;
 
-			  if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8))
-				{
-				  cout << "** ERROR: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
-					   << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
-				}
+			  if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8)) {
+				cout << "** WARNING: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
+					 << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
+			  }
 			  vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
 			  vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
 			}
-		  else
-			cout << "** ERROR: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
-
+		  else {
+			cout << "** WARNING: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
+		  }
 
 		  vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
 		  vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
@@ -1262,8 +1254,9 @@ int main (int argc, char** argv)
 			  vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
 			  vGenB2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs_b), theBigTree.genpart_py->at(idx2hs_b), theBigTree.genpart_pz->at(idx2hs_b), theBigTree.genpart_e->at(idx2hs_b) );
 			}
-		  else
-			cout << "** ERROR: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+		  else {
+			cout << "** WARNING: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+		  }
 
 		  if (HHrewType == kDiffRew)      HHweight = hhreweighter->getWeight(mHH, ct1);
 		  else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
@@ -1277,33 +1270,36 @@ int main (int argc, char** argv)
 
 	  ///////////////////////////////////////////////////////////
 	  // END of gen related stuff -- compute tot number of events
-
 	  int genHHDecMode = (isHHsignal ? theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8 : 0);
 	  if (genHHDecMode < 0)
 		{
 		  genHHDecMode = 0; // dummy protection if couldn't find initial H
-		  cout << "** ERROR: negative dec mode, for safety set it ot 0" << endl;
+		  cout << "** WARNING: negative dec mode, for safety set it ot 0" << endl;
 		}
 	  double EvtW;
-	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) * topPtReweight * HHweight) : 1.0;
-	  else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC,PUReweight_target,99, PUreweightFile) * topPtReweight * HHweight ) : 1.0;
-	  else                                             // if npu<0 --> bug in MC --> weight=0
+	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) { // good PU weights
+		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile) * topPtReweight * HHweight) : 1.0;
+	  }
+	  else if (theBigTree.npu >= 100) {                  // use the last available bin for the PU weight
+		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
+	  }
+	  else {                                             // if npu<0 --> bug in MC --> weight=0
 		EvtW = isMC ? 0.0 : 1.0;
+	  }
 
-	  if (isMC)
-		{
-		  totalEvents += EvtW;
-		}
-	  else
-		{
-		  totalEvents += 1 ;
-		}
-	  ec.Increment ("all", EvtW);
-	  if (isHHsignal) ecHHsig[genHHDecMode].Increment ("all", EvtW);
+	  if (isMC)	{
+		totalEvents += EvtW;
+	  }
+	  else {
+		totalEvents += 1 ;
+	  }
 
-	  ++totalNoWeightsEventsNum ;
+	  ec.Increment("all", EvtW);
+	  if (isHHsignal) {
+		ecHHsig[genHHDecMode].Increment("all", EvtW);
+	  }
+
+	  ++totalNoWeightsEventsNum;
 
 
 	  // ----------------------------------------------------------
@@ -1350,20 +1346,26 @@ int main (int argc, char** argv)
 	  }
 	  if(metpass < metpass_thresh) continue ;
 
-	  ec.Increment ("METfilter", EvtW);
-	  if (isHHsignal) ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
+	  ec.Increment("METfilter", EvtW);
+	  if (isHHsignal) {
+		ecHHsig[genHHDecMode].Increment ("METfilter", EvtW);
+	  }
 
 	  // ----------------------------------------------------------
 	  // require that the event is not affected by the Bad/Clone Muon problem -- for 2016 data
 	  //if (theBigTree.NBadMu > 0) continue ; //FRA: Sync Feb2018
-	  ec.Increment ("NoBadMuons", EvtW);
-	  if (isHHsignal) ecHHsig[genHHDecMode].Increment ("NoBadMuons", EvtW);
+	  ec.Increment("NoBadMuons", EvtW);
+	  if (isHHsignal) {
+		ecHHsig[genHHDecMode].Increment ("NoBadMuons", EvtW);
+	  }
 
 	  // ----------------------------------------------------------
 	  // require at least 1 pair
 	  if (theBigTree.indexDau1->size () == 0) continue ;
-	  ec.Increment ("PairExists", EvtW);
-	  if (isHHsignal) ecHHsig[genHHDecMode].Increment ("PairExists", EvtW);
+	  ec.Increment("PairExists", EvtW);
+	  if (isHHsignal) {
+		ecHHsig[genHHDecMode].Increment ("PairExists", EvtW);
+	  }
 
 	  // ----------------------------------------------------------
 	  // assess the pair type
@@ -1375,10 +1377,9 @@ int main (int argc, char** argv)
 	  int nele = 0;
 	  int nele10 = 0;
 
-	  if(DEBUG)
-		{
-		  cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
-		}
+	  if(DEBUG)	{
+		cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
+	  }
 
 	  for (unsigned int idau = 0; idau < theBigTree.daughters_px->size(); ++idau)
 		{
@@ -1406,48 +1407,55 @@ int main (int argc, char** argv)
 			  else if (passEle10) ++nele10;
 			}
 
-		  if(DEBUG)
-			{
-			  TLorentzVector dauTlvDebug (
-										  theBigTree.daughters_px->at (idau),
-										  theBigTree.daughters_py->at (idau),
-										  theBigTree.daughters_pz->at (idau),
-										  theBigTree.daughters_e ->at (idau));
-
-			  // NB: remember to align this debug to the content of OfflineProducerHelper
-			  cout << ".... reco part "
-				   << " idx dau="   << setw(3)  << left << idau
-				   << " type="      << setw(3)  << left << dauType
-				   << " pt="        << setw(10) << left << dauTlvDebug.Pt()
-				   << " eta="       << setw(10) << left << dauTlvDebug.Eta()
-				   << " phi="       << setw(10) << left << dauTlvDebug.Phi()
-				   << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-				   << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
-				   << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
-				   << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-				   << endl;
+		  if(DEBUG)	{
+			TLorentzVector dauTlvDebug(theBigTree.daughters_px->at (idau),
+									   theBigTree.daughters_py->at (idau),
+									   theBigTree.daughters_pz->at (idau),
+									   theBigTree.daughters_e ->at (idau));
+			
+			// NB: remember to align this debug to the content of OfflineProducerHelper
+			cout << ".... reco part "
+				 << " idx dau="   << setw(3)  << left << idau
+				 << " type="      << setw(3)  << left << dauType
+				 << " pt="        << setw(10) << left << dauTlvDebug.Pt()
+				 << " eta="       << setw(10) << left << dauTlvDebug.Eta()
+				 << " phi="       << setw(10) << left << dauTlvDebug.Phi()
+				 << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
+				 << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
+				 << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
+				 << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
+				 << endl;
 			}
 		} // end loop on daughters
 
 	  int pairType = 2; // tau tau
-	  if (nmu > 0)
-		{
-		  if (nmu == 1 && nmu10 == 0)
-			pairType = 0 ; // mu tau
-		  else
-			pairType = 3 ; // mu mu
+	  if (nmu > 0) {
+		if (nmu == 1 && nmu10 == 0) {
+		  pairType = 0 ; // mu tau
 		}
-	  else if (nele > 0)
-		{
-		  if (nele == 1 && nele10 == 0)
-			pairType = 1;  // ele tau
-		  else
-			pairType = 4 ; // ele ele
+		else {
+		  pairType = 3 ; // mu mu
 		}
+	  }
+	  else if (nele > 0) {
+		if (nele == 1 && nele10 == 0) {
+		  pairType = 1;  // ele tau
+		}
+		else {
+		  pairType = 4 ; // ele ele
+		}
+	  }
 
+	  if (isHHsignal) {
+		for(auto const& chn : channels) {
+		  if (chn.second == pairType) {
+			eAccEff.Increment(chn.first, EvtW);
+		  }
+		}
+	  }
+	  
 	  // ----------------------------------------------------------
 	  // choose the first pair passing baseline and being of the right pair type
-
 	  int chosenTauPair = -1;
 
 	  if (pairType == 2 && sortStrategyThTh == kHTauTau)
@@ -1538,12 +1546,11 @@ int main (int argc, char** argv)
 	  if (chosenTauPair < 0) continue; // no pair found over baseline
 
 	  ec.Increment ("PairFoundBaseline", EvtW);
-	  if (isHHsignal)
-		{
-		  ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
-		  if (pairType == genHHDecMode)
-			ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
-		}
+	  if (isHHsignal) {
+		ecHHsig[genHHDecMode].Increment ("PairFoundBaseline", EvtW);
+		if (pairType == genHHDecMode)
+		  ecHHsig[genHHDecMode].Increment ("PairMatchesGen", EvtW);
+	  }
 
 	  TMatrixD metcov (2, 2);
 	  metcov(0,0) = theBigTree.MET_cov00->at(chosenTauPair);
@@ -2033,7 +2040,23 @@ int main (int argc, char** argv)
 			singletauAccept = singletauAccept and !isMETDataset;
 		  }
 		  bool triggerAccept = legacyAccept or metAccept or singletauAccept;
-	  
+
+		  if (isHHsignal) {
+			for(auto const& chn : channels) {
+			  if (chn.second == pairType) {
+				if (legacyAccept) {
+				  eAccEff.Increment(chn.first + "_legacy", EvtW);
+				}
+				else if (metAccept) {
+				  eAccEff.Increment(chn.first + "_met", EvtW);
+				}
+				else if (singletauAccept) {
+				  eAccEff.Increment(chn.first + "_singletau", EvtW);
+				}
+			  }
+			}
+		  }
+
 		  if(DEBUG)
 			{
 			  if(pairType == 0) { //MuTau
@@ -2052,7 +2075,9 @@ int main (int argc, char** argv)
 		  
 		  theSmallTree.m_pass_triggerbit = pass_triggerbit;
 		  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
-		  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+		  if (isHHsignal && pairType == genHHDecMode) {
+			ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
+		  }
 
 		  theSmallTree.m_isLeptrigger = passTrg;
 		  theSmallTree.m_isMETtrigger = passMETTrg;
@@ -2913,6 +2938,8 @@ int main (int argc, char** argv)
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
 	  float trigSF				= 1.0;
+	  float trigSFnoMET 		= 1.0;
+	  float trigSFnoTau 		= 1.0;
 	  float trigSF_ele_up		= 1.0;
 	  float trigSF_mu_up		= 1.0;
 	  float trigSF_DM0_up		= 1.0;
@@ -2938,6 +2965,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -2945,6 +2974,8 @@ int main (int argc, char** argv)
 			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = 1.;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
 				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
 				}
@@ -3038,6 +3069,8 @@ int main (int argc, char** argv)
 					}
 
 				  trigSF			= Eff_Data			/ Eff_MC;
+				  trigSFnoMET       = trigSF;
+				  trigSFnoTau       = trigSF;
 				  trigSF_mu_up		= Eff_Data_mu_up	/ Eff_MC_mu_up;
 				  trigSF_mu_down	= Eff_Data_mu_down	/ Eff_MC_mu_down;
 				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
@@ -3065,7 +3098,9 @@ int main (int argc, char** argv)
 					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  }
 				  
-				  trigSF = SF;
+				  trigSF         = SF;
+				  trigSFnoMET    = trigSF;
+				  trigSFnoTau    = trigSF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
@@ -3077,6 +3112,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3084,6 +3121,8 @@ int main (int argc, char** argv)
 			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = 1.;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
 				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
 				}
@@ -3177,6 +3216,8 @@ int main (int argc, char** argv)
 					}
 
 				  trigSF		   = Eff_Data		   / Eff_MC;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = trigSF;
 				  trigSF_ele_up	   = Eff_Data_ele_up   / Eff_MC_ele_up;
 				  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
 				  trigSF_DM0_up	   = Eff_Data_up[0]	   / Eff_MC_up[0];
@@ -3214,7 +3255,9 @@ int main (int argc, char** argv)
 					}
 				  }
 
-				  trigSF = SF;
+				  trigSF          = SF;
+				  trigSFnoMET     = trigSF;
+				  trigSFnoTau     = trigSF;
 				  trigSF_ele_up   = SF + 1. * SF_Err;
 				  trigSF_ele_down = SF - 1. * SF_Err;
 				}
@@ -3226,6 +3269,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3233,6 +3278,8 @@ int main (int argc, char** argv)
 			  else if (trgRegions["tau"])
 				{
 				  trigSF           = singleTauSF[PERIOD].first;
+				  trigSFnoMET      = trigSF;
+				  trigSFnoTau      = 1.;
 				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
 				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
 				}
@@ -3265,6 +3312,8 @@ int main (int argc, char** argv)
 				  }
 				
 				trigSF			 = SF1         * SF2;
+				trigSFnoMET      = trigSF;
+				trigSFnoTau      = trigSF;
 				trigSF_DM0_up	 = SF1_up[0]   * SF2_up[0];
 				trigSF_DM1_up	 = SF1_up[1]   * SF2_up[1];
 				trigSF_DM10_up	 = SF1_up[2]   * SF2_up[2];
@@ -3282,6 +3331,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3290,6 +3341,8 @@ int main (int argc, char** argv)
 				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  trigSF = SF;
+				  trigSFnoMET    = trigSF;
+				  trigSFnoTau	 = trigSF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
 				}
@@ -3301,6 +3354,8 @@ int main (int argc, char** argv)
 			  if (trgRegions["met"])
 				{
 				  trigSF          = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET     = 1.;
+				  trigSFnoTau     = trigSF;
 				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
 				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
 				}
@@ -3308,6 +3363,8 @@ int main (int argc, char** argv)
 				double SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				trigSF = SF;
+				trigSFnoMET     = trigSF;
+				trigSFnoTau     = trigSF;
 				trigSF_ele_up   = SF + 1. * SF_Err;
 				trigSF_ele_down = SF - 1. * SF_Err;
 			  }
@@ -3315,6 +3372,8 @@ int main (int argc, char** argv)
 		} // end if(applytriggers)
 
 	  theSmallTree.m_trigSF			  = isMC ? trigSF           : 1.0;
+	  theSmallTree.m_trigSFnoMET	  = isMC ? trigSFnoMET      : 1.0;
+	  theSmallTree.m_trigSFnoTau	  = isMC ? trigSFnoTau      : 1.0;
 	  theSmallTree.m_trigSF_ele_up	  = isMC ? trigSF_ele_up    : 1.0;
 	  theSmallTree.m_trigSF_mu_up	  = isMC ? trigSF_mu_up     : 1.0;
 	  theSmallTree.m_trigSF_DM0_up	  = isMC ? trigSF_DM0_up    : 1.0;
@@ -3502,7 +3561,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_nfatjets = theBigTree.ak8jets_px->size();
 
 	  ec.Increment("TwoJets", EvtW);
-	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment ("TwoJets", EvtW);
+	  if (isHHsignal && pairType == genHHDecMode) ecHHsig[genHHDecMode].Increment("TwoJets", EvtW);
 
 	  TLorentzVector tlv_firstBjet, tlv_secondBjet;
 
@@ -4331,7 +4390,7 @@ int main (int argc, char** argv)
 				theSmallTree.m_bjet1_HHbtag = jets_and_HHbtag[bjet1idx];
 			  }
 			  else {
-				std::cout << "**ERROR: HHbtag score not found for bjet1, setting to -1!" << endl;
+				std::cout << "** WARNING: HHbtag score not found for bjet1, setting to -1!" << endl;
 				theSmallTree.m_bjet1_HHbtag = -2.;
 			  }
 
@@ -4339,7 +4398,7 @@ int main (int argc, char** argv)
 				theSmallTree.m_bjet2_HHbtag = jets_and_HHbtag[bjet2idx];
 			  }
 			  else {
-				std::cout << "**ERROR: HHbtag score not found for bjet2, setting to -1!" << endl;
+				std::cout << "** WARNING: HHbtag score not found for bjet2, setting to -1!" << endl;
 				theSmallTree.m_bjet2_HHbtag = -2.;
 			  }
 			}
@@ -4772,6 +4831,15 @@ int main (int argc, char** argv)
 	  h_effSummary->GetXaxis()->SetBinLabel(isumm+1, vEffSumm.at(isumm).first.c_str());
 	}
 
+  vector<pair<string, double> > vAccEff = eAccEff.GetSummary();
+  TH1F* h_AccEff = new TH1F("h_AccEff", "h_AccEff", vAccEff.size(), 0, vAccEff.size());
+  if (isHHsignal) {
+	for (uint isumm = 0; isumm < vAccEff.size(); ++isumm) {
+	  h_AccEff->SetBinContent(isumm+1, vAccEff.at(isumm).second);
+	  h_AccEff->GetXaxis()->SetBinLabel(isumm+1, vAccEff.at(isumm).first.c_str());
+	}
+  }
+
   TH1F h_syst ("h_syst", "h_syst", 3 , 0, 3) ; //systematics
   h_syst.SetBinContent (1, N_jecSources) ;
   h_syst.SetBinContent (2, N_tauhDM) ;
@@ -4783,53 +4851,38 @@ int main (int argc, char** argv)
   TH1F* hEffHHSigsSummary [6];
   if (isHHsignal)
 	{
-	  std::vector<string> vNames = {
-		"MuTau",
-		"ETau",
-		"TauTau",
-		"MuMu",
-		"EE",
-		"EMu"
-	  };
-
-	  for (uint ich = 0; ich < 6; ++ich)
-		{
-		  string hname = string("h_effSummary_") + vNames.at(ich);
-		  vector<pair<string, double> > vEffSummHH = ecHHsig[ich].GetSummary();
-		  hEffHHSigsSummary[ich] = new TH1F (hname.c_str(), hname.c_str(), vEffSummHH.size(), 0, vEffSummHH.size());
-		  for (uint isumm = 0; isumm < vEffSummHH.size(); ++isumm)
-			{
-			  hEffHHSigsSummary[ich]->SetBinContent(isumm+1, vEffSummHH.at(isumm).second);
-			  hEffHHSigsSummary[ich]->GetXaxis()->SetBinLabel(isumm+1, vEffSummHH.at(isumm).first.c_str());
-			}
+	  for(auto const& chn : channels) {
+		string hname = string("h_effSummary_") + chn.first;
+		vector<pair<string, double> > vEffSummHH = ecHHsig[chn.second].GetSummary();
+		hEffHHSigsSummary[chn.second] = new TH1F (hname.c_str(), hname.c_str(), vEffSummHH.size(), 0, vEffSummHH.size());
+		for (uint isumm = 0; isumm < vEffSummHH.size(); ++isumm) {
+		  hEffHHSigsSummary[chn.second]->SetBinContent(isumm+1, vEffSummHH.at(isumm).second);
+		  hEffHHSigsSummary[chn.second]->GetXaxis()->SetBinLabel(isumm+1, vEffSummHH.at(isumm).first.c_str());
 		}
-
+	  }	  
 	}
 
-  // for (unsigned int i = 0 ; i < counter.size () ; ++i)
-  //   h_eff.SetBinContent (5 + i, counter.at (i)) ;
+  smallFile->cd();
+  h_eff.Write();
+  h_effSummary->Write();
+  h_AccEff->Write();
+  h_syst.Write();
+  if (isHHsignal) {
+	for (uint ich = 0; ich < 6; ++ich)
+	  hEffHHSigsSummary[ich]->Write();
+  }
 
-  smallFile->cd() ;
-  h_eff.Write () ;
-  h_effSummary->Write() ;
-  h_syst.Write() ;
-  if (isHHsignal)
-	{
-	  for (uint ich = 0; ich < 6; ++ich)
-		hEffHHSigsSummary[ich]->Write();
-	}
-
-  smallFile->Write () ;
-  smallFile->Close () ;
+  smallFile->Write();
+  smallFile->Close();
 
   // free memory used by histos for eff
   delete h_effSummary;
+  delete h_AccEff;
 
-  if (isHHsignal)
-	{
-	  for (uint ich = 0; ich < 6; ++ich)
-		delete hEffHHSigsSummary[ich];
-	}
+  if (isHHsignal) {
+	for (uint ich = 0; ich < 6; ++ich)
+	  delete hEffHHSigsSummary[ich];
+  }
 
   // NEW DNN
   bool computeDNN = (gConfigParser->isDefined("DNN::computeMVA") ? gConfigParser->readBoolOption("DNN::computeMVA") : false);
@@ -4842,13 +4895,13 @@ int main (int argc, char** argv)
 	  const double MU_MASS = 0.1056583715; //GeV
 
 	  // Reaf from configs
-	  std::string model_dir = gConfigParser->readStringOption ("DNN::weights");
+	  std::string model_dir = home + gConfigParser->readStringOption("DNN::weights");
 	  std::cout << "DNN::weights   : " << model_dir << std::endl;
 
 	  vector<float> DNN_kl;
 	  DNN_kl = gConfigParser->readFloatListOption("DNN::kl");
 
-	  std::string features_file = gConfigParser->readStringOption ("DNN::features");
+	  std::string features_file = home + gConfigParser->readStringOption("DNN::features");
 	  std::cout << "DNN::features  : " << features_file << std::endl;
 
 	  // Read from file the requested features to be computed

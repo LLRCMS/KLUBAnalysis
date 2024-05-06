@@ -16,6 +16,8 @@ parser.add_argument('-t', '--tag', required=False,
                     help='name of working space (defaults to timestamp)', )
 parser.add_argument('--njobs', required=False, type=int,
                     help='number of jobs for parallelization', default=10)
+parser.add_argument('--eos', default='bfontana',
+                    help='EOS username (can be ignored if input files are not stored in /eos/.')
 qhelp = ('size of the HTCondor queue; use `short` for nominals ' +
          ' and `long` when running on systematic uncertainties')
 parser.add_argument('--queue', required=False, type=str, default='long', help=qhelp)
@@ -41,9 +43,11 @@ with open(scriptpath, 'w') as s:
                str(FLAGS.njobs) + ' ' + tagdir)
     s.write('\n'.join(('#!/bin/bash',
                         'export X509_USER_PROXY=~/.t3/proxy.cert',
+                        'export EXTRA_CLING_ARGS=-O2',
+                        '. /opt/exp_soft/cms/t3/eos-login -username {} -wn'.format(FLAGS.eos),
                         'source /cvmfs/cms.cern.ch/cmsset_default.sh',
                         'cd {}'.format(os.getcwd()),
-                        'export SCRAM_ARCH=slc6_amd64_gcc491',
+                        # 'export SCRAM_ARCH=slc6_amd64_gcc491',
                         'eval `scram r -sh`',
                         'source scripts/setup.sh',
                         command + '\n')))

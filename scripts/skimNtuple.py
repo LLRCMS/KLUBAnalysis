@@ -37,16 +37,8 @@ def remove_file(f):
 
 def parse_input_file_list(indir, insample):
     filelist = []
-    glob_pattern = '*' + insample + '*'
-    sample = glob.glob( os.path.join(indir, glob_pattern) )
-    if len(sample) != 1:
-        mes = 'Exactly one file must be found, but {} were found.\n'.format(len(sample))
-        mes += '  Input folder: {}.\n'.format(indir)
-        mes += '  Pattern being searched: {}.\n'.format(glob_pattern)
-        mes += '  Samples found: {}.\n'.format(sample)
-        raise ValueError(mes)
-
-    with open(sample[0], 'r') as f:
+    sample = os.path.join(indir, insample + ".txt")
+    with open(sample, 'r') as f:
         for line in f:
             line = (line.split("#")[0]).strip()
             if line:
@@ -76,6 +68,10 @@ def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec,
                                 'T3Queue = {}'.format(queue_mode),
                                 'WNTag=el7',
                                 '+SingularityCmd = ""',
+                                '',
+                                'request_cpus   = 1',
+                                'request_memory = 4GB',
+                                'request_disk   = 2000',
                                 '',
                                 'include : /opt/exp_soft/cms/t3/t3queue |',
                                 '',

@@ -1,17 +1,26 @@
 # coding: utf-8
 
-_all_ = [ 'is_job_sucessful' ]
+_all_ = [ 'is_job_successful' ]
 
 import os
 import argparse
 import ROOT
 
-def is_good_file(fname):
+def is_good_file(fname, verb):
     f = ROOT.TFile(fname)
     if f.IsZombie():
         return False
     if f.TestBit(ROOT.TFile.kRecovered):
         return False
+
+    tree = f.Get("HTauTauTree")
+    try:
+        tree.GetEntries()
+    except AttributeError:
+        if verb:
+            print('The HTauTauTree does not exist.')
+        return False
+
     return True
 
 def file_exists(afile, verb):
@@ -55,7 +64,7 @@ def is_job_successful(rootfile, outfile, errfile, logfile, verb=False):
         if not file_exists(afile, verb):
             return False
     
-    if not is_good_file(rootfile):
+    if not is_good_file(rootfile, verb):
         if verb:
             print('ROOT file {} is bad.'.format(rootfile))
         return False
