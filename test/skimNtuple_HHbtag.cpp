@@ -549,6 +549,7 @@ int main (int argc, char** argv)
   }
   bTagSF bTagSFHelper(bTag_SFFile, bTag_effFile, "", wpyear, wpset, isMC);
 
+
   // ------------------------------
   std::string PUjetID_SF_directory = home + gConfigParser->readStringOption("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
@@ -1954,7 +1955,7 @@ int main (int argc, char** argv)
 	  bool passTrg = false;
 
 	  // NEW TRIGGERS
-	  bool passMETTrg = false, passMETTrgNoThresh=false;
+	  bool passMETTrg = false;
 	  bool passSingleTau = false;
 
 	  // Twiki (UL SFs not available as of September 2023)
@@ -1984,8 +1985,7 @@ int main (int argc, char** argv)
 										tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
-		  passMETTrg         = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
-		  passMETTrgNoThresh = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), 0.);
+		  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
 
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
 													goodTriggerType1, goodTriggerType2,
@@ -2031,9 +2031,9 @@ int main (int argc, char** argv)
 														fabs(tlv_secondLepton.Eta()),
 														eleEtaMax, muEtaMax, tau_thresh);
 
-		  bool legacyAccept    = passTrg            and trgRegions["legacy"];
-		  bool metAccept       = passMETTrgNoThresh and trgRegions["met"]; 
-		  bool singletauAccept = passSingleTau      and trgRegions["tau"];
+		  bool legacyAccept    = passTrg       and trgRegions["legacy"];
+		  bool metAccept       = passMETTrg    and trgRegions["met"]; 
+		  bool singletauAccept = passSingleTau and trgRegions["tau"];
 		  if (!isMC) {
 			legacyAccept    = legacyAccept    and !isMETDataset;
 			metAccept       = metAccept       and isMETDataset;
@@ -2081,7 +2081,6 @@ int main (int argc, char** argv)
 
 		  theSmallTree.m_isLeptrigger = passTrg;
 		  theSmallTree.m_isMETtrigger = passMETTrg;
-		  theSmallTree.m_isMETtriggerNoThresh = passMETTrgNoThresh;
 		  theSmallTree.m_isSingleTautrigger = passSingleTau;
 		} // end if applyTriggers
 
