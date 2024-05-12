@@ -162,7 +162,6 @@ struct smallTree
 
       m_isLeptrigger = 0;
       m_isMETtrigger = 0;
-	  m_isMETtriggerNoThresh = 0;
       m_isSingleTautrigger = 0;
 
       m_genDecMode1 = -1;
@@ -1111,7 +1110,6 @@ struct smallTree
 
       m_smallT->Branch ("isLeptrigger", &m_isLeptrigger, "isLeptrigger/I") ;
       m_smallT->Branch ("isMETtrigger", &m_isMETtrigger, "isMETtrigger/I") ;
-	  m_smallT->Branch ("isMETtriggerNoThresh", &m_isMETtriggerNoThresh, "isMETtriggerNoThresh/I") ;
       m_smallT->Branch ("isSingleTautrigger", &m_isSingleTautrigger, "isSingleTautrigger/I") ;
 
       m_smallT->Branch("genDecMode1", &m_genDecMode1, "genDecMode1/I");
@@ -2042,7 +2040,6 @@ struct smallTree
 
   Int_t m_isLeptrigger;
   Int_t m_isMETtrigger;
-  Int_t m_isMETtriggerNoThresh;
   Int_t m_isSingleTautrigger;
 
   Int_t m_genDecMode1 ;
