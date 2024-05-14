@@ -9,10 +9,12 @@ using namespace std;
 
 #define DEBUG false
 
-bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag, std::string year, std::string WPset, bool isMC):
-  m_calib("DeepCSV", SFfilename.c_str()), m_year(year), m_isMC(isMC)
+bTagSF::bTagSF(std::string SFfilename, std::string effFileName, std::string effHistoTag,
+			   std::string year, std::string WPset, bool isMC):
+  m_year(year), m_isMC(isMC)
 {
   if (m_isMC) {
+	m_calib = std::make_unique<BTagCalibration>("DeepCSV", SFfilename.c_str());
 	m_initialize(SFfilename, effFileName, effHistoTag, year, WPset);
   }
 }
@@ -34,21 +36,21 @@ void bTagSF::m_initialize(std::string SFfilename, std::string effFileName, std::
 	});
 
   // load readers [loose, medium, tight, reshaping]
-  m_readers[0].load(m_calib, BTagEntry::FLAV_B, "comb");
-  m_readers[0].load(m_calib, BTagEntry::FLAV_C, "comb");
-  m_readers[0].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+  m_readers[0].load(*m_calib, BTagEntry::FLAV_B, "comb");
+  m_readers[0].load(*m_calib, BTagEntry::FLAV_C, "comb");
+  m_readers[0].load(*m_calib, BTagEntry::FLAV_UDSG, "incl");
 
-  m_readers[1].load(m_calib, BTagEntry::FLAV_B, "comb");
-  m_readers[1].load(m_calib, BTagEntry::FLAV_C, "comb");
-  m_readers[1].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+  m_readers[1].load(*m_calib, BTagEntry::FLAV_B, "comb");
+  m_readers[1].load(*m_calib, BTagEntry::FLAV_C, "comb");
+  m_readers[1].load(*m_calib, BTagEntry::FLAV_UDSG, "incl");
 
-  m_readers[2].load(m_calib, BTagEntry::FLAV_B, "comb");
-  m_readers[2].load(m_calib, BTagEntry::FLAV_C, "comb");
-  m_readers[2].load(m_calib, BTagEntry::FLAV_UDSG, "incl");
+  m_readers[2].load(*m_calib, BTagEntry::FLAV_B, "comb");
+  m_readers[2].load(*m_calib, BTagEntry::FLAV_C, "comb");
+  m_readers[2].load(*m_calib, BTagEntry::FLAV_UDSG, "incl");
 
-  m_readers[3].load(m_calib, BTagEntry::FLAV_B, "iterativefit");
-  m_readers[3].load(m_calib, BTagEntry::FLAV_C, "iterativefit");
-  m_readers[3].load(m_calib, BTagEntry::FLAV_UDSG, "iterativefit");
+  m_readers[3].load(*m_calib, BTagEntry::FLAV_B, "iterativefit");
+  m_readers[3].load(*m_calib, BTagEntry::FLAV_C, "iterativefit");
+  m_readers[3].load(*m_calib, BTagEntry::FLAV_UDSG, "iterativefit");
 
   m_fileEff = new TFile (effFileName.c_str());
 

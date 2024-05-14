@@ -32,7 +32,7 @@ private:
   void m_initialize(std::string, std::string, std::string, std::string, std::string);
 	
   // related to scale factors
-  BTagCalibration m_calib;
+  std::unique_ptr<BTagCalibration> m_calib;
   BTagCalibrationReader m_readers [m_nWP+1]; // [loose, medium, tight, reshaping]
 
   // related to b tag efficiency
