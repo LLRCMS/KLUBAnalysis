@@ -158,12 +158,12 @@ std::map<std::string, std::vector<float>> ParticleNet_SF(float pT_, string perio
 // usage : e.g.  
 //      std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
 //      setScaleFactor(result, "HP", variableForSF, variableForUp, variableForDown);
-void setScaleFactor(std::map<std::string, std::vector<float>>& result_, const std::string& key, float& scaleFactorVariable, float& scaleFactorErrUp, float& scaleFactorErrDown) {
+void setScaleFactor(std::map<std::string, std::vector<float>>& result_, const std::string& key, float& scaleFactorVariable, float& scaleFactorUp, float& scaleFactorDown) {
   if (result_.find(key) != result_.end()) {
     std::vector<float>& scaleFactors = result_[key];
     scaleFactorVariable = scaleFactors[0];
-    scaleFactorErrUp = scaleFactors[1];
-    scaleFactorErrDown = scaleFactors[2];
+    scaleFactorUp = scaleFactors[0] + scaleFactors[1];
+    scaleFactorDown = scaleFactors[0] +  scaleFactors[2];
   } else {
     std::cerr << "Scale factors for " << key << " not found in the result." << std::endl;
   }
@@ -4534,19 +4534,34 @@ int main (int argc, char** argv)
 			    
 		  std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
 		  // Set scale factors for different keys
-		  setScaleFactor(result, "HP",
-						 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down);
-		  setScaleFactor(result, "MP",
-						 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down);
-		  setScaleFactor(result, "LP",
-						 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down);
+		  if (isHHsignal){
+		    setScaleFactor(result, "HP",
+				   theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF,
+				   theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up,
+				   theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down);
+		    setScaleFactor(result, "MP",
+				   theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF,
+				   theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up,
+				   theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down);
+		    setScaleFactor(result, "LP",
+				   theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF,
+				   theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up,
+				   theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down);
 
+		  }
+		  else{
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF = 1.0;
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up = 1.0;
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down = 1.0;
+
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF = 1.0;
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up = 1.0;
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down = 1.0;
+
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF = 1.0;
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up = 1.0;
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = 1.0;
+		  }
 		  // saving infos for subjets
 		  if (theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2) 
 			{
