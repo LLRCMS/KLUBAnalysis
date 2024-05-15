@@ -92,7 +92,7 @@ float PuJetIdSF::getSFError(float pt, float eta)
 std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector tau1, TLorentzVector tau2, std::map<int,double> jets_and_smearFactor)
 {
   // Weight for each event
-  std::vector<float> eventWeight(15); // keeping 15 values so that not to change too much skimmers; can be updated
+  std::vector<float> eventWeight(3); // keeping 3 values so that not to change too much skimmers; can be updated
   float SF = 1.;
   float SF_up   = 1.;
   float SF_down = 1.;
@@ -168,19 +168,6 @@ std::vector<float> PuJetIdSF::getEvtWeight(bigTree &theBigTree, TLorentzVector t
   eventWeight.at(0)  = SF;
   eventWeight.at(1)  = SF_up;
   eventWeight.at(2)  = SF_down;
-  // placeholders
-  eventWeight.at(3)  = 1.;
-  eventWeight.at(4)  = 1.;
-  eventWeight.at(5)  = 1.;
-  eventWeight.at(6)  = 1.;
-  eventWeight.at(7)  = 1.;
-  eventWeight.at(8)  = 1.;
-  eventWeight.at(9)  = 1.;
-  eventWeight.at(10) = 1.;
-  eventWeight.at(11) = 1.;
-  eventWeight.at(12) = 1.;
-  eventWeight.at(13) = 1.;
-  eventWeight.at(14) = 1.;
 
   return eventWeight;
 }
