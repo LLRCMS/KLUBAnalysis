@@ -1,3 +1,0 @@
-all     = 1==1
-oneBtag = bjet1_bID > 0.5 || bjet2_bID > 0.5
-twoBtag = bjet1_bID > 0.5 && bjet2_bID > 0.5 

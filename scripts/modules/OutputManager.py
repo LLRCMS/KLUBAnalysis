@@ -3,6 +3,7 @@ import collections
 import fnmatch
 import array
 import math
+import re
 
 from VBFReweightModules import inputSample, VBFReweight, printProgressBar
 
@@ -177,22 +178,30 @@ class OutputManager:
 
     def makeQCD_SBtoSR(self, regionC, regionD, sel, var, syst='', removeNegBins=True):
         errmess = '    RegionC={}, RegionD={}, Selection={}, Variable={}'.format(regionC, regionD, sel, var)
-        for idx, data in enumerate (self.data):
-            hnameC = makeHistoName(data, sel+'_'+regionC, var)
-            hnameD = makeHistoName(data, sel+'_'+regionD, var)
-            if idx == 0: 
-                hregC = self.histos[hnameC].Clone(makeHistoName('regC', sel+'_'+regionC, var, syst=syst))
+        for idx, data in enumerate(self.data):
+            # hack for skipping matching the same data hisogram to all MC variations.
+            if any(x in var for x in ('up', 'down', 'Up', 'Down')) and 'pdnn' in var:
+                var_data = var.split('_hh')[0] + '_hh'
+            else:
+                var_data = var
+
+            hnameC_data = makeHistoName(data, sel+'_'+regionC, var_data)
+            hnameD_data = makeHistoName(data, sel+'_'+regionD, var_data)
+                
+            if idx == 0:
+                hregC = self.histos[hnameC_data].Clone(makeHistoName('regC', sel+'_'+regionC, var_data, syst=syst))
+                hregD = self.histos[hnameD_data].Clone(makeHistoName('regD', sel+'_'+regionD, var_data, syst=syst))
                 hregC.SetTitle(hregC.GetName())
-                hregD = self.histos[hnameD].Clone(makeHistoName('regD', sel+'_'+regionD, var, syst=syst))
                 hregD.SetTitle(hregD.GetName())
             else:
-                hregC.Add(self.histos[hnameC])
-                hregD.Add(self.histos[hnameD])
+                hregC.Add(self.histos[hnameC_data])
+                hregD.Add(self.histos[hnameD_data])
+
         # subtract bkg
         for bkg in self.bkgs:
                 hnameC = makeHistoName(bkg, sel+'_'+regionC, var, syst=syst)
-                hregC.Add(self.histos[hnameC], -1.)
                 hnameD = makeHistoName(bkg, sel+'_'+regionD, var, syst=syst)
+                hregC.Add(self.histos[hnameC], -1.)
                 hregD.Add(self.histos[hnameD], -1.)
 
         # Negative bins should be preserved in order to have
@@ -261,6 +270,8 @@ class OutputManager:
                     # make shape hist
                     for idx, data in enumerate(self.data):
                         hname = makeHistoName(data, sel+'_'+shapeSB, var)
+                        if any(x in hname for x in ('up', 'down', 'Up', 'Down')):
+                            continue
                         if idx == 0:
                             ## use SR name as this is where QCD refers to
                             hQCD = self.histos[hname].Clone(makeHistoName(QCDname, sel+'_'+SR, var, syst=syst))
@@ -279,6 +290,8 @@ class OutputManager:
 
                     # compute yield to be set
                     for idx, data in enumerate(self.data):
+                        if any(x in hname for x in ('up', 'down', 'Up', 'Down')):
+                            continue
                         hname = makeHistoName(data, sel+'_'+yieldSB, var)
                         if idx == 0:
                             hyieldQCD = self.histos[hname].Clone(makeHistoName(QCDname+'yield', sel+'_'+yieldSB, var, syst=syst))
@@ -362,7 +375,7 @@ class OutputManager:
                         self.histos[hQCD.GetName()+'_Down'] = hQCDdown
                     else:
                         self.histos[hQCD.GetName()] = hQCD
-            
+
     def symmetrizeQCD(self):
         print('... symmetrizing QCD templates')
 

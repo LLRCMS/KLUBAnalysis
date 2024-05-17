@@ -491,9 +491,9 @@ elif [ ${DATA_PERIOD} == "UL16" ]; then
 		["Tau__Run2016G"]="-n 10 -q long --datasetType 2"
 		["Tau__Run2016H"]="-n 10 -q long --datasetType 2"
 		
-		["SingleMuon__Run2016F"]="-n 20 -q long"
-		["SingleMuon__Run2016G"]="-n 20 -q long"
-		["SingleMuon__Run2016H"]="-n 20 -q long"
+		["SingleMuon__Run2016F"]="-n 30 -q long"
+		["SingleMuon__Run2016G"]="-n 30 -q long"
+		["SingleMuon__Run2016H"]="-n 30 -q long"
 		
 		["MET__Run2016F"]="-n 10 -q long --datasetType 1"
 		["MET__Run2016G"]="-n 10 -q long --datasetType 1"
@@ -560,7 +560,6 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Sig --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
-			echo ${sample}
 			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q long --ishhsignal 1
 		fi
 	done
@@ -585,7 +584,7 @@ MC_MAP=(
     ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 200  -x 377.12 -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 795 -x 3.512   -g ${STITCHING_ON} --DY 0 -q short" # some jobs are killed even with a single file (in the short queue)
+    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 100 -x 3.512   -g ${STITCHING_ON} --DY 0 -q long" # some jobs are killed even with a single file (in the short queue)
     ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 200 -x 0.4826  -g ${STITCHING_ON} --DY 0 -q long"
     ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 212 -x 0.04487 -g ${STITCHING_ON} --DY 0 -q short"
     ["DYJetsToLL_0J"]="-n 200 -x 4867.28  -g ${STITCHING_ON} --DY 0 -q long"
@@ -629,7 +628,7 @@ MC_MAP=(
     ["_WZZ"]="-n 10 -x 0.057 -q short"
     ["_ZZZ"]="-n 10 -x 0.0147 -q short"
 
-	["ttHToTauTau"]="-n 600 -x 0.5071 -y 0.0632 -q short"
+	["ttHToTauTau"]="-n 50 -x 0.5071 -y 0.0632 -q long"
 	
     ["TTWJetsToLNu"]="-n 200 -x 0.2043 -q short"
     ["TTWJetsToQQ"]="-n 11 -x 0.4062 -q short"

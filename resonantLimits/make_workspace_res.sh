@@ -5,9 +5,9 @@ declare -a SELECTIONS;
 declare -a MASSES;
 
 # Defaults
-TAG="10Feb_UL18"
-VAR="DNNoutSM_kl_1"
-SIGNAL="ggFRadion"
+TAG=""
+VAR="pdnn_m{1}_s0_hh"
+SIGNAL="GGF_Radion"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
@@ -48,19 +48,19 @@ while [[ $# -gt 0 ]]; do
             TAG=${2}
             shift; shift;
             ;;
-	-b|--base)
+		-b|--base)
 	        BASEDIR=${2}
 		    shift; shift;
-		        ;;
-	-v|--var)
+		    ;;
+		-v|--var)
             VAR=${2}
             shift; shift;
             ;;
-	-s|--signal)
+		-s|--signal)
             SIGNAL=${2}
             shift; shift;
             ;;
-	-m|--masses)
+		-m|--masses)
 	        mass_flag=0
 		    while [ ${mass_flag} -eq 0 ]; do
 			if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
@@ -72,7 +72,7 @@ while [[ $# -gt 0 ]]; do
 			    done
             shift;
             ;;
-	-l|--selections)
+		-l|--selections)
 	        sel_flag=0
 		    while [ ${sel_flag} -eq 0 ]; do
 			if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
@@ -84,7 +84,7 @@ while [[ $# -gt 0 ]]; do
 			       done
             shift;
            ;;
-	-c|--channels)
+		-c|--channels)
 	        chn_flag=0
 		    while [ ${chn_flag} -eq 0 ]; do
 			if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
@@ -96,11 +96,11 @@ while [[ $# -gt 0 ]]; do
 			    done
             shift;
             ;;
-	-s|--signal)
+		-s|--signal)
 	        SIGNAL=${2}
             shift; shift;
             ;;
-	*)  # unknown option
+		*)  # unknown option
 	        echo "Wrong parameter ${1}."
             exit 1
             ;;
@@ -128,33 +128,33 @@ done
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 for ichn in "${!CHANNELS[@]}"; do
-    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[${ichn}]}"
-    proc="${SIGNAL}_${VAR}_{}"
+    card_dir="${LIMIT_DIR}/cards_${TAG}/${CHANNELS[${ichn}]}"
+    proc="${SIGNAL}_${VAR}"
     comb_="comb.${proc}"
     
     for sel in ${SELECTIONS[@]}; do
-	echo "Processing ${sel} for channel ${CHANNELS[${ichn}]} ..."
-	cat_dir="${card_dir}/${sel}_${VAR}"
-	cd ${cat_dir}
+		echo "Processing ${sel} for channel ${CHANNELS[${ichn}]} ..."
+		cd ${card_dir}
 
-	comb_txt="${cat_dir}/${comb_}.txt"
-	comb_root="${cat_dir}/${comb_}.root"
+		cat_dir="${card_dir}/${sel}_${VAR}"
+		comb_txt="${cat_dir}/${comb_}.txt"
+		comb_root="${cat_dir}/${comb_}.root"
+		
+		# remove low masses for boosted categories
+		if [[ ${sel} =~ .*boosted.* ]]; then
+			MASSES_IF=${MHIGH[@]};
+		else
+			MASSES_IF=${MASSES[@]};
+		fi
 
-	# remove low masses for boosted categories
-	if [[ ${sel} =~ .*boosted.* ]]; then
-	    MASSES_IF=${MHIGH[@]};
-	    else
-	    MASSES_IF=${MASSES[@]};
-	    fi
-
-	# parallelize over the mass
-	parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
-	parallel combineCards.py -S ${cat_dir}/hhres_*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
-	parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
-
-	cd -
-	parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES_IF[@]}
-
+		# parallelize over the mass
+		parallel rm -f -- ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel combineCards.py -S ${cat_dir}/hhres_*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES_IF[@]}
+		parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES_IF[@]}
+		
+		cd -
+		parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES_IF[@]}
+		
     done
     cd ${LIMIT_DIR}
 done

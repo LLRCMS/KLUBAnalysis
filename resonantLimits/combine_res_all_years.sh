@@ -3,7 +3,7 @@
 declare -a MASSES;
 
 ### Defaults
-VAR="DNNoutSM_kl_1"
+VAR="pdnn_m{1}_s0_hh"
 SIGNAL="GGF_Radion"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
@@ -72,31 +72,33 @@ fi
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 declare -A TAGS=(
-	#["2016"]="25Oct2023_newBigNtuples_forLimits_UL2016_legacyCategories"
-	["2016"]="25Oct2023_newBigNtuples_forLimits_HHMass_UL2016_legacyCategories"
-	#["2016APV"]="24Oct2023_newBigNtuples_bTagReshapeSF_forLimits_UL2016APV_legacyCategories"
-	["2016APV"]="18Oct2023_newBigNtuples_forLimits_HHMass_UL2016APV_legacyCategories"
-	["2017"]="Upstream_UL17_Copy_UL17_uhh"
-	["2018"]="Upstream_UL18"
+	["2016"]="Final_Shapes_UL16"
+	["2016APV"]="Final_Shapes_UL16APV"
+	["2017"]="Final_Shapes_UL17"
+	["2018"]="Final_Shapes_UL18"
 )
 
-comb_dir="${LIMIT_DIR}/cards_Years_${VAR}_All"
-mkdir -p ${comb_dir}
-rm -f -- ${comb_dir}/comb.*.txt
+comb_dir_base="${LIMIT_DIR}/cards_Final_Shapes_Run2_All"
+comb_dir="${comb_dir_base}/cards_${VAR}"
+mkdir -p ${comb_dir_base}
+parallel mkdir -p ${comb_dir} ::: ${MASSES[@]}
+#parallel rm -f -- ${comb_dir}/comb.*.txt ::: ${MASSES[@]}
 
-proc="${SIGNAL}_${VAR}_{}"
+proc="${SIGNAL}_${VAR}"
 comb_="${comb_dir}/comb.${proc}"
 comb_txt="${comb_}.txt"
 comb_root="${comb_}.root"
 
+ulimit -s unlimited
+
 #parallelize over the mass
 parallel combineCards.py -S \
-		 ${LIMIT_DIR}/cards_${TAGS["2016"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
-		 ${LIMIT_DIR}/cards_${TAGS["2016APV"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
-		 ${LIMIT_DIR}/cards_${TAGS["2017"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
-		 ${LIMIT_DIR}/cards_${TAGS["2018"]}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt \
+		 ${LIMIT_DIR}/cards_${TAGS["2016"]}/*Tau/*${VAR}/hhres*.${SIGNAL}{1}.txt \
+		 ${LIMIT_DIR}/cards_${TAGS["2016APV"]}/*Tau/*${VAR}/hhres*.${SIGNAL}{1}.txt \
+		 ${LIMIT_DIR}/cards_${TAGS["2017"]}/*Tau/*${VAR}/hhres*.${SIGNAL}{1}.txt \
+		 ${LIMIT_DIR}/cards_${TAGS["2018"]}/*Tau/*${VAR}/hhres*.${SIGNAL}{1}.txt \
 		 ">" ${comb_txt} ::: ${MASSES[@]}
-parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
+parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 
 # echo ${comb_txt}
 # echo ${comb_root}

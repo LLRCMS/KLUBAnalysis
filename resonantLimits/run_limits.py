@@ -4,21 +4,24 @@ _all_ = [ ]
 import os
 import argparse
 import subprocess
+from blessings import Terminal
 import ROOT
 import ConfigReader
 
 def run(comm, dryrun):
-    print('=== [{}] Running the `{}` script ==='.format(__file__, comm.split(' ')[1]))
     if dryrun:
+        term = Terminal()
+        print(term.red('=== [{}] Running the `{}` script ==='.format(__file__, comm.split(' ')[1])))
         print(comm)
     else:
+        print('=== [{}] Running the `{}` script ==='.format(__file__, comm.split(' ')[1]))
         command = comm.split(' ')
         command = [x for x in command if x != '']
         subprocess.run(command, shell=False)
     return None
 
-def run_limits(in_tags, channels, selections, selection_prefixes, masses,
-               period, tag, var, signal, work_dir, config_files, noprep,
+def run_limits(in_tags, channels, selections, selection_prefixes, masses, 
+               period, tag, var, spin, work_dir, config_files, noprep,
                user, dryrun, combination):
     """
     - selection_prefixes:
@@ -27,43 +30,44 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
     - user:
         username in eos, used to store the files in the website provided by CERN
     """
-    assert(len(channels) == len(config_files))
-    
+    assert(len(channels) == len(config_files))   
     commands = []
 
+    signal = 'GGF_Radion' if spin == "0" else 'GGF_Graviton'
+
     if not combination:
-        # Generate datacards
-        commands.append('bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --signal {s} -u ')
+        commands = [
+            # Generate datacards
+            'bash make_res_cards.sh -d {dp} --channels {chn} --tag {tag} --in_tags {it} --var {v} -b {b} --cfg {cfg} --selections {sel} --masses {m} --spin {spin} ',
+            # Generate workspaces
+            'bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}',
+            # Combine all categories
+            'bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp} ', #--selprefixes {selpref}
+            # Combine all channels
+            'bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}',
+            # Combine categories and channels
+            'bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}'
+        ]
         if noprep:
-            commands[-1] += '--noprep '
-
-        # Generate workspaces
-        commands.append('bash make_workspace_res.sh --tag {tag} --masses {m} --var {v} --signal {s} --selections {sel} --channels {chn} -b {b}')
-
-        # Combine all categories
-        commands.append('bash combine_res_categories.sh --tag {tag} --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --period {dp} --selprefixes {selpref}')
-        
-        # Combine all channels
-        commands.append('bash combine_res_channels.sh --tag {tag} --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b} --period {dp}')
-
-        # combine categories and channels
-        commands.append('bash combine_res_all.sh --tag {tag} --masses {m} --var {v} --signal {s} -b {b}')
+            commands[0] += '--noprep '
 
     else:
-        # Combine all categories
-        commands.append('bash combine_res_categories_years.sh --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --selprefixes {selpref}')
-        
-        # Combine all channels
-        commands.append('bash combine_res_channels_years.sh --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b}')
-
-        # combine categories and channels
-        commands.append('bash combine_res_all_years.sh --masses {m} --var {v} --signal {s} -b {b}')
+        commands = [
+            # Combine all categories
+            'bash combine_res_categories_years.sh --masses {m} --var {v} --signal {s} --channels {chn} -b {b} --selprefixes {selpref}',
+            # Combine all channels
+            'bash combine_res_channels_years.sh --masses {m} --var {v} --signal {s} --selprefixes {selpref} -b {b}',
+            # Combine categories and channels
+            'bash combine_res_all_years.sh --masses {m} --var {v} --signal {s} -b {b}'
+        ]
 
     # Obtain limits on signal strength
     if combination:
-        limit_modes = ('sel_years', 'chn_years', 'all_years',)
+        #limit_modes = ('sel_years', 'chn_years', 'all_years',)
+        limit_modes = ('all_years',)
     else:
-        limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
+        #limit_modes = ('separate', 'sel_group', 'chn_group', 'all_group')
+        limit_modes = ('all_group',)
     #assert any('year' in x for x in limit_modes) and period == "All"
         
     for mode in limit_modes:
@@ -78,10 +82,11 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
         plot_modes =  ('all_years', 'overlay_channels_years', 'overlay_selections_years')
         #plot_modes = ('sel_years', 'chn_years',)
     else:
-        plot_modes = limit_modes + ('overlay_channels', 'overlay_selections')
+        #plot_modes = limit_modes + ('overlay_channels', 'overlay_selections')
+        plot_modes = limit_modes
         
     for mode in plot_modes:
-        commands.append('python plot.py --mode ' + mode + ' --period {dp} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} --user {user} --basedir {b} --atlas')
+        commands.append('python plot.py --mode ' + mode + ' --period {dp} --masses {m} --var {v} --signal {s} --selections {selpref} --channels {chn} --user {user} --basedir {b} --atlas') #  --interpolate
         if not combination:
             commands[-1] += " --tag {tag}"
 
@@ -92,6 +97,7 @@ def run_limits(in_tags, channels, selections, selection_prefixes, masses,
                   tag=tag, 
                   v=var, 
                   s=signal,
+                  spin=spin,
                   chn=' '.join(channels),
                   sel=' '.join(selections),
                   selpref=' '.join(selection_prefixes),
@@ -110,22 +116,22 @@ if __name__ == '__main__':
                         help='do not run the histograms preparing step')
     parser.add_argument('-c', '--combination', action='store_true',
                         help='run datacard combination across multiple data periods')
+    parser.add_argument('--year', default="UL18", choices=("UL16APV", "UL16", "UL17", "UL18"),
+                        help='Data period.')
+    parser.add_argument('--spin', required=True, choices=("0", "2"),
+                        help='Spin hypothesis.')
+    parser.add_argument('--tag', required=True, help='Tag.')
+    
     FLAGS = parser.parse_args()
-
-    period = 'UL18' #All
-    signal = 'GGF_Radion'
-    varsfit = ('DNNoutSM_kl_1',) # HHKin_mass',)
+    
+    varsfit = ('pdnn_m{1}_s' + FLAGS.spin + '_hh',) # HHKin_mass',
     
     channels = ('ETau', 'MuTau', 'TauTau')
 
-    tag_ = 'OpenCadi_V1'
-    suffix = ''
-    #in_tags = ['{}_{}_{}{}'.format(tag_, x, period, suffix) for x in channels]
-    in_tags = ['{}_{}{}'.format(tag_, x, suffix) for x in channels]
-    #cfg_files = ['mainCfg_{}_{}{}.cfg'.format(x, period, suffix) for x in channels]
-    cfg_files = ['mainCfg_{}_{}.cfg'.format(x, period) for x in channels]
+    in_tags = ['{}_{}/{}'.format(FLAGS.tag, FLAGS.year, x) for x in channels]
+    cfg_files = ['mainCfg_{}_{}.cfg'.format(x, FLAGS.year) for x in channels]
 
-    out_tag = '{}_{}{}'.format(tag_, period, suffix)
+    out_tag = '{}_{}'.format(FLAGS.tag, FLAGS.year)
     selections = ('res1b', 'res2b', 'boostedL_pnet')
     selection_prefixes = ('res1b', 'res2b', 'boostedL_pnet')
     # selections = ('s1b1jresolvedMcutmHH250_335',
@@ -144,8 +150,17 @@ if __name__ == '__main__':
     #               'sboostedLLMcutmHH1100_3500'
     #               )
     
-    masses = ('250', '260', '280', '300', '320', '350', '400', '450', '500', '550', '600', '650', '700', '750', '800', '850', '900', '1000', '1250', '1500', '1750', '2000',)
+    # masses = ("250", "260", "270", "280", "300", "320", "350",
+    #           "400", "450", "500", "550", "600", "650",
+    #           "700", "750", "800", "850", "900", "1000",
+    #           "1250", "1500", "1750", "2000", "2500", "3000")
+    masses = ("250", "280", "300", "320", "350",
+              "400", "450", "500", "550", "600", "650",
+              "700", "750", "800", "850", "900", "1000",
+              "1250", "1500", "1750", "2000", "2500", "3000")
     work_dir = os.path.join('/home/llr/cms/', os.environ['USER'], 'CMSSW_11_1_9/src/KLUBAnalysis')
 
     for var in varsfit:
-        run_limits(in_tags, channels, selections, selection_prefixes, masses, period, out_tag, var, signal, work_dir, cfg_files, FLAGS.noprep, FLAGS.user, FLAGS.dryrun, FLAGS.combination)
+        run_limits(in_tags, channels, selections, selection_prefixes, masses,
+                   FLAGS.year, out_tag, var, FLAGS.spin, work_dir, cfg_files,
+                   FLAGS.noprep, FLAGS.user, FLAGS.dryrun, FLAGS.combination)

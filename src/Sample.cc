@@ -3,7 +3,8 @@
 #include <assert.h>
 #include <regex>
 
-Sample::Sample(std::string name, std::vector<std::string> filelistname, std::string skimname, std::string histoname, int binEffDen):
+Sample::Sample(std::string name, std::vector<std::string> filelistname,
+			   std::string skimname, std::string histoname, int binEffDen):
   name_(name), eff_(0.), evt_num_(0.), evt_den_(0.), nentries_(0.), bin_eff_den_(binEffDen), skimname_(skimname), histoname_(histoname)
 {
   skim_ = new TChain(skimname.c_str());
@@ -24,34 +25,40 @@ Sample::Sample(std::string name, std::vector<std::string> filelistname,
   filelistname_ = filelistname;
 }
 
-std::map<std::string, std::string> Sample::getBranches()
+std::map<std::string, std::string> Sample::getBranches(bool force)
 {
-  if (!friend_added_) {
+  if (eval_ and !friend_added_ and !force) {
 	throw std::runtime_error("You can only call getBranches() after adding the evaluation tree as a friend.");
   }
 
   TObjArray* skim_branches = skim_->GetListOfBranches();
-  TObjArray* eval_branches = eval_->GetListOfBranches();
   unsigned nbr_skim = skim_->GetNbranches();
-  unsigned nbr_eval = eval_->GetNbranches();
   std::map<std::string, std::string> branches;
   for (unsigned iB=0; iB < nbr_skim; ++iB)	{
 	branches[ skim_branches->At(iB)->GetName() ] = skim_branches->At(iB)->GetTitle();
   }
-  for (unsigned iB=0; iB < nbr_eval; ++iB)	{
-	branches[ eval_branches->At(iB)->GetName() ] = eval_branches->At(iB)->GetTitle();
+  if (eval_) {
+	TObjArray* eval_branches = eval_->GetListOfBranches();
+	unsigned nbr_eval = eval_->GetNbranches();
+	for (unsigned iB=0; iB < nbr_eval; ++iB)	{
+	  branches[ eval_branches->At(iB)->GetName() ] = eval_branches->At(iB)->GetTitle();
+	}
   }
 
   return branches;
 }
 
-unsigned Sample::getNBranches()
+unsigned Sample::getNBranches(bool force)
 {
-  if (!friend_added_) {
+  if (eval_ and !friend_added_ and !force) {
 	throw std::runtime_error("You can only call getBranches() after adding the evaluation tree as a friend.");
   }
 
-  return skim_->GetNbranches() + eval_->GetNbranches();
+  unsigned nbranches = skim_->GetNbranches();
+  if (eval_) {
+	nbranches += eval_->GetNbranches();
+  }
+  return nbranches;
 }
 
 bool Sample::openFileAndTree()
@@ -107,7 +114,7 @@ bool Sample::openFileAndTree()
 
 			  TH1F* h = (TH1F*) f->Get(histoname_.c_str());
 			  if(!h) {
-				throw std::runtime_error("Histogram " + histoname_ + " not found!");
+				throw std::runtime_error("Histogram " + histoname_ + " not found in file " + line + "!");
 			  }
 
 			  evt_num_  += h->GetBinContent(2) ;
@@ -124,6 +131,12 @@ bool Sample::openFileAndTree()
 
   if (eval_) {
 	friend_added_ = true;
+
+	// Error in <TChainIndex::TChainIndex>: The indices in files of this chain aren't sorted
+	// eval_->BuildIndex("EventNumber", "RunNumber"); 
+	TTreeIndex *index = new TTreeIndex(eval_, "EventNumber", "RunNumber");
+	eval_->SetTreeIndex(index);
+
 	skim_->AddFriend(eval_);
   }
   
