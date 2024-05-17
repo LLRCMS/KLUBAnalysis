@@ -2488,7 +2488,8 @@ int main (int argc, char** argv)
 	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= 1.f; 
 	  float idFakeSF_tauid_2d_systcorrerasgt140_up      = 1.f;
 	  float idFakeSF_tauid_2d_systcorrerasgt140_down	= 1.f;
-	  float idFakeSF_tauid_2d_extrapgt140				= 1.f;
+	  float idFakeSF_tauid_2d_extrapgt140_up     		= 1.f;
+	  float idFakeSF_tauid_2d_extrapgt140_down     		= 1.f;
 	
 	  float idFakeSF_mutauFR_etaLt0p4_up      = 1.0;
 	  float idFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
@@ -2642,7 +2643,8 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140				= 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = 1.f;
 		  
 	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= 1.f;
@@ -2694,7 +2696,8 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
 	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140				= 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= 1.f;
 	  
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
@@ -2793,7 +2796,8 @@ int main (int argc, char** argv)
 		idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMUncorrErasDown");
 		idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	  = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystCorrErasUp");
 		idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	  = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140SystCorrErasDown");
-		idSF_leg1_deep_vsJet_2d_extrapgt140               = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140Extrap");
+		idSF_leg1_deep_vsJet_2d_extrapgt140_up            = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140ExtrapUp");
+		idSF_leg1_deep_vsJet_2d_extrapgt140_down          = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140ExtrapDown");
 	  }
 	  
 	  // up and down variations of the ID and isolation of the second leg (only relevant when it is a tau)
@@ -2884,6 +2888,14 @@ int main (int argc, char** argv)
 		  break;
 		}
 
+		idSF_leg2_deep_vsJet_2d_systcorrdmeras_up		  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasUp");
+		idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasDown");
+		idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasUp");
+		idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMUncorrErasDown");
+		idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystCorrErasUp");
+		idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140SystCorrErasDown");
+		idSF_leg2_deep_vsJet_2d_extrapgt140_up            = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapUp");
+		idSF_leg2_deep_vsJet_2d_extrapgt140_down          = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapDown");
 	  }
 	
 	  if (isMC) {
@@ -2965,7 +2977,8 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
 		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
 		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_extrapgt140 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140;
+		  idFakeSF_tauid_2d_extrapgt140_up 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  idFakeSF_tauid_2d_extrapgt140_down	        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
 		
 		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
@@ -3044,7 +3057,8 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
 		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up      * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
 		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down    * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_extrapgt140              	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140               * idSF_leg2_deep_vsJet_2d_extrapgt140;
+		  idFakeSF_tauid_2d_extrapgt140_up            	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up            * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  idFakeSF_tauid_2d_extrapgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down          * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
 
 		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
@@ -3138,7 +3152,8 @@ int main (int argc, char** argv)
 	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_down = idFakeSF_tauid_2d_systcorrdmuncorreras_down;
 	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_up		 = idFakeSF_tauid_2d_systcorrerasgt140_up;
 	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_down	 = idFakeSF_tauid_2d_systcorrerasgt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140				 = idFakeSF_tauid_2d_extrapgt140;
+	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_up            = idFakeSF_tauid_2d_extrapgt140_up;
+	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_down          = idFakeSF_tauid_2d_extrapgt140_down;
 	
 	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		= idFakeSF_mutauFR_etaLt0p4_up;		
 	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	= idFakeSF_mutauFR_eta0p4to0p8_up;	

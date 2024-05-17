@@ -251,8 +251,11 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
 	  else if(unc=="Gt140SystCorrErasDown") {
 		SF = static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYlow(ipt));
 	  }
-	  else if(unc=="Gt140Extrap" and pt>300.) {
+	  else if(unc=="Gt140ExtrapUp" and pt>300.) {
 		SF = static_cast<float>(func_extrap->Eval(pt));
+	  }
+	  else if(unc=="Gt140ExtrapDown" and pt>300.) {
+		SF = 2 - static_cast<float>(func_extrap->Eval(pt));
 	  }
 	}
   }
