@@ -15,10 +15,23 @@ def findMaxOfGraph(graph):
         uppers.append(y.value + graph.GetErrorYhigh(i))
     return max(uppers)
 
+def set_axis_limits(graph):
+    xmin = graph.GetXaxis().GetXmin()
+    xmax = graph.GetXaxis().GetXmax()
+    # ymin = graph.GetYaxis().GetXmin()
+    # ymax = graph.GetYaxis().GetXmax()
+    # xaxis = graph.GetXaxis()
+    # diff = (xmax-xmin)/4
+    # xaxis.SetLimits(xmin - diff/4, xmax + diff/4)
+    # yaxis = graph.GetYaxis()
+    # diff = (ymax-ymin)/4
+    # yaxis.SetLimits(ymin, ymax + diff/5)
+    return xmin, xmax
+
 def compareRatios(args):
     fend = op.join(args.channel, args.sel + '_' + args.reg, 'ratios.root')
-    file1 = ROOT.TFile.Open(op.join(args.indir, args.tags[0], 'HH_Plots', fend))
-    file2 = ROOT.TFile.Open(op.join(args.indir, args.tags[1], 'HH_Plots', fend))
+    file1 = ROOT.TFile.Open(op.join(args.indir, args.tags[0], args.channel, 'HH_Plots', fend))
+    file2 = ROOT.TFile.Open(op.join(args.indir, args.tags[1], args.channel, 'HH_Plots', fend))
     gname = '_'.join((args.var, args.sel, args.reg, args.channel))
 
     g1 = file1.Get(gname)
@@ -50,42 +63,30 @@ def compareRatios(args):
     g1.GetYaxis().SetLabelSize(.05);
     g1.SetLineColor(ROOT.kBlue);
     g1.SetMarkerColor(ROOT.kBlue);
+    g1.GetYaxis().SetTitle("Data/MC")
+    g1.GetYaxis().SetTitleSize(0.06)
+    g1.GetYaxis().SetTitleOffset(1.0)
     g1.Draw("APL")
     g2.SetLineColor(ROOT.kRed);
     g2.SetMarkerColor(ROOT.kRed);
+    g2.GetYaxis().SetTitle("Ratio")
+    g2.GetYaxis().SetTitleSize(0.01)
     g2.Draw("PL same")
 
-    xmin = g1.GetXaxis().GetXmin()
-    xmax = g2.GetXaxis().GetXmax()
-    l1 = ROOT.TLine(xmin, 1, xmax, 1)
-    l1.SetLineColor(ROOT.kGray)
-    l1.SetLineStyle(4)
-    l1.SetLineWidth(1)
-    l1.Draw('same')
-    l2 = ROOT.TLine(xmin, 0.9, xmax, 0.9)
-    l2.SetLineColor(ROOT.kGray)
-    l2.SetLineStyle(4)
-    l2.SetLineWidth(1)
-    l2.Draw('same')
-    l3 = ROOT.TLine(xmin, 1.1, xmax, 1.1)
-    l3.SetLineColor(ROOT.kGray)
-    l3.SetLineStyle(4)
-    l3.SetLineWidth(1)
-    l3.Draw('same')
-    # l4 = ROOT.TLine(xmin, 0.8, xmax, 0.8)
-    # l4.SetLineColor(ROOT.kBlue)
-    # l4.SetLineStyle(4)
-    # l4.SetLineWidth(1)
-    # l4.Draw('same')
-    # l5 = ROOT.TLine(xmin, 1.2, xmax, 1.2)
-    # l5.SetLineColor(ROOT.kBlue)
-    # l5.SetLineStyle(4)
-    # l5.SetLineWidth(1)
-    # l5.Draw('same')
+    xmin, xmax = set_axis_limits(g1)
+    set_axis_limits(g2)
+        
+    lines = []
+    for val in (0.8, 0.9, 1., 1.1, 1.2):
+        lines.append(ROOT.TLine(xmin, val, xmax, val))
+        lines[-1].SetLineColor(ROOT.kGray)
+        lines[-1].SetLineStyle(4)
+        lines[-1].SetLineWidth(1)
+        lines[-1].Draw('same')
 
-    legend = ROOT.TLegend(0.82,0.80,0.89,0.91);
-    legend.AddEntry(g1, "old", "l");
-    legend.AddEntry(g2, "new", "l");
+    legend = ROOT.TLegend(0.62,0.81,0.89,0.91);
+    legend.AddEntry(g1, args.tags[0], "l");
+    legend.AddEntry(g2, args.tags[1], "l");
     legend.Draw("same");
     
     ### Second Pad
@@ -153,31 +154,13 @@ def compareRatios(args):
 
     xmin = hRatio.GetXaxis().GetXmin()
     xmax = hRatio.GetXaxis().GetXmax()
-    l6 = ROOT.TLine(xmin, 1, xmax, 1)
-    l6.SetLineColor(ROOT.kRed)
-    l6.SetLineStyle(4)
-    l6.SetLineWidth(1)
-    l6.Draw('same')
-    l7 = ROOT.TLine(xmin, 0.9, xmax, 0.9)
-    l7.SetLineColor(ROOT.kRed)
-    l7.SetLineStyle(4)
-    l7.SetLineWidth(1)
-    l7.Draw('same')
-    l8 = ROOT.TLine(xmin, 1.1, xmax, 1.1)
-    l8.SetLineColor(ROOT.kRed)
-    l8.SetLineStyle(4)
-    l8.SetLineWidth(1)
-    l8.Draw('same')
-    l9 = ROOT.TLine(xmin, 0.8, xmax, 0.8)
-    l9.SetLineColor(ROOT.kBlue)
-    l9.SetLineStyle(4)
-    l9.SetLineWidth(1)
-    l9.Draw('same')
-    l10 = ROOT.TLine(xmin, 1.2, xmax, 1.2)
-    l10.SetLineColor(ROOT.kBlue)
-    l10.SetLineStyle(4)
-    l10.SetLineWidth(1)
-    l10.Draw('same')
+    lines2 = []
+    for val in (.8, .9, 1., 1.1, 1.2):
+        lines2.append(ROOT.TLine(xmin, val, xmax, val))
+        lines2[-1].SetLineColor(ROOT.kRed)
+        lines2[-1].SetLineStyle(4)
+        lines2[-1].SetLineWidth(1)
+        lines2[-1].Draw('same')
 
     cmsTextFont = 61  # font of the "CMS" label
     cmsTextSize = 0.05  # font size of the "CMS" label
@@ -203,7 +186,15 @@ def compareRatios(args):
     extraTextBox.SetTextColor(ROOT.kBlack)
     extraTextBox.SetTextAlign(11)
 
-    lumi = '%.1f fb^{-1} (13 TeV)' % args.lumi
+    if args.year == "UL18":
+        lumi = "59.7"
+    elif args.year == "UL17":
+        lumi = "41.5"
+    elif args.year == "UL16":
+        lumi = "16.8"
+    elif args.year == "UL16APV":
+        lumi = "19.5"
+    lumi = '{} fb^{{-1}} (13 TeV)'.format(lumi)
     lumibox = ROOT.TLatex(1-r, 1 - t + 0.02 , lumi)       
     lumibox.SetNDC()
     lumibox.SetTextAlign(31)
@@ -243,7 +234,7 @@ if __name__ == '__main__' :
 
     parser = argparse.ArgumentParser(description='Compare Data/MC ratios obtained with different baselines')
     parser.add_argument('--indir', default='/data_CMS/cms/alves/HHresonant_hist/',
-                        help='analysis input first folder name', required=True)
+                        help='analysis input first folder name')
     parser.add_argument('--outdir', help='analysis output folder name', default='.')
     parser.add_argument('--var', help='variable name', default=None)
     parser.add_argument('--sel', help='selection name', default=None)
@@ -252,7 +243,8 @@ if __name__ == '__main__' :
     parser.add_argument('--label', help='x label', default=None)
     parser.add_argument('--channel',  choices=('ETau', 'MuTau', 'TauTau'),
                         help='channel', required=True)
-    parser.add_argument('--lumi', type=float, help='lumi in fb-1', default=None)
+    parser.add_argument('--year', required=True, choices=("UL61", "UL16APV", "UL17", "UL18"),
+                        help='lumi in fb-1', default=None)
 
     FLAGS = parser.parse_args()
     assert len(FLAGS.tags) == 2

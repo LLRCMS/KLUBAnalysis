@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <sstream>
 
-#define DEBUG false
+#define DEBUG true
 
 AnalysisHelper::AnalysisHelper(std::string cfgname, std::string merge_section, int idxsplit, int njobs)
 {
@@ -28,7 +28,7 @@ AnalysisHelper::AnalysisHelper(std::string cfgname, std::string merge_section, i
     std::exit(1);
   }
 
-  if(!sanityChecks()) {
+  if(!sanityChecks(merge_section)) {
 	std::cerr << "[ERROR::AnalysisHelper] Sanity checks did not pass." << std::endl;
 	std::exit(1);
   }
@@ -39,32 +39,20 @@ AnalysisHelper::AnalysisHelper(std::string cfgname, std::string merge_section, i
 AnalysisHelper::~AnalysisHelper()
 {}
 
-bool AnalysisHelper::sanityChecks()
+bool AnalysisHelper::sanityChecks(std::string ms)
 {
   std::vector<std::string> data = mainCfg_->readStringListOpt("general::data");
   std::vector<std::string> bkgs = mainCfg_->readStringListOpt("general::backgrounds");
 
-  std::vector<std::string> samps_plot = mainCfg_->readListOfOpts("merge_plots");
-  for (std::string s : samps_plot)
+  std::vector<std::string> samps = mainCfg_->readListOfOpts(ms);
+  for (std::string s : samps)
 	{
-	  std::vector<std::string> tmp = mainCfg_->readStringListOpt(std::string("merge_plots::")+s);
+	  std::vector<std::string> tmp = mainCfg_->readStringListOpt(ms+"::"+s);
 	  for (auto& x : tmp) {
 		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
 			std::find(data.begin(), data.end(), x) == data.end() ) {
-		  std::cout << "Item " << x << " was not found in the backgrounds list for plotting." << std::endl;
-		  return false;
-		}
-	  }
-	}
-
-  std::vector<std::string> samps_limits = mainCfg_->readListOfOpts("merge_limits");
-  for (std::string s : samps_limits)
-	{
-	  std::vector<std::string> tmp = mainCfg_->readStringListOpt(std::string("merge_limits::")+s);
-	  for (auto& x : tmp) {
-		if( std::find(bkgs.begin(), bkgs.end(), x) == bkgs.end() and
-			std::find(data.begin(), data.end(), x) == data.end() ) {
-		  std::cout << "Item " << x << " was not found in the backgrounds list for limits." << std::endl;
+		  std::cout << "Item " << x << " was not found for section " << ms
+					<< " in the backgrounds list for plotting." << std::endl;
 		  return false;
 		}
 	  }
@@ -88,7 +76,9 @@ bool AnalysisHelper::readMainInfo()
   cutCfg_ = std::unique_ptr<CfgParser>(new CfgParser(cutCfgName));
   sampleCfg_ = std::unique_ptr<CfgParser>(new CfgParser(sampleCfgName));
 
-  if (!(mainCfg_->hasOpt("general::lumi"))) return false;
+  if (!(mainCfg_->hasOpt("general::lumi"))) {
+	return false;
+  }
   lumi_ = mainCfg_->readFloatOpt("general::lumi");
   std::cout << "@@ lumi : " << lumi_ << std::endl;
 
@@ -136,29 +126,60 @@ void AnalysisHelper::saveOutputsToFile(std::string outFolder)
   system (Form("cp %s %s", (sampleCfg_->getCfgName()).c_str() , outFolder.c_str()));
 
   TFile* fOut = TFile::Open(outFile.c_str(), "recreate");
-  std::vector <ordered_map <std::string, std::shared_ptr<Sample>> *> allToSave;
-  allToSave.push_back(&data_samples_);
-  allToSave.push_back(&sig_samples_);
-  allToSave.push_back(&bkg_samples_);
+  std::vector<ordered_map <std::string, std::shared_ptr<Sample>> *> allToSave = {&data_samples_, &sig_samples_, &bkg_samples_};
+  
+  std::map<std::string, std::string> branches;
 
   // nesting order: type of events --> sample --> selection --> variable --> systematics
   fOut->cd();
   for (uint itype = 0; itype < allToSave.size(); ++itype) {
 	for (uint isample = 0; isample < allToSave.at(itype)->size(); ++isample) {
 
+	  if (itype == 0) {
+		branches = (frozen_data_branches_.size() == 0 ?
+					(allToSave.at(itype))->at(isample)->getBranches(true) :
+					frozen_data_branches_);
+	  }
+	  else if (itype == 1) {
+		branches = (frozen_sig_branches_.size() == 0 ?
+					(allToSave.at(itype))->at(isample)->getBranches(true) :
+					frozen_sig_branches_);
+	  }
+	  else if (itype == 2) {
+		branches = (frozen_bkg_branches_.size() == 0 ?
+					(allToSave.at(itype))->at(isample)->getBranches(true) :
+					frozen_bkg_branches_);
+	  }
+	  
 	  Sample::selColl& plotSet = allToSave.at(itype)->at(isample)->plots();
 	  for (uint isel = 0; isel < plotSet.size(); ++isel) {
 		for (uint ivar = 0; ivar < plotSet.at(isel).size(); ++ivar) {
+		  std::string varName = plotSet.at(isel).key(ivar);
+
+		  if (branches.find(varName) == branches.end()) {
+			continue;
+		  }
+		  
 		  for (uint isyst = 0; isyst < plotSet.at(isel).at(ivar).size(); ++isyst) {
 			plotSet.at(isel).at(ivar).at(isyst)->Write();
-		  }}}
+		  }
+		}
+	  }
 
 	  Sample::selColl2D& plotSet2D = allToSave.at(itype)->at(isample)->plots2D();
 	  for (uint isel = 0; isel < plotSet2D.size(); ++isel) {
 		for (uint ivar = 0; ivar < plotSet2D.at(isel).size(); ++ivar) {
+
+		  std::string varName = plotSet2D.at(isel).key(ivar);
+		  if (branches.find(varName) == branches.end()) {
+			continue;
+		  }
+
 		  for (uint isyst = 0; isyst < plotSet2D.at(isel).at(ivar).size(); ++isyst) {
 			plotSet2D.at(isel).at(ivar).at(isyst)->Write();
-		  }}}
+		  }
+		}
+	  }
 
 	}
   }
@@ -168,7 +189,7 @@ void AnalysisHelper::saveOutputsToFile(std::string outFolder)
   return;
 }
 
-void AnalysisHelper::readSamples()
+void AnalysisHelper::readSamples(bool use_friend)
 {
   std::vector<std::string> dataSampleNameList = mainCfg_->readStringListOpt("general::data");
   std::vector<std::string> sigSampleNameList  = mainCfg_->readStringListOpt("general::signals");
@@ -177,7 +198,7 @@ void AnalysisHelper::readSamples()
   std::cout << "@@ Samples : reading samples DATA : " << std::endl;
   for (std::string name : dataSampleNameList)
 	{
-	  std::shared_ptr<Sample> smp = openSample(name);
+	  std::shared_ptr<Sample> smp = openSample(name, use_friend);
 	  smp->setType(Sample::kData);
 	  smp->clearWeights(); // no weights should be applied on data -- remove manually all weights read
 	  smp->clearExtWeights(); // no weights should be applied on data -- remove manually all weights read
@@ -188,7 +209,7 @@ void AnalysisHelper::readSamples()
   std::cout << "@@ Samples : reading samples sig  : " << std::endl;
   for (std::string name : sigSampleNameList)
 	{
-	  std::shared_ptr<Sample> smp = openSample(name);
+	  std::shared_ptr<Sample> smp = openSample(name, use_friend);
 	  smp->setType(Sample::kSig);
 	  sig_samples_.append(name, smp);
 	}
@@ -197,7 +218,7 @@ void AnalysisHelper::readSamples()
   std::cout << "@@ Samples : reading samples bkg  : " << std::endl;
   for (std::string name : bkgSampleNameList)
 	{
-	  std::shared_ptr<Sample> smp = openSample(name);
+	  std::shared_ptr<Sample> smp = openSample(name, use_friend);
 	  smp->setType(Sample::kBkg);
 	  bkg_samples_.append(name, smp);
 
@@ -210,11 +231,10 @@ void AnalysisHelper::readSamples()
 		}
 	  }
 	}
-  std::cout << std::endl;
   return;
 }
 
-std::shared_ptr<Sample> AnalysisHelper::openSample(std::string sampleName)
+std::shared_ptr<Sample> AnalysisHelper::openSample(std::string sampleName, bool use_friend)
 {
   if (DEBUG) {
 	std::cout << " ..........DEBUG: entering AnalysisHelper::openSample for sample " << sampleName << std::endl;
@@ -225,18 +245,21 @@ std::shared_ptr<Sample> AnalysisHelper::openSample(std::string sampleName)
   std::vector<std::string> filenames = {{
 	  filename + std::string("/goodfiles.txt"),
 	  filename + std::string("/goodfiles_resub1.txt"), filename + std::string("/goodfiles_resub2.txt"),
-	  filename + std::string("/goodfiles_resub3.txt"), filename + std::string("/goodfiles_resub4.txt"),
-	  filename + std::string("/goodfiles_resub5.txt"), filename + std::string("/goodfiles_resub6.txt"),
-	  filename + std::string("/goodfiles_resub7.txt"), filename + std::string("/goodfiles_resub8.txt"),
-	  filename + std::string("/goodfiles_resub9.txt")
+	  filename + std::string("/goodfiles_resub3.txt"), filename + std::string("/goodfiles_resub4.txt")
 	}};
 
-  std::shared_ptr<Sample> sample(new Sample(sampleName, filenames,
-											"HTauTauTree",
-											sampleCfg_->readStringOpt(Form("evaluation::tree")),
-											sampleCfg_->readStringOpt(Form("samples::base")),
-											sampleCfg_->readStringOpt(Form("evaluation::base")),
-											"h_eff", 1));
+  std::shared_ptr<Sample> sample;
+  if (use_friend) {
+	sample = std::make_shared<Sample>(sampleName, filenames,
+									  "HTauTauTree",
+									  sampleCfg_->readStringOpt(Form("evaluation::tree")),
+									  sampleCfg_->readStringOpt(Form("samples::base")),
+									  sampleCfg_->readStringOpt(Form("evaluation::base")),
+									  "h_eff", 1);
+  }
+  else {
+	sample = std::make_shared<Sample>(sampleName, filenames, "HTauTauTree", "h_eff", 1);
+  }
 
   if (sampleCfg_->hasOpt(Form("userEffBin::%s", sampleName.c_str())))
     {
@@ -357,11 +380,9 @@ void AnalysisHelper::readVariables()
 
 void AnalysisHelper::prepareSamplesHistos()
 {
-  std::vector <sampleColl*> allToInit; // to loop all at once
-  allToInit.insert(allToInit.end(), {&data_samples_, &sig_samples_, &bkg_samples_});
-
-  std::vector<int> doselW;
-  doselW.insert(doselW.end(), {0, 1, 1}); // no sel W for data!
+  std::map<std::string, std::string> branches;
+  std::vector <sampleColl*> allToInit = {&data_samples_, &sig_samples_, &bkg_samples_}; // to loop all at once
+  std::vector<int> doselW = {0, 1, 1}; // no sel W for data!
 
   for(uint ismpc = 0; ismpc < allToInit.size(); ++ismpc) // loop on (data, sig, bkg)
 	{
@@ -369,13 +390,18 @@ void AnalysisHelper::prepareSamplesHistos()
 	  for (uint isample = 0; isample < samcoll->size(); ++isample) // loop on samples
 		{
 		  Sample::selColl& selcoll = samcoll->at(isample)->plots();
-		  for (uint isel = 0; isel < selections_.size(); ++isel)
+		  branches = samcoll->at(isample)->getBranches();
+		  for (uint isel = 0; isel < selections_.size(); ++isel) // loop on "selection + region"
 			{
 			  selcoll.append(selections_.at(isel).getName(), Sample::varColl());
 			  Sample::varColl& varcoll = selcoll.back();
-			  for (uint ivar = 0; ivar < variables_.size(); ++ivar)
-				{
+			  for (uint ivar = 0; ivar < variables_.size(); ++ivar) // loop on variables
+				{			  
 				  std::string varName = variables_.at(ivar);
+				  // if (ismpc == 0 and branches.find(varName) == branches.end()) { // if data and the branch does not exist
+				  // 	continue;
+				  // }
+				  
 				  std::string selName = selections_.at(isel).getName();
 				  std::string sel_var = selName + ":" + varName;
 
@@ -465,16 +491,7 @@ void AnalysisHelper::prepareSamplesHistos()
 
 				  // now loop over available syst and create more histos
 				  // skip the up/down variables and only add the systematics to the nominal variables
-				  std::vector<std::string> shiftVarNames {"tauup", "taudown", "eleup", "eledown", "muup", "mudown", "jetup", "jetdown"};
-				  bool isVarShifted = false;
-				  for (uint idx=0; idx<shiftVarNames.size(); idx++)
-					{
-					  if (varName.find(shiftVarNames.at(idx)) != std::string::npos)
-						{
-						  isVarShifted = true;
-						  break;
-						}
-					}
+				  bool isVarShifted = areVariablesShifted(varName);
 				  if (DEBUG) {
 					std::cout << "************* varName: " << varName << " --> isVarShifted: " << isVarShifted << std::endl;
 				  }
@@ -546,11 +563,9 @@ void AnalysisHelper::prepareSamplesHistos()
 void AnalysisHelper::prepareSamples2DHistos()
 {
   // to loop all in once
-  std::vector <sampleColl*> allToInit;
-  allToInit.insert(allToInit.end(), {&data_samples_, &sig_samples_, &bkg_samples_});
+  std::vector <sampleColl*> allToInit = {&data_samples_, &sig_samples_, &bkg_samples_};
 
-  std::vector<int> doselW;
-  doselW.insert(doselW.end(), {0, 1, 1}); // no sel W for data!
+  std::vector<int> doselW = {0, 1, 1}; // no sel W for data!
 
   for (uint ismpc = 0; ismpc < allToInit.size(); ++ismpc) // loop on (data, sig, bkg)
 	{
@@ -921,11 +936,11 @@ std::string AnalysisHelper::formHisto2DName(std::string sample, std::string sel,
 void AnalysisHelper::fillHistosSample(Sample& sample)
 {
   std::cout << "@@ Filling histograms of sample " << sample.getName() << std::endl;
-
   activateBranches(sample);
-
   TChain* tree = sample.getTree();
 
+  std::map<std::string, std::string> branches = sample.getBranches();
+  
   // setup selection group
   std::shared_ptr<TTreeFormulaGroup> fg = std::make_shared<TTreeFormulaGroup>(true);
   std::vector<TTreeFormula*> vTTF;
@@ -952,8 +967,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   // nominal and shifted weight names. Stored as systMap[systName as in histo] = <nominal_name in tree, syst_name in tree>
   // when histos systs are applied, retrieve the two names using the key that is stored in the histogram name
   typedef boost::variant<bool, int, float, double> varType;
-  std::unordered_map<std::string, varType> valuesMap;
-  std::unordered_map<std::string, varType> extValuesMap;
+  std::unordered_map<std::string, varType> valuesMap, extValuesMap;
   std::unordered_map<std::string, std::pair<std::string, std::string>> systMap;
 
   if (DEBUG) {
@@ -962,7 +976,7 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   // loop over all variables and weights to initialize the map
   for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
 	{
-	  if (valuesMap.find(variables_.at(ivar)) == valuesMap.end())
+	  if (valuesMap.find(variables_.at(ivar)) == valuesMap.end() and branches.find(variables_.at(ivar)) != branches.end())
 		{
 		  valuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
 		  if (DEBUG) {
@@ -981,14 +995,15 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 	{
 	  std::string var1 = variables2D_.at(ivar).first;
 	  std::string var2 = variables2D_.at(ivar).second;
-	  if (valuesMap.find(var1) == valuesMap.end())
+	  if (valuesMap.find(var1) == valuesMap.end() and branches.find(var1) != branches.end())
 		{
 		  valuesMap[var1] = float(0); // after will change to the proper type
 		  if (DEBUG) {
 			std::cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var 2D " << var1 << std::endl;
 		  }
 		}
-	  if (valuesMap.find(var2) == valuesMap.end())
+	  if (valuesMap.find(var2) == valuesMap.end() and branches.find(var2) != branches.end()
+		  )
 		{
 		  valuesMap[var2] = float(0); // after will change to the proper type
 		  if (DEBUG) {
@@ -1000,11 +1015,11 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   // loop over all variables and external weights to initialize the map
   for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
 	{
-	  if (extValuesMap.find(variables_.at(ivar)) == extValuesMap.end())
+	  if (extValuesMap.find(variables_.at(ivar)) == extValuesMap.end() and branches.find(variables_.at(ivar)) != branches.end())
 		{
 		  extValuesMap[variables_.at(ivar)] = float(0); // after will change to the proper type
 		  if (DEBUG) {
-			std::cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var " << variables_.at(ivar) << "to extValuesMap" << std::endl;
+			std::cout << " .......... >> DEBUG: AnalysisHelper : fillHistosSample : sample : " << sample.getName() << " , adding var " << variables_.at(ivar) << " to extValuesMap" << std::endl;
 		  }
 		}
 	  else {
@@ -1104,11 +1119,9 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
   }
 
   // decide types
-  std::map<std::string, std::string> branches = sample.getBranches();
   for (auto it = valuesMap.begin(); it != valuesMap.end(); ++it)
 	{
-	  auto it_find = branches.find(it->first);
-	  if (it_find == branches.end()) {
+	  if (branches.find(it->first) == branches.end()) {
 		std::string mes = ( "** ERROR: AnalysisHelper::fillHistosSample : sample : " + sample.getName()
 							+ " does not have branch " + it->first + "." );
 		throw std::runtime_error(mes);
@@ -1170,8 +1183,8 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 	  if ((!isLast and iEv >= nStop) or got == 0) {
 		break;
 	  }
-	  if (iEv % 500000 == 0) {
-		std::cout << "   ... reading " << iEv << " / " << nEvts << std::endl;
+	  if ((iEv-nStart) % 500000 == 0) {
+		std::cout << "   ... reading " << iEv-nStart << " / " << nStep << std::endl;
 	  }
 
 	  double wEvSample = 1.0;
@@ -1214,7 +1227,11 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 
 		  // loop on all vars to fill
 		  for (unsigned int ivar = 0; ivar < variables_.size(); ++ivar)
-			{
+			{ 
+			  // if (branches.find(variables_[ivar]) != branches.end()) {
+			  // 	continue;
+			  // }
+
 			  double varvalue = boost::apply_visitor(get_variant_as_double(), valuesMap[variables_.at(ivar)]);
 			  if (sample.getType() == Sample::kData) {
 				plots.at(isel).at(ivar).at(0)->Fill(varvalue);
@@ -1244,10 +1261,16 @@ void AnalysisHelper::fillHistosSample(Sample& sample)
 			  std::string var2 = variables2D_.at(ivar).second;
 			  double varvalue1 = boost::apply_visitor(get_variant_as_double(), valuesMap[var1]);
 			  double varvalue2 = boost::apply_visitor(get_variant_as_double(), valuesMap[var2]);
-			  if (sample.getType() == Sample::kData)
+			  if (sample.getType() == Sample::kData) {
+				
+				// if (areVariablesShifted(var1, var2)) {
+				//   continue;
+				// }
 				plots2D.at(isel).at(ivar).at(0)->Fill(varvalue1, varvalue2);
-			  else
+			  }
+			  else {
 				plots2D.at(isel).at(ivar).at(0)->Fill(varvalue1, varvalue2, wEvSample*wEvSel);
+			  }
 
 			  if (sample.getType() != Sample::kData)
 				{
@@ -1289,14 +1312,21 @@ void AnalysisHelper::activateBranches(Sample& sample)
   TChain* tree = sample.getTree();
   tree->SetBranchStatus("*", 0);
 
+  std::map<std::string, std::string> branches = sample.getBranches();
+  
   // activate all vars
   for (std::string var : variables_) {
-	tree->SetBranchStatus(var.c_str(), 1);
+	if (branches.find(var) != branches.end()) {
+	  tree->SetBranchStatus(var.c_str(), 1);
+	}
   }
 
   for (auto var2d : variables2D_) {
-	tree->SetBranchStatus(var2d.first.c_str(), 1);
-	tree->SetBranchStatus(var2d.second.c_str(), 1);
+	if (branches.find(var2d.first) != branches.end() and
+		branches.find(var2d.second) != branches.end()) {
+	  tree->SetBranchStatus(var2d.first.c_str(), 1);
+	  tree->SetBranchStatus(var2d.second.c_str(), 1);
+	}
   }
 
   if (DEBUG) {
@@ -1338,8 +1368,7 @@ void AnalysisHelper::activateBranches(Sample& sample)
 	std::cout << " ..........DEBUG: activated selections weights branches" << std::endl;
   }
 
-  // // activate all variables for cuts
-  std::map<std::string, std::string> branches = sample.getBranches();
+  // activate all variables for cuts
   for (auto const& br : branches)
 	{
 	  std::string bName = br.first;
@@ -1424,6 +1453,19 @@ void AnalysisHelper::setSplitting(int idxsplit, int nsplit)
   std::cout << "@@ new output name   : " << outputFileName_ << std::endl;
 }
 
+bool AnalysisHelper::areVariablesShifted(std::string var1, std::string var2)
+{
+  bool shifted = false;
+  for (uint idx=0; idx<shift_var_names_.size(); idx++) {
+	if (var1.find(shift_var_names_.at(idx)) != std::string::npos or
+		var2.find(shift_var_names_.at(idx)) != std::string::npos) {
+	  shifted = true;
+	  break;
+	}
+  }
+  return shifted;
+}
+  
 // list all the information analysis helper knows
 void AnalysisHelper::dump(int detail)
 {
@@ -1445,10 +1487,9 @@ void AnalysisHelper::dump(int detail)
 
   std::cout << "@@@@@@@@ VARIABLES @@@@@@@@" << std::endl;
   std::cout << "@ variable list: " << std::endl;
-  for (uint iv = 0; iv < variables_.size(); ++iv)
-	{
-	  std::cout << "  " << iv << " >> " << variables_.at(iv) << std::endl;
-	}
+  for (uint iv = 0; iv < variables_.size(); ++iv) {
+	std::cout << "  " << iv << " >> " << variables_.at(iv) << std::endl;
+  }
   std::cout << std::endl;
 
   std::cout << "@ 2D variable list: " << std::endl;
@@ -1504,7 +1545,7 @@ void AnalysisHelper::prepareHistos()
   prepareSamples2DHistos();
 }
 
-void AnalysisHelper::mergeSamples()
+void AnalysisHelper::mergeSamples(bool use_friend)
 {
   for (unsigned int isnew = 0; isnew < sample_merge_list_.size(); ++isnew)
 	{
@@ -1513,28 +1554,32 @@ void AnalysisHelper::mergeSamples()
 
 	  // create an empty new sample.
 	  // NOTE: call this method after you finished to fill histos, the new sample has no tree associated and can't be filled!
-	  std::shared_ptr<Sample> snew(new Sample(newname, {{""}}, "HTauTauTree", "h_eff", 1));
-
+	  std::shared_ptr<Sample> snew = std::make_shared<Sample>(newname, std::vector<std::string>{},
+															  "HTauTauTree", "h_eff", 1);
+	  
 	  // take the first histo in the list of masters
 	  std::string snamefirst = sample_merge_list_.at(isnew).at(0);
 	  std::shared_ptr<Sample> smaster = nullptr;
 	  ordered_map <std::string, std::shared_ptr<Sample>>* chosenMap = nullptr;
 	  int type = -1;
 
-	  if (data_samples_.has_key(snamefirst)){
-		type = (int) Sample::kData;
+	  if (data_samples_.has_key(snamefirst)) {
+		type = static_cast<int>(Sample::kData);
 		smaster = data_samples_.at(snamefirst);
 		chosenMap = &data_samples_;
+		frozen_data_branches_ = smaster->getBranches(true);
 	  }
-	  else if (bkg_samples_.has_key(snamefirst)){
-		type = (int) Sample::kBkg;
+	  else if (bkg_samples_.has_key(snamefirst)) {
+		type = static_cast<int>(Sample::kBkg);
 		smaster = bkg_samples_.at(snamefirst);
 		chosenMap = &bkg_samples_;
+		frozen_bkg_branches_ = smaster->getBranches(true);
 	  }
-	  else if (sig_samples_.has_key(snamefirst)){
-		type = (int) Sample::kSig;
+	  else if (sig_samples_.has_key(snamefirst)) {
+		type = static_cast<int>(Sample::kSig);
 		smaster = sig_samples_.at(snamefirst);
 		chosenMap = &sig_samples_;
+		frozen_sig_branches_ = smaster->getBranches(true);
 	  }
 	  else {
 		std::cerr << "** AnalysisHelper : mergeSamples : error : could not find the sample " << snamefirst << " to merge, won't merge" << std::endl;
@@ -1545,12 +1590,13 @@ void AnalysisHelper::mergeSamples()
 		std::cout << "   DEBUG: --- merging histos - type is: " << type << std::endl;
 	  }
 
+	  std::map<std::string, std::string> branches = smaster->getBranches();
+	  
 	  //////////////////////// -- 1D plots //////////////////////////////////
 	  // clone the histogram structure from the master
-
 	  Sample::selColl& plmaster = smaster->plots();
 	  Sample::selColl& plnew    = snew->plots();
-
+	  
 	  if (DEBUG) {
 		std::cout << "   DEBUG: --- merging histos - going to loop over 1d plot to make structure" << std::endl;
 	  }
@@ -1558,14 +1604,19 @@ void AnalysisHelper::mergeSamples()
 	  for (unsigned int isel = 0; isel < plmaster.size(); ++isel) {
 		std::string selName = plmaster.key(isel);
 		plnew.append(selName, Sample::varColl());
-		for (unsigned int ivar = 0; ivar < plmaster.at(isel).size(); ++ivar ){
+		for (unsigned int ivar = 0; ivar < plmaster.at(isel).size(); ++ivar) {
 		  std::string varName = plmaster.at(isel).key(ivar);
+		  
+		  // if (branches.find(varName) == branches.end()) {
+		  // 	continue;
+		  // }
+			  
 		  plnew.at(isel).append(varName, Sample::systColl());
 	
-		  for (unsigned int isyst = 0; isyst < plmaster.at(isel).at(ivar).size(); ++isyst ){
+		  for (unsigned int isyst = 0; isyst < plmaster.at(isel).at(ivar).size(); ++isyst) {
 			std::string systName = plmaster.at(isel).at(ivar).key(isyst);
-			std::string hname = formHistoName (newname, selName, varName, systName);
-			std::shared_ptr<TH1F> hist ((TH1F*) plmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str())) ;
+			std::string hname = formHistoName(newname, selName, varName, systName);
+			std::shared_ptr<TH1F> hist((TH1F*) plmaster.at(isel).at(ivar).at(isyst)->Clone(hname.c_str()));
 			hist->SetTitle(hist->GetName());
 			plnew.at(isel).at(ivar).append(systName, hist);
 		  }
@@ -1582,9 +1633,15 @@ void AnalysisHelper::mergeSamples()
 		  std::string sname = sample_merge_list_.at(isnew).at(idx);
 
 		  Sample::selColl& pltoadd = chosenMap->at(sname)->plots();
-		  for (unsigned int isel = 0; isel < plnew.size(); ++isel){
-			for (unsigned int ivar = 0; ivar < plnew.at(isel).size(); ++ivar ){
-			  for (unsigned int isyst = 0; isyst < plnew.at(isel).at(ivar).size(); ++isyst ){
+		  for (unsigned int isel = 0; isel < plnew.size(); ++isel) {
+			for (unsigned int ivar = 0; ivar < plnew.at(isel).size(); ++ivar) {
+			  std::string varName = plnew.at(isel).key(ivar);
+
+			  // if (branches.find(varName) == branches.end()) {
+			  // 	continue;
+			  // }
+			  
+			  for (unsigned int isyst = 0; isyst < plnew.at(isel).at(ivar).size(); ++isyst) {
 				plnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst).get());
 			  }
 			}
@@ -1611,6 +1668,11 @@ void AnalysisHelper::mergeSamples()
 	  
 		for (unsigned int ivar = 0; ivar < pl2Dmaster.at(isel).size(); ++ivar ){
 		  std::string varName = pl2Dmaster.at(isel).key(ivar);
+
+		  // if (branches.find(varName) == branches.end()) {
+		  // 	continue;
+		  // }
+
 		  pl2Dnew.at(isel).append(varName, Sample::systColl2D());
 
 		  if (DEBUG) {
@@ -1651,7 +1713,13 @@ void AnalysisHelper::mergeSamples()
 		  std::string sname = sample_merge_list_.at(isnew).at(idx);
 		  Sample::selColl2D& pltoadd = chosenMap->at(sname)->plots2D();
 		  for (unsigned int isel = 0; isel < pl2Dnew.size(); ++isel){
-			for (unsigned int ivar = 0; ivar < pl2Dnew.at(isel).size(); ++ivar ){
+			for (unsigned int ivar = 0; ivar < pl2Dnew.at(isel).size(); ++ivar) {
+
+			  std::string varName = pl2Dnew.at(isel).key(ivar);
+			  // if (branches.find(varName) == branches.end()) {
+			  // 	continue;
+			  // }
+			  
 			  for (unsigned int isyst = 0; isyst < pl2Dnew.at(isel).at(ivar).size(); ++isyst ){
 				pl2Dnew.at(isel).at(ivar).at(isyst)->Add(pltoadd.at(isel).at(ivar).at(isyst).get());
 			  }

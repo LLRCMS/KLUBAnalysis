@@ -275,40 +275,43 @@ bool triggerReader_cross::checkSingleTau  (Long64_t triggerbit_1, Long64_t match
       // should it always be match1?
       match1 = CheckBit (matchFlag1, _singleTauTriggers.at(i));
       match2 = CheckBit (matchFlag2, _singleTauTriggers.at(i));
-      match = (match1!=match2); // here only one of the leptons can be matched (can't trigger on 2 taus in same event)
+      match = match1!=match2; // here only one of the leptons can be matched (can't trigger on 2 taus in same event)
+
       //Only check type for matched lepton
-      goodType = match1?CheckBit (goodTriggerType1, _singleTauTriggers.at(i)):CheckBit (goodTriggerType2, _singleTauTriggers.at(i));
+      goodType = match1 ? CheckBit(goodTriggerType1, _singleTauTriggers.at(i)) : CheckBit (goodTriggerType2, _singleTauTriggers.at(i));
 
-      _trgNoOverlap = CheckBit (trgNoOverlap, _singleTauTriggers.at(i)); // is this needed here?
+      _trgNoOverlap = CheckBit(trgNoOverlap, _singleTauTriggers.at(i)); // is this needed here?
 
+	  std::cout << "===== in1 " << matchFlag1 << " " << _singleTauTriggers.at(i) << ": " << match1 << " " << match2 << " " << match << " --- " << goodType << " " << _trgNoOverlap << std::endl;
+	  
       if (match && goodType && _trgNoOverlap)
-      {
-	firedPath = _allTriggers.at(_singleTauTriggers.at(i));
-	boost::regex re_tau{"Tau(\\d+)"}; // no HPS trigger for single tau
+		{
+		  firedPath = _allTriggers.at(_singleTauTriggers.at(i));
+		  boost::regex re_tau{"Tau(\\d+)"}; // no HPS trigger for single tau
 
-	double pt_tau = match1?pt_tau1:pt_tau2;
-	// tautauTrigger twiki suggests threshold + 10 GeV "flat" cut, so this should do fine
-	// Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Run_II_Trigger_Scale_Factors
-	ptCut = checkPtCutSingle(thisPath, firedPath, re_tau, pt_tau, 10.0);
-	// should apply some trigger-matching pT cut here, but not including it yet to check turn-ons
+		  double pt_tau = match1?pt_tau1:pt_tau2;
+		  // tautauTrigger twiki suggests threshold + 10 GeV "flat" cut, so this should do fine
+		  // Twiki: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauTrigger#Run_II_Trigger_Scale_Factors
+		  ptCut = checkPtCutSingle(thisPath, firedPath, re_tau, pt_tau, 10.0);
+		  // should apply some trigger-matching pT cut here, but not including it yet to check turn-ons
 
-	double eta_tau = match1?eta_tau1:eta_tau2;
-	etaCut = (fabs(eta_tau) < 2.1); //muon threshold
-      }
+		  double eta_tau = match1?eta_tau1:eta_tau2;
+		  etaCut = fabs(eta_tau) < 2.1; //muon threshold
+		}
       else
-      {
-	ptCut = false;
-	etaCut = false;
-      }
+		{
+		  ptCut = false;
+		  etaCut = false;
+		}
     }
     if (!(thisPath && match && _trgNoOverlap && goodType && ptCut && etaCut)) thisPath = false;
     if (thisPath)
-    {
-      std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_singleTauTriggers.at(i)));
-      int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
-      *pass_triggerbit |=  1 << thisPathIdx;
-      OR = true;
-    }
+	  {
+		std::vector<string>::iterator it = std::find(_thisSkimTriggers.begin(), _thisSkimTriggers.end(), _allTriggers.at(_singleTauTriggers.at(i)));
+		int thisPathIdx = std::distance(_thisSkimTriggers.begin(), it);
+		*pass_triggerbit |=  1 << thisPathIdx;
+		OR = true;
+	  }
   }
 
   return OR;

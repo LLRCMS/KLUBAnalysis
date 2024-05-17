@@ -1,7 +1,0 @@
-Please check the following points when submitting the skims according to the sample skimmed:
-
-- TT : if mixing inclusive and exclusive samples according to the decay mode of tt, the input filelist must contain *both* the inclusive and the specific sample one wants to process, and specify the gen tt decay type wanted when submitting the skim. Therefore, when using these samples, one must submit 4 set of jobs: fully leptonic, semilept t, semilept tbar, fully hadronic. Each of the input file list must contain the inclusive sample + the special exclusive sample (e.g., for fully leptonic, use the inclusive tt list plus the fully leptonic list; the code will automatically pick the events with a fully leptonic gen decay) .
-
-- DY : update the stitching weights using the total number of events processed. Use the executable getNumberEvents.cpp for the number of events, update the into stitchWeightsDY.py and copy-paste the weight set into the skimNutple.py .
-
-- hh non resonant : set the non resonant map reweight file if you want to reweight to a special point of the hh place .

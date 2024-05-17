@@ -160,7 +160,6 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
         SBtoSRforQCD = float(cfg.readOption('pp_QCD::SBtoSRfactor'))
         SBtoSRforQCDboost = float(cfg.readOption('pp_QCD::boostSBtoSR')) if cfg.hasOption('pp_QCD::boostSBtoSR') else 1.
         SBtoSRforQCDclass = float(cfg.readOption('pp_QCD::classSBtoSR')) if cfg.hasOption('pp_QCD::classSBtoSR') else 1.
-        doUpDownQCD = eval(cfg.readOption('pp_QCD::doUnc')) if cfg.hasOption('pp_QCD::doUnc') else False
         computeSBtoSRdyn = False
         if SBtoSRforQCD == 1 and not args.SBtoSR: 
             computeSBtoSRdyn = True
@@ -178,6 +177,8 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
             boostSBtoSR   = SBtoSRforQCDboost,
             classSBtoSR   = SBtoSRforQCDclass
             )
+
+        doUpDownQCD = eval(cfg.readOption('pp_QCD::doUnc')) if cfg.hasOption('pp_QCD::doUnc') else False
         if doUpDownQCD:
             # Compute up/down variation of QCD by taking the shape
             # from SStight and the correction factor from OSinviso/SSinviso
@@ -228,7 +229,7 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
      
     fName = ('combined_' +
              ('moreTT_' + str(args.moreTT).replace('.', 'p') + '_' if args.moreTT else '') + outname)
-    fOut = ROOT.TFile(op.join(workdir, fName), 'recreate')
+    fOut = ROOT.TFile(op.join(workdir, fName), 'RECREATE')
     omngr.saveToFile(fOut)
 
 def run_hadd(name, workdir, args):
@@ -365,7 +366,7 @@ def run_harvesting(outn, workdir, cfgname, prefix, args):
                     listHistos.append(template.Clone())
      
                 # Create the new file to store the histos with the correct name
-                fout = ROOT.TFile(newName,'RECREATE')
+                fout = ROOT.TFile(newName, 'RECREATE')
                 fout.cd()
                 for h in listHistos:
                     h.Write()
@@ -377,6 +378,10 @@ if __name__ == '__main__':
     parser.add_argument('--dir', dest='dir', help='analysis output folder name',
                         default='/data_CMS/cms/' + os.environ['USER'] + '/HHresonant_hist/')
     parser.add_argument('--tag', help='tag name used after skimming', required=True)
+    parser.add_argument('--channel', required=True, choices=("ETau", "MuTau", "TauTau", "MuMu"),
+                        help='Analysis channel.')
+    parser.add_argument('--year', required=True, choices=("UL16APV", "UL16", "UL17", "UL18"),
+                        help='Data period.')
     parser.add_argument('--cfg', default='mainCfg_*.cfg', help='configuration file', required=True)
     parser.add_argument('--moreDY', type=float, dest='moreDY', help='increase DY by factor moreDY', default=None)
     parser.add_argument('--moreTT', type=float, dest='moreTT', help='increase TT by factor moreTT', default=None)
@@ -384,16 +389,37 @@ if __name__ == '__main__':
     parser.add_argument('--extBkg',  dest='extBkg', help='add a bkg from external file', default=None)
     parser.add_argument('--extFile', dest='extFile', help='add a bkg from external file', default=None)
     parser.add_argument('--doSymmetricQCD', type=bool, dest='doSymmetricQCD', help='symmetrize QCD templates', default=True)
+
+    parser.add_argument('--spin', default="", required=False, choices=("", "0", "2"), help='Spin hypothesis.')
+    parser.add_argument('--mass', default="", required=False, help='Mass of the resonance.',
+                        choices=("250", "260", "270", "280", "300", "320", "350", "400", "450", "500",
+                                 "550", "600", "650", "700", "750", "800", "850", "900", "1000", "1250",
+                                 "1500", "1750", "2000", "2500", "3000", ""))
+    
     args = parser.parse_args()
 
-    workdir = op.join(args.dir, args.tag)
-    cfgname = findInFolder(workdir, args.cfg)
-    outNames = {'outPlots': 'merge_plots', 'outLimits': 'merge_limits'}
+    limits = False
+    if args.spin != "" and args.mass != "":
+        limits = True
+    elif (args.spin == "" and args.mass != "") or (args.spin != "" and args.mass == ""):
+        raise RuntimeError("[ERROR] You must define both spin and mass!.")
+        
+    workdir = op.join(args.dir, args.tag + '_' + args.year, args.channel)
+    if limits:
+        workdir = op.join(workdir, "Spin{}_Mass{}".format(args.spin, args.mass))
+        cfgname = findInFolder(workdir, args.cfg)
+        outNames = ('outLimits', 'merge_limits')
+        run_hadd(outNames[0], workdir, args)
+        run_combination(outNames, workdir, cfgname, "", args)
 
-    for outn in outNames.items():
-        prefix = ''
-        # if outn[0] == 'outLimits': #harvesting systematics is only required for the limits
-        #     prefix = 'NEW_'
-        #     run_harvesting(outn, workdir, cfgname, prefix, args)
-        run_hadd(prefix + outn[0], workdir, args)
-        run_combination(outn, workdir, cfgname, prefix, args)
+    else:
+        cfgname = findInFolder(workdir, args.cfg)
+        outNames = {'outPlots': 'merge_plots', 'outLimits': 'merge_limits'}
+     
+        for outn in outNames.items():
+            prefix = ''
+            # if outn[0] == 'outLimits': #harvesting systematics is only required for the limits
+            #     prefix = 'NEW_'
+            #     run_harvesting(outn, workdir, cfgname, prefix, args)
+            run_hadd(prefix + outn[0], workdir, args)
+            run_combination(outn, workdir, cfgname, prefix, args)

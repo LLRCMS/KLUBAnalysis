@@ -3,6 +3,7 @@ import collections
 import fnmatch
 import array
 import math
+import re
 
 from VBFReweightModules import inputSample, VBFReweight, printProgressBar
 
@@ -45,8 +46,7 @@ class OutputManager:
         self.bkgs        = bkgs
         self.sigs        = sigs
 
-        self.shapeSysts = ('tauup', 'taudown', 'eleup', 'eledown',
-                           'muup', 'mudown', 'jetup', 'jetdown')
+        self.shapeSysts = ('tes_', 'jes_', 'ees_', 'mes_')
         
         self.systList = self.buildSystList()
 
@@ -177,22 +177,30 @@ class OutputManager:
 
     def makeQCD_SBtoSR(self, regionC, regionD, sel, var, syst='', removeNegBins=True):
         errmess = '    RegionC={}, RegionD={}, Selection={}, Variable={}'.format(regionC, regionD, sel, var)
-        for idx, data in enumerate (self.data):
-            hnameC = makeHistoName(data, sel+'_'+regionC, var)
-            hnameD = makeHistoName(data, sel+'_'+regionD, var)
-            if idx == 0: 
-                hregC = self.histos[hnameC].Clone(makeHistoName('regC', sel+'_'+regionC, var, syst=syst))
+        for idx, data in enumerate(self.data):
+            # hack for skipping matching the same data hisogram to all MC variations.
+            if any(x in var for x in ('up', 'down', 'Up', 'Down')) and 'pdnn' in var:
+                var_data = var.split('_hh')[0] + '_hh'
+            else:
+                var_data = var
+
+            hnameC_data = makeHistoName(data, sel+'_'+regionC, var_data)
+            hnameD_data = makeHistoName(data, sel+'_'+regionD, var_data)
+                
+            if idx == 0:
+                hregC = self.histos[hnameC_data].Clone(makeHistoName('regC', sel+'_'+regionC, var_data, syst=syst))
+                hregD = self.histos[hnameD_data].Clone(makeHistoName('regD', sel+'_'+regionD, var_data, syst=syst))
                 hregC.SetTitle(hregC.GetName())
-                hregD = self.histos[hnameD].Clone(makeHistoName('regD', sel+'_'+regionD, var, syst=syst))
                 hregD.SetTitle(hregD.GetName())
             else:
-                hregC.Add(self.histos[hnameC])
-                hregD.Add(self.histos[hnameD])
+                hregC.Add(self.histos[hnameC_data])
+                hregD.Add(self.histos[hnameD_data])
+
         # subtract bkg
         for bkg in self.bkgs:
                 hnameC = makeHistoName(bkg, sel+'_'+regionC, var, syst=syst)
-                hregC.Add(self.histos[hnameC], -1.)
                 hnameD = makeHistoName(bkg, sel+'_'+regionD, var, syst=syst)
+                hregC.Add(self.histos[hnameC], -1.)
                 hregD.Add(self.histos[hnameD], -1.)
 
         # Negative bins should be preserved in order to have
@@ -228,7 +236,7 @@ class OutputManager:
     def makeQCD(self, SR, yieldSB, shapeSB, SBtoSRfactor, regionC, regionD,
                 doFitIf='False', fitFunc='[0] + [1]*x', computeSBtoSR = True, QCDname = 'QCD',
                 removeNegBins = True, doUpDown = False, boostSBtoSR = 1., classSBtoSR = 1.):
-        
+
         print('... building QCD w/ name:', QCDname, '. SR:' , SR, ' yieldSB:', yieldSB,
               ' shapeSB:', shapeSB, ' SBtoSRfactor:', SBtoSRfactor, ' doUpDown:', doUpDown)
         print('    >> recompute SBtoSR dynamically? ')
@@ -247,16 +255,12 @@ class OutputManager:
         for var in self.variables:
             for sel in self.sel_def:
                 for syst in allSysts:
-
-                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    hQCD = None
+                    
+                    # If var already contains one of the shape systs
                     # do not create the shifted QCD template
                     if any(t in var for t in self.shapeSysts):
                        continue
-
-                    # for boosted category we use 'L' bTag WP
-                    if 'boost' in sel:
-                        if 'bTagSF' in syst:
-                            syst = syst.replace('M','L')
 
                     # make shape hist
                     for idx, data in enumerate(self.data):
@@ -267,10 +271,12 @@ class OutputManager:
                             hQCD.SetTitle(hQCD.GetName())
                         else:
                             hQCD.Add(self.histos[hname])
+
                     # subtract bkg
                     for bkg in self.bkgs:
                         hname = makeHistoName(bkg, sel+'_'+shapeSB, var, syst=syst)
                         hQCD.Add(self.histos[hname], -1.)
+
                     # remove negative bins if needed
                     if removeNegBins:
                         for ibin in range(1, hQCD.GetNbinsX()+1):
@@ -284,6 +290,7 @@ class OutputManager:
                             hyieldQCD = self.histos[hname].Clone(makeHistoName(QCDname+'yield', sel+'_'+yieldSB, var, syst=syst))
                         else:
                             hyieldQCD.Add(self.histos[hname])
+
                     # subtract bkg
                     for bkg in self.bkgs:
                         hname = makeHistoName(bkg, sel+'_'+yieldSB, var, syst=syst)
@@ -362,7 +369,7 @@ class OutputManager:
                         self.histos[hQCD.GetName()+'_Down'] = hQCDdown
                     else:
                         self.histos[hQCD.GetName()] = hQCD
-            
+
     def symmetrizeQCD(self):
         print('... symmetrizing QCD templates')
 
@@ -376,15 +383,10 @@ class OutputManager:
             for sel in self.sel_def:
                 for syst in allSysts:
 
-                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # If var already contains one of the shape systs
                     # do not create the shifted QCD template
                     if any(t in var for t in self.shapeSysts):
                        continue
-
-                    # for boosted category we use 'L' bTag WP
-                    if 'boost' in sel:
-                        if 'bTagSF' in syst:
-                            syst = syst.replace('M','L')
 
                     ## Get the QCD templates and check if they exist - QCD_s1b1jresolvedMcut_SR_DNNoutSM_kl_1
                     name_nominal = makeHistoName('QCD', sel+'_SR', var, syst)
@@ -505,7 +507,7 @@ class OutputManager:
                 if not strSel in sel: continue 
             for var in self.variables:
                 for syst in self.systList:
-                    # If var already contains one of the shape systs (tauup, taudown, jetup...)
+                    # If var already contains one of the shape systs
                     # skip the syst from allSysts (otherwise it look for histograms with two systematics
                     # like 'var_sel_SR_tauup_PUjetIDUp' which do not make sense)
                     doubleSyst = False
@@ -516,8 +518,7 @@ class OutputManager:
                     if syst != '' and doubleSyst: continue
 
                     for idx, s in enumerate(self.bkgs):
-                        #if (strBkg in s):
-                        if (strBkg == s):
+                        if strBkg == s:
                             htoscale_name = makeHistoName(s, sel, var, syst=syst)
                             print(htoscale_name)
                             h = self.histos[htoscale_name]

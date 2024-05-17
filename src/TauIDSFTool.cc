@@ -258,6 +258,9 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
 	  else if(unc=="Gt140ExtrapDown" and pt>300.) {
 		SF *= (2 - static_cast<float>(func_extrap->Eval(pt)));
 	  }
+	  else if(unc=="Gt140ExtrapDown" and pt>300.) {
+		SF = 2 - static_cast<float>(func_extrap->Eval(pt));
+	  }
 	}
   }
   else { // low pT uncertainty
