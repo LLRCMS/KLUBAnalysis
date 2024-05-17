@@ -6,8 +6,8 @@ declare -a SELECTION_PREFIXES;
 
 # Defaults
 TAG=""
-VAR="DNNoutSM_kl_1"
-SIGNAL="ggFRadion"
+VAR="pdnn_m{1}_s0_hh"
+SIGNAL="GGF_Radion"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 PERIOD=""
 PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
@@ -142,7 +142,7 @@ done
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 for ichn in "${!CHANNELS[@]}"; do
-    card_dir="${LIMIT_DIR}/cards_${TAG}_${CHANNELS[${ichn}]}"
+    card_dir="${LIMIT_DIR}/cards_${TAG}/${CHANNELS[${ichn}]}"
     cd ${card_dir}
 
 	# group all categories indiscriminately
@@ -150,21 +150,21 @@ for ichn in "${!CHANNELS[@]}"; do
 	mkdir -p ${comb_dir}
 	rm -f -- ${comb_dir}/comb*.txt
 	
-	proc="${SIGNAL}_${VAR}_{}"
+	proc="${SIGNAL}_${VAR}"
 	comb_="${comb_dir}/comb.${proc}"
 	comb_txt="${comb_}.txt"
 	comb_root="${comb_}.root"
 
 	# aggregate all files within a selection folder
 	parallel combineCards.py \
-			 -S ${card_dir}/*${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt \
+			 -S ${card_dir}/*${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{1}.txt \
 			 ">" ${comb_txt} ::: ${MHIGH[@]}
 	
 	parallel combineCards.py \
-			 -S ${card_dir}/*resolved*${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt \
+			 -S ${card_dir}/res*${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{1}.txt \
 			 ">>" ${comb_txt} ::: ${MLOW[@]}
 
-	parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
+	parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 	parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
 
 	# group categories according to prefixes passed by the user
@@ -181,27 +181,27 @@ for ichn in "${!CHANNELS[@]}"; do
 		mkdir -p ${comb_dir}
 		rm -f -- ${comb_dir}/comb*.txt
 
-		proc="${SIGNAL}_${VAR}_{}"
+		proc="${SIGNAL}_${VAR}"
 		comb_="${comb_dir}/comb.${proc}"
 		comb_txt="${comb_}.txt"
 		comb_root="${comb_}.root"
 
 		# aggregate all files within a selection prefix folder	
 		parallel combineCards.py \
-				 -S ${card_dir}/${selp}*_${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt \
+				 -S ${card_dir}/${selp}*_${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{1}.txt \
 				 ">" ${comb_txt} ::: ${MHIGH[@]}
 
-		if [[ ${selp} =~ .*resolved.* ]]; then
+		if [[ ${selp} =~ res.* ]]; then
 			parallel combineCards.py \
-					 -S ${card_dir}/${selp}*_${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{}.txt \
+					 -S ${card_dir}/${selp}*_${VAR}/hhres_${PERIOD}_${CHANNELS[${ichn}]}*.${SIGNAL}{1}.txt \
 					 ">>" ${comb_txt} ::: ${MLOW[@]}
 		fi
 
-		if [[ ${selp} =~ .*resolved.* ]]; then
-			parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
+		if [[ ${selp} =~ res.* ]]; then
+			parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 			parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
 		else
-			parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MHIGH[@]}
+			parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${comb_txt} ::: ${MHIGH[@]}
 			parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MHIGH[@]}
 		fi
 			
