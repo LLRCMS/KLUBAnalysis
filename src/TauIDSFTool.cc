@@ -263,7 +263,6 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   else { // low pT uncertainty
 	if(pt < 140.) {
 	  std::string key = "DM" + std::to_string(dm);
-	  // SF = static_cast<float>(func[key]->Eval(pt));
 	  SF = static_cast<float>(func[key + unc]->Eval(pt));
 	}
   }
