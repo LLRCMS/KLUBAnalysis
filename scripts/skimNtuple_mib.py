@@ -37,8 +37,6 @@ if __name__ == "__main__":
     usage = 'usage: %prog [options]'
     parser = optparse.OptionParser(usage)
     parser.add_option ('-i', '--input'     , dest='input'     , help='input folder'                          , default='none')
-    parser.add_option ('-Y', '--year'      , dest='year'      , help='year'                                  , default='2018')
-    parser.add_option ('-A', '--APV'       , dest='isAPV'     , help='isAPV'                                 , default=False )
     parser.add_option ('-x', '--xs'        , dest='xs'        , help='sample xs'                             , default='1.')
     parser.add_option ('-f', '--force'     , dest='force'     , help='replace existing reduced ntuples'      , default=False)
     parser.add_option ('-o', '--output'    , dest='output'    , help='output folder'                         , default='none')
@@ -78,7 +76,9 @@ if __name__ == "__main__":
     parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
     parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False,  action = 'store_true')
+    parser.add_option ('--period',           dest='period'     , help='2018 or 2017 or 2016preVFP or 2016postVFP'             , default='2018')
     parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False,  action = 'store_true')
+    parser.add_option ('--datasetType',      dest='datasetType', help='Type of dataset being considered, used for avoiding duplicated events. 0: default, 1: MET dataset 2: SingleTau dataset.', default='0', type=int)
 
     (opt, args) = parser.parse_args()
 
@@ -170,11 +170,7 @@ if __name__ == "__main__":
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    skimmer = 'skimNtuple2018_HHbtag.exe'
-    if (opt.year == '2017'):
-        skimmer = 'skimNtuple2017_HHbtag.exe'
-    elif (opt.year == '2016'):
-        skimmer = 'skimNtuple2016_HHbtag.exe'
+    skimmer = 'skimNtuple_HHbtag.exe'
 
     if opt.config == 'none' :
         print 'config file missing, exiting'
@@ -267,9 +263,8 @@ if __name__ == "__main__":
         else                  : command += " 0 "
         if opt.hhNLO          : command += " 1 "
         else                  : command += " 0 "
-        if opt.year=='2016':
-            if opt.isAPV      : command += " 1 "
-            else              : command += " 0 "
+        command += (" " + str(opt.period))
+        command += (" " + str(opt.datasetType))
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
@@ -294,16 +289,13 @@ if __name__ == "__main__":
         condorFile.write ('Log         = condor_job_$(ProcId).log\n')
         condorFile.write ('Output      = condor_job_$(ProcId).out\n')
         condorFile.write ('Error       = condor_job_$(ProcId).error\n')
-        condorFile.write ('Requirements = ((machine != "hercules.hcms.it")&&(machine != "pcmaster01.hcms.it")&&(machine != "catalina.hcms.it"))\n')
+        condorFile.write ('Requirements = ((machine == "clipper.hcms.it")||(machine == "pccms12.hcms.it"))\n')
         condorFile.write ('queue 1\n')
         condorFile.close ()
 
-        #command = '/usr/bin/qsub -q '+opt.queue + ' ' + jobsDir + '/skimJob_' + str (n) + '.sh'
         command = 'condor_submit '+ jobsDir + '/condorLauncher_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)
         commandFile.write (command + '\n')
         n = n + 1
     commandFile.close ()
-
-

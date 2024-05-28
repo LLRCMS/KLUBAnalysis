@@ -39,6 +39,8 @@
 #include "SmearedJetProducer.h"
 #include "met_phi_corr.h"
 
+#include "pnetSF.h"
+
 #include "ScaleFactor.h"
 #include "ScaleFactorMET.h"
 #include "TriggerAssigner.h"
@@ -85,89 +87,6 @@ const double bTopRW = -0.0005;
 */
 const std::array<float, 2> stitchWeights = {1./2., 1./3.};
 
-
-//scale factors for ParticleNet pag 76 http://cms.cern.ch/iCMS/jsp/openfile.jsp?tp=draft&files=AN2021_005_v10.pdf
-std::map<std::string, std::vector<float>> ParticleNet_SF(float pT_, string period_) 
-{ 
-  std::map<std::string, std::vector<float>> scaleFactors;
-
-  if(period_=="2016preVFP"){
-    if (pT_ < 500) {
-      scaleFactors["HP"] = {1.054, 0.080, -0.077};
-      scaleFactors["MP"] = {1.052, 0.087, -0.081};
-      scaleFactors["LP"] = {1.032, 0.096, -0.090};
-    } else if (pT_ >= 500 && pT_ < 600) {
-      scaleFactors["HP"] = {1.139, 0.083, -0.081};
-      scaleFactors["MP"] = {1.068, 0.078, -0.073};
-      scaleFactors["LP"] = {1.062, 0.092, -0.082};
-    } else if (pT_ >= 600) {
-      scaleFactors["HP"] = {1.049, 0.133, -0.130};
-      scaleFactors["MP"] = {0.996, 0.101, -0.097};
-      scaleFactors["LP"] = {1.002, 0.106, -0.101};
-    }
-  }
-  else if (period_=="2016postVFP") {
-    if (pT_ < 500) {
-      scaleFactors["HP"] = {1.031, 0.050, -0.046};
-      scaleFactors["MP"] = {1.029, 0.051, -0.045};
-      scaleFactors["LP"] = {1.031, 0.058, -0.050};
-    } else if (pT_ >= 500 && pT_ < 600) {
-      scaleFactors["HP"] = {1.055, 0.069, -0.067};
-      scaleFactors["MP"] = {1.070, 0.066, -0.062};
-      scaleFactors["LP"] = {1.089, 0.076, -0.068};
-    } else if (pT_ >= 600) {
-      scaleFactors["HP"] = {1.088, 0.076, -0.072};
-      scaleFactors["MP"] = {1.077, 0.067, -0.059};
-      scaleFactors["LP"] = {1.057, 0.077, -0.056};
-    }
-  }
-  else if (period_=="2017"){
-    if (pT_ < 500) {
-      scaleFactors["HP"] = {1.055, 0.057, -0.054};
-      scaleFactors["MP"] = {1.006, 0.052, -0.052};
-      scaleFactors["LP"] = {0.966, 0.055, -0.057};
-    } else if (pT_ >= 500 && pT_ < 600) {
-      scaleFactors["HP"] = {1.067 , 0.057, -0.055};
-      scaleFactors["MP"] = {1.051 , 0.056, -0.055};
-      scaleFactors["LP"] = {1.021 , 0.053, -0.052};
-    } else if (pT_ >= 600) {
-      scaleFactors["HP"] = {1.045 , 0.045, -0.046};
-      scaleFactors["MP"] = {0.991 , 0.038, -0.043};
-      scaleFactors["LP"] = {0.979 , 0.035, -0.038};
-    }
-  }
-  else if (period_=="2018"){
-    if (pT_ < 500) {
-      scaleFactors["HP"] = {0.994 , 0.064, -0.064};
-      scaleFactors["MP"] = {0.966 , 0.056, -0.057};
-      scaleFactors["LP"] = {0.921 , 0.071, -0.077};
-    } else if (pT_ >= 500 && pT_ < 600) {
-      scaleFactors["HP"] = {1.072 , 0.041, -0.036};
-      scaleFactors["MP"] = {1.033 , 0.030, -0.025};
-      scaleFactors["LP"] = {1.006 , 0.024, -0.026};
-    } else if (pT_ >= 600) {
-      scaleFactors["HP"] = {1.046 , 0.038, -0.038};
-      scaleFactors["MP"] = {1.010 , 0.030, -0.035};
-      scaleFactors["LP"] = {1.001 , 0.035, -0.037};
-    }
-  }
-  return scaleFactors;
-}
-
-
-// usage : e.g.  
-//      std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
-//      setScaleFactor(result, "HP", variableForSF, variableForUp, variableForDown);
-void setScaleFactor(std::map<std::string, std::vector<float>>& result_, const std::string& key, float& scaleFactorVariable, float& scaleFactorErrUp, float& scaleFactorErrDown) {
-  if (result_.find(key) != result_.end()) {
-    std::vector<float>& scaleFactors = result_[key];
-    scaleFactorVariable = scaleFactors[0];
-    scaleFactorErrUp = scaleFactors[1];
-    scaleFactorErrDown = scaleFactors[2];
-  } else {
-    std::cerr << "Scale factors for " << key << " not found in the result." << std::endl;
-  }
-}
 
 int main (int argc, char** argv)
 {
@@ -4507,29 +4426,38 @@ int main (int argc, char** argv)
 			    
 		  // computing the vector made of the fatjet (H-bb) + svfit  H-tt
 		  TLorentzVector tlv_bH_particleNet_regression;
-		  tlv_bH_particleNet_regression.SetPtEtaPhiM(tlv_fj.Pt(), tlv_fj.Eta(), tlv_fj.Phi(),
-													 theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx));
+		  tlv_bH_particleNet_regression.SetPtEtaPhiM(tlv_fj.Pt(), tlv_fj.Eta(), tlv_fj.Phi(),theBigTree.ak8jets_particleNetMDJetTags_mass->at(fjIdx));
 			    
 		  TLorentzVector tlv_HHbregrsvfit = tlv_bH_particleNet_regression + tlv_tauH_SVFIT;
 		  theSmallTree.m_HHbregrsvfit_pt  = tlv_HHbregrsvfit.Pt();
 		  theSmallTree.m_HHbregrsvfit_eta = tlv_HHbregrsvfit.Eta();
 		  theSmallTree.m_HHbregrsvfit_phi = tlv_HHbregrsvfit.Phi();
 		  theSmallTree.m_HHbregrsvfit_m	  = tlv_HHbregrsvfit.M();
-			    
-		  std::map<std::string, std::vector<float>> result = ParticleNet_SF(tlv_fj.Pt(), PERIOD);
-		  // Set scale factors for different keys
-		  setScaleFactor(result, "HP",
-						 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down);
-		  setScaleFactor(result, "MP",
-						 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down);
-		  setScaleFactor(result, "LP",
-						 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up,
-						 theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down);
+
+		  // Getting ParticleNet scale factors from the pnetSF.cc
+		  pnetSF pnetSF_helper;
+		  std::map<std::string, std::vector<float>> pnetSF_map = pnetSF_helper.getSFmap(tlv_fj.Pt(), PERIOD);
+
+		  if (isHHsignal){
+		    // saving each working point
+		    std::tuple<float, float, float> SF_HP = pnetSF_helper.getSF(pnetSF_map, "HP");
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF      = std::get<0>(SF_HP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up   = std::get<1>(SF_HP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down = std::get<2>(SF_HP);
+
+		    std::tuple<float, float, float> SF_MP = pnetSF_helper.getSF(pnetSF_map, "MP");
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF      = std::get<0>(SF_MP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up   = std::get<1>(SF_MP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down = std::get<2>(SF_MP);
+
+		    std::tuple<float, float, float> SF_LP = pnetSF_helper.getSF(pnetSF_map, "LP");
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(SF_LP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(SF_LP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(SF_LP);
+		  }
+		  //else 
+		  //     --> handle bkg samples differently . For now, their values remain set to 1
+
 
 		  // saving infos for subjets
 		  if (theBigTree.ak8jets_nsubjets->at(fjIdx) >= 2) 
