@@ -239,29 +239,31 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   else if (unc.find("Gt140") != std::string::npos) { // high pT uncertainty
 	if(pt > 140.) {
 	  int ipt = pt > 200. ? 1 : 0;
+	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(ipt));
 	  if(unc=="Gt140StatUp") {
-		SF = static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYhigh(ipt));
+		SF += static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYhigh(ipt));
 	  }
 	  else if(unc=="Gt140StatDown") {
-		SF = static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYlow(ipt));
+		SF -= static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYlow(ipt));
 	  }
 	  else if(unc=="Gt140SystCorrErasUp") {
-		SF = static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYhigh(ipt));
+		SF += static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYhigh(ipt));
 	  }
 	  else if(unc=="Gt140SystCorrErasDown") {
-		SF = static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYlow(ipt));
+		SF -= static_cast<float>(graph_highpt["Gt140SystCorrEras"]->GetErrorYlow(ipt));
 	  }
 	  else if(unc=="Gt140ExtrapUp" and pt>300.) {
-		SF = static_cast<float>(func_extrap->Eval(pt));
+		SF *= static_cast<float>(func_extrap->Eval(pt));
 	  }
 	  else if(unc=="Gt140ExtrapDown" and pt>300.) {
-		SF = 2 - static_cast<float>(func_extrap->Eval(pt));
+		SF *= (2 - static_cast<float>(func_extrap->Eval(pt)));
 	  }
 	}
   }
   else { // low pT uncertainty
 	if(pt < 140.) {
 	  std::string key = "DM" + std::to_string(dm);
+	  // SF = static_cast<float>(func[key]->Eval(pt));
 	  SF = static_cast<float>(func[key + unc]->Eval(pt));
 	}
   }

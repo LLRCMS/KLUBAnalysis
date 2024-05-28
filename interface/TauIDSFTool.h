@@ -12,10 +12,13 @@
  * Inspiration from TauTriggerSFs/src/TauTriggerSFs2017.cc
  *
  * @author Izaak Neutelings (July 2019)
- *
  * updated by Bruno Alves (April 2023)
  * to reflect Run2 UL new corrections for the DeepTauv2p1 algorithm
  * source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_for_the_DeepTauv2p1
+
+ * CMS Talk threads explaining statistical and systematic uncertainties:
+ * - nominal: https://cms-talk.web.cern.ch/t/new-tau-id-scale-factors-for-ul-mc/21688
+ * - high pT: https://cms-talk.web.cern.ch/t/highpt-scale-factors/26015
  */
 
 #include <TFile.h>				// TFile
