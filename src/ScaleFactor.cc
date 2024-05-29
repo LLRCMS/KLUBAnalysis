@@ -333,21 +333,25 @@ double ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) {
 
 }
 
+double ScaleFactor::get_ScaleFactor(double efficiency_data, double efficiency_mc) {
 
+  double SF;
+
+  if ( efficiency_mc != 0) {SF = efficiency_data/efficiency_mc;}
+  else {
+    SF=1.; std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double efficiency_data, double efficiency_mc) from src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 1. ";
+  }
+
+  return SF;
+
+}
 
 double ScaleFactor::get_ScaleFactor(double pt, double eta, int pType) {
 
   double efficiency_data = get_EfficiencyData(pt, eta, pType);
   double efficiency_mc = get_EfficiencyMC(pt, eta, pType);
-  double SF;
 
-  if ( efficiency_mc != 0) {SF = efficiency_data/efficiency_mc;}
-  else {
-    SF=1.; std::cout << "WARNING in ScaleFactor::get_ScaleFactor(double pt, double eta, int pType) from src/ScaleFactor.cc : MC efficiency = 0. Scale Factor set to 1. ";
-  }
-
-  return SF;
-
+  return get_ScaleFactor(efficiency_data, efficiency_mc);
 }
 double ScaleFactor::get_direct_ScaleFactor(double pt, double eta, int pType){
 
@@ -393,22 +397,27 @@ double ScaleFactor::get_EfficiencyMCError(double pt, double eta, int pType) {
   return eff_error;
 }
 
-double ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) {
+double ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) {
 
   double SF_error = 0.;
+
+  if (errData == 0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: uncertainty on data point = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+  else if (errMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: uncertainty on MC = 0, can not calculate uncerttainty on scale factor. Uncertainty set to 0." << std::endl;}
+  else if (effData ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: efficiency in data = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+  else if (effMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: efficiency in MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
+  else {
+    SF_error = pow((errData/effData),2) + pow((errMC/effMC),2);
+    SF_error = pow(SF_error, 0.5)*(effData/effMC);
+  }
+  return SF_error;
+}
+
+double ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) {
 
   double effData = get_EfficiencyData(pt, eta, pType);
   double effMC   = get_EfficiencyMC(pt, eta, pType);
   double errData = get_EfficiencyDataError(pt, eta, pType);
   double errMC   = get_EfficiencyMCError(pt, eta, pType);
 
-  if (errData == 0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: uncertainty on data point = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
-  if (errMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: uncertainty on MC = 0, can not calculate uncerttainty on scale factor. Uncertainty set to 0." << std::endl;}
-  if (effData ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: efficiency in data = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
-  if (effMC ==0) {std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) from src/ScaleFactor.cc: efficiency in MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;}
-  else {
-    SF_error = pow((errData/effData),2) + pow((errMC/effMC),2);
-    SF_error = pow(SF_error, 0.5)*(effData/effMC);
-  }
-  return SF_error;
+  return get_ScaleFactorError(effData, effMC, errData, errMC);
 }
