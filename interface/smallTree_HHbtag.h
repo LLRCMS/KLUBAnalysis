@@ -89,16 +89,16 @@ struct smallTree
 	  m_trigSFnoTau = 1.;
       m_trigSF_ele_up = 1.;
       m_trigSF_mu_up = 1.;
-      m_trigSF_DM0_up = 1.;
-      m_trigSF_DM1_up = 1.;
-      m_trigSF_DM10_up = 1.;
-      m_trigSF_DM11_up = 1.;
+      m_trigSF_tau_DM0_up = 1.;
+      m_trigSF_tau_DM1_up = 1.;
+      m_trigSF_tau_DM10_up = 1.;
+      m_trigSF_tau_DM11_up = 1.;
       m_trigSF_ele_down = 1.;
       m_trigSF_mu_down = 1.;
-      m_trigSF_DM0_down = 1.;
-      m_trigSF_DM1_down = 1.;
-      m_trigSF_DM10_down = 1.;
-      m_trigSF_DM11_down = 1.;
+      m_trigSF_tau_DM0_down = 1.;
+      m_trigSF_tau_DM1_down = 1.;
+      m_trigSF_tau_DM10_down = 1.;
+      m_trigSF_tau_DM11_down = 1.;
 	  m_trigSF_met_up = 1.;
 	  m_trigSF_met_down = 1.;
 	  m_trigSF_stau_up = 1.;
@@ -110,21 +110,53 @@ struct smallTree
 	  m_IdFakeSF_deep_2d = 1.;
       m_FakeRateSF_deep = 1.;
 
-	  m_idFakeSF_tauid_2d_stat0_up                  = 1.;
-	  m_idFakeSF_tauid_2d_stat0_down                = 1.;
-	  m_idFakeSF_tauid_2d_stat1_up                  = 1.;
-	  m_idFakeSF_tauid_2d_stat1_down                = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM0_up              = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM0_down			= 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM0_up				= 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM0_down			= 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = 1.;
+
+	  m_idFakeSF_tauid_2d_stat0_DM1_up              = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM1_down			= 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM1_up				= 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM1_down			= 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	= 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = 1.;
+
+	  m_idFakeSF_tauid_2d_stat0_DM10_up              = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = 1.;
+
+	  m_idFakeSF_tauid_2d_stat0_DM10_up              = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = 1.;
+
+	  m_idFakeSF_tauid_2d_stat0_DM11_up              = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM11_down			 = 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM11_up				 = 1.;
+	  m_idFakeSF_tauid_2d_stat1_DM11_down			 = 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	 = 1.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = 1.;
+
 	  m_idFakeSF_tauid_2d_systcorrdmeras_up         = 1.;
 	  m_idFakeSF_tauid_2d_systcorrdmeras_down       = 1.;
 	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_up   = 1.;
 	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_down = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_up       = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_down     = 1.;
 	  m_idFakeSF_tauid_2d_systcorrerasgt140_up		= 1.;
 	  m_idFakeSF_tauid_2d_systcorrerasgt140_down	= 1.;
-	  m_idFakeSF_tauid_2d_statgt140_up				= 1.;
-	  m_idFakeSF_tauid_2d_statgt140_down			= 1.;
-	  m_idFakeSF_tauid_2d_extrapgt140				= 1.;
+	  m_idFakeSF_tauid_2d_stat0gt140_up			= 1.;
+	  m_idFakeSF_tauid_2d_stat0gt140_down		= 1.;
+	  m_idFakeSF_tauid_2d_stat1gt140_up			= 1.;
+	  m_idFakeSF_tauid_2d_stat1gt140_down		= 1.;
+	  m_idFakeSF_tauid_2d_extrapgt140_up			= 1.;
+	  m_idFakeSF_tauid_2d_extrapgt140_down			= 1.;
 	  
       m_idFakeSF_mutauFR_etaLt0p4_up      = 1.;
       m_idFakeSF_mutauFR_eta0p4to0p8_up   = 1.;
@@ -1001,25 +1033,26 @@ struct smallTree
       m_smallT->Branch ("TTtopPtreweight", &m_TTtopPtreweight, "TTtopPtreweight/F") ;
       m_smallT->Branch ("TTtopPtreweight_up", &m_TTtopPtreweight_up, "TTtopPtreweight_up/F") ;
       m_smallT->Branch ("TTtopPtreweight_down", &m_TTtopPtreweight_down, "TTtopPtreweight_down/F") ;
-      m_smallT->Branch ("trigSF",           &m_trigSF,           "trigSF/F") ;
-	  m_smallT->Branch ("trigSFnoMET",      &m_trigSFnoMET,      "trigSFnoMET/F") ;
-	  m_smallT->Branch ("trigSFnoTau",      &m_trigSFnoTau,      "trigSFnoTau/F") ;
-      m_smallT->Branch ("trigSF_ele_up",    &m_trigSF_ele_up,    "trigSF_ele_up/F") ;
-      m_smallT->Branch ("trigSF_mu_up",     &m_trigSF_mu_up,     "trigSF_mu_up/F") ;
-      m_smallT->Branch ("trigSF_DM0_up",    &m_trigSF_DM0_up,    "trigSF_DM0_up/F") ;
-      m_smallT->Branch ("trigSF_DM1_up",    &m_trigSF_DM1_up,    "trigSF_DM1_up/F") ;
-      m_smallT->Branch ("trigSF_DM10_up",   &m_trigSF_DM10_up,   "trigSF_DM10_up/F") ;
-      m_smallT->Branch ("trigSF_DM11_up",   &m_trigSF_DM11_up,   "trigSF_DM11_up/F") ;
-      m_smallT->Branch ("trigSF_ele_down",  &m_trigSF_ele_down,  "trigSF_ele_down/F") ;
-      m_smallT->Branch ("trigSF_mu_down",   &m_trigSF_mu_down,   "trigSF_mu_down/F") ;
-      m_smallT->Branch ("trigSF_DM0_down",  &m_trigSF_DM0_down,  "trigSF_DM0_down/F") ;
-      m_smallT->Branch ("trigSF_DM1_down",  &m_trigSF_DM1_down,  "trigSF_DM1_down/F") ;
-      m_smallT->Branch ("trigSF_DM10_down", &m_trigSF_DM10_down, "trigSF_DM10_down/F") ;
-      m_smallT->Branch ("trigSF_DM11_down", &m_trigSF_DM11_down, "trigSF_DM11_down/F") ;
-	  m_smallT->Branch ("trigSF_met_up",    &m_trigSF_met_up,    "trigSF_met_up/F") ;
-	  m_smallT->Branch ("trigSF_met_down",  &m_trigSF_met_down,  "trigSF_met_down/F") ;
-	  m_smallT->Branch ("trigSF_stau_up",   &m_trigSF_stau_up,   "trigSF_stau_up/F") ;
-	  m_smallT->Branch ("trigSF_stau_down", &m_trigSF_stau_down, "trigSF_stau_down/F") ;
+	  
+      m_smallT->Branch ("trigSF",               &m_trigSF,           "trigSF/F") ;
+	  m_smallT->Branch ("trigSFnoMET",          &m_trigSFnoMET,      "trigSFnoMET/F") ;
+	  m_smallT->Branch ("trigSFnoTau",          &m_trigSFnoTau,      "trigSFnoTau/F") ;
+      m_smallT->Branch ("trigSF_ele_up",        &m_trigSF_ele_up,    "trigSF_ele_up/F") ;
+      m_smallT->Branch ("trigSF_mu_up",         &m_trigSF_mu_up,     "trigSF_mu_up/F") ;
+      m_smallT->Branch ("trigSF_tau_DM0_up",    &m_trigSF_tau_DM0_up,    "trigSF_tau_DM0_up/F") ;
+      m_smallT->Branch ("trigSF_tau_DM1_up",    &m_trigSF_tau_DM1_up,    "trigSF_tau_DM1_up/F") ;
+      m_smallT->Branch ("trigSF_tau_DM10_up",   &m_trigSF_tau_DM10_up,   "trigSF_tau_DM10_up/F") ;
+      m_smallT->Branch ("trigSF_tau_DM11_up",   &m_trigSF_tau_DM11_up,   "trigSF_tau_DM11_up/F") ;
+      m_smallT->Branch ("trigSF_ele_down",      &m_trigSF_ele_down,  "trigSF_ele_down/F") ;
+      m_smallT->Branch ("trigSF_mu_down",       &m_trigSF_mu_down,   "trigSF_mu_down/F") ;
+      m_smallT->Branch ("trigSF_tau_DM0_down",  &m_trigSF_tau_DM0_down,  "trigSF_tau_DM0_down/F") ;
+      m_smallT->Branch ("trigSF_tau_DM1_down",  &m_trigSF_tau_DM1_down,  "trigSF_tau_DM1_down/F") ;
+      m_smallT->Branch ("trigSF_tau_DM10_down", &m_trigSF_tau_DM10_down, "trigSF_tau_DM10_down/F") ;
+      m_smallT->Branch ("trigSF_tau_DM11_down", &m_trigSF_tau_DM11_down, "trigSF_tau_DM11_down/F") ;
+	  m_smallT->Branch ("trigSF_met_up",        &m_trigSF_met_up,    "trigSF_met_up/F") ;
+	  m_smallT->Branch ("trigSF_met_down",      &m_trigSF_met_down,  "trigSF_met_down/F") ;
+	  m_smallT->Branch ("trigSF_stau_up",       &m_trigSF_stau_up,   "trigSF_stau_up/F") ;
+	  m_smallT->Branch ("trigSF_stau_down",     &m_trigSF_stau_down, "trigSF_stau_down/F") ;
 
       m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
@@ -1031,36 +1064,83 @@ struct smallTree
 	  m_smallT->Branch ("IdFakeSF_deep_2d", &m_IdFakeSF_deep_2d, "IdFakeSF_deep_2d/F") ;
       m_smallT->Branch ("FakeRateSF_deep", &m_FakeRateSF_deep, "FakeRateSF_deep/F") ;
 
-  m_smallT->Branch("idFakeSF_tauid_2d_stat0_up", &m_idFakeSF_tauid_2d_stat0_up,
-   "idFakeSF_tauid_2d_stat0_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_stat0_down", &m_idFakeSF_tauid_2d_stat0_down,
-   "idFakeSF_tauid_2d_stat0_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_stat1_up", &m_idFakeSF_tauid_2d_stat1_up,
-   "idFakeSF_tauid_2d_stat1_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_stat1_down", &m_idFakeSF_tauid_2d_stat1_down,
-   "idFakeSF_tauid_2d_stat1_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_up", &m_idFakeSF_tauid_2d_systcorrdmeras_up,
-   "idFakeSF_tauid_2d_systcorrdmeras_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_down", &m_idFakeSF_tauid_2d_systcorrdmeras_down,
-   "idFakeSF_tauid_2d_systcorrdmeras_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_up", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_up,
-   "idFakeSF_tauid_2d_systcorrdmuncorreras_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_down", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_down,
-   "idFakeSF_tauid_2d_systcorrdmuncorreras_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_up,
-   "idFakeSF_tauid_2d_systuncorrdmeras_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_down,
-   "idFakeSF_tauid_2d_systuncorrdmeras_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_up", &m_idFakeSF_tauid_2d_systcorrerasgt140_up,
-   "idFakeSF_tauid_2d_systcorrerasgt140_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_down", &m_idFakeSF_tauid_2d_systcorrerasgt140_down,
-   "idFakeSF_tauid_2d_systcorrerasgt140_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_statgt140_up", &m_idFakeSF_tauid_2d_statgt140_up,
-   "idFakeSF_tauid_2d_statgt140_up/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_statgt140_down", &m_idFakeSF_tauid_2d_statgt140_down,
-   "idFakeSF_tauid_2d_statgt140_down/F");
-  m_smallT->Branch("idFakeSF_tauid_2d_extrapgt140", &m_idFakeSF_tauid_2d_extrapgt140,
-   "idFakeSF_tauid_2d_extrapgt140/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM0_up", &m_idFakeSF_tauid_2d_stat0_DM0_up,
+					   "idFakeSF_tauid_2d_stat0_DM0_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM0_down", &m_idFakeSF_tauid_2d_stat0_DM0_down,
+					   "idFakeSF_tauid_2d_stat0_DM0_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM0_up", &m_idFakeSF_tauid_2d_stat1_DM0_up,
+					   "idFakeSF_tauid_2d_stat1_DM0_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM0_down", &m_idFakeSF_tauid_2d_stat1_DM0_down,
+					   "idFakeSF_tauid_2d_stat1_DM0_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM0_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM0_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM0_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM0_down/F");
+
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM1_up", &m_idFakeSF_tauid_2d_stat0_DM1_up,
+					   "idFakeSF_tauid_2d_stat0_DM1_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM1_down", &m_idFakeSF_tauid_2d_stat0_DM1_down,
+					   "idFakeSF_tauid_2d_stat0_DM1_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM1_up", &m_idFakeSF_tauid_2d_stat1_DM1_up,
+					   "idFakeSF_tauid_2d_stat1_DM1_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM1_down", &m_idFakeSF_tauid_2d_stat1_DM1_down,
+					   "idFakeSF_tauid_2d_stat1_DM1_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM1_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM1_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM1_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM1_down/F");
+
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM10_up", &m_idFakeSF_tauid_2d_stat0_DM10_up,
+					   "idFakeSF_tauid_2d_stat0_DM10_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM10_down", &m_idFakeSF_tauid_2d_stat0_DM10_down,
+					   "idFakeSF_tauid_2d_stat0_DM10_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM10_up", &m_idFakeSF_tauid_2d_stat1_DM10_up,
+					   "idFakeSF_tauid_2d_stat1_DM10_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM10_down", &m_idFakeSF_tauid_2d_stat1_DM10_down,
+					   "idFakeSF_tauid_2d_stat1_DM10_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM10_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM10_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM10_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM10_down/F");
+
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM11_up", &m_idFakeSF_tauid_2d_stat0_DM11_up,
+					   "idFakeSF_tauid_2d_stat0_DM11_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0_DM11_down", &m_idFakeSF_tauid_2d_stat0_DM11_down,
+					   "idFakeSF_tauid_2d_stat0_DM11_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM11_up", &m_idFakeSF_tauid_2d_stat1_DM11_up,
+					   "idFakeSF_tauid_2d_stat1_DM11_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1_DM11_down", &m_idFakeSF_tauid_2d_stat1_DM11_down,
+					   "idFakeSF_tauid_2d_stat1_DM11_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM11_up", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM11_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systuncorrdmeras_DM11_down", &m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down,
+					   "idFakeSF_tauid_2d_systuncorrdmeras_DM11_down/F");
+
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0gt140_up", &m_idFakeSF_tauid_2d_stat0gt140_up,
+					   "idFakeSF_tauid_2d_stat0gt140_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat0gt140_down", &m_idFakeSF_tauid_2d_stat0gt140_down,
+					   "idFakeSF_tauid_2d_stat0gt140_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1gt140_up", &m_idFakeSF_tauid_2d_stat1gt140_up,
+					   "idFakeSF_tauid_2d_stat1gt140_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_stat1gt140_down", &m_idFakeSF_tauid_2d_stat1gt140_down,
+					   "idFakeSF_tauid_2d_stat1gt140_down/F");
+
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_up", &m_idFakeSF_tauid_2d_systcorrdmeras_up,
+					   "idFakeSF_tauid_2d_systcorrdmeras_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmeras_down", &m_idFakeSF_tauid_2d_systcorrdmeras_down,
+					   "idFakeSF_tauid_2d_systcorrdmeras_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_up", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_up,
+					   "idFakeSF_tauid_2d_systcorrdmuncorreras_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrdmuncorreras_down", &m_idFakeSF_tauid_2d_systcorrdmuncorreras_down,
+					   "idFakeSF_tauid_2d_systcorrdmuncorreras_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_up", &m_idFakeSF_tauid_2d_systcorrerasgt140_up,
+					   "idFakeSF_tauid_2d_systcorrerasgt140_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_systcorrerasgt140_down", &m_idFakeSF_tauid_2d_systcorrerasgt140_down,
+					   "idFakeSF_tauid_2d_systcorrerasgt140_down/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_extrapgt140_up", &m_idFakeSF_tauid_2d_extrapgt140_up,
+					   "idFakeSF_tauid_2d_extrapgt140_up/F");
+	  m_smallT->Branch("idFakeSF_tauid_2d_extrapgt140_down", &m_idFakeSF_tauid_2d_extrapgt140_down,
+					   "idFakeSF_tauid_2d_extrapgt140_down/F");
   
       m_smallT->Branch ("idFakeSF_mutauFR_etaLt0p4_up"     , &m_idFakeSF_mutauFR_etaLt0p4_up     , "idFakeSF_mutauFR_etaLt0p4_up/F");
       m_smallT->Branch ("idFakeSF_mutauFR_eta0p4to0p8_up"  , &m_idFakeSF_mutauFR_eta0p4to0p8_up  , "idFakeSF_mutauFR_eta0p4to0p8_up/F");
@@ -1942,16 +2022,16 @@ struct smallTree
   Float_t m_trigSFnoTau ;
   Float_t m_trigSF_ele_up ;
   Float_t m_trigSF_mu_up ;
-  Float_t m_trigSF_DM0_up ;
-  Float_t m_trigSF_DM1_up ;
-  Float_t m_trigSF_DM10_up ;
-  Float_t m_trigSF_DM11_up ;
+  Float_t m_trigSF_tau_DM0_up ;
+  Float_t m_trigSF_tau_DM1_up ;
+  Float_t m_trigSF_tau_DM10_up ;
+  Float_t m_trigSF_tau_DM11_up ;
   Float_t m_trigSF_ele_down ;
   Float_t m_trigSF_mu_down ;
-  Float_t m_trigSF_DM0_down ;
-  Float_t m_trigSF_DM1_down ;
-  Float_t m_trigSF_DM10_down ;
-  Float_t m_trigSF_DM11_down ;
+  Float_t m_trigSF_tau_DM0_down ;
+  Float_t m_trigSF_tau_DM1_down ;
+  Float_t m_trigSF_tau_DM10_down ;
+  Float_t m_trigSF_tau_DM11_down ;
   Float_t m_trigSF_met_up ;
   Float_t m_trigSF_met_down ;
   Float_t m_trigSF_stau_up ;
@@ -1964,21 +2044,46 @@ struct smallTree
   Float_t m_IdFakeSF_deep_2d ;
   Float_t m_FakeRateSF_deep;
 
-  Float_t m_idFakeSF_tauid_2d_stat0_up;
-  Float_t m_idFakeSF_tauid_2d_stat0_down;
-  Float_t m_idFakeSF_tauid_2d_stat1_up;
-  Float_t m_idFakeSF_tauid_2d_stat1_down;
+  Float_t m_idFakeSF_tauid_2d_stat0_DM0_up;
+  Float_t m_idFakeSF_tauid_2d_stat0_DM0_down;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM0_up;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM0_down;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down;
+
+  Float_t m_idFakeSF_tauid_2d_stat0_DM1_up;
+  Float_t m_idFakeSF_tauid_2d_stat0_DM1_down;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM1_up;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM1_down;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down;
+
+  Float_t m_idFakeSF_tauid_2d_stat0_DM10_up;
+  Float_t m_idFakeSF_tauid_2d_stat0_DM10_down;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM10_up;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM10_down;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down;
+
+  Float_t m_idFakeSF_tauid_2d_stat0_DM11_up;
+  Float_t m_idFakeSF_tauid_2d_stat0_DM11_down;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM11_up;
+  Float_t m_idFakeSF_tauid_2d_stat1_DM11_down;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up;
+  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down;
+
   Float_t m_idFakeSF_tauid_2d_systcorrdmeras_up;
   Float_t m_idFakeSF_tauid_2d_systcorrdmeras_down;
   Float_t m_idFakeSF_tauid_2d_systcorrdmuncorreras_up;
   Float_t m_idFakeSF_tauid_2d_systcorrdmuncorreras_down;
-  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_up;
-  Float_t m_idFakeSF_tauid_2d_systuncorrdmeras_down;
   Float_t m_idFakeSF_tauid_2d_systcorrerasgt140_up;
   Float_t m_idFakeSF_tauid_2d_systcorrerasgt140_down;
-  Float_t m_idFakeSF_tauid_2d_statgt140_up;
-  Float_t m_idFakeSF_tauid_2d_statgt140_down;
-  Float_t m_idFakeSF_tauid_2d_extrapgt140;
+  Float_t m_idFakeSF_tauid_2d_stat0gt140_up;
+  Float_t m_idFakeSF_tauid_2d_stat0gt140_down;
+  Float_t m_idFakeSF_tauid_2d_stat1gt140_up;
+  Float_t m_idFakeSF_tauid_2d_stat1gt140_down;
+  Float_t m_idFakeSF_tauid_2d_extrapgt140_up;
+  Float_t m_idFakeSF_tauid_2d_extrapgt140_down;
 
   Float_t m_idFakeSF_mutauFR_etaLt0p4_up     ;
   Float_t m_idFakeSF_mutauFR_eta0p4to0p8_up  ;

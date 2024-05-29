@@ -12,10 +12,13 @@
  * Inspiration from TauTriggerSFs/src/TauTriggerSFs2017.cc
  *
  * @author Izaak Neutelings (July 2019)
- *
  * updated by Bruno Alves (April 2023)
  * to reflect Run2 UL new corrections for the DeepTauv2p1 algorithm
  * source: https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendationForRun2#Corrections_for_the_DeepTauv2p1
+
+ * CMS Talk threads explaining statistical and systematic uncertainties:
+ * - nominal: https://cms-talk.web.cern.ch/t/new-tau-id-scale-factors-for-ul-mc/21688
+ * - high pT: https://cms-talk.web.cern.ch/t/highpt-scale-factors/26015
  */
 
 #include <TFile.h>				// TFile
@@ -58,13 +61,13 @@ public:
   std::array<std::string, 1> mAntiJetIDs = {{"DeepTau2017v2p1VSjet"}};
   std::array<std::string, 1> mAntiEleIDs = {{"DeepTau2017v2p1VSe"}};
   std::array<std::string, 1> mAntiMuIDs  = {{"DeepTau2017v2p1VSmu"}};
-  std::array<std::string, 16> mUncertainties = {{"", //nominal
+  std::array<std::string, 17> mUncertainties = {{"", //nominal
 	  "Stat0Up", "Stat0Down", "Stat1Up", "Stat1Down",
 	  "SystCorrDMErasUp", "SystCorrDMErasDown",
 	  "SystCorrDMUncorrErasUp", "SystCorrDMUncorrErasDown",
 	  "SystUncorrDMErasUp", "SystUncorrDMErasDown",
 	  "Gt140StatDown", "Gt140StatUp", "Gt140SystCorrErasUp", "Gt140SystCorrErasDown",
-	  "Gt140Extrap"}};
+	  "Gt140ExtrapUp", "Gt140ExtrapDown"}};
   std::unordered_set<int> mDMs = {0, 1, 10};
   std::vector<int> mGenmatches;
   bool isVsPT  = false;
