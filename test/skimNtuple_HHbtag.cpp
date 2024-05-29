@@ -780,8 +780,6 @@ int main (int argc, char** argv)
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
 	{
 	  if (iEvent % 10000 == 0)  cout << "- reading event " << iEvent << endl ;
-	  //if (iEvent == 20000)  break ;
-	  //cout << "-------- reading event " << iEvent << endl ;
 	  theSmallTree.clearVars () ;
 
 	  int got = theBigTree.fChain->GetEntry(iEvent);

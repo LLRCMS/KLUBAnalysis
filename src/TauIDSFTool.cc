@@ -226,20 +226,20 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
   uncertaintyCheck(unc);
   
   float SF = 1.f;
-  if(unc=="") { //nominal value
-	if(pt>140.) {
-	  int ipt = pt > 200. ? 1 : 0;
-	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(ipt));
-	}
-	else {
-	  std::string key = "DM" + std::to_string(dm);
-	  SF = static_cast<float>(func[key]->Eval(pt));
-	}
+  int ipt = pt > 200. ? 1 : 0;
+  
+  // nominal value
+  if(pt>140.) {
+	SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(ipt));
   }
-  else if (unc.find("Gt140") != std::string::npos) { // high pT uncertainty
+  else {
+	std::string key = "DM" + std::to_string(dm);
+	SF = static_cast<float>(func[key]->Eval(pt));
+  }
+
+  // variations on top of the nominal value
+  if (unc.find("Gt140") != std::string::npos) { // high pT uncertainty
 	if(pt > 140.) {
-	  int ipt = pt > 200. ? 1 : 0;
-	  SF = static_cast<float>(graph_highpt["Gt140"]->GetPointY(ipt));
 	  if(unc=="Gt140StatUp") {
 		SF += static_cast<float>(graph_highpt["Gt140Stat"]->GetErrorYhigh(ipt));
 	  }
@@ -266,6 +266,7 @@ float TauIDSFTool::getSFvsDMandPT(double pt, int dm, int genmatch, const std::st
 	  SF = static_cast<float>(func[key + unc]->Eval(pt));
 	}
   }
+
   return SF;
 }
 
@@ -327,7 +328,7 @@ void TauIDSFTool::uncertaintyCheck(const std::string& unc) const
   if(std::find(mUncertainties.begin(), mUncertainties.end(), unc) == mUncertainties.end())
 	{
 	  std::cerr << std::endl << "ERROR! '" << unc << "' is not a valid uncertainty! Please choose from ";
-	  for(auto it=mUncertainties.begin(); it!=mUncertainties.end(); it++) {
+	  for(auto it=mUncertainties.begin()+1; it!=mUncertainties.end(); it++) {
 		if(it!=mUncertainties.begin()) std::cerr << ", ";
 		std::cerr << *it;
 	  }
