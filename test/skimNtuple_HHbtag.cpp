@@ -1343,7 +1343,7 @@ int main (int argc, char** argv)
 				 << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
 				 << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
 				 << endl;
-			}
+		  }
 		} // end loop on daughters
 
 	  int pairType = 2; // tau tau
@@ -3074,25 +3074,25 @@ int main (int argc, char** argv)
 	  // https://github.com/truggles/TauTriggerSFs2017
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
-	  float trigSF				= 1.0;
-	  float trigSFnoMET 		= 1.0;
-	  float trigSFnoTau 		= 1.0;
-	  float trigSF_ele_up		= 1.0;
-	  float trigSF_mu_up		= 1.0;
-	  float trigSF_DM0_up		= 1.0;
-	  float trigSF_DM1_up		= 1.0;
-	  float trigSF_DM10_up		= 1.0;
-	  float trigSF_DM11_up		= 1.0;
-	  float trigSF_ele_down		= 1.0;
-	  float trigSF_mu_down		= 1.0;
-	  float trigSF_DM0_down		= 1.0;
-	  float trigSF_DM1_down		= 1.0;
-	  float trigSF_DM10_down	= 1.0;
-	  float trigSF_DM11_down	= 1.0;
-	  float trigSF_met_up   	= 1.0;
-	  float trigSF_met_down   	= 1.0;
-	  float trigSF_stau_up   	= 1.0;
-	  float trigSF_stau_down   	= 1.0;
+	  float trigSF					= 1.0;
+	  float trigSFnoMET				= 1.0;
+	  float trigSFnoTau				= 1.0;
+	  float trigSF_ele_up			= 1.0;
+	  float trigSF_mu_up			= 1.0;
+	  float trigSF_tau_DM0_up		= 1.0;
+	  float trigSF_tau_DM1_up		= 1.0;
+	  float trigSF_tau_DM10_up		= 1.0;
+	  float trigSF_tau_DM11_up		= 1.0;
+	  float trigSF_ele_down			= 1.0;
+	  float trigSF_mu_down			= 1.0;
+	  float trigSF_tau_DM0_down		= 1.0;
+	  float trigSF_tau_DM1_down		= 1.0;
+	  float trigSF_tau_DM10_down	= 1.0;
+	  float trigSF_tau_DM11_down	= 1.0;
+	  float trigSF_met_up			= 1.0;
+	  float trigSF_met_down			= 1.0;
+	  float trigSF_stau_up			= 1.0;
+	  float trigSF_stau_down		= 1.0;
 	  
 	  if(applyTriggers)
 		{
@@ -3205,19 +3205,19 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF			= Eff_Data			/ Eff_MC;
-				  trigSFnoMET       = trigSF;
-				  trigSFnoTau       = trigSF;
-				  trigSF_mu_up		= Eff_Data_mu_up	/ Eff_MC_mu_up;
-				  trigSF_mu_down	= Eff_Data_mu_down	/ Eff_MC_mu_down;
-				  trigSF_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
-				  trigSF_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
-				  trigSF_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
-				  trigSF_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
-				  trigSF_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
-				  trigSF_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
-				  trigSF_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
-				  trigSF_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
+				  trigSF				= Eff_Data			/ Eff_MC;
+				  trigSFnoMET			= trigSF;
+				  trigSFnoTau			= trigSF;
+				  trigSF_mu_up			= Eff_Data_mu_up	/ Eff_MC_mu_up;
+				  trigSF_mu_down		= Eff_Data_mu_down	/ Eff_MC_mu_down;
+				  trigSF_tau_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
+				  trigSF_tau_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
+				  trigSF_tau_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
+				  trigSF_tau_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
+				  trigSF_tau_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
+				  trigSF_tau_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
+				  trigSF_tau_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
+				  trigSF_tau_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
 				}
 			  else // eta region covered only by single lepton trigger
 				{
@@ -3352,19 +3352,19 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF		   = Eff_Data		   / Eff_MC;
-				  trigSFnoMET      = trigSF;
-				  trigSFnoTau      = trigSF;
-				  trigSF_ele_up	   = Eff_Data_ele_up   / Eff_MC_ele_up;
-				  trigSF_ele_down  = Eff_Data_ele_down / Eff_MC_ele_down;
-				  trigSF_DM0_up	   = Eff_Data_up[0]	   / Eff_MC_up[0];
-				  trigSF_DM1_up	   = Eff_Data_up[1]	   / Eff_MC_up[1];
-				  trigSF_DM10_up   = Eff_Data_up[2]	   / Eff_MC_up[2];
-				  trigSF_DM11_up   = Eff_Data_up[3]	   / Eff_MC_up[3];
-				  trigSF_DM0_down  = Eff_Data_down[0]  / Eff_MC_down[0];
-				  trigSF_DM1_down  = Eff_Data_down[1]  / Eff_MC_down[1];
-				  trigSF_DM10_down = Eff_Data_down[2]  / Eff_MC_down[2];
-				  trigSF_DM11_down = Eff_Data_down[3]  / Eff_MC_down[3];
+				  trigSF				= Eff_Data		   / Eff_MC;
+				  trigSFnoMET			= trigSF;
+				  trigSFnoTau			= trigSF;
+				  trigSF_ele_up			= Eff_Data_ele_up   / Eff_MC_ele_up;
+				  trigSF_ele_down		= Eff_Data_ele_down / Eff_MC_ele_down;
+				  trigSF_tau_DM0_up		= Eff_Data_up[0]	   / Eff_MC_up[0];
+				  trigSF_tau_DM1_up		= Eff_Data_up[1]	   / Eff_MC_up[1];
+				  trigSF_tau_DM10_up	= Eff_Data_up[2]	   / Eff_MC_up[2];
+				  trigSF_tau_DM11_up	= Eff_Data_up[3]	   / Eff_MC_up[3];
+				  trigSF_tau_DM0_down	= Eff_Data_down[0]  / Eff_MC_down[0];
+				  trigSF_tau_DM1_down	= Eff_Data_down[1]  / Eff_MC_down[1];
+				  trigSF_tau_DM10_down	= Eff_Data_down[2]  / Eff_MC_down[2];
+				  trigSF_tau_DM11_down	= Eff_Data_down[3]  / Eff_MC_down[3];
 				}
 
 			  else //eta region covered only by single lepton trigger (including all 2016)
@@ -3448,17 +3448,17 @@ int main (int argc, char** argv)
 					  }
 				  }
 				
-				trigSF			 = SF1         * SF2;
-				trigSFnoMET      = trigSF;
-				trigSFnoTau      = trigSF;
-				trigSF_DM0_up	 = SF1_up[0]   * SF2_up[0];
-				trigSF_DM1_up	 = SF1_up[1]   * SF2_up[1];
-				trigSF_DM10_up	 = SF1_up[2]   * SF2_up[2];
-				trigSF_DM11_up	 = SF1_up[3]   * SF2_up[3];
-				trigSF_DM0_down	 = SF1_down[0] * SF2_down[0];
-				trigSF_DM1_down	 = SF1_down[1] * SF2_down[1];
-				trigSF_DM10_down = SF1_down[2] * SF2_down[2];
-				trigSF_DM11_down = SF1_down[3] * SF2_down[3];
+				trigSF					= SF1         * SF2;
+				trigSFnoMET				= trigSF;
+				trigSFnoTau				= trigSF;
+				trigSF_tau_DM0_up		= SF1_up[0]   * SF2_up[0];
+				trigSF_tau_DM1_up		= SF1_up[1]   * SF2_up[1];
+				trigSF_tau_DM10_up		= SF1_up[2]   * SF2_up[2];
+				trigSF_tau_DM11_up		= SF1_up[3]   * SF2_up[3];
+				trigSF_tau_DM0_down		= SF1_down[0] * SF2_down[0];
+				trigSF_tau_DM1_down		= SF1_down[1] * SF2_down[1];
+				trigSF_tau_DM10_down	= SF1_down[2] * SF2_down[2];
+				trigSF_tau_DM11_down	= SF1_down[3] * SF2_down[3];
 			  }
 			}
 		  
@@ -3508,25 +3508,25 @@ int main (int argc, char** argv)
 			}
 		} // end if(applytriggers)
 
-	  theSmallTree.m_trigSF			  = isMC ? trigSF           : 1.0;
-	  theSmallTree.m_trigSFnoMET	  = isMC ? trigSFnoMET      : 1.0;
-	  theSmallTree.m_trigSFnoTau	  = isMC ? trigSFnoTau      : 1.0;
-	  theSmallTree.m_trigSF_ele_up	  = isMC ? trigSF_ele_up    : 1.0;
-	  theSmallTree.m_trigSF_mu_up	  = isMC ? trigSF_mu_up     : 1.0;
-	  theSmallTree.m_trigSF_DM0_up	  = isMC ? trigSF_DM0_up    : 1.0;
-	  theSmallTree.m_trigSF_DM1_up	  = isMC ? trigSF_DM1_up    : 1.0;
-	  theSmallTree.m_trigSF_DM10_up	  = isMC ? trigSF_DM10_up   : 1.0;
-	  theSmallTree.m_trigSF_DM11_up	  = isMC ? trigSF_DM11_up   : 1.0;
-	  theSmallTree.m_trigSF_ele_down  = isMC ? trigSF_ele_down  : 1.0;
-	  theSmallTree.m_trigSF_mu_down	  = isMC ? trigSF_mu_down   : 1.0;
-	  theSmallTree.m_trigSF_DM0_down  = isMC ? trigSF_DM0_down  : 1.0;
-	  theSmallTree.m_trigSF_DM1_down  = isMC ? trigSF_DM1_down  : 1.0;
-	  theSmallTree.m_trigSF_DM10_down = isMC ? trigSF_DM10_down : 1.0;
-	  theSmallTree.m_trigSF_DM11_down = isMC ? trigSF_DM11_down : 1.0;
-	  theSmallTree.m_trigSF_met_up	  = isMC ? trigSF_met_up    : 1.0;
-	  theSmallTree.m_trigSF_met_down  = isMC ? trigSF_met_down  : 1.0;
-	  theSmallTree.m_trigSF_stau_up	  = isMC ? trigSF_stau_up   : 1.0;
-	  theSmallTree.m_trigSF_stau_down = isMC ? trigSF_stau_down : 1.0;
+	  theSmallTree.m_trigSF					= isMC ? trigSF           : 1.0;
+	  theSmallTree.m_trigSFnoMET			= isMC ? trigSFnoMET      : 1.0;
+	  theSmallTree.m_trigSFnoTau			= isMC ? trigSFnoTau      : 1.0;
+	  theSmallTree.m_trigSF_ele_up			= isMC ? trigSF_ele_up    : 1.0;
+	  theSmallTree.m_trigSF_mu_up			= isMC ? trigSF_mu_up     : 1.0;
+	  theSmallTree.m_trigSF_tau_DM0_up		= isMC ? trigSF_tau_DM0_up    : 1.0;
+	  theSmallTree.m_trigSF_tau_DM1_up		= isMC ? trigSF_tau_DM1_up    : 1.0;
+	  theSmallTree.m_trigSF_tau_DM10_up		= isMC ? trigSF_tau_DM10_up   : 1.0;
+	  theSmallTree.m_trigSF_tau_DM11_up		= isMC ? trigSF_tau_DM11_up   : 1.0;
+	  theSmallTree.m_trigSF_ele_down		= isMC ? trigSF_ele_down  : 1.0;
+	  theSmallTree.m_trigSF_mu_down			= isMC ? trigSF_mu_down   : 1.0;
+	  theSmallTree.m_trigSF_tau_DM0_down	= isMC ? trigSF_tau_DM0_down  : 1.0;
+	  theSmallTree.m_trigSF_tau_DM1_down	= isMC ? trigSF_tau_DM1_down  : 1.0;
+	  theSmallTree.m_trigSF_tau_DM10_down	= isMC ? trigSF_tau_DM10_down : 1.0;
+	  theSmallTree.m_trigSF_tau_DM11_down	= isMC ? trigSF_tau_DM11_down : 1.0;
+	  theSmallTree.m_trigSF_met_up			= isMC ? trigSF_met_up    : 1.0;
+	  theSmallTree.m_trigSF_met_down		= isMC ? trigSF_met_down  : 1.0;
+	  theSmallTree.m_trigSF_stau_up			= isMC ? trigSF_stau_up   : 1.0;
+	  theSmallTree.m_trigSF_stau_down		= isMC ? trigSF_stau_down : 1.0;
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
 									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
