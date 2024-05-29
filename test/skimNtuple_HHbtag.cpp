@@ -3158,10 +3158,10 @@ int main (int argc, char** argv)
 				  double Err_MC_mu     = passSingle * SFL_MC_Err     - passCross * passSingle * (SFl_MC   < SFL_MC)   ? SFl_MC_Err    : SFL_MC_Err     * SFtau_MC   + passCross * SFl_MC_Err     * SFtau_MC;
 
 				  // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
-				  vector <double> SFtau_Data_Err(N_tauhDM, SFtau_Data);
-				  vector <double> SFtau_MC_Err  (N_tauhDM, SFtau_MC);
-				  vector <double> Err_Data      (N_tauhDM, Eff_Data);
-				  vector <double> Err_MC        (N_tauhDM, Eff_MC);
+				  vector <double> SFtau_Data_Err(N_tauhDM, 0);
+				  vector <double> SFtau_MC_Err  (N_tauhDM, 0);
+				  vector <double> Err_Data      (N_tauhDM, 0);
+				  vector <double> Err_MC        (N_tauhDM, 0);
 
 				  for (int idm  = 0; idm < N_tauhDM; idm ++)
 					{
@@ -3291,10 +3291,10 @@ int main (int argc, char** argv)
 				  double Err_MC_ele     = passSingle * SFL_MC_Err     - passCross * passSingle * (SFl_MC   < SFL_MC)   ? SFl_MC_Err    : SFL_MC_Err     * SFtau_MC   + passCross * SFl_MC_Err     * SFtau_MC;
 
 				  // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
-				  vector <double> SFtau_Data_Err(N_tauhDM, SFtau_Data);
-				  vector <double> SFtau_MC_Err  (N_tauhDM, SFtau_MC);
-				  vector <double> Err_Data      (N_tauhDM, Eff_Data);
-				  vector <double> Err_MC        (N_tauhDM, Eff_MC);
+				  vector <double> SFtau_Data_Err(N_tauhDM, 0);
+				  vector <double> SFtau_MC_Err  (N_tauhDM, 0);
+				  vector <double> Err_Data      (N_tauhDM, 0);
+				  vector <double> Err_MC        (N_tauhDM, 0);
 
 				  for (int idm  = 0; idm < N_tauhDM; idm ++)
 					{
