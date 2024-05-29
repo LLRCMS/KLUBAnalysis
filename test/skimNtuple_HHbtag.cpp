@@ -2571,7 +2571,7 @@ int main (int argc, char** argv)
 		}
 
 	  // all channels with one tau in the second leg
-	  if (isMC and (pType==0 or pType==1 or pType==2))
+	  if (isMC and pType<3)
 		{
 		  idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
 		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
@@ -2727,6 +2727,10 @@ int main (int argc, char** argv)
 		  idSF_leg1_deep_vsJet_2d_stat1gt140_up   = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatUp");
 		  idSF_leg1_deep_vsJet_2d_stat1gt140_down = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatDown");
 		}
+		else { // set to the nominal values
+		  idSF_leg1_deep_vsJet_2d_stat1gt140_up   = idSF_leg1_deep_vsJet_2d;
+		  idSF_leg1_deep_vsJet_2d_stat1gt140_down = idSF_leg1_deep_vsJet_2d;
+		}
 
 		idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasUp");
 		idSF_leg1_deep_vsJet_2d_systcorrdmeras_down			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasDown");
@@ -2744,7 +2748,7 @@ int main (int argc, char** argv)
 	  vector<float> idSF_leg2_deep_vsEle_down    (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
-	  if (isMC and (pType==0 or pType==1 or pType==2)) {
+	  if (isMC and pType<3) {
 		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
 		  if (isthisEta_IDbin_second[bin]) {
 			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
@@ -2801,6 +2805,10 @@ int main (int argc, char** argv)
 		else if (leg2pt > 200.) {
 		  idSF_leg2_deep_vsJet_2d_stat1gt140_up   = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatUp");
 		  idSF_leg2_deep_vsJet_2d_stat1gt140_down = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatDown");
+		}
+		else { // set to the nominal values
+		  idSF_leg2_deep_vsJet_2d_stat1gt140_up   = idSF_leg2_deep_vsJet_2d;
+		  idSF_leg2_deep_vsJet_2d_stat1gt140_down = idSF_leg2_deep_vsJet_2d;
 		}
 
 		idSF_leg2_deep_vsJet_2d_systcorrdmeras_up		  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasUp");
@@ -2967,7 +2975,7 @@ int main (int argc, char** argv)
 		  idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
 		  idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
 		}
-	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleELe channels
+	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
 		  idSF_deep_2d = idFakeSF_deep_2d = idSF_leg1 * idSF_leg2;
 		}
@@ -3053,7 +3061,7 @@ int main (int argc, char** argv)
 	  //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
 	  double jetFakeSF1 = 1.;
 	  double jetFakeSF2 = 1.;
-	  if (isMC and (pType == 0 or pType == 1 or pType == 2)) { // 2nd tau
+	  if (isMC and pType<3) { // 2nd tau
 		if (isFakeJet2)
 		  {
 			if(fabs(tlv_secondLepton.Eta()) < 1.46) jetFakeSF2 = 1.38469;
