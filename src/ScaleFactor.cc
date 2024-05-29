@@ -68,37 +68,33 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF) {
     double data_pt_nom[nbin_pt] = {0};
     double data_eff_nom[nbin_pt] = {0};
     double data_pt_errlow[nbin_pt] = {0};
-    double data_eff_errlow[nbin_pt] = {0};
     double data_pt_errhigh[nbin_pt] = {0};
-    double data_eff_errhigh[nbin_pt] = {0};
+    double data_eff_err[nbin_pt] = {0};
     double mc_pt_nom[nbin_pt] = {0};
     double mc_eff_nom[nbin_pt] = {0};
     double mc_pt_errlow[nbin_pt] = {0};
-    double mc_eff_errlow[nbin_pt] = {0};
     double mc_pt_errhigh[nbin_pt] = {0};
-    double mc_eff_errhigh[nbin_pt] = {0};
+    double mc_eff_err[nbin_pt] = {0};
 
     for(int iptbin=0; iptbin<nbin_pt; iptbin++){
       data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
       data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
       data_pt_errlow[iptbin]   = hslice_data->GetXaxis()->GetBinCenter(iptbin+1) - hslice_data->GetXaxis()->GetBinLowEdge(iptbin+1);
       data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
-      data_eff_errlow[iptbin]  = hslice_data->GetBinContent(iptbin+1) - hslice_data->GetBinError(iptbin+1);
-      data_eff_errhigh[iptbin] = hslice_data->GetBinContent(iptbin+1) + hslice_data->GetBinError(iptbin+1);
+      data_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
       if(isTriggerSF) {
 	mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 	mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
 	mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1) - hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
 	mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
-	mc_eff_errlow[iptbin]  = hslice_mc->GetBinContent(iptbin+1) - hslice_data->GetBinError(iptbin+1);
-	mc_eff_errhigh[iptbin] = hslice_mc->GetBinContent(iptbin+1) + hslice_data->GetBinError(iptbin+1);
+	mc_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
       }
 
     }
 
-    eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
+    eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_err, data_eff_err);
     if(isTriggerSF){
-      eff_mc[etaLabel] = new TGraphAsymmErrors(nbin_pt,mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_errlow, mc_eff_errhigh);
+      eff_mc[etaLabel] = new TGraphAsymmErrors(nbin_pt,mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_err, mc_eff_err);
     }
   }
 }
@@ -180,35 +176,32 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
       double data_pt_nom[nbin_pt]      = {0};
       double data_eff_nom[nbin_pt]     = {0};
       double data_pt_errlow[nbin_pt]   = {0};
-      double data_eff_errlow[nbin_pt]  = {0};
       double data_pt_errhigh[nbin_pt]  = {0};
-      double data_eff_errhigh[nbin_pt] = {0};
+      double data_eff_err[nbin_pt]  = {0};
+
 
       double mc_pt_nom[nbin_pt]      = {0};
       double mc_eff_nom[nbin_pt]     = {0};
       double mc_pt_errlow[nbin_pt]   = {0};
-      double mc_eff_errlow[nbin_pt]  = {0};
       double mc_pt_errhigh[nbin_pt]  = {0};
-      double mc_eff_errhigh[nbin_pt] = {0};
+      double mc_eff_err[nbin_pt]  = {0};
 
       for(int iptbin=0; iptbin<nbin_pt; iptbin++) {
 		data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
 		data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
 		data_pt_errlow[iptbin]   = hslice_data->GetXaxis()->GetBinCenter(iptbin+1) - hslice_data->GetXaxis()->GetBinLowEdge(iptbin+1);
 		data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
-		data_eff_errlow[iptbin]  = hslice_data->GetBinContent(iptbin+1) - hslice_data->GetBinError(iptbin+1);
-		data_eff_errhigh[iptbin] = hslice_data->GetBinContent(iptbin+1) + hslice_data->GetBinError(iptbin+1);
+		data_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
 
 		mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 		mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
 		mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1) - hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
 		mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
-		mc_eff_errlow[iptbin]  = hslice_mc->GetBinContent(iptbin+1) - hslice_mc->GetBinError(iptbin+1);
-		mc_eff_errhigh[iptbin] = hslice_mc->GetBinContent(iptbin+1) + hslice_mc->GetBinError(iptbin+1);
+		mc_eff_err[iptbin]     = hslice_mc->GetBinError(iptbin+1);
       }
 	  
-      eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_errlow, data_eff_errhigh);
-      eff_mc[etaLabel]   = new TGraphAsymmErrors(nbin_pt,mc_pt_nom,   mc_eff_nom,   mc_pt_errlow,   mc_pt_errhigh,   mc_eff_errlow,   mc_eff_errhigh  );
+      eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_err, data_eff_err);
+      eff_mc[etaLabel]   = new TGraphAsymmErrors(nbin_pt,mc_pt_nom,   mc_eff_nom,   mc_pt_errlow,   mc_pt_errhigh,   mc_eff_err,   mc_eff_err  );
     }
   }
 
