@@ -62,10 +62,10 @@ class Params:
         elif channel== "TauTau":
             systs = []
 
-        systs += ["trigSFDM0Up:trigSF_DM0_up"    , "trigSFDM0Down:trigSF_DM0_down",
-                  "trigSFDM1Up:trigSF_DM1_up"    , "trigSFDM1Down:trigSF_DM1_down",
-                  "trigSFDM10Up:trigSF_DM10_up"  , "trigSFDM10Down:trigSF_DM10_down",
-                  "trigSFDM11Up:trigSF_DM11_up"  , "trigSFDM11Down:trigSF_DM11_down",
+        systs += ["trigSFTauDM0Up:trigSF_tau_DM0_up"    , "trigSFTauDM0Down:trigSF_tau_DM0_down",
+                  "trigSFTauDM1Up:trigSF_tau_DM1_up"    , "trigSFTauDM1Down:trigSF_tau_DM1_down",
+                  "trigSFTauDM10Up:trigSF_tau_DM10_up"  , "trigSFTauDM10Down:trigSF_tau_DM10_down",
+                  "trigSFTauDM11Up:trigSF_tau_DM11_up"  , "trigSFTauDM11Down:trigSF_tau_DM11_down",
                   "trigSF_met_up:trigSF_met_up"  , "trigSF_met_down:trigSF_met_down",
                   "trigSF_stau_up:trigSF_stau_up", "trigSF_stau_down:trigSF_stau_down"]
         return ', '.join((systs))

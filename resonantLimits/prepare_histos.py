@@ -103,10 +103,10 @@ def set_shape_syst_list(period, channel, category):
     # In 2016 we only use the SingleEle trigger in ETau so no uncertainties on the tau triggers should be added
     if '16' not in pmap[period] and channel != "ETau":
         names.update({
-            "trigSFDM0"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM0",
-            "trigSFDM1"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM1",
-            "trigSFDM10" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM10",
-            "trigSFDM11" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM11"
+            "trigSFTauDM0"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM0",
+            "trigSFTauDM1"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM1",
+            "trigSFTauDM10" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM10",
+            "trigSFTauDM11" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM11"
             })
 
     if 'boosted' not in category:
