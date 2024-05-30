@@ -13,6 +13,7 @@ import matplotlib.colors as colors
 from matplotlib.ticker import ScalarFormatter
 import mplhep as hep
 plt.style.use(hep.style.ROOT)
+from matplotlib.legend import Legend
 
 import matplotlib as mpl
 mpl.rcParams['axes.linewidth'] = 3 # frame thickness
@@ -114,19 +115,24 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period,
     ax.set_ylabel(r"95% CL on $\sigma \times \mathcal{B}(pp\rightarrow X\rightarrow HH)$ [fb]", fontsize=26)
     ax.set_yscale('log')
 
+    for label in ax.xaxis.get_ticklabels()+ax.yaxis.get_ticklabels():
+        label.set_color('black')
+        label.set_rotation(0)
+        label.set_fontsize(26)
+        
     # replace some y labels by custom strings
     replace_some_ylabels(ax)
 
     hep_opt = dict(ax=ax)
-    hep.cms.text(' Preliminary', fontsize=28, **hep_opt)
+    hep.cms.text(' Preliminary', fontsize=32, **hep_opt)
     if period == "Empty":
-        hep.cms.lumitext(r"{} (13 TeV)".format(sig, lumi), fontsize=26, **hep_opt)
+        hep.cms.lumitext(r"{} (13 TeV)".format(sig, lumi), fontsize=30, **hep_opt)
     else:
-        hep.cms.lumitext(r"{} | {} $fb^{{-1}}$ (13 TeV)".format(sig, lumi), fontsize=26, **hep_opt)
+        hep.cms.lumitext(r"{} | {} $fb^{{-1}}$ (13 TeV)".format(sig, lumi), fontsize=30, **hep_opt)
         
-    xtext = 0.02
+    xtext = 0.025
     for ilab, lab in enumerate(labels):
-        fig.text(xtext, 0.96-0.04*ilab, lab, horizontalalignment='left',
+        fig.text(xtext, 0.95-0.04*ilab, lab, horizontalalignment='left',
                  verticalalignment='center', transform=ax.transAxes)
             
     # Create graph objects
@@ -199,15 +205,21 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period,
                                 color='#85D1FBff', label="95% exp.")
                 ax.fill_between(masses[idx], vals['p1s'], vals['p2s'], alpha=alpha,
                                 color='#85D1FBff')
-                           
-    if atlas:
-        ax.plot(atlas_masses, vals['atlas_nom'], '-o', color='black', label="ATLAS exp.", linewidth=2)
-        if not nobands:
-            ax.fill_between(atlas_masses, vals['atlas_m1s'], vals['atlas_p1s'],
-                            alpha=alpha, color='gray', label="ATLAS 68% exp.")
-            
-    plt.legend(loc="upper right", facecolor="black", edgecolor="white", framealpha=1, prop={'size': 26})
 
+    legend_opt = dict(facecolor="black", edgecolor="white", framealpha=1, prop={'size': 26}, ncols=1)
+    if atlas:
+        column1 = {"atlas_bands": "ATLAS exp."}
+        atlas_line, = ax.plot(atlas_masses, vals['atlas_nom'], '-o', color='black', linewidth=2)
+        lines = [atlas_line]
+        if not nobands:
+            atlas_bands = ax.fill_between(atlas_masses, vals['atlas_m1s'], vals['atlas_p1s'], alpha=alpha, color='gray')
+            lines.append(atlas_bands)
+            column1.update({"atlas_exp": "ATLAS 68% exp."})
+        legend1 = Legend(ax, lines, column1.values(), bbox_to_anchor=(0.8, .995), **legend_opt)
+
+    handles, labels = plt.gca().get_legend_handles_labels()
+    ax.add_artist(legend1)
+    plt.legend(loc="upper right", **legend_opt)
  
     for ext in ('.png', '.pdf'):
         plt.savefig(outfile + ext, dpi=600)
