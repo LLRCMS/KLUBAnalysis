@@ -211,7 +211,7 @@ if [ ${MODE} == "separate" ]; then
 		in_txt="${cat_dir_parallel}/comb.${proc}.txt"
 		out_log="${out_dir_parallel}/comb.${proc}.log"
 
-		parallel rm -f -- ${out_log} ::: ${MASSES[@]} ::: ${SELECTIONS[@]}
+		# parallel rm -f -- ${out_log} ::: ${MASSES[@]} ::: ${SELECTIONS[@]}
 
 		declare -a COMMS;
 		for acat in "${CATEGORIES_BOOST[@]}"; do

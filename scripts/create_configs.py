@@ -62,10 +62,10 @@ class Params:
         elif channel== "TauTau":
             systs = []
 
-        systs += ["trigSFTauDM0Up:trigSF_tau_DM0_up"    , "trigSFTauDM0Down:trigSF_tau_DM0_down",
-                  "trigSFTauDM1Up:trigSF_tau_DM1_up"    , "trigSFTauDM1Down:trigSF_tau_DM1_down",
-                  "trigSFTauDM10Up:trigSF_tau_DM10_up"  , "trigSFTauDM10Down:trigSF_tau_DM10_down",
-                  "trigSFTauDM11Up:trigSF_tau_DM11_up"  , "trigSFTauDM11Down:trigSF_tau_DM11_down",
+        systs += ["trigSFTauDM0Up:trigSF_DM0_up"    , "trigSFTauDM0Down:trigSF_DM0_down",
+                  "trigSFTauDM1Up:trigSF_DM1_up"    , "trigSFTauDM1Down:trigSF_DM1_down",
+                  "trigSFTauDM10Up:trigSF_DM10_up"  , "trigSFTauDM10Down:trigSF_DM10_down",
+                  "trigSFTauDM11Up:trigSF_DM11_up"  , "trigSFTauDM11Down:trigSF_DM11_down",
                   "trigSF_met_up:trigSF_met_up"  , "trigSF_met_down:trigSF_met_down",
                   "trigSF_stau_up:trigSF_stau_up", "trigSF_stau_down:trigSF_stau_down"]
         return ', '.join((systs))
@@ -253,7 +253,7 @@ class Params:
         m_cat = {"res1b": "resolved1b", "res2b": "resolved2b", "boostedL_pnet": "boosted"}
         m_year = {"UL16": "2016", "UL16APV": "2016APV", "UL17": "2017", "UL18": "2018"}
 
-        bins = "\n"
+        bins = "\n[binning]\n\n"
 
         if self.is_for_limits(spin, mass):
             selections = self.selections
@@ -269,12 +269,14 @@ class Params:
                 # These binnings will actually be overwritten by:  category:variable = 0.0, ....
                 bins += var + " = 20, 0., 1.\n"
 
-                for sel in selections:
-                    if self.is_for_limits(spin, mass):
-                        key = '_'.join((m_chn[channel], m_cat[sel], 'spin', spin, 'mass', mass))
-                    else:
-                        key = '_'.join((m_chn[channel], m_cat[sel], 'spin', self.spin_for_plots, 'mass', mass))
-                    bins += sel + ':' + var + " = " + str(d[key])[1:-1] + '\n'
+                for reg in self.regions[channel].keys():
+                    for sel in selections:
+                        if self.is_for_limits(spin, mass):
+                            key = '_'.join((m_chn[channel], m_cat[sel], 'spin', spin, 'mass', mass))
+                        else:
+                            key = '_'.join((m_chn[channel], m_cat[sel], 'spin', self.spin_for_plots, 'mass', mass))
+                        bins += sel + '_' + reg + ':' + var + " = " + str(d[key])[1:-1] + '\n'
+                bins += "\n"
 
         return bins
     
@@ -524,8 +526,6 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         pars.event_systematics(channel) if for_limits else '',
         "",
         binning,
-        "",
-        "[binning]",
         "HH_mass = 245. , 255. , 265. , 275. , 285. , 315. , 325. , 375. , 425. , 475. , 525. , 575. , 625. , 675. , 725. , 775. , 825. , 875. , 925. , 1075. , 1325. , 1675. , 1825. , 2175. , 2725. , 3275.",
         "HHKin_mass = 245. , 255. , 265. , 275. , 285. , 315. , 325. , 375. , 425. , 475. , 525. , 575. , 625. , 675. , 725. , 775. , 825. , 875. , 925. , 1075. , 1325. , 1675. , 1825. , 2175. , 2725. , 3275.",
     ))
