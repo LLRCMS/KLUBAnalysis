@@ -197,6 +197,8 @@ class Params:
                     "tauid_2d_systcorrerasgt140_down:idFakeSF_tauid_2d_systcorrerasgt140_down",
                     # "tauid_2d_statgt140_up:idFakeSF_tauid_2d_statgt140_up",
                     # "tauid_2d_statgt140_down:idFakeSF_tauid_2d_statgt140_down",
+                    # "tauid_2d_extrapgt140_up:idFakeSF_tauid_2d_extrapgt140_up",
+                    # "tauid_2d_extrapgt140_down:idFakeSF_tauid_2d_extrapgt140_down",
 
                     "etauFR_barrelUp:idFakeSF_etauFR_barrel_up",
                     "etauFR_barrelDown:idFakeSF_etauFR_barrel_down",

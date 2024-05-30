@@ -71,14 +71,9 @@ def set_shape_syst_list(period, channel, category):
         # "tauid_2d_stat1_DM10"            : "CMS_eff_t_id_Stat1_" + pmap[period] + "_DM10",
         # "tauid_2d_stat0_DM11"            : "CMS_eff_t_id_Stat0_" + pmap[period] + "_DM11",
         # "tauid_2d_stat1_DM11"            : "CMS_eff_t_id_Stat1_" + pmap[period] + "_DM11",
-        # "tauid_2d_stat0gt140_DM0"        : "CMS_eff_t_id_Stat0Gt140_" + pmap[period] + "_DM0",
-        # "tauid_2d_stat1gt140_DM0"        : "CMS_eff_t_id_Stat1Gt140_" + pmap[period] + "_DM0",
-        # "tauid_2d_stat0gt140_DM1"        : "CMS_eff_t_id_Stat0Gt140_" + pmap[period] + "_DM1",
-        # "tauid_2d_stat1gt140_DM1"        : "CMS_eff_t_id_Stat1Gt140_" + pmap[period] + "_DM1",
-        # "tauid_2d_stat0gt140_DM10"       : "CMS_eff_t_id_Stat0Gt140_" + pmap[period] + "_DM10",
-        # "tauid_2d_stat1gt140_DM10"       : "CMS_eff_t_id_Stat1Gt140_" + pmap[period] + "_DM10",
-        # "tauid_2d_stat0gt140_DM11"       : "CMS_eff_t_id_Stat0Gt140_" + pmap[period] + "_DM11",
-        # "tauid_2d_stat1gt140_DM11"       : "CMS_eff_t_id_Stat1Gt140_" + pmap[period] + "_DM11",
+        # "tauid_2d_stat0gt140"            : "CMS_eff_t_id_Stat0Gt140_" + pmap[period],
+        # "tauid_2d_stat1gt140"            : "CMS_eff_t_id_Stat1Gt140_" + pmap[period],
+        # "tauid_2d_extrapgt140"           : "CMS_eff_t_id_ExtrapGt140",
         # "tauid_2d_systuncorrdmeras_DM0"  : "CMS_eff_t_id_" + pmap[period] + "_DM0",
         # "tauid_2d_systuncorrdmeras_DM1"  : "CMS_eff_t_id_" + pmap[period] + "_DM1",
         # "tauid_2d_systuncorrdmeras_DM10" : "CMS_eff_t_id_" + pmap[period] + "_DM10",
@@ -87,27 +82,27 @@ def set_shape_syst_list(period, channel, category):
         "tauid_2d_systcorrdmuncorreras"  : "CMS_eff_t_id_" + pmap[period],
         "tauid_2d_systcorrerasgt140"     : "CMS_eff_t_id_2016_2017_2018_Gt140",
 
-        "trigSF_met"  : "CMS_bbtt_" + pmap[period] + "_trigSFMET",
-        "trigSF_stau" : "CMS_bbtt_" + pmap[period] + "_trigSFSingleTau",
+        # "trigSF_met"  : "CMS_bbtt_" + pmap[period] + "_trigSFMET",
+        # "trigSF_stau" : "CMS_bbtt_" + pmap[period] + "_trigSFSingleTau",
     }
 
-    if channel == "ETau":
-        names.update({
-            "trigSFele" : "CMS_bbtt_" + pmap[period] + "_trigSFEle",
-            })
-    elif channel == "MuTau":
-        names.update({
-            "trigSFmu"  : "CMS_bbtt_" + pmap[period] + "_trigSFMu",
-            })
+    # if channel == "ETau":
+    #     names.update({
+    #         "trigSFele" : "CMS_bbtt_" + pmap[period] + "_trigSFEle",
+    #         })
+    # elif channel == "MuTau":
+    #     names.update({
+    #         "trigSFmu"  : "CMS_bbtt_" + pmap[period] + "_trigSFMu",
+    #         })
 
     # In 2016 we only use the SingleEle trigger in ETau so no uncertainties on the tau triggers should be added
-    if '16' not in pmap[period] and channel != "ETau":
-        names.update({
-            "trigSFTauDM0"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM0",
-            "trigSFTauDM1"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM1",
-            "trigSFTauDM10" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM10",
-            "trigSFTauDM11" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM11"
-            })
+    # if '16' not in pmap[period] and channel != "ETau":
+    #     names.update({
+    #         "trigSFTauDM0"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM0",
+    #         "trigSFTauDM1"  : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM1",
+    #         "trigSFTauDM10" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM10",
+    #         "trigSFTauDM11" : "CMS_bbtt_" + pmap[period] + "_trigSFTauDM11"
+    #         })
 
     if 'boosted' not in category:
         # b tagging scale factors
