@@ -2815,7 +2815,7 @@ int main (int argc, char** argv)
 	
 	  if (isMC) {
 		if (pType == 0 or pType == 3) {
-		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta, pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta, pType);
+		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
 		}
 		else if (pType == 1 or pType == 4) {
 		  idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
@@ -2823,7 +2823,7 @@ int main (int argc, char** argv)
 	  }
 
 	  if(isMC and pType == 3) { //MuMu
-		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta, pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta, pType);
+		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
 	  }
 	  else if(isMC and pType == 4) { //EleEle
 		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
@@ -3212,8 +3212,8 @@ int main (int argc, char** argv)
 						 << " The weight will be set to one." << endl;
 				  }
 				  else {
-					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      tlv_firstLepton.Eta(), pType);
-					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      fabs(tlv_firstLepton.Eta()), pType);
+					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
 				  
 				  trigSF         = SF;
@@ -3437,8 +3437,8 @@ int main (int argc, char** argv)
 				}
 			  else if (trgRegions["legacy"])
 				{
-				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  trigSF = SF;
 				  trigSFnoMET    = trigSF;
 				  trigSFnoTau	 = trigSF;

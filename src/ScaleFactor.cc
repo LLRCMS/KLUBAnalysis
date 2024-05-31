@@ -241,7 +241,7 @@ bool ScaleFactor::check_SameBinning(TGraphAsymmErrors* graph1, TGraphAsymmErrors
 
 std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
 
-  Eta = fabs(Eta);
+  // Eta = fabs(Eta);
   int binNumber = etaBinsH->GetXaxis()->FindFixBin(Eta);
   std::string EtaLabel = etaBinsH->GetXaxis()->GetBinLabel(binNumber);
 
