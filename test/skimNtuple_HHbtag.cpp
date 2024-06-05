@@ -3183,19 +3183,19 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF			    = muTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
+				  trigSF                = muTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
 				  trigSFnoMET           = trigSF;
 				  trigSFnoTau           = trigSF;
-				  trigSF_mu_up		    = trigSF + trigSF_mu_err;
-				  trigSF_mu_down	    = trigSF - trigSF_mu_err;
-				  trigSF_tau_DM0_up		= trigSF + trigSF_err[0];
-				  trigSF_tau_DM0_down	= trigSF - trigSF_err[0];
-				  trigSF_tau_DM1_up		= trigSF + trigSF_err[1];
-				  trigSF_tau_DM1_down	= trigSF - trigSF_err[1];
-				  trigSF_tau_DM10_up	= trigSF + trigSF_err[2];
-				  trigSF_tau_DM10_down	= trigSF - trigSF_err[2];
-				  trigSF_tau_DM11_up	= trigSF + trigSF_err[3];
-				  trigSF_tau_DM11_down	= trigSF - trigSF_err[3];
+				  trigSF_mu_up          = trigSF + trigSF_mu_err;
+				  trigSF_mu_down        = trigSF - trigSF_mu_err;
+				  trigSF_tau_DM0_up     = trigSF + trigSF_err[0];
+				  trigSF_tau_DM0_down   = trigSF - trigSF_err[0];
+				  trigSF_tau_DM1_up     = trigSF + trigSF_err[1];
+				  trigSF_tau_DM1_down   = trigSF - trigSF_err[1];
+				  trigSF_tau_DM10_up    = trigSF + trigSF_err[2];
+				  trigSF_tau_DM10_down  = trigSF - trigSF_err[2];
+				  trigSF_tau_DM11_up    = trigSF + trigSF_err[3];
+				  trigSF_tau_DM11_down  = trigSF - trigSF_err[3];
 				}
 			  else // eta region covered only by single lepton trigger
 				{
@@ -3307,19 +3307,19 @@ int main (int argc, char** argv)
 					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
 					}
 
-				  trigSF			    = eTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
+				  trigSF                = eTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
 				  trigSFnoMET           = trigSF;
 				  trigSFnoTau           = trigSF;
-				  trigSF_ele_up		    = trigSF + trigSF_ele_err;
-				  trigSF_ele_down	    = trigSF - trigSF_ele_err;
-				  trigSF_tau_DM0_up		= trigSF + trigSF_err[0];
-				  trigSF_tau_DM0_down	= trigSF - trigSF_err[0];
-				  trigSF_tau_DM1_up		= trigSF + trigSF_err[1];
-				  trigSF_tau_DM1_down	= trigSF - trigSF_err[1];
-				  trigSF_tau_DM10_up	= trigSF + trigSF_err[2];
-				  trigSF_tau_DM10_down	= trigSF - trigSF_err[2];
-				  trigSF_tau_DM11_up	= trigSF + trigSF_err[3];
-				  trigSF_tau_DM11_down	= trigSF - trigSF_err[3];
+				  trigSF_ele_up         = trigSF + trigSF_ele_err;
+				  trigSF_ele_down       = trigSF - trigSF_ele_err;
+				  trigSF_tau_DM0_up     = trigSF + trigSF_err[0];
+				  trigSF_tau_DM0_down   = trigSF - trigSF_err[0];
+				  trigSF_tau_DM1_up     = trigSF + trigSF_err[1];
+				  trigSF_tau_DM1_down   = trigSF - trigSF_err[1];
+				  trigSF_tau_DM10_up    = trigSF + trigSF_err[2];
+				  trigSF_tau_DM10_down  = trigSF - trigSF_err[2];
+				  trigSF_tau_DM11_up    = trigSF + trigSF_err[3];
+				  trigSF_tau_DM11_down  = trigSF - trigSF_err[3];
 				}
 
 			  else //eta region covered only by single lepton trigger (including all 2016)
