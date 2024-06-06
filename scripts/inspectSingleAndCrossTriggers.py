@@ -84,26 +84,49 @@ def convertToHist(h):
     newh.view().variance = errors**2
     return newh
 
-# how to add a title to a subplot in matplotlib?
-# https://stackoverflow.com/questions/7066121/how-to-add-a-title-to-a-subplot-in-matplotlib
-# how to save a plot in matplotlib?
-
 class Plotter:
-    def __init__(self, output):
+    def __init__(self, output, npads):
         self.output = output
-        fig, self.axis = plt.subplots(1, 3, figsize=(25, 8))
+        figsize = (25, 8) if npads == 3 else (16, 8)
+        self.fig, self.axis = plt.subplots(1, npads, figsize=figsize)
         
-    def histo(self, h, loc, title=""):
+    def histo(self, h, loc, channel, title="", labelpad=30):
         """ Plot a histogram. """
         ax = self.axis[loc]
-        hep.hist2dplot(h, ax=ax) # h_single.plot2d(ax=ax1, label='Single triggers')
+        h = self._histo_2d_equalwidth(h, loc)
+        _, cbar, _ = hep.hist2dplot(h, ax=ax) # h_single.plot2d(ax=ax1, label='Single triggers')
+        cbar.set_label(r'$\varepsilon_{\text{trigger}}$', rotation=0, labelpad=labelpad)
+
         ax.set_xlabel(r"$p_{T}\:[GeV]$")
-        ax.set_ylabel(r"$|\eta|$")
-        ax.set_title(title)
+        if channel == "ETau":
+            ax.set_ylabel(r"$\eta$")
+        else:
+            ax.set_ylabel(r"$|\eta|$")
+        ax.set_title(title, pad=20)
+
         if loc == len(self.axis)-1:
+            self.fig.tight_layout()
             for ext in ("pdf", "png"):
                 plt.savefig(self.output + "." + ext)
         
+    def _histo_2d_equalwidth(self, h, loc, set_xticks=False):
+        """ Return a 2D histogram with equal bin widths."""
+        xedges, yedges = h.axes[0].edges, h.axes[1].edges
+        values = h.values()
+        variances = h.variances()
+        
+        newh = (hist.Hist.new.Reg(len(xedges)-1, xedges[0], xedges[-1], name="x")
+                .Reg(len(yedges)-1, yedges[0], yedges[-1], name="y").Weight())
+        newh.view().value = values
+        newh.view().variance = variances
+
+        xedges = [round(x,6) for x in xedges]
+        yedges = [round(x,6) for x in yedges]
+        self.axis[loc].set_xticks(newh.axes[0].edges, xedges, rotation=60)
+        self.axis[loc].set_yticks(newh.axes[1].edges, yedges, rotation=0)
+
+        return newh
+                
     def __del__(self):
         plt.close()
 
@@ -118,7 +141,7 @@ def divideHistos(h1, h2):
     h_div.view().variance = h1.view().variance / h2.view().value**2
     return h_div
 
-def inspectSingleAndCrossTriggers(channel, year, output):
+def inspectSingleAndCrossTriggers(channel, year, output, ratio):
     p_single, p_cross = getRootFilePaths(channel, year)
     h_single, h_cross = openHistograms(p_single, p_cross, channel)
 
@@ -132,17 +155,23 @@ def inspectSingleAndCrossTriggers(channel, year, output):
     title_cross = {"ETau": r"Cross-e$\tau$",
                    "MuTau": r"Cross-$\mu\tau$"}[channel]
 
-    plot = Plotter(os.path.join("/eos/home-b/bfontana/www/TriggerScaleFactors/",
-                                "SingleCrossComparison_" + channel + "_" + year))
-    plot.histo(h_single, title=title_single, loc=0)
-    plot.histo(h_cross,  title=title_cross, loc=1)
+    output = os.path.join("/eos/home-b/bfontana/www/TriggerScaleFactors/",
+                          "SingleCrossComparison_" + channel + "_" + year)
+    if ratio:
+        output += "_ratio"
 
-    if channel == "MuTau": # remove bin edges that do not match between the two histos
-        end = len(h_cross.values()[0])-1
-        h_div = divideHistos(h_single[1:,:end], h_cross[2:,:end])
-    else:
-        h_div = divideHistos(h_single, h_cross)
-    plot.histo(h_div, title="Single / Cross", loc=2)
+    plot = Plotter(output=output, npads=3 if ratio else 2)
+    labelpads = {"ETau": (45,40), "MuTau": (30,45)}
+    plot.histo(h_single, channel=channel, title=title_single, loc=0, labelpad=labelpads[channel][0])
+    plot.histo(h_cross,  channel=channel, title=title_cross,  loc=1, labelpad=labelpads[channel][1])
+
+    if ratio:
+        if channel == "MuTau": # remove bin edges that do not match between the two histos
+            end = len(h_cross.values()[0])-1
+            h_div = divideHistos(h_single[1:,:end], h_cross[2:,:end])
+        else:
+            h_div = divideHistos(h_single, h_cross)
+        plot.histo(h_div, title="Single / Cross", loc=2)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Inspect single and cross triggers')
@@ -150,6 +179,8 @@ if __name__ == '__main__':
     parser.add_argument('--year', choices=('UL16', 'UL16APV', 'UL17', 'UL18'),
                         help='year', required=True)
     parser.add_argument('--output', help='output file', default='plot.png')
+    parser.add_argument('--show_ratio', action="store_true")
     args = parser.parse_args()
 
-    inspectSingleAndCrossTriggers(channel=args.channel, year=args.year, output=args.output)
+    inspectSingleAndCrossTriggers(channel=args.channel, year=args.year, output=args.output,
+                                  ratio=args.show_ratio)
