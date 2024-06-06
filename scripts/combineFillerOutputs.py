@@ -160,7 +160,6 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
         SBtoSRforQCD = float(cfg.readOption('pp_QCD::SBtoSRfactor'))
         SBtoSRforQCDboost = float(cfg.readOption('pp_QCD::boostSBtoSR')) if cfg.hasOption('pp_QCD::boostSBtoSR') else 1.
         SBtoSRforQCDclass = float(cfg.readOption('pp_QCD::classSBtoSR')) if cfg.hasOption('pp_QCD::classSBtoSR') else 1.
-        doUpDownQCD = eval(cfg.readOption('pp_QCD::doUnc')) if cfg.hasOption('pp_QCD::doUnc') else False
         computeSBtoSRdyn = False
         if SBtoSRforQCD == 1 and not args.SBtoSR: 
             computeSBtoSRdyn = True
@@ -178,6 +177,8 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
             boostSBtoSR   = SBtoSRforQCDboost,
             classSBtoSR   = SBtoSRforQCDclass
             )
+
+        doUpDownQCD = eval(cfg.readOption('pp_QCD::doUnc')) if cfg.hasOption('pp_QCD::doUnc') else False
         if doUpDownQCD:
             # Compute up/down variation of QCD by taking the shape
             # from SStight and the correction factor from OSinviso/SSinviso
@@ -228,7 +229,7 @@ def run_combination(outnames, workdir, cfgname, prefix, args):
      
     fName = ('combined_' +
              ('moreTT_' + str(args.moreTT).replace('.', 'p') + '_' if args.moreTT else '') + outname)
-    fOut = ROOT.TFile(op.join(workdir, fName), 'recreate')
+    fOut = ROOT.TFile(op.join(workdir, fName), 'RECREATE')
     omngr.saveToFile(fOut)
 
 def run_hadd(name, workdir, args):

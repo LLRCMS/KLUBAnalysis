@@ -160,6 +160,8 @@ class Params:
             "fitFunc      = [0] + [1]*x",
             "regionC      = SStight",
             "regionD      = SSinviso",
+            "doUnc        = False",
+            "#classSBtoSR  = 0.074",
             ))
             
         self.dnn_systematics = (

@@ -219,7 +219,7 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period,
 
     handles, labels = plt.gca().get_legend_handles_labels()
     ax.add_artist(legend1)
-    plt.legend(loc="upper right", **legend_opt)
+    plt.legend(loc="upper right", bbox_to_anchor=(0.995, .995), **legend_opt)
  
     for ext in ('.png', '.pdf'):
         plt.savefig(outfile + ext, dpi=600)

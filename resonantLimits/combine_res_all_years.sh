@@ -72,13 +72,13 @@ fi
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 declare -A TAGS=(
-	["2016"]="Final_Shapes_UL16"
-	["2016APV"]="Final_Shapes_UL16APV"
-	["2017"]="Final_Shapes_UL17"
-	["2018"]="Final_Shapes_UL18"
+	["2016"]="Final_CorrectBinning_UL16"
+	["2016APV"]="Final_CorrectBinning_UL16APV"
+	["2017"]="Final_CorrectBinning_UL17"
+	["2018"]="Final_CorrectBinning_UL18"
 )
 
-comb_dir_base="${LIMIT_DIR}/cards_Final_Shapes_Run2_All"
+comb_dir_base="${LIMIT_DIR}/cards_Final_CorrectBinning_Run2_All"
 comb_dir="${comb_dir_base}/cards_${VAR}"
 mkdir -p ${comb_dir_base}
 parallel mkdir -p ${comb_dir} ::: ${MASSES[@]}
