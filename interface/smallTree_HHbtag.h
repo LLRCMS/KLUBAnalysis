@@ -106,7 +106,6 @@ struct smallTree
 	  m_trigSF_stau_up = 1.;
 	  m_trigSF_stau_down = 1.;
 
-      m_FakeRateSF				= -99.;
 	  m_IdSF_deep_2d			= -99.;
 	  m_IdSF_leg1_deep_vsJet_2d = -99.;
 	  m_IdSF_leg2_deep_vsJet_2d = -99.;
@@ -1059,7 +1058,6 @@ struct smallTree
 	  m_smallT->Branch ("trigSF_stau_up",       &m_trigSF_stau_up,   "trigSF_stau_up/F") ;
 	  m_smallT->Branch ("trigSF_stau_down",     &m_trigSF_stau_down, "trigSF_stau_down/F") ;
 
-      m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
 	  m_smallT->Branch ("IdSF_deep_2d", &m_IdSF_deep_2d, "IdSF_deep_2d/F") ;
 	  m_smallT->Branch("IdSF_leg1_deep_vsJet_2d", &m_IdSF_leg1_deep_vsJet_2d,
@@ -2043,7 +2041,6 @@ struct smallTree
   Float_t m_trigSF_met_down ;
   Float_t m_trigSF_stau_up ;
   Float_t m_trigSF_stau_down ;
-  Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
   Float_t m_IdSF_deep_2d ;
   Float_t m_IdSF_leg1_deep_vsJet_2d;
