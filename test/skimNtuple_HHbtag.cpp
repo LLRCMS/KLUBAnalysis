@@ -2433,66 +2433,66 @@ int main (int argc, char** argv)
 	  // Still preliminary:
 	  // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
 	  // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
-	  float idSF_deep_2d		= 1.0;  // use this for DeepTauV2p1 DM and pT dependent
-	  float idFakeSF_deep_2d	= 1.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
-	  float fakeRateSF_deep		= 1.0;  // use this for e/mu->tauh fake SF DeepTau
+	  float idSF_deep_2d		= -99.0;  // use this for DeepTauV2p1 DM and pT dependent
+	  float idFakeSF_deep_2d	= -99.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+	  float fakeRateSF_deep		= -99.0;  // use this for e/mu->tauh fake SF DeepTau
 
-	  float idFakeSF_tauid_2d_stat0_DM0_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM0_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM0_up				= 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM0_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= 1.f;
+	  float idFakeSF_tauid_2d_stat0_DM0_up				= -99.f;
+	  float idFakeSF_tauid_2d_stat0_DM0_down			= -99.f;				  
+	  float idFakeSF_tauid_2d_stat1_DM0_up				= -99.f;					
+	  float idFakeSF_tauid_2d_stat1_DM0_down			= -99.f;				  
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= -99.f;
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM1_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM1_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM1_up				= 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM1_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_up   = 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= 1.f;	   
+	  float idFakeSF_tauid_2d_stat0_DM1_up				= -99.f;
+	  float idFakeSF_tauid_2d_stat0_DM1_down			= -99.f;				  
+	  float idFakeSF_tauid_2d_stat1_DM1_up				= -99.f;					
+	  float idFakeSF_tauid_2d_stat1_DM1_down			= -99.f;				  
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_up   = -99.f;
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= -99.f;	   
 
-	  float idFakeSF_tauid_2d_stat0_DM10_up				 = 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM10_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM10_up				 = 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM10_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_up   = 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = 1.f;	   
+	  float idFakeSF_tauid_2d_stat0_DM10_up				 = -99.f;
+	  float idFakeSF_tauid_2d_stat0_DM10_down			 = -99.f;				  
+	  float idFakeSF_tauid_2d_stat1_DM10_up				 = -99.f;					
+	  float idFakeSF_tauid_2d_stat1_DM10_down			 = -99.f;				  
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_up   = -99.f;
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.f;	   
 
-	  float idFakeSF_tauid_2d_stat0_DM11_up				 = 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM11_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM11_up				 = 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM11_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_up   = 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = 1.f;	   
+	  float idFakeSF_tauid_2d_stat0_DM11_up				 = -99.f;
+	  float idFakeSF_tauid_2d_stat0_DM11_down			 = -99.f;				  
+	  float idFakeSF_tauid_2d_stat1_DM11_up				 = -99.f;					
+	  float idFakeSF_tauid_2d_stat1_DM11_down			 = -99.f;				  
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_up   = -99.f;
+	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = -99.f;	   
 
-	  float idFakeSF_tauid_2d_systcorrdmeras_up			= 1.f;		   
-	  float idFakeSF_tauid_2d_systcorrdmeras_down		= 1.f;		 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= 1.f;	 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= 1.f; 
-	  float idFakeSF_tauid_2d_systcorrerasgt140_up      = 1.f;
-	  float idFakeSF_tauid_2d_systcorrerasgt140_down	= 1.f;
-	  float idFakeSF_tauid_2d_stat0gt140_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat0gt140_down			= 1.f;
-	  float idFakeSF_tauid_2d_stat1gt140_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat1gt140_down			= 1.f;
-	  float idFakeSF_tauid_2d_extrapgt140_up     		= 1.f;
-	  float idFakeSF_tauid_2d_extrapgt140_down     		= 1.f;
+	  float idFakeSF_tauid_2d_systcorrdmeras_up			= -99.f;		   
+	  float idFakeSF_tauid_2d_systcorrdmeras_down		= -99.f;		 
+	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= -99.f;	 
+	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= -99.f; 
+	  float idFakeSF_tauid_2d_systcorrerasgt140_up      = -99.f;
+	  float idFakeSF_tauid_2d_systcorrerasgt140_down	= -99.f;
+	  float idFakeSF_tauid_2d_stat0gt140_up				= -99.f;
+	  float idFakeSF_tauid_2d_stat0gt140_down			= -99.f;
+	  float idFakeSF_tauid_2d_stat1gt140_up				= -99.f;
+	  float idFakeSF_tauid_2d_stat1gt140_down			= -99.f;
+	  float idFakeSF_tauid_2d_extrapgt140_up     		= -99.f;
+	  float idFakeSF_tauid_2d_extrapgt140_down     		= -99.f;
 	
-	  float idFakeSF_mutauFR_etaLt0p4_up      = 1.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_up   = 1.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_up   = 1.0;
-	  float idFakeSF_mutauFR_etaGt1p7_up      = 1.0;
-	  float idFakeSF_mutauFR_etaLt0p4_down    = 1.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_down = 1.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_down = 1.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_down = 1.0;
-	  float idFakeSF_mutauFR_etaGt1p7_down    = 1.0;
+	  float idFakeSF_mutauFR_etaLt0p4_up      = -99.0;
+	  float idFakeSF_mutauFR_eta0p4to0p8_up   = -99.0;
+	  float idFakeSF_mutauFR_eta0p8to1p2_up   = -99.0;
+	  float idFakeSF_mutauFR_eta1p2to1p7_up   = -99.0;
+	  float idFakeSF_mutauFR_etaGt1p7_up      = -99.0;
+	  float idFakeSF_mutauFR_etaLt0p4_down    = -99.0;
+	  float idFakeSF_mutauFR_eta0p4to0p8_down = -99.0;
+	  float idFakeSF_mutauFR_eta0p8to1p2_down = -99.0;
+	  float idFakeSF_mutauFR_eta1p2to1p7_down = -99.0;
+	  float idFakeSF_mutauFR_etaGt1p7_down    = -99.0;
 
-	  float idFakeSF_etauFR_barrel_up   = 1.0;
-	  float idFakeSF_etauFR_endcap_up   = 1.0;
-	  float idFakeSF_etauFR_barrel_down = 1.0;
-	  float idFakeSF_etauFR_endcap_down = 1.0;
+	  float idFakeSF_etauFR_barrel_up   = -99.0;
+	  float idFakeSF_etauFR_endcap_up   = -99.0;
+	  float idFakeSF_etauFR_barrel_down = -99.0;
+	  float idFakeSF_etauFR_endcap_down = -99.0;
 
 	  // bool helpers for tauID syst bins
 	  vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
@@ -2545,15 +2545,15 @@ int main (int argc, char** argv)
 	  float tau1Genmatch = theBigTree.genmatch->at(firstDaughterIndex);
 	  float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-	  float idSF_leg1				= 1.f;
-	  float idSF_leg1_deep_vsJet_2d = 1.f;
-	  float idSF_leg1_deep_vsEle    = 1.f;
-	  float idSF_leg1_deep_vsMu     = 1.f;
+	  float idSF_leg1				= -99.f;
+	  float idSF_leg1_deep_vsJet_2d = -99.f;
+	  float idSF_leg1_deep_vsEle    = -99.f;
+	  float idSF_leg1_deep_vsMu     = -99.f;
 
-	  float idSF_leg2				= 1.f;
-	  float idSF_leg2_deep_vsJet_2d = 1.f;
-	  float idSF_leg2_deep_vsEle	= 1.f;
-	  float idSF_leg2_deep_vsMu		= 1.f;
+	  float idSF_leg2				= -99.f;
+	  float idSF_leg2_deep_vsJet_2d = -99.f;
+	  float idSF_leg2_deep_vsEle	= -99.f;
+	  float idSF_leg2_deep_vsMu		= -99.f;
 
 	  bool isFakeJet1 = true;
 	  bool isFakeJet2 = true;
