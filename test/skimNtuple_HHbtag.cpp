@@ -5292,8 +5292,23 @@ int main (int argc, char** argv)
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(SF_LP);
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(SF_LP);
 		  }
+		  //using DY_tostitch assuming that every time we consider a DY sample we put this flag to 1, isDY seems to be deprecated   
+		  // but maybe we could use a new flag for V + jets processes
+		  else if (DY_tostitch){ //using DY_tostitch assuming that every time we consider a DY sample we put this flag to 1, isDY seems to be deprecated
+		    std::tuple<float, float, float> DY_cor_LP = pnetSF_helper.getDYcorrections(tlv_fj.Pt(), PERIOD, "LP");
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(DY_cor_LP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(DY_cor_LP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(DY_cor_LP);
+		  }
+		  // again here we could maybe use a dedicated flag for top enriched processes
+		  else if (isTTBar){
+		    std::tuple<float, float, float> TT_cor_LP = pnetSF_helper.getTTcorrections(tlv_fj.Pt(), PERIOD, "LP");
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(TT_cor_LP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(TT_cor_LP);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(TT_cor_LP);
+		  }
 		  //else 
-		  //     --> handle bkg samples differently . For now, their values remain set to 1
+		  // signal like jet missing 
 
 
 		  // saving infos for subjets

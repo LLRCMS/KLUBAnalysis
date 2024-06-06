@@ -1,6 +1,7 @@
 // pnet.cc
 #include "pnetSF.h"
 #include <iostream>
+#include <stdexcept>
 
 pnetSF::pnetSF() {}
 
@@ -68,6 +69,11 @@ std::map<std::string, std::vector<float>> pnetSF::getSFmap(float pT_, const std:
       scaleFactors["LP"] = {1.001 , 0.035, -0.037};
     }
   }
+  else    {
+      std::string errorMessage = "ERROR :: pnetSF - Invalid period: " + period + " [options: 2016preVFP/2016postVFP/2017/2018]";
+      throw std::logic_error(errorMessage);
+    }
+
   return scaleFactors;
 }
 
@@ -83,4 +89,64 @@ std::tuple<float, float, float> pnetSF::getSF(const std::map<std::string, std::v
     std::cerr << "WARNING! ParticleNet scale factors for " << key << " not found in the map. Going to set them to 1" << std::endl;
     return {1.0f, 0.0f, 0.0f};
   }
+}
+
+
+std::tuple<float, float, float> pnetSF::getTTcorrections(float pT_, const std::string& period_, const std::string& workingPoint_) {
+  float val = 1.0;
+  float err = 0.0;
+
+  // Only LP corrections are available so far
+  if(period_=="2016preVFP"){
+    if (workingPoint_ == "LP") {
+      if (pT_ < 300) {
+	val = 0.59421301;
+	err = 0.27098274;
+      } else if (pT_ >= 300 && pT_ < 400) {
+	val = 0.76523553;
+	err = 0.30842569;
+      } else if (pT_ >= 400) {
+	val = 0.66079032;
+	err = 0.37631591;
+      } else {
+	throw std::logic_error("Invalid pT range: " + std::to_string(pT_));
+      }
+    } else {
+      throw std::logic_error("Invalid working point: " + workingPoint_ + " [options: LP]");
+    }
+    else {
+      throw std::logic_error("Invalid era: " + workingPoint_ + " [options: 2016preVFP]")
+	}
+  }
+  return {val, val+err, val-err};
+}
+
+
+std::tuple<float, float, float> pnetSF::getDYcorrections(float pT_, const std::string& period_, const std::string& workingPoint_) {
+  float val = 1.0;
+  float err = 0.0;
+
+  // Only LP corrections are available so far
+  if(period_=="2016preVFP"){
+    if (workingPoint_ == "LP") {
+      if (pT_ < 300) {
+	val = 0.79969335;
+	err = 0.1880848;
+      } else if (pT_ >= 300 && pT_ < 400) {
+	val = 1.27936957;
+	err = 0.29244537;
+      } else if (pT_ >= 400) {
+	val = 1.57300599;
+	err = 0.47988435;
+      } else {
+	throw std::logic_error("Invalid pT range: " + std::to_string(pT_));
+      }
+    } else {
+      throw std::logic_error("Invalid working point: " + workingPoint_ + " [options: LP]");
+    }
+    else {
+      throw std::logic_error("Invalid era: " + workingPoint_ + " [options: 2016preVFP]")
+	}
+  }
+  return {val, val+err, val-err};
 }
