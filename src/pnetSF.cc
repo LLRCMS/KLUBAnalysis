@@ -70,7 +70,7 @@ std::map<std::string, std::vector<float>> pnetSF::getSFmap(float pT_, const std:
     }
   }
   else    {
-      std::string errorMessage = "ERROR :: pnetSF - Invalid period: " + period + " [options: 2016preVFP/2016postVFP/2017/2018]";
+      std::string errorMessage = "ERROR :: pnetSF - Invalid period: " + period_ + " [options: 2016preVFP/2016postVFP/2017/2018]";
       throw std::logic_error(errorMessage);
     }
 
@@ -114,10 +114,10 @@ std::tuple<float, float, float> pnetSF::getTTcorrections(float pT_, const std::s
     } else {
       throw std::logic_error("Invalid working point: " + workingPoint_ + " [options: LP]");
     }
-    else {
-      throw std::logic_error("Invalid era: " + workingPoint_ + " [options: 2016preVFP]")
-	}
   }
+  else {
+    throw std::logic_error("Invalid era: " + period_ + " [options: 2016preVFP]");
+      }
   return {val, val+err, val-err};
 }
 
@@ -144,9 +144,9 @@ std::tuple<float, float, float> pnetSF::getDYcorrections(float pT_, const std::s
     } else {
       throw std::logic_error("Invalid working point: " + workingPoint_ + " [options: LP]");
     }
-    else {
-      throw std::logic_error("Invalid era: " + workingPoint_ + " [options: 2016preVFP]")
-	}
   }
+  else {
+    throw std::logic_error("Invalid era: " + period_ + " [options: 2016preVFP]");
+      }
   return {val, val+err, val-err};
 }
