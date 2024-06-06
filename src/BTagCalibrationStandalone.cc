@@ -64,13 +64,6 @@ BTagEntry::BTagEntry(const std::string &csvLine)
 
   // make formula
   formula = vec[10];
-  TF1 f1("", formula.c_str());  // compile formula to check validity
-  if (f1.IsZombie()) {
-    std::cerr << "ERROR in BTagCalibration: "
-	      << "Invalid csv line; formula does not compile: "
-	      << csvLine;
-    throw std::exception();
-  }
 
   // make parameters
   unsigned op = stoi(vec[0]);
