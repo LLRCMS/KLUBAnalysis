@@ -1205,6 +1205,67 @@ int main (int argc, char** argv)
 		  // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
 		}
 
+
+
+	  // store in a dedicated vector the Higgs or Z bosons in the event
+	  std::vector<TLorentzVector> higgsVectors;
+	  std::vector<TLorentzVector> zBosonVectors;
+	  std::vector<TLorentzVector> bQuarkVectorsFromHiggs;
+	  std::vector<TLorentzVector> bQuarkVectorsFromZ;
+
+	  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
+	    int pdg = theBigTree.genpart_pdg->at(igen);
+	    bool isHiggs = (pdg == 25);
+	    bool isZboson = (pdg == 23);
+    
+	    if (isHiggs || isZboson) {
+	      bool isFirst = CheckBit(theBigTree.genpart_flags->at(igen), 12); // First copy
+
+	      if (isFirst) {
+		int idx1b = -1;
+		int idx2b = -1;
+
+		// Loop over generator particles again to find b quark daughters
+		for (unsigned int jgen = 0; jgen < theBigTree.genpart_px->size(); jgen++) {
+		  if (theBigTree.genpart_TauMothInd->at(jgen) == igen) {
+                    int daughterPdg = abs(theBigTree.genpart_pdg->at(jgen));
+                    if (daughterPdg == 5) { // b quark
+		      if (idx1b == -1) {
+			idx1b = jgen;
+		      } else if (idx2b == -1) {
+			idx2b = jgen;
+		      } else {
+			std::cout << "** WARNING: more than 2 b quarks from Higgs/Z decay identified" << std::endl;
+			break;
+		      }
+                    }//if daughter is a b quark
+		  }// if jgen particle comes from igen
+		}//loop on jgen
+
+		if (idx1b != -1 && idx2b != -1) {
+		  TLorentzVector vBoson, vB1, vB2;
+		  vBoson.SetPxPyPzE(theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
+		  vB1.SetPxPyPzE(theBigTree.genpart_px->at(idx1b), theBigTree.genpart_py->at(idx1b), theBigTree.genpart_pz->at(idx1b), theBigTree.genpart_e->at(idx1b));
+		  vB2.SetPxPyPzE(theBigTree.genpart_px->at(idx2b), theBigTree.genpart_py->at(idx2b), theBigTree.genpart_pz->at(idx2b), theBigTree.genpart_e->at(idx2b));
+
+		  if (isHiggs) {
+                    higgsVectors.push_back(vBoson);
+                    bQuarkVectorsFromHiggs.push_back(vB1);
+                    bQuarkVectorsFromHiggs.push_back(vB2);
+		  } else if (isZboson) {
+                    zBosonVectors.push_back(vBoson);
+                    bQuarkVectorsFromZ.push_back(vB1);
+                    bQuarkVectorsFromZ.push_back(vB2);
+		  }
+		} else {
+		  std::cout << "** WARNING: couldn't find 2 b quark daughters from Higgs/Z boson" << std::endl;
+		}
+	      }
+	    }
+	  }
+	  theSmallTree.m_nHiggs = higgsVectors.size();
+	  theSmallTree.m_nZBosons = zBosonVectors.size();
+
 	  ///////////////////////////////////////////////////////////
 	  // END of gen related stuff -- compute tot number of events
 	  int genHHDecMode = (isHHsignal ? theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8 : 0);
@@ -5270,6 +5331,32 @@ int main (int argc, char** argv)
 		  theSmallTree.m_HHbregrsvfit_eta = tlv_HHbregrsvfit.Eta();
 		  theSmallTree.m_HHbregrsvfit_phi = tlv_HHbregrsvfit.Phi();
 		  theSmallTree.m_HHbregrsvfit_m	  = tlv_HHbregrsvfit.M();
+
+		  // 
+		  // Check if the fatjet is matched with any Higgs or Z bosons found before decaying into bb
+		  bool matchedToHiggs = false;
+		  bool matchedToZ = false;
+		  for (const auto& higgs : higgsVectors) {
+		    if (tlv_fj.DeltaR(higgs) < 0.4) {
+		      matchedToHiggs = true;
+		      break; // most likely there would be only one boson decaying into bb
+		    }
+		  }
+		  for (const auto& zboson : zBosonVectors) {
+		    if (tlv_fj.DeltaR(zboson) < 0.4) {
+		      matchedToZ = true;
+		      break;
+		    }
+		  }
+		  theSmallTree.m_fatjet_isMatchedToHiggs = matchedToHiggs;
+		  theSmallTree.m_fatjet_isMatchedToZ = matchedToZ;
+
+		  // then if these flags work, I could skip the flag isHHsignal and:
+		  // if matchedToHiggs or matchedToZ --> apply BTV SFs
+		  // elif DY (V+jets processes) : DY corrections
+		  // elif TT (top-enriched processes) : TT corrections
+		  // else 1
+
 
 		  // Getting ParticleNet scale factors from the pnetSF.cc
 		  pnetSF pnetSF_helper;
