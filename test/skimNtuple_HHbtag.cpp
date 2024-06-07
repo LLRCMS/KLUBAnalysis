@@ -3079,12 +3079,16 @@ int main (int argc, char** argv)
 	  float trigSFnoTau				= 1.0;
 	  float trigSF_ele_up			= 1.0;
 	  float trigSF_mu_up			= 1.0;
+	  float trigSF_SL_mu_up			= 1.0;
+	  float trigSF_cross_mu_up		= 1.0;
 	  float trigSF_tau_DM0_up		= 1.0;
 	  float trigSF_tau_DM1_up		= 1.0;
 	  float trigSF_tau_DM10_up		= 1.0;
 	  float trigSF_tau_DM11_up		= 1.0;
 	  float trigSF_ele_down			= 1.0;
 	  float trigSF_mu_down			= 1.0;
+	  float trigSF_SL_mu_down		= 1.0;
+	  float trigSF_cross_mu_down	= 1.0;
 	  float trigSF_tau_DM0_down		= 1.0;
 	  float trigSF_tau_DM1_down		= 1.0;
 	  float trigSF_tau_DM10_down	= 1.0;
@@ -3154,8 +3158,20 @@ int main (int argc, char** argv)
 				  double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
 				  double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
 
-				  double Err_Data_mu   = passSingle * SFL_Data_Err   - passCross * passSingle * ((SFl_Data < SFL_Data) ? SFl_Data_Err  : SFL_Data_Err)   * SFtau_Data + passCross * SFl_Data_Err   * SFtau_Data;
-				  double Err_MC_mu     = passSingle * SFL_MC_Err     - passCross * passSingle * ((SFl_MC   < SFL_MC)   ? SFl_MC_Err    : SFL_MC_Err)     * SFtau_MC   + passCross * SFl_MC_Err     * SFtau_MC;
+				  // Compute uncertainties (separate for SingleMuon and mu leg of cross trigger)
+				  double Err_Data_SL_mu = passSingle * SFL_Data_Err - passCross * passSingle * (SFl_Data > SFL_Data) * SFL_Data_Err * SFtau_Data;
+				  double Err_MC_SL_mu   = passSingle * SFL_MC_Err   - passCross * passSingle * (SFl_MC   > SFL_MC)   * SFL_MC_Err   * SFtau_MC;
+
+				  double trigSF_SL_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_mu, Err_MC_SL_mu);
+
+				  double Err_Data_cross_mu = - passCross * passSingle * (SFl_Data < SFL_Data) * SFl_Data_Err * SFtau_Data + passCross * SFl_Data_Err * SFtau_Data;
+				  double Err_MC_cross_mu   = - passCross * passSingle * (SFl_MC   < SFL_MC)   * SFl_MC_Err   * SFtau_MC   + passCross * SFl_MC_Err   * SFtau_MC;
+
+				  double trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
+
+				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
+				  double Err_MC_mu   = Err_MC_SL_mu   + Err_MC_cross_mu;
+
 				  double trigSF_mu_err   = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_mu, Err_MC_mu);
 
 				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
@@ -3188,6 +3204,10 @@ int main (int argc, char** argv)
 				  trigSFnoTau           = trigSF;
 				  trigSF_mu_up          = trigSF + trigSF_mu_err;
 				  trigSF_mu_down        = trigSF - trigSF_mu_err;
+				  trigSF_SL_mu_up       = trigSF + trigSF_SL_mu_err;
+				  trigSF_SL_mu_down	    = trigSF - trigSF_SL_mu_err;
+				  trigSF_cross_mu_up    = trigSF + trigSF_cross_mu_err;
+				  trigSF_cross_mu_down  = trigSF - trigSF_cross_mu_err;
 				  trigSF_tau_DM0_up     = trigSF + trigSF_err[0];
 				  trigSF_tau_DM0_down   = trigSF - trigSF_err[0];
 				  trigSF_tau_DM1_up     = trigSF + trigSF_err[1];
@@ -3218,6 +3238,10 @@ int main (int argc, char** argv)
 				  trigSFnoTau    = trigSF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
+				  trigSF_SL_mu_up = trigSF_mu_up;
+				  trigSF_SL_mu_down = trigSF_mu_down;
+				  trigSF_cross_mu_up = trigSF;
+				  trigSF_cross_mu_down = trigSF;
 				}
 			}
 
@@ -3437,6 +3461,10 @@ int main (int argc, char** argv)
 				  trigSFnoTau	 = trigSF;
 				  trigSF_mu_up   = SF + 1. * SF_Err;
 				  trigSF_mu_down = SF - 1. * SF_Err;
+				  trigSF_SL_mu_up = trigSF_mu_up;
+				  trigSF_SL_mu_down = trigSF_mu_down;
+				  trigSF_cross_mu_up = trigSF;
+				  trigSF_cross_mu_down = trigSF;
 				}
 			}
 
@@ -3468,12 +3496,16 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSFnoTau			= isMC ? trigSFnoTau      : 1.0;
 	  theSmallTree.m_trigSF_ele_up			= isMC ? trigSF_ele_up    : 1.0;
 	  theSmallTree.m_trigSF_mu_up			= isMC ? trigSF_mu_up     : 1.0;
+	  theSmallTree.m_trigSF_SL_mu_up		= isMC ? trigSF_SL_mu_up      : 1.0;
+	  theSmallTree.m_trigSF_cross_mu_up		= isMC ? trigSF_cross_mu_up   : 1.0;
 	  theSmallTree.m_trigSF_tau_DM0_up		= isMC ? trigSF_tau_DM0_up    : 1.0;
 	  theSmallTree.m_trigSF_tau_DM1_up		= isMC ? trigSF_tau_DM1_up    : 1.0;
 	  theSmallTree.m_trigSF_tau_DM10_up		= isMC ? trigSF_tau_DM10_up   : 1.0;
 	  theSmallTree.m_trigSF_tau_DM11_up		= isMC ? trigSF_tau_DM11_up   : 1.0;
 	  theSmallTree.m_trigSF_ele_down		= isMC ? trigSF_ele_down  : 1.0;
 	  theSmallTree.m_trigSF_mu_down			= isMC ? trigSF_mu_down   : 1.0;
+	  theSmallTree.m_trigSF_SL_mu_down		= isMC ? trigSF_SL_mu_down    : 1.0;
+	  theSmallTree.m_trigSF_cross_mu_down	= isMC ? trigSF_cross_mu_down : 1.0;
 	  theSmallTree.m_trigSF_tau_DM0_down	= isMC ? trigSF_tau_DM0_down  : 1.0;
 	  theSmallTree.m_trigSF_tau_DM1_down	= isMC ? trigSF_tau_DM1_down  : 1.0;
 	  theSmallTree.m_trigSF_tau_DM10_down	= isMC ? trigSF_tau_DM10_down : 1.0;
