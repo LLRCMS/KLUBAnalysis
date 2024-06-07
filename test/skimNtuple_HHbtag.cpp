@@ -2187,7 +2187,9 @@ int main (int argc, char** argv)
 	  theSmallTree.m_MHTnoMuy      = vMHTnoMu.Y();
 	
 	  // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
-	  theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
+	  theSmallTree.m_L1pref_weight      = theBigTree.prefiringweight;
+	  theSmallTree.m_L1pref_weight_up   = theBigTree.prefiringweightup;
+	  theSmallTree.m_L1pref_weight_down = theBigTree.prefiringweightdown;
 	
 	  if (DEBUG)
 		{
