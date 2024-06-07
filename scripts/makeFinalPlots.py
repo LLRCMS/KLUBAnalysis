@@ -4,6 +4,7 @@ _all_ = [ 'makeFinalPlots' ]
 
 import os
 import argparse
+import multiprocessing
 
 from utilsFinalPlots import Histograms, Plotter
 
@@ -30,7 +31,7 @@ class PlotterFactory:
 			"bjet2_eta"			   : (r"$\eta_{j2}$",				  (40, 40, 4, 4000)),
 			"tauH_mass"			   : (r"$m_{H\tau} [GeV]$",			  (30, 30, 2, 10000)),
 			"tauH_pt"			   : (r"$pT_{H\tau} [GeV]$",		  (30, 30, 2, 10000)),
-			"tauH_eta"			   : (r"$eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
+			# "tauH_eta"			   : (r"$eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
 			"bH_mass"			   : (r"$m_{Hb} [GeV]$",			  (10, 10, 2, 1000)),
 			"bH_pt"				   : (r"$pT_{Hb} [GeV]$",			  (30, 30, 2, 10000)),
 			"ditau_deltaR"		   : (r"$\DeltaR(\tau\tau)$",		  (10, 10, 2, 1000)),
@@ -41,31 +42,31 @@ class PlotterFactory:
 			"met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
 			"metnomu_et"		   : (r"$MET-no\mu [GeV]$",			  (20, 20, 2, 2000)),
 			"metnomu_phi"		   : (r"$MET-no\mu-\phi$",			  (10, 10, 1, 5000)),
-			"dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
-			"dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
-			"dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
-			"dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
+			# "dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
+			# "dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
+			# "dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
+			# "dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
 			"METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
 			"METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
-			"met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
-			"met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
-			"met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
+			# "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
+			# "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
+			# "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
 			"bjet1_bID_deepFlavor" : (r"$DeepFlavour_{j1}$",		  (10, 10, 1, 4000)),
 			"bjet2_bID_deepFlavor" : (r"$DeepFlavour_{j2}$",		  (10, 10, 1, 4000)),
-			"bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
-			"bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
-			"bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
-			"bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
-			"bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
-			"bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
+			# "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
+			# "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
+			# "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
+			# "bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
+			# "bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
+			# "bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
 			"tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit} [GeV]$",	  (30, 30, 2, 10000)),
 			"tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit} [GeV]$",  (10, 10, 2, 10000)),
-			"tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
+			# "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
 			"HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet} [GeV]$",		  (1, 1, 1, 150)),
 			"HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet} [GeV]$",	  (30, 30, 10, 10000)),
 			"HHbregrsvfit_eta"	   : (r"$eta_{HH}^{PNet} ",			  (40, 40, 2, 4000)),
-			"HH_mass"			   : (r"$m_{HH} [GeV]$",			  (1, 1, 1, 150)),
-			"HHKin_mass"		   : (r"$m_{HHKin} [GeV]$",			  (1, 1, 1, 150)),
+			# "HH_mass"			   : (r"$m_{HH} [GeV]$",			  (1, 1, 1, 150)),
+			# "HHKin_mass"		   : (r"$m_{HHKin} [GeV]$",			  (1, 1, 1, 150)),
         }
 
         self.logvariables = {"dau1_dxy", "dau1_dz", "dau2_dxy", "dau2_dz", "HH_mass", "HHKin_mass"}
@@ -80,10 +81,9 @@ class PlotterFactory:
     def produce_data_mc_with_ratio(self, channel, category, region, year) -> None:
         """Produce the data/mc plots with ratio for the given channel and category."""
         self._sanity_checks(channel, category, region)
-        for v in self.variables:
-            print(v)
+
+        def _produce_parallel(v):
             string = '_{}_{}_{}'.format(category, region, v)
-            #self.hists.read(keys='.*' + string)
 
             hdata = self.hists.hists(keys='data_obs'+string, leglabel="Data")['data_obs'+string]
             stackmc = self.hists.stack_mc(keys='.*'+string)
@@ -94,6 +94,9 @@ class PlotterFactory:
                                  xlabel=self.variables[v][0], equalwidth=v in self.equalwidth)
             p.save('plot' + string)
 
+        num_workers = int(multiprocessing.cpu_count()/2)
+        with multiprocessing.Pool(processes=num_workers) as pool:
+            pool.starmap(_produce_parallel, self.variables.keys())
 
 def makeFinalPlots(tag, year):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"

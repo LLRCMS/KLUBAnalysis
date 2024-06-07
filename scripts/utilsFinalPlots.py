@@ -328,6 +328,7 @@ class Plotter:
             if data:
                 min_y = (min(sum(data).values()) if isinstance(data, hist.Stack)
                          else min(data.values()))
+                breakpoint()
                 assert min_y >= 0, "Minimum value is negative."
                 if min_y > 0:
                     self.ax.set_ylim(0.05*min_y)
