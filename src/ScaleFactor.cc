@@ -179,7 +179,6 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
       double data_pt_errhigh[nbin_pt]  = {0};
       double data_eff_err[nbin_pt]  = {0};
 
-
       double mc_pt_nom[nbin_pt]      = {0};
       double mc_eff_nom[nbin_pt]     = {0};
       double mc_pt_errlow[nbin_pt]   = {0};

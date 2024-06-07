@@ -3249,7 +3249,7 @@ int main (int argc, char** argv)
 				  trigSF_mu_up          = trigSF + trigSF_mu_err;
 				  trigSF_mu_down        = trigSF - trigSF_mu_err;
 				  trigSF_SL_mu_up       = trigSF + trigSF_SL_mu_err;
-				  trigSF_SL_mu_down	    = trigSF - trigSF_SL_mu_err;
+				  trigSF_SL_mu_down     = trigSF - trigSF_SL_mu_err;
 				  trigSF_cross_mu_up    = trigSF + trigSF_cross_mu_err;
 				  trigSF_cross_mu_down  = trigSF - trigSF_cross_mu_err;
 				  trigSF_tau_DM0_up     = trigSF + trigSF_err[0];
