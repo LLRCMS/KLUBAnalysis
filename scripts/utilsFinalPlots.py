@@ -32,7 +32,7 @@ class Histograms:
 
     def mod_keys(self, keys):
         return [re.split(';', key)[0] for key in keys]
-    
+
     def _read_histograms(func):
         """
         Decorator to load the histograms specified by the keys.
@@ -54,6 +54,11 @@ class Histograms:
         return wrapper
 
     @_read_histograms
+    def read(self, keys, *args, **kwargs):
+        """Read histograms."""
+        pass
+    
+    @_read_histograms
     def hists(self, keys, *args, **kwargs):
         """Return the histograms specified by the keys."""
         keys = self.mod_keys(keys)
@@ -67,14 +72,15 @@ class Histograms:
 
     @_read_histograms
     def stack_mc(self, keys, *args, **kwargs):
-        """Stack MC histograms."""
-        mc_keys = [k for k in keys if "data" not in k if "Data" not in k]
+        """Stack MC histograms, removing data and signal histograms."""
+        mc_keys = [k for k in keys if not any(x in k for x in ("data", "Data", "Radion", "Graviton"))]
         return self.stack(mc_keys, *args, **kwargs)
 
 class Plotter:
     def __init__(self, output, channel="ETau", cat="baseline", year="2018", npads=1):
         self.output = output
         assert npads <= 2, "Only 1 or 2 pads are supported."
+        self.was_ratio_run = 0
 
         self.fig, self.axes = plt.subplots(npads, 1, figsize=(16, 16), squeeze=False,
                                            gridspec_kw={'height_ratios': [3,1]})
@@ -85,7 +91,6 @@ class Plotter:
         self.fontscale = 0.8
         hep.cms.text(' Preliminary', fontsize=self.fontsize, ax=self.axes[0][0])
 
-        
         lumi = {"2016APV": "19.5", "2016": "16.8", "2017": "41.5", "2018": "59.7"}[year]
         mu, tau = '\u03BC','\u03C4'
         chn_map = {"ETau": r"$bb\;e$"+tau, "TauTau":r"$bb\;$"+tau+tau,
@@ -195,6 +200,13 @@ class Plotter:
     def _legend(self, ncols=1):
         for ax in self.axes:
             for a in ax:
+                if a != ax[0]:
+                    continue
+
+                # do not draw the legend for the ratio plot if it was run at most once
+                if ax==self.axes[1] and self.was_ratio_run < 2:
+                    continue
+
                 leg = a.legend(fontsize=0.7*self.fontscale*self.fontsize,
                                loc="best", ncols=ncols,
                                frameon=True, facecolor='white', edgecolor='black', framealpha=1.)
@@ -203,11 +215,11 @@ class Plotter:
     @_select_axis
     def ratio(self, hup, hdo, mode="errorbar", ylim=(0.4, 1.6), *args, **kwargs):
         """Plot the ratio of two histograms."""
+        self.was_ratio_run += 1
         self.ax.set_ylabel("Ratio", ha="center")
 
         plot_opt = dict(
             linewidth=kwargs['linewidth'] if 'linewidth' in kwargs else 1,
-            color=next(self.iter_colors) if 'color' not in kwargs else kwargs['color'],
             label=kwargs['label'] if 'label' in kwargs else ""
         )
         
@@ -234,7 +246,9 @@ class Plotter:
             ratio = np.nan_to_num(ratio, nan=0.) # replace NaN by 0 for displying purposes
             bins = hup.axes[0].edges
             self.ax.hist([bins[:-1]], bins=bins, weights=ratio, bottom=1.,
-                         histtype="step", **plot_opt)
+                         histtype="step",
+                         color=next(self.iter_colors) if 'color' not in kwargs else kwargs['color'],
+                         **plot_opt)
         else:
             raise ValueError("Invalid mode.")
 
@@ -258,8 +272,8 @@ class Plotter:
         if not os.path.exists(self.output):
             os.makedirs(self.output)
         name = os.path.join(self.output, name)
-        for ext in ("pdf", "png"):
-            plt.savefig(name + "." + ext)
+        # for ext in ("pdf", "png"):
+        #     plt.savefig(name + "." + ext)
 
     @_select_axis
     def stack(self, stack, *args, **kwargs):
@@ -273,7 +287,8 @@ class Plotter:
         weights = {k.name:k.values() for k in stack.__dict__['_stack']}
         bins = stack.axes[0].edges
         labels = [k.split('_')[0] for k in list(weights.keys())]
-        self.ax.hist([bins[:-1] for _ in range(len(weights))], bins=bins, weights=weights.values(), stacked=True,
+        self.ax.hist([bins[:-1] for _ in range(len(weights))], bins=bins,
+                     weights=weights.values(), stacked=True,
                      color=self.colors[:len(weights)], label=labels)
 
         self._set_options(data=stack, *args, **kwargs)
