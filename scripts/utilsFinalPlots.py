@@ -114,12 +114,19 @@ class Plotter:
     def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
         """Convenience function to plot data and MC with ratio."""
         self.stack(stackmc, loc=0, *args, **kwargs)
+        self._stats_band(stackmc, loc=0, mode="standard")
         self.graph(hdata, loc=0, label="Data", *args, **kwargs)
         self.ratio(hdata, stackmc, loc=1, *args, **kwargs)
 
     def __del__(self):
         plt.close()
         
+    def _div(self, num, den):
+        """Ignore division by zero; they are correctly handled by the plot."""
+        with np.errstate(divide='ignore', invalid='ignore'):
+            ratio = num / den
+        return ratio
+
     def _select_axis(func):
         """
         Decorator to select a particular figure axis.
@@ -163,7 +170,14 @@ class Plotter:
             self.ax.set_ylabel("Weighted Counts", fontsize=self.fontscale*self.fontsize)
 
         self._set_options(data=h, *args, **kwargs)
-        
+
+    def _get_current_axis_location(self):
+        """Assumes only vertical axis."""
+        for iax, ax in enumerate(self.axes):
+            for a in ax:
+                if a == self.ax:
+                    return iax
+    
     def graph(self, g, *args, **kwargs):
         """Plot a histogram like if it was a graph."""
         if 'equalwidth' in kwargs and kwargs['equalwidth']:
@@ -225,28 +239,31 @@ class Plotter:
         
         upvals = sum(hup).values() if isinstance(hup, hist.Stack) else hup.values()
         dovals = sum(hdo).values() if isinstance(hdo, hist.Stack) else hdo.values()
-        
+        upvars = sum(hup).variances() if isinstance(hup, hist.Stack) else hup.variances()
+        dovars = sum(hdo).variances() if isinstance(hdo, hist.Stack) else hdo.variances()
+
         if 'equalwidth' in kwargs and kwargs['equalwidth']:
             if isinstance(hup, hist.Stack):
                 hup = self._stack_equalwidth(hup, set_xticks=True)
             else:
                 hup = self._histo_equalwidth(hup, set_xticks=True)
 
-        # ignore division by zero; they are correctly handled by the plot
-        with np.errstate(divide='ignore', invalid='ignore'):
-            # variance of the ratio, not currently used
-            # data and MC uncertainties are shown separately
-            # variance = hup.variances() / dovals**2
-            ratio = upvals / dovals
+        ratio = self._div(upvals, dovals)
 
+        edges = hup.axes[0].edges
         if mode == "errorbar":
-            self.ax.errorbar(x=hup.axes[0].centers, y=ratio, yerr=np.sqrt(hup.variances()),
+            # plot uncertainty bands on top of the current axis
+            curr_loc = self._get_current_axis_location()
+            self._stats_band(hdo, loc=curr_loc, mode="ratio")
+            
+            uncert_up = self._div(np.sqrt(upvars), upvals)
+            self.ax.errorbar(x=hup.axes[0].centers, y=ratio, yerr=uncert_up,
                              fmt='o', color='black', 
                              markersize=0.4*self.fontsize, capsize=0.,
                              **plot_opt)
+
         elif mode == "line":
             ratio = np.nan_to_num(ratio, nan=0.) # replace NaN by 0 for displying purposes
-            bins = hup.axes[0].edges
             self.ax.hist([bins[:-1]], bins=bins, weights=ratio, bottom=1.,
                          histtype="step",
                          color=next(self.iter_colors) if 'color' not in kwargs else kwargs['color'],
@@ -308,6 +325,30 @@ class Plotter:
 
         return newstack
 
+    @_select_axis
+    def _stats_band(self, h, mode="ratio"):
+        """Plot statistical bands."""
+        edges = h.axes[0].edges
+        vals = sum(h).values() if isinstance(h, hist.Stack) else h.values()
+        variances = sum(h).variances() if isinstance(h, hist.Stack) else h.variances()
+        
+        uncert_band = hist.Hist.new.Reg(len(edges)-1, edges[0], edges[-1],
+                                        name="uncert_band").Weight()
+
+        assert mode in ("ratio", "standard"), "Invalid mode."
+        if mode == "ratio":
+            bottom = 1.
+            uncert_band.view().value = np.nan_to_num(self._div(np.sqrt(variances), vals), nan=0.)
+        elif mode == "standard":
+            bottom = sum(h).values() if isinstance(h, hist.Stack) else h.values()
+            uncert_band.view().value = np.sqrt(variances)
+            
+        uncert_band.view().variance = 0.
+        for sign in (-1., 1.):
+            self.ax.hist([edges[:-1]], bins=edges, weights=sign*uncert_band.values(),
+                         bottom=bottom, histtype="stepfilled", color="gainsboro",
+                         hatch='///', edgecolor="gray", linewidth=0., alpha=0.6)
+
     def _set_options(self, data=None, *args, **kwargs):
         """ Set the options for the plot."""
         options = {
@@ -330,7 +371,6 @@ class Plotter:
             if data:
                 min_y = (min(sum(data).values()) if isinstance(data, hist.Stack)
                          else min(data.values()))
-                breakpoint()
                 assert min_y >= 0, "Minimum value is negative."
                 if min_y > 0:
                     self.ax.set_ylim(0.05*min_y)

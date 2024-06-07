@@ -15,7 +15,7 @@ class PlotterFactory:
 
         self.years     = {"UL16", "UL16APV", "UL17", "UL18"}
         self.cat_res   = {"baseline", "res1b", "res2b"}
-        self.cat_boost = {"baseline_boosted", "boostedL", "boostedT"}
+        self.cat_boost = {"baseline_boosted", "boostedL_pnet"}
         self.channels  = {"ETau", "MuTau", "TauTau"}
         self.regions   = {"SR", "SStight", "OSinviso", "SSinviso"}
 
@@ -37,7 +37,7 @@ class PlotterFactory:
 			"ditau_deltaR"		   : (r"$\Delta R(\tau\tau)$",		  (10, 10, 2, 1000)),
 			"dib_deltaR"		   : (r"$\Delta R(bb)$",				  (10, 10, 2, 1000)),
 			"HH_deltaR"			   : (r"$\Delta R(HH)$",				  (30, 30, 2, 7000)),
-			"njets"				   : (r"$#Jets$",					  (90, 90, 5, 10000)),
+			"njets"				   : ("#Jets",					  (90, 90, 5, 10000)),
 			"met_et"			   : (r"$MET [GeV]$",				  (10, 10, 1, 1000)),
 			"met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
 			"metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
@@ -51,8 +51,8 @@ class PlotterFactory:
 			# "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
 			# "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
 			# "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
-			"bjet1_bID_deepFlavor" : (r"$Deep Flavour (jet #1)$",		  (10, 10, 1, 4000)),
-			"bjet2_bID_deepFlavor" : (r"$Deep Flavour (jet #2)$",		  (10, 10, 1, 4000)),
+			"bjet1_bID_deepFlavor" : ("Deep Flavour (jet #1)",		  (10, 10, 1, 4000)),
+			"bjet2_bID_deepFlavor" : ("Deep Flavour (jet #2)",		  (10, 10, 1, 4000)),
 			# "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
 			# "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
 			# "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
@@ -71,6 +71,16 @@ class PlotterFactory:
 
         self.logvariables = {"dau1_dxy", "dau1_dz", "dau2_dxy", "dau2_dz", "HH_mass", "HHKin_mass"}
         self.equalwidth = {"HH_mass", "HHKin_mass"}
+
+    def example_data_mc_with_ratio(self, channel, category, region, year):
+        """Example for plotting a single histogram using 'Histograms' and 'Plotter' classes."""
+        self._sanity_checks(channel, category, region)
+        string = '_{}_{}_{}'.format(category, region, 'dau1_pt')
+        hdata = self.hists.hists(keys='data_obs'+string, leglabel="Data")['data_obs'+string]
+        stackmc = self.hists.stack_mc(keys='.*'+string)
+        p = Plotter(self.outdir, channel=channel, cat=category, year=year, npads=2)
+        p.data_mc_with_ratio(hdata=hdata, stackmc=stackmc, xlabel=self.variables['dau1_pt'][0])
+        p.save('plot' + string)
 
     def _sanity_checks(self, channel, category, region) -> None:
         """Sanity checks for the input channel and category."""
@@ -92,39 +102,26 @@ class PlotterFactory:
         """Produce the data/mc plots with ratio for the given channel and category."""
         self._sanity_checks(channel, category, region)
 
-        num_workers = int(multiprocessing.cpu_count()/2)
+        num_workers = multiprocessing.cpu_count()-1
         with multiprocessing.Pool(processes=num_workers) as pool:
             star_args = [(v, channel, category, region, year) for v in self.variables]
             pool.starmap(self._produce_parallel, star_args)
-
-    def example_data_mc_with_ratio(self, channel, category, region, year):
-        """Example for plotting a single histogram using 'Histograms' and 'Plotter' classes."""
-        self._sanity_checks(channel, category, region)
-        string = '_{}_{}_{}'.format(category, region, 'dau1_pt')
-        hdata = self.hists.hists(keys='data_obs'+string, leglabel="Data")['data_obs'+string]
-        stackmc = self.hists.stack_mc(keys='.*'+string)
-        p = Plotter(self.outdir, channel=channel, cat=category, year=year, npads=2)
-        p.data_mc_with_ratio(hdata=hdata, stackmc=stackmc, linewidth=1,
-                             yscale='log' if 'dau1_pt' in self.logvariables else 'linear',
-                             xlabel=self.variables['dau1_pt'][0],
-                             equalwidth='dau1_pt' in self.equalwidth)
-        p.save('plot' + string)
 
 def makeFinalPlots(tag, year):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
 
-    chn = "ETau"
-    cat = "res1b"
-    infile = os.path.join(basepath_in, tag, chn, 'combined_outPlots.root')
-    outdir = os.path.join(basepath_out, tag, chn, cat)
+    for chn in ("ETau", "MuTau", "TauTau"):
+        for cat in ("res1b", "res2b", "baseline", "boostedL_pnet"):
+            print("Running for channel: {}, category: {}".format(chn, cat))
 
-    factory = PlotterFactory(infile, outdir)
-    #factory.produce_data_mc_with_ratio(chn, cat, "SR", year)
-    factory.example_data_mc_with_ratio(chn, cat, "SR", year)
+            infile = os.path.join(basepath_in, tag, chn, 'combined_outPlots.root')
+            outdir = os.path.join(basepath_out, tag, chn, cat)
+
+            factory = PlotterFactory(infile, outdir)
+            factory.produce_data_mc_with_ratio(chn, cat, "SR", year)
+            #factory.example_data_mc_with_ratio(chn, cat, "SR", year)
   
-    
-
     
     # stack_mc_up = h.stack_mc(keys='.*_res1b_SR_pdnn_m1000_s0_hh_tes_DM0_up')
     # stack_mc_down = h.stack_mc(keys='.*_res1b_SR_pdnn_m1000_s0_hh_tes_DM0_down')
