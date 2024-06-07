@@ -26,6 +26,8 @@ struct smallTree
       m_totalWeight = -1. ;
       m_prescaleWeight = 1. ;
       m_L1pref_weight = 1.;
+	  m_L1pref_weight_up = 1.;
+	  m_L1pref_weight_down = 1.;
       m_PUjetID_SF = 1.;
       m_PUjetID_SF_up = 1.;
       m_PUjetID_SF_down = 1.;
@@ -84,9 +86,9 @@ struct smallTree
       m_TTtopPtreweight_up   = 1. ;
       m_TTtopPtreweight_down = 1. ;
       m_EventNumber = 0 ;
-      m_trigSF = 1.;
-      m_trigSFnoMET = 1.;
-      m_trigSFnoTau = 1.;
+      m_trigSF = -1.;
+	  m_trigSFnoMET = -1.;
+	  m_trigSFnoTau = -1.;
       m_trigSF_ele_up = -1.;
       m_trigSF_mu_up = -1.;
       m_trigSF_SL_mu_up = -1.;
@@ -107,76 +109,76 @@ struct smallTree
 	  m_trigSF_met_down = -1.;
 	  m_trigSF_stau_up = -1.;
 	  m_trigSF_stau_down = -1.;
-      m_FakeRateSF = 1.;
-	  m_IdSF_deep_2d = 1.;
-	  m_IdSF_leg1_deep_vsJet_2d = 1;
-	  m_IdSF_leg2_deep_vsJet_2d = 1;
-	  m_IdFakeSF_deep_2d = 1.;
-      m_FakeRateSF_deep = 1.;
 
-	  m_idFakeSF_tauid_2d_stat0_DM0_up              = 1.;
-	  m_idFakeSF_tauid_2d_stat0_DM0_down			= 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM0_up				= 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM0_down			= 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = 1.;
+	  m_IdSF_deep_2d			= -99.;
+	  m_IdSF_leg1_deep_vsJet_2d = -99.;
+	  m_IdSF_leg2_deep_vsJet_2d = -99.;
+	  m_IdFakeSF_deep_2d		= -99.;
+      m_FakeRateSF_deep			= -99.;
 
-	  m_idFakeSF_tauid_2d_stat0_DM1_up              = 1.;
-	  m_idFakeSF_tauid_2d_stat0_DM1_down			= 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM1_up				= 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM1_down			= 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	= 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM0_up              = -99.;
+	  m_idFakeSF_tauid_2d_stat0_DM0_down			= -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM0_up				= -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM0_down			= -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = -99.;
 
-	  m_idFakeSF_tauid_2d_stat0_DM10_up              = 1.;
-	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM1_up              = -99.;
+	  m_idFakeSF_tauid_2d_stat0_DM1_down			= -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM1_up				= -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM1_down			= -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	= -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = -99.;
 
-	  m_idFakeSF_tauid_2d_stat0_DM10_up              = 1.;
-	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM10_up              = -99.;
+	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.;
 
-	  m_idFakeSF_tauid_2d_stat0_DM11_up              = 1.;
-	  m_idFakeSF_tauid_2d_stat0_DM11_down			 = 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM11_up				 = 1.;
-	  m_idFakeSF_tauid_2d_stat1_DM11_down			 = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	 = 1.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM10_up              = -99.;
+	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.;
 
-	  m_idFakeSF_tauid_2d_systcorrdmeras_up         = 1.;
-	  m_idFakeSF_tauid_2d_systcorrdmeras_down       = 1.;
-	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_up   = 1.;
-	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_down = 1.;
-	  m_idFakeSF_tauid_2d_systcorrerasgt140_up		= 1.;
-	  m_idFakeSF_tauid_2d_systcorrerasgt140_down	= 1.;
-	  m_idFakeSF_tauid_2d_stat0gt140_up			= 1.;
-	  m_idFakeSF_tauid_2d_stat0gt140_down		= 1.;
-	  m_idFakeSF_tauid_2d_stat1gt140_up			= 1.;
-	  m_idFakeSF_tauid_2d_stat1gt140_down		= 1.;
-	  m_idFakeSF_tauid_2d_extrapgt140_up			= 1.;
-	  m_idFakeSF_tauid_2d_extrapgt140_down			= 1.;
+	  m_idFakeSF_tauid_2d_stat0_DM11_up              = -99.;
+	  m_idFakeSF_tauid_2d_stat0_DM11_down			 = -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM11_up				 = -99.;
+	  m_idFakeSF_tauid_2d_stat1_DM11_down			 = -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	 = -99.;
+	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = -99.;
+
+	  m_idFakeSF_tauid_2d_systcorrdmeras_up         = -99.;
+	  m_idFakeSF_tauid_2d_systcorrdmeras_down       = -99.;
+	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_up   = -99.;
+	  m_idFakeSF_tauid_2d_systcorrdmuncorreras_down = -99.;
+	  m_idFakeSF_tauid_2d_systcorrerasgt140_up		= -99.;
+	  m_idFakeSF_tauid_2d_systcorrerasgt140_down	= -99.;
+	  m_idFakeSF_tauid_2d_stat0gt140_up				= -99.;
+	  m_idFakeSF_tauid_2d_stat0gt140_down			= -99.;
+	  m_idFakeSF_tauid_2d_stat1gt140_up				= -99.;
+	  m_idFakeSF_tauid_2d_stat1gt140_down			= -99.;
+	  m_idFakeSF_tauid_2d_extrapgt140_up			= -99.;
+	  m_idFakeSF_tauid_2d_extrapgt140_down			= -99.;
 	  
-      m_idFakeSF_mutauFR_etaLt0p4_up      = 1.;
-      m_idFakeSF_mutauFR_eta0p4to0p8_up   = 1.;
-      m_idFakeSF_mutauFR_eta0p8to1p2_up   = 1.;
-      m_idFakeSF_mutauFR_eta1p2to1p7_up   = 1.;
-      m_idFakeSF_mutauFR_etaGt1p7_up      = 1.;
-      m_idFakeSF_mutauFR_etaLt0p4_down    = 1.;
-      m_idFakeSF_mutauFR_eta0p4to0p8_down = 1.;
-      m_idFakeSF_mutauFR_eta0p8to1p2_down = 1.;
-      m_idFakeSF_mutauFR_eta1p2to1p7_down = 1.;
-      m_idFakeSF_mutauFR_etaGt1p7_down    = 1.;
+      m_idFakeSF_mutauFR_etaLt0p4_up      = -99.;
+      m_idFakeSF_mutauFR_eta0p4to0p8_up   = -99.;
+      m_idFakeSF_mutauFR_eta0p8to1p2_up   = -99.;
+      m_idFakeSF_mutauFR_eta1p2to1p7_up   = -99.;
+      m_idFakeSF_mutauFR_etaGt1p7_up      = -99.;
+      m_idFakeSF_mutauFR_etaLt0p4_down    = -99.;
+      m_idFakeSF_mutauFR_eta0p4to0p8_down = -99.;
+      m_idFakeSF_mutauFR_eta0p8to1p2_down = -99.;
+      m_idFakeSF_mutauFR_eta1p2to1p7_down = -99.;
+      m_idFakeSF_mutauFR_etaGt1p7_down    = -99.;
 
-      m_idFakeSF_etauFR_barrel_up         = 1.;
-      m_idFakeSF_etauFR_endcap_up         = 1.;
-      m_idFakeSF_etauFR_barrel_down       = 1.;
-      m_idFakeSF_etauFR_endcap_down       = 1.;
+      m_idFakeSF_etauFR_barrel_up         = -99.;
+      m_idFakeSF_etauFR_endcap_up         = -99.;
+      m_idFakeSF_etauFR_barrel_down       = -99.;
+      m_idFakeSF_etauFR_endcap_down       = -99.;
 
       m_jetFakeSF = 1.;
       m_lheNOutPartons = -1;
@@ -978,8 +980,10 @@ struct smallTree
     {
       m_smallT->Branch ("MC_weight", &m_MC_weight, "MC_weight/F") ;
       m_smallT->Branch ("totalWeight", &m_totalWeight, "totalWeight/F") ;
-      m_smallT->Branch ("prescaleWeight", &m_prescaleWeight, "prescaleWeight/F") ;
-      m_smallT->Branch ("L1pref_weight", &m_L1pref_weight, "L1pref_weight/F") ;
+      m_smallT->Branch ("prescaleWeight", &m_prescaleWeight, "prescaleWeight/F");
+      m_smallT->Branch ("L1pref_weight", &m_L1pref_weight, "L1pref_weight/F");
+      m_smallT->Branch ("L1pref_weight_up", &m_L1pref_weight_up, "L1pref_weight_up/F");
+      m_smallT->Branch ("L1pref_weight_down", &m_L1pref_weight_down, "L1pref_weight_down/F");
       m_smallT->Branch ("PUjetID_SF", &m_PUjetID_SF, "PUjetID_SF/F") ;
       m_smallT->Branch ("PUjetID_SF_up", &m_PUjetID_SF_up, "PUjetID_SF_up/F") ;
       m_smallT->Branch ("PUjetID_SF_down", &m_PUjetID_SF_down, "PUjetID_SF_down/F") ;
@@ -1062,7 +1066,6 @@ struct smallTree
 	  m_smallT->Branch ("trigSF_stau_up",       &m_trigSF_stau_up,   "trigSF_stau_up/F") ;
 	  m_smallT->Branch ("trigSF_stau_down",     &m_trigSF_stau_down, "trigSF_stau_down/F") ;
 
-      m_smallT->Branch ("FakeRateSF", &m_FakeRateSF, "FakeRateSF/F") ;
       m_smallT->Branch ("jetFakeSF", &m_jetFakeSF, "jetFakeSF/F") ;
 	  m_smallT->Branch ("IdSF_deep_2d", &m_IdSF_deep_2d, "IdSF_deep_2d/F") ;
 	  m_smallT->Branch("IdSF_leg1_deep_vsJet_2d", &m_IdSF_leg1_deep_vsJet_2d,
@@ -1968,6 +1971,8 @@ struct smallTree
   Float_t m_totalWeight ;
   Float_t m_prescaleWeight ;
   Float_t m_L1pref_weight ;
+  Float_t m_L1pref_weight_up ;
+  Float_t m_L1pref_weight_down ;
   Float_t m_PUjetID_SF ;
   Float_t m_PUjetID_SF_up ;
   Float_t m_PUjetID_SF_down ;
@@ -2048,7 +2053,6 @@ struct smallTree
   Float_t m_trigSF_met_down ;
   Float_t m_trigSF_stau_up ;
   Float_t m_trigSF_stau_down ;
-  Float_t m_FakeRateSF ;
   Float_t m_jetFakeSF ;
   Float_t m_IdSF_deep_2d ;
   Float_t m_IdSF_leg1_deep_vsJet_2d;
