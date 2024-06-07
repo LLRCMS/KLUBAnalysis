@@ -208,7 +208,7 @@ class Plotter:
                     continue
 
                 leg = a.legend(fontsize=0.7*self.fontscale*self.fontsize,
-                               loc="best", ncols=ncols,
+                               ncols=ncols, bbox_to_anchor=(0.99,0.99), loc="upper right",
                                frameon=True, facecolor='white', edgecolor='black', framealpha=1.)
                 leg.get_frame().set_boxstyle('Square', pad=0.0)
         
@@ -234,11 +234,13 @@ class Plotter:
 
         # ignore division by zero; they are correctly handled by the plot
         with np.errstate(divide='ignore', invalid='ignore'):
-            variance = hup.variances() / dovals**2
-            ratio = upvals / dovals - 1.
+            # variance of the ratio, not currently used
+            # data and MC uncertainties are shown separately
+            # variance = hup.variances() / dovals**2
+            ratio = upvals / dovals
 
         if mode == "errorbar":
-            self.ax.errorbar(x=hup.axes[0].centers, y=ratio, yerr=np.sqrt(variance),
+            self.ax.errorbar(x=hup.axes[0].centers, y=ratio, yerr=np.sqrt(hup.variances()),
                              fmt='o', color='black', 
                              markersize=0.4*self.fontsize, capsize=0.,
                              **plot_opt)
@@ -272,8 +274,8 @@ class Plotter:
         if not os.path.exists(self.output):
             os.makedirs(self.output)
         name = os.path.join(self.output, name)
-        # for ext in ("pdf", "png"):
-        #     plt.savefig(name + "." + ext)
+        for ext in ("pdf", "png"):
+            plt.savefig(name + "." + ext)
 
     @_select_axis
     def stack(self, stack, *args, **kwargs):
