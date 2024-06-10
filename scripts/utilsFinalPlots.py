@@ -27,7 +27,7 @@ class Histograms:
     def _debug(self, msg):
         """Prints a debug message."""
         if self.debug_on:
-            print("[DEBUG]" + msg)
+            print("[DEBUG] " + msg)
 
     def __del__(self):
         self.infile.close()
@@ -122,6 +122,7 @@ class Plotter:
         self.was_ratio_run = 0
         self.ymax = 0
         self.yunits = self._define_yunits()
+        self.debug_on = True
         
         fig, self.axes = plt.subplots(npads, 1, figsize=(16, 16), squeeze=False,
                                       gridspec_kw={'height_ratios': [3,1]})
@@ -143,6 +144,11 @@ class Plotter:
         
         self.colors = plt.cm.tab20.colors
         self.iter_colors = iter(self.colors)
+
+    def _debug(self, msg):
+        """Prints a debug message."""
+        if self.debug_on:
+            print("[DEBUG] " + msg)
 
     def _add_top_margin(self, data, margin=0.2):
         """Define vertical margin between data and subplot border."""
@@ -218,8 +224,8 @@ class Plotter:
         self.ax.hist([bins[:-1]], bins=bins, weights=h.values(), **plot_opt)
 
         if 'ylabel' not in kwargs:
-            _, bin_size = self._read_bins(h)
-            self.ax.set_ylabel("Events / {}".format(bin_size), fontsize=self.fontscale*self.fontsize)
+            bin_label = self._read_bins(h)
+            self.ax.set_ylabel(bin_label, fontsize=self.fontscale*self.fontsize)
 
         self._set_options(data=h, *args, **kwargs)
 
@@ -239,8 +245,8 @@ class Plotter:
                          fmt="o", color="black", markersize=0.4*self.fontsize, capsize=0.,
                          label=kwargs['label'] if 'label' in kwargs else "")
 
-        _, bin_size = self._read_bins(g)
-        self.ax.set_ylabel("Events / {}".format(bin_size), fontsize=self.fontscale*self.fontsize)
+        bin_label = self._read_bins(g)
+        self.ax.set_ylabel(bin_label, fontsize=self.fontscale*self.fontsize)
         self._set_options(data=g, *args, **kwargs)
 
     @_select_axis
@@ -253,11 +259,11 @@ class Plotter:
         xedges = h.axes[0].edges
         values = h.values()
         variances = h.variances()
-        
+
         newh = hist.Hist.new.Reg(len(xedges)-1, xedges[0], xedges[-1], name="x").Weight()
+        newh.label = h.label
         newh.view().value = values
         newh.view().variance = variances
-
         if set_xticks:
             xedges = [round(x,6) for x in xedges]
             self.ax.set_xticks(newh.axes[0].edges, xedges, rotation=60)
@@ -316,6 +322,7 @@ class Plotter:
                              **plot_opt)
 
         elif mode == "line":
+            bins = hup.axes[0].edges
             ratio = np.nan_to_num(ratio, nan=0.) # replace NaN by 0 for displying purposes
             self.ax.hist([bins[:-1]], bins=bins, weights=ratio, bottom=1.,
                          histtype="step",
@@ -342,29 +349,31 @@ class Plotter:
     def _read_bins(self, h):
         """Return the bin centers and bin widths."""
         edges = h.axes[0].edges
-        widths = round(np.diff(edges)[0],2)
+        if ((np.diff(edges) - np.diff(edges)[0]) == 0).all():
+            bin_size_str = " / " + str(round(np.diff(edges)[0], 2))
+        else:
+            bin_size_str = ""
         label = h[0].label if isinstance(h, hist.Stack) else h.label
         
-        bin_size_str = str(widths)
         for tup, unit in self.yunits.items():
-            if any(x in label for x in tup):
+            if bin_size_str != "" and any(x in label for x in tup):
                 bin_size_str += " " + unit
-        return len(edges)-1, bin_size_str
+        return "Events " + bin_size_str
         
     def save(self, name, ncols_leg=1):
         self._legend(ncols_leg)
         if not os.path.exists(self.output):
             os.makedirs(self.output)
         name = os.path.join(self.output, name)
-        self.debug(("Save {}.".format(name))
+        self._debug("Save {}.".format(name))
         for ext in ("pdf", "png"):
             plt.savefig(name + "." + ext)
 
     @_select_axis
     def stack(self, stack, *args, **kwargs):
         """Plot a stack of histograms."""
-        _, bin_size = self._read_bins(stack)
-        self.ax.set_ylabel("Events / {}".format(bin_size))
+        bin_label = self._read_bins(stack)
+        self.ax.set_ylabel(bin_label)
         if 'equalwidth' in kwargs and kwargs['equalwidth']:
             stack = self._stack_equalwidth(stack)
         plot_opt = dict(linewidth=kwargs['linewidth'] if 'linewidth' in kwargs else 1,

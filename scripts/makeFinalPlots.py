@@ -99,6 +99,8 @@ class PlotterFactory:
 			# "HHKin_mass"		   : (r"$m_{HHKin} [GeV]$",			  (1, 1, 1, 150)),
         }
 
+        self.systematics = {"tes_DM0", "tes_DM1", "tes_DM10", "tes_DM11"}
+        
         self.logvariables = {"dau1_dxy", "dau1_dz", "dau2_dxy", "dau2_dz", "HH_mass", "HHKin_mass"}
         self.equalwidth = {"HH_mass", "HHKin_mass"}
     
@@ -132,6 +134,29 @@ class PlotterFactory:
             for v in self.variables:
                 self._produce_data_mc_with_ratio_worker(variable=v, pars=pars)
 
+    def _produce_syst_shape_with_ratio_worker(self, syst, mass, spin, pars) -> None:
+        suffix = '_' + pars.histo_name + '_' + "pdnn_m" + mass + "_s" + spin + "_hh"
+        stack_mc_nom  = self.hists.stack_mc(keys='.*' + suffix)
+        stack_mc_up   = self.hists.stack_mc(keys='.*' + suffix + "_" + syst + '_up')
+        stack_mc_down = self.hists.stack_mc(keys='.*' + suffix + "_" + syst + '_down')
+        p = Plotter(self.outdir, npads=2)
+        p.syst_shape_with_ratio(stack_mc_nom, stack_mc_up, stack_mc_down,
+                                label="TES DM0",
+                                linewidth=3,
+                                yscale='linear',
+                                xlabel="pDNN (mX={}) [GeV]".format(mass), equalwidth=True)
+        p.save('plot_' + pars.name + '_pdnn_m' + mass + "_s" + spin + "_hh_" + syst)
+
+    def produce_syst_shape_with_ratio(self, syst, mass, spin, pars) -> None:
+        if self.multithreading:
+            num_workers = multiprocessing.cpu_count()-1
+            with multiprocessing.Pool(processes=num_workers) as pool:
+                func_args = [(syst, mass, spin, pars) for syst in self.systematics]
+                pool.starmap(self._produce_syst_shape_with_ratio_worker, func_args)
+        else:
+            for syst in self.systematics:
+                self._produce_syst_shape_with_ratio_worker(syst=syst, mass=mass, spin=spin, pars=pars)
+         
 
 def makeFinalPlots(tag, year):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
@@ -144,20 +169,24 @@ def makeFinalPlots(tag, year):
         for cat in categories:
             print("Running for channel: {}, category: {}".format(chn, cat))
 
-            infile = os.path.join(basepath_in, tag, chn, 'combined_outPlots.root')
+            infile = os.path.join(basepath_in, tag, chn, 'combined_outLimits.root')
             outdir = os.path.join(basepath_out, tag, chn, cat)
             pars = Params(channel=chn, category=cat, region="SR", year=year)
             factory = PlotterFactory(infile, outdir, multithreading=not args.singlethreaded)
             factory.produce_data_mc_with_ratio(pars)
-  
-    
-    # stack_mc_up = h.stack_mc(keys='.*_res1b_SR_pdnn_m1000_s0_hh_tes_DM0_up')
-    # stack_mc_down = h.stack_mc(keys='.*_res1b_SR_pdnn_m1000_s0_hh_tes_DM0_down')
-    # plot3 = Plotter(outdir, npads=2)
-    # plot3.syst_shape_with_ratio(stack_mc, stack_mc_up, stack_mc_down,
-    #                             label="TES DM0", linewidth=3, yscale='log',
-    #                             xlabel=r"pDNN (mX=1000) [GeV]", equalwidth=True)    
-    # plot3.save('test3', ncols_leg=1)
+
+
+    # mass, spin = "500", "0"
+    # sm_str = "Spin" + spin + "_Mass" + mass
+    # for chn in channels:
+    #     for cat in categories:
+    #         infile = os.path.join(basepath_in, tag, chn, sm_str, 'combined_outLimits.root')
+    #         print(infile)
+            
+    #         outdir = os.path.join(basepath_out, tag, chn, sm_str, cat)
+    #         pars = Params(channel=chn, category=cat, region="SR", year=year)
+    #         factory = PlotterFactory(infile, outdir, multithreading=not args.singlethreaded)
+    #         factory.produce_syst_shape_with_ratio(syst="tes_DM0", mass=mass, spin=spin, pars=pars)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Make final plots for the analysis.')

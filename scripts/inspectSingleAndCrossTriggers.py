@@ -37,7 +37,7 @@ def getRootFilePaths(channel, year):
             base_cecile, "sf_el_" + year2 + "_HLTEle32.root"),
         "MuTau": os.path.join(
             base_pog, year2,
-            "Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root")
+            "Efficiencies_muon_generalTracks_Z_Run" + year2 + "_UL_SingleMuonTriggers.root")
     }
     path_cross  = { 
         "ETau": os.path.join(
@@ -47,14 +47,16 @@ def getRootFilePaths(channel, year):
     }
     return path_single[channel], path_cross[channel]
 
-def openHistograms(path_single, path_cross, channel):
+def openHistograms(path_single, path_cross, channel, year):
     """
     Open the histograms contained in the ROOT files.
     """
-    single_name = {
-        "ETau": "eff_data",
-        "MuTau": "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyData"
-    }[channel]
+    single_name = {"UL18": {"ETau": "eff_data",
+                            "MuTau": "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyData"},
+                   "UL17": {"ETau": "eff_data",
+                            "MuTau": "NUM_IsoMu27_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt_efficiencyData"},
+                   }[year][channel]
+                   
     cross_name = {
         "ETau": "eff_data",
         "MuTau": "eff_data"
@@ -143,7 +145,7 @@ def divideHistos(h1, h2):
 
 def inspectSingleAndCrossTriggers(channel, year, output, ratio):
     p_single, p_cross = getRootFilePaths(channel, year)
-    h_single, h_cross = openHistograms(p_single, p_cross, channel)
+    h_single, h_cross = openHistograms(p_single, p_cross, channel, year)
 
     h_single = convertToHist(h_single)
     if channel == "MuTau":
@@ -171,7 +173,7 @@ def inspectSingleAndCrossTriggers(channel, year, output, ratio):
             h_div = divideHistos(h_single[1:,:end], h_cross[2:,:end])
         else:
             h_div = divideHistos(h_single, h_cross)
-        plot.histo(h_div, title="Single / Cross", loc=2)
+        plot.histo(h_div, channel=channel, title="Single / Cross", loc=2, labelpad=labelpads[channel][0])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Inspect single and cross triggers')
