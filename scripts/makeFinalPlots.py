@@ -5,19 +5,49 @@ _all_ = [ 'makeFinalPlots' ]
 import os
 import argparse
 import multiprocessing
+from functools import wraps
 
 from utilsFinalPlots import Histograms, Plotter
 
-class PlotterFactory:
-    def __init__(self, infile, outdir):
-        self.outdir = outdir
-        self.hists = Histograms(infile)
-
-        self.years     = {"UL16", "UL16APV", "UL17", "UL18"}
+class Params:
+    def __init__(self, channel="TauTau", category="boostedL_pnet", region="SR", year="2018"):
+        self.years     = {"2016", "2016APV", "2017", "2018"}
         self.cat_res   = {"baseline", "res1b", "res2b"}
         self.cat_boost = {"baseline_boosted", "boostedL_pnet"}
         self.channels  = {"ETau", "MuTau", "TauTau"}
         self.regions   = {"SR", "SStight", "OSinviso", "SSinviso"}
+
+        self.channel  = channel
+        self.category = category
+        self.region   = region
+        self.year     = year        
+
+        self._sanity_checks()
+        
+        self.histo_name = '_'.join((self.category, self.region))
+        self.name = self.histo_name + '_' + '_'.join((self.channel, self.year))
+        
+    def __repr__(self):
+        return "Params(channel={}, category={}, region={}, year={})".format(self.channel, self.category,
+                                                                            self.region, self.year)
+
+    def __str__(self):
+        return "Channel={}, Category={}, Region={}, Year={}".format(self.channel, self.category,
+                                                                    self.region, self.year)
+
+    def _sanity_checks(self) -> None:
+        """Sanity checks for the input channel and category."""
+        assert self.channel in self.channels, f"Invalid channel: {channel}"
+        assert self.category in self.cat_res.union(self.cat_boost), f"Invalid category: {category}"
+        assert self.region in self.regions, f"Invalid region: {region}"
+        assert self.year in self.years, f"Invalid year: {year}"
+
+
+class PlotterFactory:
+    def __init__(self, infile, outdir, multithreading=True):
+        self.outdir = outdir
+        self.multithreading = multithreading
+        self.hists = Histograms(infile)
 
         # name, sigscale per channel
         self.variables = {
@@ -71,56 +101,54 @@ class PlotterFactory:
 
         self.logvariables = {"dau1_dxy", "dau1_dz", "dau2_dxy", "dau2_dz", "HH_mass", "HHKin_mass"}
         self.equalwidth = {"HH_mass", "HHKin_mass"}
+    
+    def _produce_data_mc_with_ratio_worker(self, variable, pars) -> None:
+        """
+        Worker function for producing the data/mc plots with ratio for the given channel and category.
+        """
+        suffix = '_' + pars.histo_name + '_' + variable
+        hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
+        stackmc = self.hists.stack_mc(keys='.*'+suffix)
 
-    def example_data_mc_with_ratio(self, channel, category, region, year):
-        """Example for plotting a single histogram using 'Histograms' and 'Plotter' classes."""
-        self._sanity_checks(channel, category, region)
-        string = '_{}_{}_{}'.format(category, region, 'dau1_pt')
-        hdata = self.hists.hists(keys='data_obs'+string, leglabel="Data")['data_obs'+string]
-        stackmc = self.hists.stack_mc(keys='.*'+string)
-        p = Plotter(self.outdir, channel=channel, cat=category, year=year, npads=2)
-        p.data_mc_with_ratio(hdata=hdata, stackmc=stackmc, xlabel=self.variables['dau1_pt'][0])
-        p.save('plot' + string)
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=2)
+        p.data_mc_with_ratio(hdata=hdata, stackmc=stackmc,
+                             linewidth=1,
+							 yscale='log' if variable in self.logvariables else 'linear',
+							 xlabel=self.variables[variable][0],
+                             equalwidth=variable in self.equalwidth)
+        p.save('plot_' + pars.name + '_' + variable)
 
-    def _sanity_checks(self, channel, category, region) -> None:
-        """Sanity checks for the input channel and category."""
-        assert channel in self.channels, f"Invalid channel: {channel}"
-        assert category in self.cat_res.union(self.cat_boost), f"Invalid category: {category}"
-        assert region in self.regions, f"Invalid region: {region}"
+    def produce_data_mc_with_ratio(self, pars) -> None:
+        """
+        Produce the data/mc plots with ratio for the given channel and category.
+        If no variable is given, it will produce the plots for all variables in the dictionary.
+        """       
+        if self.multithreading:
+            num_workers = multiprocessing.cpu_count()-1
+            with multiprocessing.Pool(processes=num_workers) as pool:
+                func_args = [(v, pars) for v in self.variables]
+                pool.starmap(self._produce_data_mc_with_ratio_worker, func_args)
+        else:
+            for v in self.variables:
+                self._produce_data_mc_with_ratio_worker(variable=v, pars=pars)
 
-    def _produce_parallel(self, v, channel, category, region, year):
-        string = '_{}_{}_{}'.format(category, region, v)
-        hdata = self.hists.hists(keys='data_obs'+string, leglabel="Data")['data_obs'+string]
-        stackmc = self.hists.stack_mc(keys='.*'+string)
-        p = Plotter(self.outdir, channel=channel, cat=category, year=year, npads=2)
-        p.data_mc_with_ratio(hdata=hdata, stackmc=stackmc, linewidth=1,
-							 yscale='log' if v in self.logvariables else 'linear',
-							 xlabel=self.variables[v][0], equalwidth=v in self.equalwidth)
-        p.save('plot' + string)
-
-    def produce_data_mc_with_ratio(self, channel, category, region, year) -> None:
-        """Produce the data/mc plots with ratio for the given channel and category."""
-        self._sanity_checks(channel, category, region)
-
-        num_workers = multiprocessing.cpu_count()-1
-        with multiprocessing.Pool(processes=num_workers) as pool:
-            star_args = [(v, channel, category, region, year) for v in self.variables]
-            pool.starmap(self._produce_parallel, star_args)
 
 def makeFinalPlots(tag, year):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
 
-    for chn in ("ETau", "MuTau", "TauTau"):
-        for cat in ("res1b", "res2b", "baseline", "boostedL_pnet"):
+    channels = ("TauTau",) #, "MuTau", "ETau")
+    categories = ("boostedL_pnet",) #, "res1b", "res2b", "baseline")
+
+    for chn in channels:
+        for cat in categories:
             print("Running for channel: {}, category: {}".format(chn, cat))
 
             infile = os.path.join(basepath_in, tag, chn, 'combined_outPlots.root')
             outdir = os.path.join(basepath_out, tag, chn, cat)
-
-            factory = PlotterFactory(infile, outdir)
-            factory.produce_data_mc_with_ratio(chn, cat, "SR", year)
-            #factory.example_data_mc_with_ratio(chn, cat, "SR", year)
+            pars = Params(channel=chn, category=cat, region="SR", year=year)
+            factory = PlotterFactory(infile, outdir, multithreading=not args.singlethreaded)
+            factory.produce_data_mc_with_ratio(pars)
   
     
     # stack_mc_up = h.stack_mc(keys='.*_res1b_SR_pdnn_m1000_s0_hh_tes_DM0_up')
@@ -136,6 +164,7 @@ if __name__ == '__main__':
     parser.add_argument('--tag', type=str, required=True, help='Tag')
     parser.add_argument('--year', type=str, required=True,
                         choices=['2016', '2016APV', '2017', '2018'], help='Year')
+    parser.add_argument('--singlethreaded', action='store_true', help='Enable multithreading')
     args = parser.parse_args()
 
     makeFinalPlots(args.tag, args.year)

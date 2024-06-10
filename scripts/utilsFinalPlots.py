@@ -22,6 +22,12 @@ class Histograms:
     def __init__(self, infile):
         self.infile = up.open(infile)
         self._hists = {}
+        self.debug_on = True
+
+    def _debug(self, msg):
+        """Prints a debug message."""
+        if self.debug_on:
+            print("[DEBUG]" + msg)
 
     def __del__(self):
         self.infile.close()
@@ -30,64 +36,99 @@ class Histograms:
     def hists(self):
         return self._hists
 
-    def mod_keys(self, keys):
-        return [re.split(';', key)[0] for key in keys]
-
-    def _read_histograms(func):
+    def _filter_keys(self, keys, mode=None):
         """
-        Decorator to load the histograms specified by the keys.
         If `keys` is a string it is treated as a regular expression.
         If `keys` is a list or tuple, it is treated as a list of histogram names.
         """
-        @wraps(func)
-        def wrapper(self, keys, *args, **kwargs):
-            if not isinstance(keys, (list, tuple)):
-                keys = "^" + keys + ";\d+$" # handle ROOT versioning system
-                comp = re.compile(keys)
-                keys = self.mod_keys([s for s in self.infile.keys() if comp.search(s)])
-            missing_keys = [h for h in keys if h not in self._hists]
-            
-            for key in missing_keys:
-                self._hists[key] = self.infile[key].to_hist()
+        data_prefixes = {"data", "Data"}
+        signal_prefixes = {"Radion", "Graviton"}
 
-            return func(self, keys, *args, **kwargs)
-        return wrapper
+        if not isinstance(keys, (list, tuple)):
+            keys = "^" + keys + ";\d+$" # handle ROOT versioning system
+            comp = re.compile(keys)
+            keys = self.mod_keys([s for s in self.infile.keys() if comp.search(s)])
 
-    @_read_histograms
+        # filter keys based on mode
+        if mode == "mc":
+            keys = [k for k in keys if not any(x in k for x in (data_prefixes | signal_prefixes))]
+        elif mode == "data":
+            keys = [k for k in keys if any(x in k for x in data_prefixes)]
+        elif mode == "signal":
+            keys = [k for k in keys if any(x in k for x in signal_prefixes)]
+
+        # checks which keys correspond to histograms that have not been loaded
+        miss_keys = [h for h in keys if h not in self._hists]
+        
+        return keys, miss_keys
+
+    def mod_keys(self, keys):
+        return [re.split(';', key)[0] for key in keys]
+
+    def _read_histograms(mode=None):
+        def _read_histograms_inner(func):
+            """Decorator to load the histograms specified by the keys."""
+            @wraps(func)
+            def wrapper(self, keys, *args, **kwargs):
+                keys, miss_keys = self._filter_keys(keys, mode=mode)
+                for key in miss_keys:
+                    self._hists[key] = self.infile[key].to_hist()
+                    self._remove_neg_bins(self._hists[key])
+                
+                return func(self, keys, *args, **kwargs)
+            return wrapper
+        return _read_histograms_inner
+
+    @_read_histograms()
     def read(self, keys, *args, **kwargs):
         """Read histograms."""
         pass
     
-    @_read_histograms
+    @_read_histograms()
     def hists(self, keys, *args, **kwargs):
         """Return the histograms specified by the keys."""
         keys = self.mod_keys(keys)
         return {k:self._hists[k] for k in keys}
 
-    @_read_histograms
+    def _remove_neg_bins(self, h):
+        """Remove negative bins from histogram, and renormalize."""
+        sum_before = h.sum().value
+        h.values()[h.values() < 0] = 0.
+        sum_after = h.sum().value
+        
+        if sum_before != sum_after:
+            self._debug("Removed negative bins from histogram " + h.name + ".")
+
+            if sum_after < 0.:
+                raise ValueError("Negative bins in histogram after removal.")
+            elif sum_after > 0.:
+                h *= sum_before/sum_after
+
+    @_read_histograms()
     def stack(self, keys, *args, **kwargs):
         """Stack histograms."""
-        stack = hist.Stack(*[self._hists[k] for k in keys])
-        return stack
+        return hist.Stack(*[self._hists[k] for k in keys])
 
-    @_read_histograms
+    @_read_histograms("mc")
     def stack_mc(self, keys, *args, **kwargs):
         """Stack MC histograms, removing data and signal histograms."""
-        mc_keys = [k for k in keys if not any(x in k for x in ("data", "Data", "Radion", "Graviton"))]
-        return self.stack(mc_keys, *args, **kwargs)
+        keys, _ = self._filter_keys(keys, mode="mc")
+        return self.stack(keys, *args, **kwargs)
 
 class Plotter:
     def __init__(self, output, channel="ETau", cat="baseline", year="2018", npads=1):
         self.output = output
         assert npads <= 2, "Only 1 or 2 pads are supported."
         self.was_ratio_run = 0
-
-        self.fig, self.axes = plt.subplots(npads, 1, figsize=(16, 16), squeeze=False,
-                                           gridspec_kw={'height_ratios': [3,1]})
+        self.ymax = 0
+        self.yunits = self._define_yunits()
+        
+        fig, self.axes = plt.subplots(npads, 1, figsize=(16, 16), squeeze=False,
+                                      gridspec_kw={'height_ratios': [3,1]})
         if npads > 1:
             plt.subplots_adjust(left=0.1, right=.95, top=.95, bottom=0.1,
                                 wspace=0., hspace=0.04)
-        self.fontsize = 35
+        self.fontsize = 40
         self.fontscale = 0.8
         hep.cms.text(' Preliminary', fontsize=self.fontsize, ax=self.axes[0][0])
 
@@ -109,15 +150,25 @@ class Plotter:
         if self.ax.get_yscale() == 'log':
             margin = 10
         margin *= max_y
-        self.ax.set_ylim(self.ax.get_ylim()[0], max_y + margin)
+        new_max = max_y + margin
+        if new_max > self.ymax: 
+            self.ax.set_ylim(self.ax.get_ylim()[0], new_max)
+            self.ymax = new_max
 
     def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
         """Convenience function to plot data and MC with ratio."""
         self.stack(stackmc, loc=0, *args, **kwargs)
-        self._stats_band(stackmc, loc=0, mode="standard")
+        self._stats_band(stackmc, loc=0, mode="standard", *args, **kwargs)
         self.graph(hdata, loc=0, label="Data", *args, **kwargs)
         self.ratio(hdata, stackmc, loc=1, *args, **kwargs)
 
+    def _define_yunits(self):
+        return {
+            ("dau1_pt", "dau2_pt", "bjet1_pt", "bjet2_pt", "tauH_mass", "tauH_pt", "bH_mass", "bH_pt",
+             "met_et", "metnomu_et", "METx", "METy", "tauH_SVFit_mass", "tauH_SVFit_pt",
+             "HHbregrsvfit_m", "HHbregrsvfit_pt", "HH_mass", "HHKin_mass"): "GeV",
+        }
+        
     def __del__(self):
         plt.close()
         
@@ -167,7 +218,8 @@ class Plotter:
         self.ax.hist([bins[:-1]], bins=bins, weights=h.values(), **plot_opt)
 
         if 'ylabel' not in kwargs:
-            self.ax.set_ylabel("Weighted Counts", fontsize=self.fontscale*self.fontsize)
+            _, bin_size = self._read_bins(h)
+            self.ax.set_ylabel("Events / {}".format(bin_size), fontsize=self.fontscale*self.fontsize)
 
         self._set_options(data=h, *args, **kwargs)
 
@@ -187,7 +239,8 @@ class Plotter:
                          fmt="o", color="black", markersize=0.4*self.fontsize, capsize=0.,
                          label=kwargs['label'] if 'label' in kwargs else "")
 
-        self.ax.set_ylabel("Weighted Counts", fontsize=self.fontscale*self.fontsize)
+        _, bin_size = self._read_bins(g)
+        self.ax.set_ylabel("Events / {}".format(bin_size), fontsize=self.fontscale*self.fontsize)
         self._set_options(data=g, *args, **kwargs)
 
     @_select_axis
@@ -254,7 +307,7 @@ class Plotter:
         if mode == "errorbar":
             # plot uncertainty bands on top of the current axis
             curr_loc = self._get_current_axis_location()
-            self._stats_band(hdo, loc=curr_loc, mode="ratio")
+            self._stats_band(hdo, loc=curr_loc, mode="ratio", *args, **kwargs)
             
             uncert_up = self._div(np.sqrt(upvars), upvals)
             self.ax.errorbar(x=hup.axes[0].centers, y=ratio, yerr=uncert_up,
@@ -285,19 +338,33 @@ class Plotter:
             self.ax.axhline(y=i, color='gray', linestyle='--')
         
         self._set_options(*args, **kwargs)
+
+    def _read_bins(self, h):
+        """Return the bin centers and bin widths."""
+        edges = h.axes[0].edges
+        widths = round(np.diff(edges)[0],2)
+        label = h[0].label if isinstance(h, hist.Stack) else h.label
+        
+        bin_size_str = str(widths)
+        for tup, unit in self.yunits.items():
+            if any(x in label for x in tup):
+                bin_size_str += " " + unit
+        return len(edges)-1, bin_size_str
         
     def save(self, name, ncols_leg=1):
         self._legend(ncols_leg)
         if not os.path.exists(self.output):
             os.makedirs(self.output)
         name = os.path.join(self.output, name)
+        self.debug(("Save {}.".format(name))
         for ext in ("pdf", "png"):
             plt.savefig(name + "." + ext)
 
     @_select_axis
     def stack(self, stack, *args, **kwargs):
         """Plot a stack of histograms."""
-        self.ax.set_ylabel("Weighted Counts")
+        _, bin_size = self._read_bins(stack)
+        self.ax.set_ylabel("Events / {}".format(bin_size))
         if 'equalwidth' in kwargs and kwargs['equalwidth']:
             stack = self._stack_equalwidth(stack)
         plot_opt = dict(linewidth=kwargs['linewidth'] if 'linewidth' in kwargs else 1,
@@ -326,7 +393,7 @@ class Plotter:
         return newstack
 
     @_select_axis
-    def _stats_band(self, h, mode="ratio"):
+    def _stats_band(self, h, mode="ratio", *args, **kwargs):
         """Plot statistical bands."""
         edges = h.axes[0].edges
         vals = sum(h).values() if isinstance(h, hist.Stack) else h.values()
@@ -349,6 +416,8 @@ class Plotter:
                          bottom=bottom, histtype="stepfilled", color="gainsboro",
                          hatch='///', edgecolor="gray", linewidth=0., alpha=0.6)
 
+        self._set_options(data=uncert_band+bottom, *args, **kwargs)
+        
     def _set_options(self, data=None, *args, **kwargs):
         """ Set the options for the plot."""
         options = {
