@@ -1207,7 +1207,7 @@ int main (int argc, char** argv)
 	    } // if isHHsignal
 
 
-	  // store in a dedicated vector the Higgs or Z bosons in the event
+	  // storing H or Z decaying into bb in dedicated vectors
 	  std::vector<TLorentzVector> higgsVectors;
 	  std::vector<TLorentzVector> bQuarksFromHiggs;
 	  
@@ -1222,16 +1222,16 @@ int main (int argc, char** argv)
 	    int idx_H = -1.;
 	    int idx_Z = -1.;
 
-	    if(isQuarkb){ //looking for b only (and not anti-b), assuming that a b coming from a Z or a Higgs have as a mate an anti-b
+	    if(isQuarkb){ //focusing only on b (not anti-b), assuming that a b from a Z or a Higgs is paired with an anti-b
 	      idx_H = theBigTree.genpart_HMothInd->at(igen);
 	      idx_Z = theBigTree.genpart_ZMothInd->at(igen);
-	      if (idx_H != -1.) { // b coming from a H
+	      if (idx_H != -1.) { // b from H
 		vBoson.SetPxPyPzE(theBigTree.genpart_px->at(idx_H), theBigTree.genpart_py->at(idx_H), theBigTree.genpart_pz->at(idx_H), theBigTree.genpart_e->at(idx_H));
 		vB1.SetPxPyPzE(theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
 		higgsVectors.push_back(vBoson);  
 		bQuarksFromHiggs.push_back(vB1);
 	      } 
-	      else if (idx_Z != - 1.) { // b coming from a Z
+	      else if (idx_Z != - 1.) { // b from Z
 		vBoson.SetPxPyPzE(theBigTree.genpart_px->at(idx_Z), theBigTree.genpart_py->at(idx_Z), theBigTree.genpart_pz->at(idx_Z), theBigTree.genpart_e->at(idx_Z));
 		vB1.SetPxPyPzE(theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
 		zBosonVectors.push_back(vBoson);  
@@ -5310,7 +5310,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_HHbregrsvfit_phi = tlv_HHbregrsvfit.Phi();
 		  theSmallTree.m_HHbregrsvfit_m	  = tlv_HHbregrsvfit.M();
 
-		  // Check if the fatjet is matched with any Higgs or Z bosons found before decaying into bb
+		  // verify if the fatjet matches any previously found Higgs or Z decaying into bb
 		  bool matchedToHiggs = false;
 		  bool matchedToZ = false;
 		  for (const auto& higgs : higgsVectors) {
@@ -5333,7 +5333,7 @@ int main (int argc, char** argv)
 		  pnetSF pnetSF_helper;
 		  std::map<std::string, std::vector<float>> pnetSF_map = pnetSF_helper.getSFmap(tlv_fj.Pt(), PERIOD);
 
-		  // corrections for signal-like jets
+		  // corrections for signal-like jets (from BTV POG)
 		  if (matchedToHiggs || matchedToZ){
 		    // saving each working point
 		    std::tuple<float, float, float> SF_HP = pnetSF_helper.getSF(pnetSF_map, "HP");
@@ -5351,8 +5351,9 @@ int main (int argc, char** argv)
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(SF_LP);
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(SF_LP);
 		  }
-		  //using DY_tostitch under the assumption that every time we consider a DY sample we put this flag to 1, isDY seems to be deprecated   
-		  // we should use a new flag for V + jets processes
+		  // empirically obtained corrections for background samples (DY and TT)
+		  //    - using DY_tostitch with the assumption that every time we consider a DY sample, we set DYtostitch to 1, isDY seems to be deprecated   
+		  //    - we should use a new flag for V + jets processes
 		  else if (DY_tostitch){
 		    std::tuple<float, float, float> DY_cor_LP = pnetSF_helper.getDYcorrections(tlv_fj.Pt(), PERIOD, "LP");
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(DY_cor_LP);
