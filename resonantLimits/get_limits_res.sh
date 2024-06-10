@@ -485,7 +485,7 @@ elif [ ${MODE} == "all_years" ]; then
 
 	cd ${LIMIT_DIR}
 	
-    card_dir="${LIMIT_DIR}/cards_Final_Shapes_Run2_All/cards_${VAR}"
+    card_dir="${LIMIT_DIR}/cards_Final_CorrectBinning_Run2_All"
     out_dir="${card_dir}/combined_out"
     parallel mkdir -p "${out_dir}" ::: ${MASSES[@]}
 

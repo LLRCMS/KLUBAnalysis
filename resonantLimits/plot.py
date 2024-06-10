@@ -174,13 +174,11 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period,
 
         alpha = 0.8
         if "Run2" in legends[idx]:
-            fplot = "-o"
+            fplot = "--o"
         else:
             fplot = "--o"
-        ax.plot(masses[idx], vals['exp'], fplot, color='black' if legends[idx]=='Observed' else linecolors[idx],
-                label=legends[idx], linewidth=2)
  
-        if not nobands:
+        if not nobands or "Run2" in indir:
             if interp:
                 spline_degree = 2
                 spline_m1s = make_interp_spline(masses[idx], vals['m1s'], k=spline_degree)
@@ -206,20 +204,25 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period,
                 ax.fill_between(masses[idx], vals['p1s'], vals['p2s'], alpha=alpha,
                                 color='#85D1FBff')
 
+        black_lines = ('Observed', 'Run2')
+        ax.plot(masses[idx], vals['exp'], fplot,
+                color='black' if legends[idx] in black_lines else linecolors[idx],
+                label=legends[idx], linewidth=2)
+
     legend_opt = dict(facecolor="black", edgecolor="white", framealpha=1, prop={'size': 26}, ncols=1)
     if atlas:
         column1 = {"atlas_bands": "ATLAS exp."}
-        atlas_line, = ax.plot(atlas_masses, vals['atlas_nom'], '-o', color='black', linewidth=2)
+        atlas_line, = ax.plot(atlas_masses, vals['atlas_nom'], '-o', color='gray', linewidth=2)
         lines = [atlas_line]
         if not nobands:
             atlas_bands = ax.fill_between(atlas_masses, vals['atlas_m1s'], vals['atlas_p1s'], alpha=alpha, color='gray')
             lines.append(atlas_bands)
             column1.update({"atlas_exp": "ATLAS 68% exp."})
-        legend1 = Legend(ax, lines, column1.values(), bbox_to_anchor=(0.8, .995), **legend_opt)
+        legend1 = Legend(ax, lines, column1.values(), bbox_to_anchor=(0.995, .995), **legend_opt)
 
     handles, labels = plt.gca().get_legend_handles_labels()
     ax.add_artist(legend1)
-    plt.legend(loc="upper right", bbox_to_anchor=(0.995, .995), **legend_opt)
+    plt.legend(loc="upper right", bbox_to_anchor=(0.8, .995), **legend_opt)
  
     for ext in ('.png', '.pdf'):
         plt.savefig(outfile + ext, dpi=600)
@@ -409,7 +412,8 @@ if __name__ == "__main__":
     if 'years' not in FLAGS.mode:
         outdir = os.path.join(outdir, FLAGS.tag)
     else:
-        outdir = os.path.join(outdir, FLAGS.tag + '_AllYears')
+        outdir = os.path.join(outdir, FLAGS.tag + '_Run2_All')
+
     if not os.path.exists(outdir):
         os.makedirs(outdir)
         

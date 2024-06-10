@@ -78,9 +78,8 @@ declare -A TAGS=(
 	["2018"]="Final_CorrectBinning_UL18"
 )
 
-comb_dir_base="${LIMIT_DIR}/cards_Final_CorrectBinning_Run2_All"
-comb_dir="${comb_dir_base}/cards_${VAR}"
-mkdir -p ${comb_dir_base}
+comb_dir="${LIMIT_DIR}/cards_Final_CorrectBinning_Run2_All"
+mkdir -p ${comb_dir}
 parallel mkdir -p ${comb_dir} ::: ${MASSES[@]}
 #parallel rm -f -- ${comb_dir}/comb.*.txt ::: ${MASSES[@]}
 
@@ -100,6 +99,6 @@ parallel combineCards.py -S \
 		 ">" ${comb_txt} ::: ${MASSES[@]}
 parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 
-# echo ${comb_txt}
-# echo ${comb_root}
+echo ${comb_txt}
+echo ${comb_root}
 parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
