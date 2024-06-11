@@ -8,6 +8,7 @@ import glob
 import uproot as up
 import hist
 import pickle
+import numpy as np
 
 import matplotlib; import matplotlib.pyplot as plt
 import matplotlib.colors as colors
@@ -48,7 +49,7 @@ def getRootFilePaths(channel, year):
     }
     return path_single[channel], path_cross[channel]
 
-def openHistograms(path_single, path_cross, channel, year, wp, mode):
+def openHistogramsEff(path_single, path_cross, channel, year, wp, mode):
     """
     Open the histograms contained in the ROOT files.
     """
@@ -67,6 +68,31 @@ def openHistograms(path_single, path_cross, channel, year, wp, mode):
     with up.open(path_cross) as f_cross:
         h_cross = f_cross[cross_name(mode)]
     return h_single, h_cross
+
+def openHistogramsSF(path_single, path_cross, channel, year, wp):
+    """
+    Open the histograms contained in the ROOT files.
+    """
+    mode_map = {"data": "Data", "mc": "MC"}
+    single_name = lambda mode : {"2018": {"ETau": "eff_"+mode,
+                                          "MuTau": "NUM_IsoMu24_DEN_CutBasedId"+wp.id+"_and_PFIso"+wp.iso+"_abseta_pt_efficiency"+mode_map[mode]},
+                                 "2017": {"ETau": "eff_"+mode,
+                                          "MuTau": "NUM_IsoMu27_DEN_CutBasedId"+wp.id+"_and_PFIso"+wp.iso+"_abseta_pt_efficiency"+mode_map[mode]},
+                                 }[year][channel]
+                   
+    cross_name = lambda mode : {"ETau": "eff_"+mode,
+                                "MuTau": "eff_"+mode
+                                }[channel]
+    
+    with up.open(path_single) as f_single:
+        h_single_data = f_single[single_name('data')]
+        h_single_mc = f_single[single_name('mc')]
+    with up.open(path_cross) as f_cross:
+        h_cross_data = f_cross[cross_name('data')]
+        h_cross_mc = f_cross[cross_name('mc')]
+
+    return h_single_data, h_single_mc, h_cross_data, h_cross_mc
+
 
 # convert ROOT histogram TH1 into hist object
 def convertToHist(h):
@@ -101,7 +127,7 @@ class Plotter:
         elif mode == "mc":
             title = "MC efficiencies"
         else:
-            title = "SFs: Data / MC"
+            title = "SFs: Data/MC"
         title += " | Channel: {} | Year: {}".format(chn_map[channel], year)
         self.fig.suptitle(title, fontsize=self.fontsize)
         
@@ -110,14 +136,14 @@ class Plotter:
         ax = self.axis[loc]
         h = self._histo_2d_equalwidth(h, loc)
         _, cbar, _ = hep.hist2dplot(h, ax=ax) # h_single.plot2d(ax=ax1, label='Single triggers')
-        cbar.set_label(r'$\varepsilon_{\text{trigger}}$', rotation=0, labelpad=labelpad, y=1.08)
+        cbar.set_label(r'$\varepsilon_{\text{trigger}}$', rotation=90, labelpad=labelpad, y=0.6)
 
         ax.set_xlabel(r"$p_{T}\:[GeV]$")
         if self.channel == "ETau":
             ax.set_ylabel(r"$\eta$")
         else:
             ax.set_ylabel(r"$|\eta|$")
-        ax.set_title(title, pad=20, fontsize=0.7*self.fontsize)
+        ax.set_title(title, pad=20, fontsize=0.65*self.fontsize)
 
         if loc == len(self.axis)-1:
             self.fig.tight_layout()
@@ -156,14 +182,60 @@ def divideHistos(h1, h2):
     h_div.view().variance = h1.view().variance / h2.view().value**2
     return h_div
 
-def inspectSingleAndCrossTriggers(channel, year, wp, mode, output, ratio):
-    p_single, p_cross = getRootFilePaths(channel, year)
-    h_single, h_cross = openHistograms(p_single, p_cross, channel, year, wp, mode)
+def rebin_cross_low_pt_bin_mutau(h, first_xedge):
+    """
+    Rebin the cross trigger histogram to match the binning of the single trigger histogram.
+    """
+    edges = np.concatenate((np.array([first_xedge,]), h.axes[0].edges[1:]))
+    newh = hist.Hist.new.Var(edges, name="x").Var(h.axes[1].edges, name="y").Weight()
 
-    h_single = convertToHist(h_single)
-    if channel == "MuTau":
-        h_single = h_single.T # invert axis
-    h_cross = convertToHist(h_cross)
+    # weight the first x bins of the new histogram proportionally to the bin width
+    dist_old = edges[1] - h.axes[0].edges[0]
+    dist_new = edges[1] - edges[0]
+
+    newh.view().value = h.values()
+    newh.view().value[0,:] *= dist_new / dist_old
+
+    newh.variance = h.variances()
+    return newh
+
+def rebin_cross_low_pt_bin_etau(h, first_xedge):
+    """
+    Rebin the cross trigger histogram to match the binning of the single trigger histogram.
+    """
+    edges = np.concatenate((np.array([first_xedge,]), h.axes[0].edges[1:]))
+    newh = hist.Hist.new.Var(edges, name="x").Var(h.axes[1].edges, name="y").Weight()
+
+    # weight the first x bins of the new histogram proportionally to the bin width
+    dist_old = edges[1] - h.axes[0].edges[0]
+    dist_new = edges[1] - edges[0]
+
+    newh.view().value = h.values()
+    newh.view().value[0,:] *= dist_new / dist_old
+
+    newh.variance = h.variances()
+    return newh
+
+    
+def inspectSingleAndCrossTriggers(channel, year, wp, mode, output, ratio, rebin):
+    p_single, p_cross = getRootFilePaths(channel, year)
+
+    if mode == "sf":
+        h_single_data, h_single_mc, h_cross_data, h_cross_mc = openHistogramsSF(p_single, p_cross, channel, year, wp)
+        h_single_data = convertToHist(h_single_data)
+        h_single_mc = convertToHist(h_single_mc)
+        if channel == "MuTau":
+            h_single_data = h_single_data.T
+            h_single_mc = h_single_mc.T
+        h_cross_data = convertToHist(h_cross_data)
+        h_cross_mc = convertToHist(h_cross_mc)
+        
+    else:
+        h_single, h_cross = openHistogramsEff(p_single, p_cross, channel, year, wp, mode)
+        h_single = convertToHist(h_single)
+        if channel == "MuTau":
+            h_single = h_single.T # invert axis
+        h_cross = convertToHist(h_cross)
 
     analysis = r"$(\gamma\gamma\rightarrow\tau\tau\:\:analysis)$"
     title_single = {"ETau": r"Single-e "+analysis,
@@ -173,22 +245,49 @@ def inspectSingleAndCrossTriggers(channel, year, wp, mode, output, ratio):
                    "MuTau": r"Cross-$\mu\tau$ " + analysis,}[channel]
 
     suffix = '_'.join((channel, wp.id, wp.iso, year, mode))
-    output = os.path.join("/eos/home-b/bfontana/www/TriggerScaleFactors/",
-                          "SingleCrossComparison_" + suffix)
+    outdir = "/eos/home-b/bfontana/www/TriggerScaleFactors/SingleAndCrossMaps"
+    if rebin:
+        outdir += "/Rebin"
+    else:
+        outdir += "/Standard"
+    if not os.path.exists(outdir):
+        os.makedirs(outdir)
+    output = os.path.join(outdir, "fig_" + suffix)
+    if rebin:
+        output += "_rebin"
     if ratio:
         output += "_ratio"
 
     plot = Plotter(channel=channel, year=year, mode=mode, output=output, npads=3 if ratio else 2)
-    labelpads = {"ETau": (45,40,40), "MuTau": (30,45,30)}
+    labelpads = {"ETau": (25,20,20), "MuTau": (20,25,20)}
+
+    if mode == "sf":
+        h_single = divideHistos(h_single_data, h_single_mc)
+        h_cross = divideHistos(h_cross_data, h_cross_mc)
     plot.histo(h_single, title=title_single, loc=0, labelpad=labelpads[channel][0])
     plot.histo(h_cross,  title=title_cross,  loc=1, labelpad=labelpads[channel][1])
 
     if ratio:
         if channel == "MuTau": # remove bin edges that do not match between the two histos
             end = len(h_cross.values()[0])-1
-            h_div = divideHistos(h_single[1:,:end], h_cross[2:,:end])
-        else:
-            h_div = divideHistos(h_single, h_cross)
+            if rebin:
+                hsingle_cut = h_single[:,:end]
+                single = hsingle_cut
+                cross = rebin_cross_low_pt_bin_mutau(h_cross[1:,:end], first_xedge=hsingle_cut.axes[0].edges[0])
+            else:
+                single = h_single[1:,:end]
+                cross = h_cross[2:,:end]
+            h_div = divideHistos(single, cross)
+        elif channel == "ETau":
+            if rebin:
+                hsingle_cut = h_single[2:,:]
+                cross = h_cross[2:,:]
+                single = rebin_cross_low_pt_bin_etau(hsingle_cut, first_xedge=cross.axes[0].edges[0])
+                h_div = divideHistos(single, cross)
+            else:
+                single = h_single[2:,:]
+                cross = h_cross[2:,:]
+                h_div = divideHistos(single, cross)
         plot.histo(h_div, title="Single / Cross", loc=2, labelpad=labelpads[channel][2])
 
 if __name__ == '__main__':
@@ -202,10 +301,11 @@ if __name__ == '__main__':
                         help='isowp', required=True)
     parser.add_argument('--mode', choices=('data', 'mc', 'sf'), default="data", 
                         help='mode')
+    parser.add_argument('--rebin', action="store_true")
     parser.add_argument('--output', help='output file', default='plot.png')
     parser.add_argument('--show_ratio', action="store_true")
     args = parser.parse_args()
 
     inspectSingleAndCrossTriggers(channel=args.channel, year=args.year, wp=WP(args.idwp, args.isowp),
                                   mode=args.mode,
-                                  output=args.output, ratio=args.show_ratio)
+                                  output=args.output, ratio=args.show_ratio, rebin=args.rebin)
