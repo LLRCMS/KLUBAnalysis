@@ -36,6 +36,13 @@ class Histograms:
     def hists(self):
         return self._hists
 
+    @property
+    def keys(self):
+        return self._hists.keys()
+    
+    def keys_all(self, keys):
+        return self._filter_keys(keys)
+
     def _filter_keys(self, keys, mode=None):
         """
         If `keys` is a string it is treated as a regular expression.
@@ -118,15 +125,18 @@ class Histograms:
 class Plotter:
     def __init__(self, output, channel="ETau", cat="baseline", year="2018", npads=1):
         self.output = output
-        assert npads <= 2, "Only 1 or 2 pads are supported."
+        self.npads = npads
+        assert self.npads <= 2, "Only 1 or 2 pads are supported."
         self.was_ratio_run = 0
         self.ymax = 0
         self.yunits = self._define_yunits()
         self.debug_on = True
         
-        fig, self.axes = plt.subplots(npads, 1, figsize=(16, 16), squeeze=False,
-                                      gridspec_kw={'height_ratios': [3,1]})
-        if npads > 1:
+        # fig, self.axes = plt.subplots(self.npads, 1, figsize=(16, 16), squeeze=False,
+        #                               gridspec_kw={'height_ratios': [3,1]})
+        fig, self.axes = plt.subplots(self.npads, 1, figsize=(16, 16), squeeze=False)
+
+        if self.npads > 1:
             plt.subplots_adjust(left=0.1, right=.95, top=.95, bottom=0.1,
                                 wspace=0., hspace=0.04)
         self.fontsize = 40
@@ -161,12 +171,38 @@ class Plotter:
             self.ax.set_ylim(self.ax.get_ylim()[0], new_max)
             self.ymax = new_max
 
-    def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
+    def mc(self, stackmc, *args, **kwargs):
+        """Convenience function to plot data and MC with ratio."""
+        self.stack(stackmc, loc=0, *args, **kwargs)
+        self._stats_band(stackmc, loc=0, mode="standard", *args, **kwargs)
+
+    def data_mc(self, hdata, stackmc, *args, **kwargs):
         """Convenience function to plot data and MC with ratio."""
         self.stack(stackmc, loc=0, *args, **kwargs)
         self._stats_band(stackmc, loc=0, mode="standard", *args, **kwargs)
         self.graph(hdata, loc=0, label="Data", *args, **kwargs)
+
+    def mc_signal(self, stackmc, hsignal, *args, **kwargs):
+        """Convenience function to plot data and MC with ratio, and the signal."""
+        self.mc(stackmc, *args, **kwargs)
+        self.histo(hsignal, loc=0, label="Signal", histtype="step", *args, **kwargs)
+
+    def data_mc_signal(self, hdata, stackmc, hsignal, *args, **kwargs):
+        """Convenience function to plot data and MC with ratio, and the signal."""
+        self.data_mc(hdata, stackmc, *args, **kwargs)
+        self.histo(hsignal, loc=0, label="Signal", histtype="step", *args, **kwargs)
+
+    def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
+        """Convenience function to plot data and MC with ratio."""
+        assert self.npads > 1, "Need at least two pads to plot ratio."
+        self.data_mc(hdata, stackmc, *args, **kwargs)
         self.ratio(hdata, stackmc, loc=1, *args, **kwargs)
+    
+    def data_mc_signal_with_ratio(self, hdata, stackmc, hsignal, *args, **kwargs):
+        """Convenience function to plot data and MC with ratio, and the signal."""
+        assert self.npads > 1, "Need at least two pads to plot ratio."
+        self.data_mc_with_ratio(hdata, stackmc, *args, **kwargs)
+        self.histo(hsignal, loc=0, label="Signal", histtype="step", edgecolor="black", *args, **kwargs)
 
     def _define_yunits(self):
         return {
@@ -277,7 +313,7 @@ class Plotter:
                     continue
 
                 # do not draw the legend for the ratio plot if it was run at most once
-                if ax==self.axes[1] and self.was_ratio_run < 2:
+                if len(self.axes)>1 and ax==self.axes[1] and self.was_ratio_run < 2:
                     continue
 
                 leg = a.legend(fontsize=0.7*self.fontscale*self.fontsize,

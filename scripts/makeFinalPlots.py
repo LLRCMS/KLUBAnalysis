@@ -52,51 +52,51 @@ class PlotterFactory:
         # name, sigscale per channel
         self.variables = {
             "dau1_pt"              : (r"$pT_{1}\;[GeV]$",              (90, 50, 20, 5000)),
-			"dau2_pt"			   : (r"$pT_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
-			"bjet1_pt"			   : (r"$pT_{j1}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"bjet2_pt"			   : (r"$pT_{j2}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"dau1_eta"			   : (r"$\eta_{1}$",					  (40, 40, 2, 4000)),
-			"dau2_eta"			   : (r"$\eta_{2}$",					  (40, 40, 2, 4000)),
-			"bjet1_eta"			   : (r"$\eta_{j1}$",				  (40, 40, 4, 4000)),
-			"bjet2_eta"			   : (r"$\eta_{j2}$",				  (40, 40, 4, 4000)),
-			"tauH_mass"			   : (r"$m_{H\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
-			"tauH_pt"			   : (r"$pT_{H\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
-			# "tauH_eta"			   : (r"$\eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
-			"bH_mass"			   : (r"$m_{Hb}\;[GeV]$",			  (10, 10, 2, 1000)),
-			"bH_pt"				   : (r"$pT_{Hb}\;[GeV]$",			  (30, 30, 2, 10000)),
-			"ditau_deltaR"		   : (r"$\Delta R(\tau\tau)$",		  (10, 10, 2, 1000)),
-			"dib_deltaR"		   : (r"$\Delta R(bb)$",				  (10, 10, 2, 1000)),
-			"HH_deltaR"			   : (r"$\Delta R(HH)$",				  (30, 30, 2, 7000)),
-			"njets"				   : ("#Jets",					  (90, 90, 5, 10000)),
-			"met_et"			   : (r"$MET [GeV]$",				  (10, 10, 1, 1000)),
-			"met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
-			"metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
-			"metnomu_phi"		   : (r"$MET_{no\mu}-\phi$",			  (10, 10, 1, 5000)),
-			# "dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
-			# "dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
-			# "dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
-			# "dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
-			# "METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
-			# "METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
-			# "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
-			# "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
-			# "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
-			"bjet1_bID_deepFlavor" : ("Deep Flavour (jet #1)",		  (10, 10, 1, 4000)),
-			"bjet2_bID_deepFlavor" : ("Deep Flavour (jet #2)",		  (10, 10, 1, 4000)),
-			# "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
-			# "bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
-			# "bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
-			"tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit}\;[GeV]$",	  (30, 30, 2, 10000)),
-			"tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit}\;[GeV]$",  (10, 10, 2, 10000)),
-			# "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
-			"HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet}\;[GeV]$",		  (1, 1, 1, 150)),
-			"HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
-			"HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
-			# "HH_mass"			   : (r"$m_{HH} [GeV]$",			  (1, 1, 1, 150)),
-			# "HHKin_mass"		   : (r"$m_{HHKin} [GeV]$",			  (1, 1, 1, 150)),
+			# "dau2_pt"			   : (r"$pT_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
+			# "bjet1_pt"			   : (r"$pT_{j1}\;[GeV]$",			  (90, 90, 9, 10000)),
+			# "bjet2_pt"			   : (r"$pT_{j2}\;[GeV]$",			  (90, 90, 9, 10000)),
+			# "dau1_eta"			   : (r"$\eta_{1}$",					  (40, 40, 2, 4000)),
+			# "dau2_eta"			   : (r"$\eta_{2}$",					  (40, 40, 2, 4000)),
+			# "bjet1_eta"			   : (r"$\eta_{j1}$",				  (40, 40, 4, 4000)),
+			# "bjet2_eta"			   : (r"$\eta_{j2}$",				  (40, 40, 4, 4000)),
+			# "tauH_mass"			   : (r"$m_{H\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
+			# "tauH_pt"			   : (r"$pT_{H\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
+			# # "tauH_eta"			   : (r"$\eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
+			# "bH_mass"			   : (r"$m_{Hb}\;[GeV]$",			  (10, 10, 2, 1000)),
+			# "bH_pt"				   : (r"$pT_{Hb}\;[GeV]$",			  (30, 30, 2, 10000)),
+			# "ditau_deltaR"		   : (r"$\Delta R(\tau\tau)$",		  (10, 10, 2, 1000)),
+			# "dib_deltaR"		   : (r"$\Delta R(bb)$",				  (10, 10, 2, 1000)),
+			# "HH_deltaR"			   : (r"$\Delta R(HH)$",				  (30, 30, 2, 7000)),
+			# "njets"				   : ("#Jets",					  (90, 90, 5, 10000)),
+			# "met_et"			   : (r"$MET [GeV]$",				  (10, 10, 1, 1000)),
+			# "met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
+			# "metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
+			# "metnomu_phi"		   : (r"$MET_{no\mu}-\phi$",			  (10, 10, 1, 5000)),
+			# # "dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
+			# # "dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
+			# # "dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
+			# # "dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
+			# # "METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
+			# # "METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
+			# # "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
+			# # "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
+			# # "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
+			# "bjet1_bID_deepFlavor" : ("Deep Flavour (jet #1)",		  (10, 10, 1, 4000)),
+			# "bjet2_bID_deepFlavor" : ("Deep Flavour (jet #2)",		  (10, 10, 1, 4000)),
+			# # "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
+			# # "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
+			# # "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
+			# # "bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
+			# # "bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
+			# # "bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
+			# "tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit}\;[GeV]$",	  (30, 30, 2, 10000)),
+			# "tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit}\;[GeV]$",  (10, 10, 2, 10000)),
+			# # "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
+			# "HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet}\;[GeV]$",		  (1, 1, 1, 150)),
+			# "HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
+			# "HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
+			# # "HH_mass"			   : (r"$m_{HH} [GeV]$",			  (1, 1, 1, 150)),
+			# # "HHKin_mass"		   : (r"$m_{HHKin} [GeV]$",			  (1, 1, 1, 150)),
         }
 
         self.systematics = {"tes_DM0", "tes_DM1", "tes_DM10", "tes_DM11"}
@@ -104,7 +104,7 @@ class PlotterFactory:
         self.logvariables = {"dau1_dxy", "dau1_dz", "dau2_dxy", "dau2_dz", "HH_mass", "HHKin_mass"}
         self.equalwidth = {"HH_mass", "HHKin_mass"}
     
-    def _produce_data_mc_with_ratio_worker(self, variable, pars) -> None:
+    def data_mc_with_ratio_worker(self, variable, pars) -> None:
         """
         Worker function for producing the data/mc plots with ratio for the given channel and category.
         """
@@ -120,19 +120,37 @@ class PlotterFactory:
                              equalwidth=variable in self.equalwidth)
         p.save('plot_' + pars.name + '_' + variable)
 
-    def produce_data_mc_with_ratio(self, pars) -> None:
+    def data_mc_signal_with_ratio_worker(self, variable, pars) -> None:
         """
-        Produce the data/mc plots with ratio for the given channel and category.
-        If no variable is given, it will produce the plots for all variables in the dictionary.
-        """       
+        Worker function for producing the data/mc plots with ratio for the given channel and category.
+        """
+        mass = "1000"
+        spin = "0"
+        suffix = '_' + pars.histo_name + '_' + "pdnn_m" + mass + "_s" + spin + "_hh"
+        # suffix = '_' + pars.histo_name + '_' + variable
+
+        #hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
+        stackmc = self.hists.stack_mc(keys='.*'+suffix)
+        hsignal = self.hists.hists(keys='GGF_Radion1000'+suffix, leglabel="Radion1000")['GGF_Radion1000'+suffix]
+
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
+        p.mc_signal(stackmc=stackmc, hsignal=hsignal,
+                    linewidth=1,
+					yscale='log' if variable in self.logvariables else 'linear',
+					xlabel=self.variables[variable][0],
+                    equalwidth=True)
+        #p.save('signal_' + pars.name + '_' + variable)
+        p.save('signal_' + pars.name + '_pdnn_m' + mass + "_s" + spin + "_hh")
+
+    def produce(self, func, pars):
         if self.multithreading:
             num_workers = multiprocessing.cpu_count()-1
             with multiprocessing.Pool(processes=num_workers) as pool:
                 func_args = [(v, pars) for v in self.variables]
-                pool.starmap(self._produce_data_mc_with_ratio_worker, func_args)
+                pool.starmap(func, func_args)
         else:
             for v in self.variables:
-                self._produce_data_mc_with_ratio_worker(variable=v, pars=pars)
+                func(variable=v, pars=pars)
 
     def _produce_syst_shape_with_ratio_worker(self, syst, mass, spin, pars) -> None:
         suffix = '_' + pars.histo_name + '_' + "pdnn_m" + mass + "_s" + spin + "_hh"
@@ -169,11 +187,20 @@ def makeFinalPlots(tag, year):
         for cat in categories:
             print("Running for channel: {}, category: {}".format(chn, cat))
 
-            infile = os.path.join(basepath_in, tag, chn, 'combined_outLimits.root')
+            # infile = os.path.join(basepath_in, tag, chn, 'combined_outLimits.root')
+            # outdir = os.path.join(basepath_out, tag, chn, cat)
+
+            mass = "1000"
+            spin = "0"
+            infile = os.path.join(basepath_in, tag, chn, "Spin"+spin+"_Mass"+mass, 'combined_outLimits.root')
             outdir = os.path.join(basepath_out, tag, chn, cat)
             pars = Params(channel=chn, category=cat, region="SR", year=year)
             factory = PlotterFactory(infile, outdir, multithreading=not args.singlethreaded)
-            factory.produce_data_mc_with_ratio(pars)
+
+            #factory.produce(factory.data_mc_with_ratio_worker, pars=pars)
+            factory.produce(factory.data_mc_signal_with_ratio_worker, pars=pars)
+
+
 
 
     # mass, spin = "500", "0"
