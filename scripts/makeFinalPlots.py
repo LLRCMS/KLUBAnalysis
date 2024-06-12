@@ -63,6 +63,8 @@ class PlotterFactory:
         self.multithreading = multithreading
         self.hists = Histograms(infile)
 
+        self.dnn_scale = 3.
+        
         # name, sigscale per channel
         self.variables = {
             "dau1_pt"              : (r"$pT_{1}\;[GeV]$",              (90, 50, 20, 5000)),
@@ -123,7 +125,7 @@ class PlotterFactory:
         Worker function for producing the data/mc plots with ratio for the given channel and category.
         """
         suffix = '_' + pars.histo_name + '_' + variable
-        hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
+        hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
         stackmc = self.hists.stack_mc(keys='.*'+suffix)
 
         p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=2)
@@ -140,18 +142,18 @@ class PlotterFactory:
         """
         suffix = '_' + pars.histo_name + '_' + variable
 
-        # hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
+        hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
         stackmc = self.hists.stack_mc(keys='.*'+suffix)
-        hsignal = self.hists.hists(keys='.*Radion.*'+suffix, leglabel=variable)['GGF_Radion'+pdnn.mass+suffix]
-        hsignal *= 3.
+        hsignal = self.hists.hists(keys='.*Radion.*'+suffix, scale=self.dnn_scale, label="Signal")['GGF_Radion'+pdnn.mass+suffix]
+
         p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
-        p.mc_signal(stackmc=stackmc, hsignal=hsignal,
-                    linewidth=3,
-                    edgecolor="black",
-					yscale='log' if variable in self.logvariables else 'linear',
-					xlabel=self.variables[variable][0] if pdnn is None else pdnn.label(),
-                    equalwidth=True)
-        p.save('signal_' + pars.name + '_' + variable, ncols_leg=2)
+        p.data_mc_signal(stackmc=stackmc, hsignal=hsignal, hdata=hdata,
+                         linewidth=3,
+                         edgecolor="black",
+					     yscale='log' if variable in self.logvariables else 'linear',
+					     xlabel=self.variables[variable][0] if pdnn is None else pdnn.label(),
+                         equalwidth=True)
+        p.save('signal_' + pars.name + '_' + variable, ncols_leg=3)
 
     def produce(self, func, pars, pdnn=None):
         avars = self.variables if pdnn is None else [pdnn.name(),]

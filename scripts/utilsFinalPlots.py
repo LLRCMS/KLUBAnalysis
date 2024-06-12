@@ -92,9 +92,19 @@ class Histograms:
         pass
     
     @_read_histograms()
-    def hists(self, keys, *args, **kwargs):
+    def hists(self, keys, scale=1., *args, **kwargs):
         """Return the histograms specified by the keys."""
         keys = self.mod_keys(keys)
+
+        if 'label' in kwargs:
+            for key in keys:
+                self._hists[key].label = kwargs['label']
+                
+        if scale != 1.:
+            for key in keys:
+                self._hists[key] *= scale
+                self._hists[key].label += r" ($\times$" + str(int(scale)) +")"
+        
         return {k:self._hists[k] for k in keys}
 
     def _remove_neg_bins(self, h):
@@ -110,7 +120,7 @@ class Histograms:
                 raise ValueError("Negative bins in histogram after removal.")
             elif sum_after > 0.:
                 h *= sum_before/sum_after
-
+                
     @_read_histograms()
     def stack(self, keys, *args, **kwargs):
         """Stack histograms."""
@@ -185,12 +195,12 @@ class Plotter:
     def mc_signal(self, stackmc, hsignal, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         self.mc(stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label="Signal", histtype="step", *args, **kwargs)
+        self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", *args, **kwargs)
 
     def data_mc_signal(self, hdata, stackmc, hsignal, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         self.data_mc(hdata, stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label="Signal", histtype="step", *args, **kwargs)
+        self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", *args, **kwargs)
 
     def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
         """Convenience function to plot data and MC with ratio."""
@@ -202,7 +212,8 @@ class Plotter:
         """Convenience function to plot data and MC with ratio, and the signal."""
         assert self.npads > 1, "Need at least two pads to plot ratio."
         self.data_mc_with_ratio(hdata, stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label="Signal", histtype="step", edgecolor="black", *args, **kwargs)
+        self.histo(hsignal, loc=0, label=hsignal.label,
+                   histtype="step", edgecolor="black", *args, **kwargs)
 
     def _define_yunits(self):
         return {
@@ -444,8 +455,10 @@ class Plotter:
         vals = sum(h).values() if isinstance(h, hist.Stack) else h.values()
         variances = sum(h).variances() if isinstance(h, hist.Stack) else h.variances()
         
-        uncert_band = hist.Hist.new.Reg(len(edges)-1, edges[0], edges[-1],
-                                        name="uncert_band").Weight()
+        uncert_band = hist.Hist.new.Var(edges, name="uncert_band").Weight()
+
+        if 'equalwidth' in kwargs and kwargs['equalwidth']:
+            uncert_band = self._histo_equalwidth(uncert_band)
 
         assert mode in ("ratio", "standard"), "Invalid mode."
         if mode == "ratio":
@@ -454,10 +467,11 @@ class Plotter:
         elif mode == "standard":
             bottom = sum(h).values() if isinstance(h, hist.Stack) else h.values()
             uncert_band.view().value = np.sqrt(variances)
-            
+
+        new_edges = uncert_band.axes[0].edges
         uncert_band.view().variance = 0.
         for sign in (-1., 1.):
-            self.ax.hist([edges[:-1]], bins=edges, weights=sign*uncert_band.values(),
+            self.ax.hist([new_edges[:-1]], bins=new_edges, weights=sign*uncert_band.values(),
                          bottom=bottom, histtype="stepfilled", color="gainsboro",
                          hatch='///', edgecolor="gray", linewidth=0., alpha=0.6)
 
