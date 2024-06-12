@@ -113,7 +113,7 @@ def convertToHist(h):
     return newh
 
 class Plotter:
-    def __init__(self, output, channel, mode, year, npads):
+    def __init__(self, output, channel, mode, wp_ratio, year, npads):
         self.output = output
         figsize = (25, 10) if npads == 3 else (16, 10)
         self.channel = channel
@@ -122,21 +122,33 @@ class Plotter:
         self.fig, self.axis = plt.subplots(1, npads, figsize=figsize)
         chn_map = {"ETau": r"$e\tau$", "MuTau": r"$\mu\tau$"}
 
-        if mode == "data":
-            title = "Data efficiencies"
-        elif mode == "mc":
-            title = "MC efficiencies"
+        if wp_ratio:
+            if mode == "data":
+                title = "Data, Tight/Medium"
+            elif mode == "mc":
+                title = "MC, Tight/Medium"
+            else:
+                title = "SFs, Tight/Medium"
         else:
-            title = "SFs: Data/MC"
+            if mode == "data":
+                title = "Data efficiencies"
+            elif mode == "mc":
+                title = "MC efficiencies"
+            else:
+                title = "SFs: Data/MC"
+
         title += " | Channel: {} | Year: {}".format(chn_map[channel], year)
         self.fig.suptitle(title, fontsize=self.fontsize)
         
-    def histo(self, h, loc, title="", labelpad=30):
+    def histo(self, h, loc, title="", ratio=True, labelpad=30):
         """ Plot a histogram. """
         ax = self.axis[loc]
         h = self._histo_2d_equalwidth(h, loc)
         _, cbar, _ = hep.hist2dplot(h, ax=ax) # h_single.plot2d(ax=ax1, label='Single triggers')
-        cbar.set_label(r'$\varepsilon_{\text{trigger}}$', rotation=90, labelpad=labelpad, y=0.6)
+        if ratio:
+            cbar.set_label('Ratio', rotation=90, labelpad=labelpad, y=0.6)
+        else:
+            cbar.set_label(r'$\varepsilon_{\text{trigger}}$', rotation=90, labelpad=labelpad, y=0.6)
 
         ax.set_xlabel(r"$p_{T}\:[GeV]$")
         if self.channel == "ETau":
@@ -185,17 +197,11 @@ def divideHistos(h1, h2):
 def rebin_cross_low_pt_bin_mutau(h, first_xedge):
     """
     Rebin the cross trigger histogram to match the binning of the single trigger histogram.
+    The contents are left unchanged, since each bin contains an efficiency and not a count.
     """
     edges = np.concatenate((np.array([first_xedge,]), h.axes[0].edges[1:]))
     newh = hist.Hist.new.Var(edges, name="x").Var(h.axes[1].edges, name="y").Weight()
-
-    # weight the first x bins of the new histogram proportionally to the bin width
-    dist_old = edges[1] - h.axes[0].edges[0]
-    dist_new = edges[1] - edges[0]
-
     newh.view().value = h.values()
-    newh.view().value[0,:] *= dist_new / dist_old
-
     newh.variance = h.variances()
     return newh
 
@@ -217,56 +223,109 @@ def rebin_cross_low_pt_bin_etau(h, first_xedge):
     return newh
 
     
-def inspectSingleAndCrossTriggers(channel, year, wp, mode, output, ratio, rebin):
+def inspectSingleAndCrossTriggers(channel, year, wp, mode, output, ratio, wp_ratio, rebin):
     p_single, p_cross = getRootFilePaths(channel, year)
 
     if mode == "sf":
-        h_single_data, h_single_mc, h_cross_data, h_cross_mc = openHistogramsSF(p_single, p_cross, channel, year, wp)
-        h_single_data = convertToHist(h_single_data)
-        h_single_mc = convertToHist(h_single_mc)
-        if channel == "MuTau":
-            h_single_data = h_single_data.T
-            h_single_mc = h_single_mc.T
-        h_cross_data = convertToHist(h_cross_data)
-        h_cross_mc = convertToHist(h_cross_mc)
+        if wp_ratio:
+            h_single_data_t, h_single_mc_t, h_cross_data_t, h_cross_mc_t = openHistogramsSF(p_single, p_cross, channel, year, WP("Tight", "Tight"))
+            h_single_data_m, h_single_mc_m, h_cross_data_m, h_cross_mc_m = openHistogramsSF(p_single, p_cross, channel, year, WP("Medium", "Medium"))
+            h_single_data_t, h_single_data_m = convertToHist(h_single_data_t), convertToHist(h_single_data_m)
+            h_single_mc_t, h_single_mc_m = convertToHist(h_single_mc_t), convertToHist(h_single_mc_m)
+            if channel == "MuTau":
+                h_single_data_t, h_single_data_m = h_single_data_t.T, h_single_data_m.T
+                h_single_mc_t, h_single_mc_m = h_single_mc_t.T, h_single_mc_m.T
+            h_cross_data_t, h_cross_data_m = convertToHist(h_cross_data_t), convertToHist(h_cross_data_m)
+            h_cross_mc_t, h_cross_mc_m = convertToHist(h_cross_mc_t), convertToHist(h_cross_mc_m)
+
+        else:
+            h_single_data, h_single_mc, h_cross_data, h_cross_mc = openHistogramsSF(p_single, p_cross, channel, year, wp)
+            h_single_data = convertToHist(h_single_data)
+            h_single_mc = convertToHist(h_single_mc)
+            if channel == "MuTau":
+                h_single_data = h_single_data.T
+                h_single_mc = h_single_mc.T
+            h_cross_data = convertToHist(h_cross_data)
+            h_cross_mc = convertToHist(h_cross_mc)
         
     else:
-        h_single, h_cross = openHistogramsEff(p_single, p_cross, channel, year, wp, mode)
-        h_single = convertToHist(h_single)
-        if channel == "MuTau":
-            h_single = h_single.T # invert axis
-        h_cross = convertToHist(h_cross)
+        if wp_ratio:
+            h_single_t, h_cross_t = openHistogramsEff(p_single, p_cross, channel, year, WP("Tight", "Tight"), mode)
+            h_single_m, h_cross_m = openHistogramsEff(p_single, p_cross, channel, year, WP("Medium", "Medium"), mode)
+            h_single_t, h_single_m = convertToHist(h_single_t),convertToHist(h_single_m)
+            if channel == "MuTau":
+                h_single_t, h_single_m = h_single_t.T, h_single_m.T # invert axis
+            h_cross_t, h_cross_m = convertToHist(h_cross_t), convertToHist(h_cross_m)
+
+        else:
+            h_single, h_cross = openHistogramsEff(p_single, p_cross, channel, year, wp, mode)
+            h_single = convertToHist(h_single)
+            if channel == "MuTau":
+                h_single = h_single.T # invert axis
+            h_cross = convertToHist(h_cross)
 
     analysis = r"$(\gamma\gamma\rightarrow\tau\tau\:\:analysis)$"
-    title_single = {"ETau": r"Single-e "+analysis,
-                    "MuTau": r"Single-$\mu$ (POG: " + wp.idstr + ", " + wp.isostr + ")"}[channel]
-
+    if wp_ratio:
+        title_single = {"ETau": r"Single-e "+analysis,
+                        "MuTau": r"Single-$\mu$ (POG: Tight/Medium)"}[channel]
+    else:
+        title_single = {"ETau": r"Single-e "+analysis,
+                        "MuTau": r"Single-$\mu$ (POG: " + wp.idstr + ", " + wp.isostr + ")"}[channel]
+    
     title_cross = {"ETau": r"Cross-e$\tau$ " + analysis,
                    "MuTau": r"Cross-$\mu\tau$ " + analysis,}[channel]
 
-    suffix = '_'.join((channel, wp.id, wp.iso, year, mode))
+    if wp_ratio:
+        suffix = '_'.join((channel, year, mode))
+    else:
+        suffix = '_'.join((channel, wp.id, wp.iso, year, mode))
+
     outdir = "/eos/home-b/bfontana/www/TriggerScaleFactors/SingleAndCrossMaps"
-    if rebin:
+    if rebin and not wp_ratio:
         outdir += "/Rebin"
+    elif rebin and wp_ratio:
+        outdir += "/WPRatio_Rebin"
+    elif not rebin and wp_ratio:
+        outdir += "/WPRatio"
     else:
         outdir += "/Standard"
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     output = os.path.join(outdir, "fig_" + suffix)
-    if rebin:
+
+    if rebin and not wp_ratio:
         output += "_rebin"
+    elif rebin and wp_ratio:
+        output += "_wpratio_rebin"
+    elif not rebin and wp_ratio:
+        output += "_wpratio"
+
     if ratio:
         output += "_ratio"
 
-    plot = Plotter(channel=channel, year=year, mode=mode, output=output, npads=3 if ratio else 2)
+    plot = Plotter(channel=channel, year=year, mode=mode, wp_ratio=wp_ratio, output=output, npads=3 if ratio else 2)
     labelpads = {"ETau": (25,20,20), "MuTau": (20,25,20)}
 
-    if mode == "sf":
-        h_single = divideHistos(h_single_data, h_single_mc)
-        h_cross = divideHistos(h_cross_data, h_cross_mc)
-    plot.histo(h_single, title=title_single, loc=0, labelpad=labelpads[channel][0])
-    plot.histo(h_cross,  title=title_cross,  loc=1, labelpad=labelpads[channel][1])
+    if wp_ratio:
+        if mode == "sf":
+            h_single_t = divideHistos(h_single_data_t, h_single_mc_t)
+            h_single_m = divideHistos(h_single_data_m, h_single_mc_m)
+            h_cross_t  = divideHistos(h_cross_data_t, h_cross_mc_t)
+            h_cross_m  = divideHistos(h_cross_data_m, h_cross_mc_m)
+            h_single = divideHistos(h_single_t, h_single_m)
+            h_cross = divideHistos(h_cross_t, h_cross_m)
+        else:
+            h_single = divideHistos(h_single_t, h_single_m)
+            h_cross = divideHistos(h_cross_t, h_cross_m)
+            
+    else:
+        if mode == "sf":
+            h_single = divideHistos(h_single_data, h_single_mc)
+            h_cross = divideHistos(h_cross_data, h_cross_mc)
 
+    plot.histo(h_single, title=title_single, loc=0, ratio=mode=="sf" or wp_ratio, labelpad=labelpads[channel][0])
+    plot.histo(h_cross,  title=title_cross,  loc=1, ratio=mode=="sf" or wp_ratio, labelpad=labelpads[channel][1])
+        
     if ratio:
         if channel == "MuTau": # remove bin edges that do not match between the two histos
             end = len(h_cross.values()[0])-1
@@ -288,7 +347,7 @@ def inspectSingleAndCrossTriggers(channel, year, wp, mode, output, ratio, rebin)
                 single = h_single[2:,:]
                 cross = h_cross[2:,:]
                 h_div = divideHistos(single, cross)
-        plot.histo(h_div, title="Single / Cross", loc=2, labelpad=labelpads[channel][2])
+        plot.histo(h_div, title="Single / Cross", loc=2, ratio=True, labelpad=labelpads[channel][2])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Inspect single and cross triggers')
@@ -296,16 +355,17 @@ if __name__ == '__main__':
     parser.add_argument('--year', choices=('2016', '2016APV', '2017', '2018'),
                         help='year', required=True)
     parser.add_argument('--idwp', choices=('Loose', 'Medium', 'Tight'), default="Tight", 
-                        help='idwp', required=True)
+                        help='idwp', required=False)
     parser.add_argument('--isowp', choices=('Loose', 'Medium', 'Tight'), default="Tight", 
-                        help='isowp', required=True)
+                        help='isowp', required=False)
     parser.add_argument('--mode', choices=('data', 'mc', 'sf'), default="data", 
                         help='mode')
     parser.add_argument('--rebin', action="store_true")
     parser.add_argument('--output', help='output file', default='plot.png')
-    parser.add_argument('--show_ratio', action="store_true")
+    parser.add_argument('--wpratio', action="store_true", help='plot WP ratio')
+    parser.add_argument('--show_ratio', action="store_true", help='show ratio')
     args = parser.parse_args()
 
     inspectSingleAndCrossTriggers(channel=args.channel, year=args.year, wp=WP(args.idwp, args.isowp),
                                   mode=args.mode,
-                                  output=args.output, ratio=args.show_ratio, rebin=args.rebin)
+                                  output=args.output, ratio=args.show_ratio, wp_ratio=args.wpratio, rebin=args.rebin)
