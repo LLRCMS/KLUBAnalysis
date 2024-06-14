@@ -224,6 +224,14 @@ int main (int argc, char** argv)
   if (isMC) {
 	assert (datasetType==0);
   }
+  
+  // for boosted corrections
+  bool isDYlike = argv[34];
+  bool isTTlike = argv[35];
+  cout << "** INFO: boosted corrections - is DY like process : "<< isDYlike <<endl;
+  cout << "                             - is ttbar like process : "<<isTTlike <<endl;
+  
+
 
   // MET scale Factors
   ScaleFactorMET metSF(PERIOD);
@@ -5352,16 +5360,14 @@ int main (int argc, char** argv)
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(SF_LP);
 		  }
 		  // empirically obtained corrections for background samples (DY and TT)
-		  //    - using DY_tostitch with the assumption that every time we consider a DY sample, we set DYtostitch to 1, isDY seems to be deprecated   
-		  //    - we should use a new flag for V + jets processes
-		  else if (DY_tostitch){
+		  else if (isDYlike){
 		    std::tuple<float, float, float> DY_cor_LP = pnetSF_helper.getDYcorrections(tlv_fj.Pt(), PERIOD, "LP");
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(DY_cor_LP);
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(DY_cor_LP);
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(DY_cor_LP);
 		  }
-		  // again, we should use a dedicated flag for top enriched processes
-		  else if (isTTBar){
+		  // top-enriched processes
+		  else if (isTTlike){
 		    std::tuple<float, float, float> TT_cor_LP = pnetSF_helper.getTTcorrections(tlv_fj.Pt(), PERIOD, "LP");
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(TT_cor_LP);
 		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(TT_cor_LP);
