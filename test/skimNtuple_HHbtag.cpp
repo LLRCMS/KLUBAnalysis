@@ -3208,16 +3208,17 @@ int main (int argc, char** argv)
 				  double Err_Data_SL_mu = passSingle * SFL_Data_Err - passCross * passSingle * (SFl_Data > SFL_Data) * SFL_Data_Err * SFtau_Data;
 				  double Err_MC_SL_mu   = passSingle * SFL_MC_Err   - passCross * passSingle * (SFl_MC   > SFL_MC)   * SFL_MC_Err   * SFtau_MC;
 
-				  double trigSF_SL_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_mu, Err_MC_SL_mu);
+				  double trigSF_SL_mu_err = 0;
+				  if(passSingle) trigSF_SL_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_mu, Err_MC_SL_mu);
 
 				  double Err_Data_cross_mu = - passCross * passSingle * (SFl_Data < SFL_Data) * SFl_Data_Err * SFtau_Data + passCross * SFl_Data_Err * SFtau_Data;
 				  double Err_MC_cross_mu   = - passCross * passSingle * (SFl_MC   < SFL_MC)   * SFl_MC_Err   * SFtau_MC   + passCross * SFl_MC_Err   * SFtau_MC;
 
-				  double trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
+				  double trigSF_cross_mu_err = 0;
+				  if(passCross && !(passSingle && (SFl_Data < SFL_Data))) trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
 
 				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
 				  double Err_MC_mu   = Err_MC_SL_mu   + Err_MC_cross_mu;
-
 				  double trigSF_mu_err   = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_mu, Err_MC_mu);
 
 				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
