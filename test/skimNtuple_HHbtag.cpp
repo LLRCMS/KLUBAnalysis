@@ -185,6 +185,8 @@ int main (int argc, char** argv)
 
   // external weight file for PUreweight - sample per sample
   TString PUreweightFile = argv[26];
+  TString PUreweightFile_up = PUreweightFile.Copy().ReplaceAll(".txt", "_up.txt");
+  TString PUreweightFile_down = PUreweightFile.Copy().ReplaceAll(".txt", "_down.txt");
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
 
   int DY_nJets  = atoi(argv[27]);
@@ -392,6 +394,8 @@ int main (int argc, char** argv)
   float selectedEvents = 0. ;
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
+  float totalEvents_PUReweight_up = 0 ;
+  float totalEvents_PUReweight_down = 0 ;
 
   // ------------------------------
   // systematics
@@ -442,6 +446,8 @@ int main (int argc, char** argv)
   // ------------------------------
   //PUReweight reweight (PUReweight::RUN2ANALYSIS); // NONE : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
+  PUReweight reweight_up (PUReweight::RUN2ANALYSIS, PUreweightFile_up);
+  PUReweight reweight_down (PUReweight::RUN2ANALYSIS, PUreweightFile_down);
 
   // ------------------------------
   string home = gConfigParser->readStringOption("parameters::home");
@@ -1195,21 +1201,32 @@ int main (int argc, char** argv)
 		  cout << "** WARNING: negative dec mode, for safety set it ot 0" << endl;
 		}
 	  double EvtW;
+	  double EvtW_PUReweight_up;
+	  double EvtW_PUReweight_down;
 	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) { // good PU weights
 		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile) * topPtReweight * HHweight) : 1.0;
+		EvtW_PUReweight_up = isMC ? (theBigTree.aMCatNLOweight * reweight_up.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile_up) * topPtReweight * HHweight) : 1.0;
+		EvtW_PUReweight_down = isMC ? (theBigTree.aMCatNLOweight * reweight_down.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile_down) * topPtReweight * HHweight) : 1.0;
 	  }
 	  else if (theBigTree.npu >= 100) {                  // use the last available bin for the PU weight
 		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
+		EvtW_PUReweight_up = isMC ? (theBigTree.aMCatNLOweight * reweight_up.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile_up) * topPtReweight * HHweight) : 1.0;
+		EvtW_PUReweight_down = isMC ? (theBigTree.aMCatNLOweight * reweight_down.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile_down) * topPtReweight * HHweight) : 1.0;
 	  }
 	  else {                                             // if npu<0 --> bug in MC --> weight=0
 		EvtW = isMC ? 0.0 : 1.0;
+		EvtW_PUReweight_up = isMC ? 0.0 : 1.0;
+		EvtW_PUReweight_down = isMC ? 0.0 : 1.0;
 	  }
-
 	  if (isMC)	{
 		totalEvents += EvtW;
+		totalEvents_PUReweight_up += EvtW_PUReweight_up;
+		totalEvents_PUReweight_down += EvtW_PUReweight_down;
 	  }
 	  else {
 		totalEvents += 1 ;
+		totalEvents_PUReweight_up += 1;
+		totalEvents_PUReweight_down += 1;
 	  }
 
 	  ec.Increment("all", EvtW);
@@ -1903,7 +1920,6 @@ int main (int argc, char** argv)
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
-
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
 													goodTriggerType1, goodTriggerType2,
 													tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
@@ -2140,12 +2156,21 @@ int main (int argc, char** argv)
 
 	  theSmallTree.m_pairType    = pType ;
 
-	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
+	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99){ // good PU weights
 		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) : 1) ;
-	  else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
+		theSmallTree.m_PUReweight_up = (isMC ? reweight_up.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile_up) : 1) ;
+		theSmallTree.m_PUReweight_down = (isMC ? reweight_down.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile_down) : 1) ;
+	  }
+	  else if (theBigTree.npu >= 100){                  // use the last available bin for the PU weight
 		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile) : 1) ;
-	  else                                             // if npu<0 --> bug in MC --> weight=0
+		theSmallTree.m_PUReweight_up = (isMC ? reweight_up.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile_up) : 1) ;
+		theSmallTree.m_PUReweight_down = (isMC ? reweight_down.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile_down) : 1) ;
+	  }
+	  else{                                             // if npu<0 --> bug in MC --> weight=0
 		theSmallTree.m_PUReweight  = (isMC ? 0 : 1) ;
+		theSmallTree.m_PUReweight_up = (isMC ? 0 : 1) ;
+		theSmallTree.m_PUReweight_down = (isMC ? 0 : 1) ;
+	  }
 
 	  theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
 	  theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
@@ -5277,11 +5302,13 @@ int main (int argc, char** argv)
 
   if (totalEvents != 0) cout << "efficiency = " << selectedEvents / totalEvents << endl ;
   else                  cout << "NO events found\n" ;
-  TH1F h_eff ("h_eff", "h_eff", 4 , 0, 4) ;
+  TH1F h_eff ("h_eff", "h_eff", 6 , 0, 6) ;
   h_eff.SetBinContent (1, totalEvents) ;
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
+  h_eff.SetBinContent (5, totalEvents_PUReweight_up) ;
+  h_eff.SetBinContent (6, totalEvents_PUReweight_down) ;
 
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();

@@ -32,6 +32,8 @@ struct smallTree
       m_PUjetID_SF_up = 1.;
       m_PUjetID_SF_down = 1.;
       m_PUReweight = -1. ;
+      m_PUReweight_up = -1. ;
+      m_PUReweight_down = -1. ;
       m_bTagweightL = 1. ;
       m_bTagweightL_up = 1. ;
       m_bTagweightL_down = 1. ;
@@ -992,6 +994,8 @@ struct smallTree
       m_smallT->Branch ("PUjetID_SF_up", &m_PUjetID_SF_up, "PUjetID_SF_up/F") ;
       m_smallT->Branch ("PUjetID_SF_down", &m_PUjetID_SF_down, "PUjetID_SF_down/F") ;
       m_smallT->Branch ("PUReweight", &m_PUReweight, "PUReweight/F") ;
+      m_smallT->Branch ("PUReweight_up", &m_PUReweight_up, "PUReweight_up/F") ;
+      m_smallT->Branch ("PUReweight_down", &m_PUReweight_down, "PUReweight_down/F") ;
       m_smallT->Branch ("bTagweightL", &m_bTagweightL, "bTagweightL/F") ;
       m_smallT->Branch ("bTagweightL_up", &m_bTagweightL_up, "bTagweightL_up/F") ;
       m_smallT->Branch ("bTagweightL_down", &m_bTagweightL_down, "bTagweightL_down/F") ;
@@ -1985,6 +1989,8 @@ struct smallTree
   Float_t m_PUjetID_SF_up ;
   Float_t m_PUjetID_SF_down ;
   Float_t m_PUReweight ;
+  Float_t m_PUReweight_up ;
+  Float_t m_PUReweight_down ;
   Float_t m_bTagweightL ;
   Float_t m_bTagweightL_up ;
   Float_t m_bTagweightL_down ;
