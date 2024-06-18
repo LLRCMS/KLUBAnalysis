@@ -103,7 +103,7 @@ class Histograms:
         if scale != 1.:
             for key in keys:
                 self._hists[key] *= scale
-                self._hists[key].label += r" ($\times$" + str(int(scale)) +")"
+                self._hists[key].label += r" ($\times$" + str(round(scale,3)) +")"
         
         return {k:self._hists[k] for k in keys}
 
@@ -120,17 +120,60 @@ class Histograms:
                 raise ValueError("Negative bins in histogram after removal.")
             elif sum_after > 0.:
                 h *= sum_before/sum_after
-                
+
     @_read_histograms()
-    def stack(self, keys, *args, **kwargs):
+    def group(self, keys, *args, **kwargs):
+        """Group histograms."""
+        return sum([self._hists[k] for k in keys])
+
+    def groups(self, group_names, *args, **kwargs):
+        """Create several groups of histograms."""
+        ret = {k:self.group(keys=v) for k,v in group_names.items()}
+        for k,v in ret.items():
+            v.name = k
+        return ret
+
+    @_read_histograms()
+    def stack(self, keys, group_names=None, order=None, *args, **kwargs):
         """Stack histograms."""
-        return hist.Stack(*[self._hists[k] for k in keys])
+        hsplit_old = [self._hists[k] for k in keys]
+
+        if group_names is not None and order is not None:
+            for names in group_names.values():
+                for name in names:
+                    if name in order:
+                        mes = "The order list must not contain the names in the groups."
+                        mes += " (name={})".format(name)
+                        raise RuntimeError(mes)
+            
+        if group_names is not None:
+            grouped_histos = self.groups(group_names)
+
+            hsplit = []
+            for h in hsplit_old:
+                for _, groupnames in group_names.items():
+                    if h.name not in groupnames:
+                        hsplit.append(h)
+            for _, vgroup in grouped_histos.items():
+                hsplit.append(vgroup)
+
+        else:
+            hsplit = hsplit_old
+                        
+        if order is not None:
+            assert set([k.name for k in hsplit]) == set(order), "Ensure that the order list contains all the histograms."
+
+            # order the histograms
+            index_order = [order.index(k.name) for k in hsplit]
+            hsplit = [hsplit[i] for i in index_order]
+
+        return hist.Stack(*hsplit)
 
     @_read_histograms("mc")
-    def stack_mc(self, keys, *args, **kwargs):
+    def stack_mc(self, keys, groups=None, order=None, *args, **kwargs):
         """Stack MC histograms, removing data and signal histograms."""
         keys, _ = self._filter_keys(keys, mode="mc")
-        return self.stack(keys, *args, **kwargs)
+        return self.stack(keys, groups, order, *args, **kwargs)
 
 class Plotter:
     def __init__(self, output, channel="ETau", cat="baseline", year="2018", npads=1):
@@ -141,10 +184,13 @@ class Plotter:
         self.ymax = 0
         self.yunits = self._define_yunits()
         self.debug_on = True
-        
-        # fig, self.axes = plt.subplots(self.npads, 1, figsize=(16, 16), squeeze=False,
-        #                               gridspec_kw={'height_ratios': [3,1]})
-        fig, self.axes = plt.subplots(self.npads, 1, figsize=(16, 16), squeeze=False)
+
+        if self.npads == 2:
+            fig, self.axes = plt.subplots(self.npads, 1, figsize=(16, 16), squeeze=False,
+                                          gridspec_kw={'height_ratios': [3,1]})
+        elif self.npads == 1:
+            fig, self.axes = plt.subplots(self.npads, 1, figsize=(16, 16), squeeze=False)
+
 
         if self.npads > 1:
             plt.subplots_adjust(left=0.1, right=.95, top=.95, bottom=0.1,
@@ -170,7 +216,7 @@ class Plotter:
         if self.debug_on:
             print("[DEBUG] " + msg)
 
-    def _add_top_margin(self, data, margin=0.2):
+    def _add_top_margin(self, data, margin=0.25):
         """Define vertical margin between data and subplot border."""
         max_y = max(sum(data).values()) if isinstance(data, hist.Stack) else max(data.values())
         if self.ax.get_yscale() == 'log':
@@ -192,15 +238,18 @@ class Plotter:
         self._stats_band(stackmc, loc=0, mode="standard", *args, **kwargs)
         self.graph(hdata, loc=0, label="Data", *args, **kwargs)
 
-    def mc_signal(self, stackmc, hsignal, *args, **kwargs):
+    def mc_signal(self, stackmc, hsignals, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         self.mc(stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", *args, **kwargs)
+        if not isinstance(hsignals, (tuple, list)):
+            hsignals = [hsignals]
+        for hsignal in hsignals:
+            self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", *args, **kwargs)
 
     def data_mc_signal(self, hdata, stackmc, hsignal, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         self.data_mc(hdata, stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", *args, **kwargs)
+        self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", linecolor="black", *args, **kwargs)
 
     def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
         """Convenience function to plot data and MC with ratio."""
@@ -409,8 +458,6 @@ class Plotter:
         
     def save(self, name, ncols_leg=1):
         self._legend(ncols_leg)
-        if not os.path.exists(self.output):
-            os.makedirs(self.output)
         name = os.path.join(self.output, name)
         self._debug("Save {}.".format(name))
         for ext in ("pdf", "png"):
@@ -505,7 +552,7 @@ class Plotter:
             
                 
         if data:
-            self._add_top_margin(data, margin=0.2)
+            self._add_top_margin(data, margin=0.25)
 
     def syst_shape_with_ratio(self, hnom, hup, hdo, label='', *args, **kwargs):
         """Plot the shape systematic uncertainty with ratio."""

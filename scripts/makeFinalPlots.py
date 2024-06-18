@@ -18,7 +18,7 @@ class DNNParams:
         self.spins = {"0", "2"}        
         
     def label(self):
-        return r"$pDNN (mX={})$".format(self.mass)
+        return r"$pDNN\:(mX={})$".format(self.mass)
 
     def name(self):
         return "pdnn_m" + self.mass + "_s" + self.spin + "_hh"
@@ -51,10 +51,10 @@ class Params:
 
     def _sanity_checks(self) -> None:
         """Sanity checks for the input channel and category."""
-        assert self.channel in self.channels, f"Invalid channel: {channel}"
-        assert self.category in self.cat_res.union(self.cat_boost), f"Invalid category: {category}"
-        assert self.region in self.regions, f"Invalid region: {region}"
-        assert self.year in self.years, f"Invalid year: {year}"
+        assert self.channel in self.channels, f"Invalid channel: {self.channel}"
+        assert self.category in self.cat_res.union(self.cat_boost), f"Invalid category: {self.category}"
+        assert self.region in self.regions, f"Invalid region: {self.region}"
+        assert self.year in self.years, f"Invalid year: {self.year}"
 
 
 class PlotterFactory:
@@ -63,56 +63,81 @@ class PlotterFactory:
         self.multithreading = multithreading
         self.hists = Histograms(infile)
 
-        self.dnn_scale = 3.
-        
+        self.dnn_scale = {
+            "320":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
+                     "TauTau": {"res1b": 20, "res2b": 3., "boostedL_pnet": 35.}},
+            "400":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
+                     "TauTau": {"res1b": 20, "res2b": 3., "boostedL_pnet": 35.}},
+            "500":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 10.},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 10.},
+                     "TauTau": {"res1b": 10, "res2b": 3., "boostedL_pnet": 5.}},
+            "700":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.6},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.6},
+                     "TauTau": {"res1b": 10, "res2b": 2.5, "boostedL_pnet": 0.3}},
+            "800":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
+                     "TauTau": {"res1b": 10, "res2b": 3., "boostedL_pnet": 0.1}},
+            "1000": {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
+                     "TauTau": {"res1b": 10, "res2b": 3., "boostedL_pnet": 0.1}},
+            "1500": {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.1},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.1},
+                     "TauTau": {"res1b": 20, "res2b": 3., "boostedL_pnet": 0.05}},
+            "2000": {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
+                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
+                     "TauTau": {"res1b": 130, "res2b": 3., "boostedL_pnet": 0.1}}
+        }
+
         # name, sigscale per channel
         self.variables = {
-            "dau1_pt"              : (r"$pT_{1}\;[GeV]$",              (90, 50, 20, 5000)),
-			"dau2_pt"			   : (r"$pT_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
-			"bjet1_pt"			   : (r"$pT_{j1}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"bjet2_pt"			   : (r"$pT_{j2}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"dau1_eta"			   : (r"$\eta_{1}$",					  (40, 40, 2, 4000)),
-			"dau2_eta"			   : (r"$\eta_{2}$",					  (40, 40, 2, 4000)),
-			"bjet1_eta"			   : (r"$\eta_{j1}$",				  (40, 40, 4, 4000)),
-			"bjet2_eta"			   : (r"$\eta_{j2}$",				  (40, 40, 4, 4000)),
-			"tauH_mass"			   : (r"$m_{H\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
-			"tauH_pt"			   : (r"$pT_{H\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
-			# "tauH_eta"			   : (r"$\eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
-			"bH_mass"			   : (r"$m_{Hb}\;[GeV]$",			  (10, 10, 2, 1000)),
-			"bH_pt"				   : (r"$pT_{Hb}\;[GeV]$",			  (30, 30, 2, 10000)),
-			"ditau_deltaR"		   : (r"$\Delta R(\tau\tau)$",		  (10, 10, 2, 1000)),
-			"dib_deltaR"		   : (r"$\Delta R(bb)$",				  (10, 10, 2, 1000)),
-			"HH_deltaR"			   : (r"$\Delta R(HH)$",				  (30, 30, 2, 7000)),
-			"njets"				   : ("#Jets",					  (90, 90, 5, 10000)),
-			"met_et"			   : (r"$MET [GeV]$",				  (10, 10, 1, 1000)),
-			"met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
-			"metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
-			"metnomu_phi"		   : (r"$MET_{no\mu}-\phi$",			  (10, 10, 1, 5000)),
-			# "dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
-			# "dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
-			# "dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
-			# "dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
-			# "METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
-			# "METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
-			# "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
-			# "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
-			# "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
-			"bjet1_bID_deepFlavor" : ("Deep Flavour (jet #1)",		  (10, 10, 1, 4000)),
-			"bjet2_bID_deepFlavor" : ("Deep Flavour (jet #2)",		  (10, 10, 1, 4000)),
-			# "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
-			# "bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
-			# "bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
-			"tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit}\;[GeV]$",	  (30, 30, 2, 10000)),
-			"tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit}\;[GeV]$",  (10, 10, 2, 10000)),
-			# "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
-			"HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet}\;[GeV]$",		  (1, 1, 1, 150)),
-			"HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
-			"HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
-			# "HH_mass"			   : (r"$m_{HH} [GeV]$",			  (1, 1, 1, 150)),
-			# "HHKin_mass"		   : (r"$m_{HHKin} [GeV]$",			  (1, 1, 1, 150)),
+            # "dau1_pt"              : (r"$pT_{1}\;[GeV]$",              (90, 50, 20, 5000)),
+			# "dau2_pt"			   : (r"$pT_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
+			# "bjet1_pt"			   : (r"$pT_{j1}\;[GeV]$",			  (90, 90, 9, 10000)),
+			# "bjet2_pt"			   : (r"$pT_{j2}\;[GeV]$",			  (90, 90, 9, 10000)),
+			# "dau1_eta"			   : (r"$\eta_{1}$",					  (40, 40, 2, 4000)),
+			# "dau2_eta"			   : (r"$\eta_{2}$",					  (40, 40, 2, 4000)),
+			# "bjet1_eta"			   : (r"$\eta_{j1}$",				  (40, 40, 4, 4000)),
+			# "bjet2_eta"			   : (r"$\eta_{j2}$",				  (40, 40, 4, 4000)),
+			# "tauH_mass"			   : (r"$m_{H\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
+			# "tauH_pt"			   : (r"$pT_{H\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
+			# # "tauH_eta"			   : (r"$\eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
+			# "bH_mass"			   : (r"$m_{Hb}\;[GeV]$",			  (10, 10, 2, 1000)),
+			# "bH_pt"				   : (r"$pT_{Hb}\;[GeV]$",			  (30, 30, 2, 10000)),
+			# "ditau_deltaR"		   : (r"$\Delta R(\tau\tau)$",		  (10, 10, 2, 1000)),
+			# "dib_deltaR"		   : (r"$\Delta R(bb)$",				  (10, 10, 2, 1000)),
+			# "HH_deltaR"			   : (r"$\Delta R(HH)$",				  (30, 30, 2, 7000)),
+			# "njets"				   : ("#Jets",					  (90, 90, 5, 10000)),
+			# "met_et"			   : (r"$MET [GeV]$",				  (10, 10, 1, 1000)),
+			# "met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
+			# "metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
+			# "metnomu_phi"		   : (r"$MET_{no\mu}-\phi$",			  (10, 10, 1, 5000)),
+			# # "dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
+			# # "dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
+			# # "dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
+			# # "dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
+			# # "METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
+			# # "METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
+			# # "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
+			# # "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
+			# # "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
+			# "bjet1_bID_deepFlavor" : ("Deep Flavour (jet #1)",		  (10, 10, 1, 4000)),
+			# "bjet2_bID_deepFlavor" : ("Deep Flavour (jet #2)",		  (10, 10, 1, 4000)),
+			# # "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
+			# # "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
+			# # "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
+			# # "bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
+			# # "bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
+			# # "bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
+			# "tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit}\;[GeV]$",	  (30, 30, 2, 10000)),
+			# "tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit}\;[GeV]$",  (10, 10, 2, 10000)),
+			# # "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
+			# "HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet}\;[GeV]$",		  (1, 1, 1, 150)),
+			# "HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
+			# "HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
+			"HH_mass"			   : (r"$m_{HH}\:\:[GeV]$",			  (1, 1, 1, 150)),
+			"HHKin_mass"		   : (r"$m_{HH}^{Kin}\:\:[GeV]$",			  (1, 1, 1, 150)),
         }
 
         self.systematics = {"tes_DM0", "tes_DM1", "tes_DM10", "tes_DM11"}
@@ -120,21 +145,58 @@ class PlotterFactory:
         self.logvariables = {"dau1_dxy", "dau1_dz", "dau2_dxy", "dau2_dz", "HH_mass", "HHKin_mass"}
         self.equalwidth = {"HH_mass", "HHKin_mass"}
     
-    def data_mc_with_ratio_worker(self, variable, pars) -> None:
+    def data_mc_with_ratio_worker(self, variable, pars, pdnn=None) -> None:
         """
         Worker function for producing the data/mc plots with ratio for the given channel and category.
         """
         suffix = '_' + pars.histo_name + '_' + variable
-        hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
+        #hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
         stackmc = self.hists.stack_mc(keys='.*'+suffix)
+        hsignals = []
+        for m in {"700", "1000", "1500"}:
+            hsignals.append(self.hists.hists(keys='GGF_Radion'+m+suffix,
+                                             scale=self.dnn_scale[m][pars.channel][pars.category],
+                                             label="Sig "+m)['GGF_Radion'+m+suffix])
 
-        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=2)
-        p.data_mc_with_ratio(hdata=hdata, stackmc=stackmc,
-                             linewidth=1,
-							 yscale='log' if variable in self.logvariables else 'linear',
-							 xlabel=self.variables[variable][0],
-                             equalwidth=variable in self.equalwidth)
-        p.save('plot_' + pars.name + '_' + variable)
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
+        #p.data_mc_signal_with_ratio
+        p.mc_signal(stackmc=stackmc, hsignals=hsignals, #hdata=hdata, 
+                    linewidth=3,
+					yscale='log' if variable in self.logvariables or 'pdnn' in variable else 'linear',
+					xlabel=self.variables[variable][0],
+                    equalwidth=variable in self.equalwidth)
+        
+        p.save('plot_' + pars.name + '_' + variable, ncols_leg=3)
+
+    def data_mc_signal_worker(self, variable, pars, pdnn) -> None:
+        """
+        Worker function for producing the data/mc plots with ratio for the given channel and category.
+        """
+        suffix = '_' + pars.histo_name + '_' + variable
+        log_check = variable in self.logvariables or 'pdnn' in variable
+
+        processes_other = ('VVV', 'TTX', 'VV', 'ggH', 'EWK', 'TW', 'HH', 'qqH', 'WH', 'singleT', 'ttH', 'ZH')
+        mc_groups = {'others': tuple(proc + suffix for proc in processes_other)}
+        stackmc = self.hists.stack_mc(keys='.*'+suffix, groups=mc_groups,
+                                      order=['TT'+suffix, 'DY'+suffix, 'W'+suffix, 'QCD'+suffix, 'others'])
+        
+        hsignal = self.hists.hists(keys='GGF_Radion'+pdnn.mass+suffix,
+                                   scale=self.dnn_scale[pdnn.mass][pars.channel][pars.category],
+                                   label="Sig "+pdnn.mass)['GGF_Radion'+pdnn.mass+suffix]
+
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
+        p.mc_signal(stackmc=stackmc, hsignals=hsignal, #hdata=hdata,
+                    linewidth=3,
+                    edgecolor="black",
+					yscale='log' if log_check else 'linear',
+					xlabel=self.variables[variable][0] if pdnn is None else pdnn.label(),
+                    equalwidth=True)
+
+        savename = 'signal_' + pars.name + '_' + variable + '_m' + pdnn.mass + '_s' + pdnn.spin
+        if log_check:
+            p.save(savename + '_log', ncols_leg=3)
+        else:
+            p.save(savename, ncols_leg=3)
 
     def data_mc_signal_with_ratio_worker(self, variable, pars, pdnn) -> None:
         """
@@ -142,18 +204,20 @@ class PlotterFactory:
         """
         suffix = '_' + pars.histo_name + '_' + variable
 
-        hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
+        #hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
         stackmc = self.hists.stack_mc(keys='.*'+suffix)
-        hsignal = self.hists.hists(keys='.*Radion.*'+suffix, scale=self.dnn_scale, label="Signal")['GGF_Radion'+pdnn.mass+suffix]
+        hsignal = self.hists.hists(keys='GGF_Radion'+pdnn.mass+suffix,
+                                   scale=self.dnn_scale[pdnn.mass][pars.channel][pars.category],
+                                   label="Sig "+pdnn.mass)['GGF_Radion'+pdnn.mass+suffix]
 
         p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
-        p.data_mc_signal(stackmc=stackmc, hsignal=hsignal, hdata=hdata,
-                         linewidth=3,
-                         edgecolor="black",
-					     yscale='log' if variable in self.logvariables else 'linear',
-					     xlabel=self.variables[variable][0] if pdnn is None else pdnn.label(),
-                         equalwidth=True)
-        p.save('signal_' + pars.name + '_' + variable, ncols_leg=3)
+        p.mc_signal(stackmc=stackmc, hsignals=hsignal, #hdata=hdata,
+                    linewidth=3,
+                    edgecolor="black",
+					yscale='log' if variable in self.logvariables or 'pdnn' in variable else 'linear',
+					xlabel=self.variables[variable][0] if pdnn is None else pdnn.label(),
+                    equalwidth=True)
+        p.save('signal_' + pars.name + '_' + variable + '_m' + pdnn.mass + '_s' + pdnn.spin, ncols_leg=3)
 
     def produce(self, func, pars, pdnn=None):
         avars = self.variables if pdnn is None else [pdnn.name(),]
@@ -191,40 +255,52 @@ class PlotterFactory:
                 self._produce_syst_shape_with_ratio_worker(syst=syst, mass=mass, spin=spin, pars=pars)
          
 
-def makeFinalPlots(tag, year, pdnn):
+def dnn_parallel(mass, spin, tag, chn, cat, pars):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
 
-    channels = ("TauTau",) #, "MuTau", "ETau")
-    categories = ("boostedL_pnet",) #, "res1b", "res2b", "baseline")
+    pdnn_params = DNNParams(mass, spin)
+    infile = os.path.join(basepath_in, tag, chn, "Spin"+spin+"_Mass"+mass, 'combined_outLimits.root')
+    outdir = os.path.join(basepath_out, tag, chn, cat)
+    
+    factory = PlotterFactory(infile, outdir, multithreading=False)
+    # factory.produce(factory.data_mc_signal_with_ratoi_worker, pars=pars, pdnn=pdnn_params)
+    factory.produce(factory.data_mc_signal_worker, pars=pars, pdnn=pdnn_params)
 
-    mass = "1000"
-    spin = "0"
+def makeFinalPlots(tag, year, pdnn, singlethreaded=False):
+    basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
+    basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
+
+    channels = ("TauTau", "MuTau", "ETau")
+    categories = ("boostedL_pnet", "res1b", "res2b")
+
     for chn in channels:
         for cat in categories:
+            outdir = os.path.join(basepath_out, tag, chn, cat)
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+                
             print("Running for channel: {}, category: {}".format(chn, cat))
             pars = Params(channel=chn, category=cat, region="SR", year=year)
             
             if pdnn:
-                masses = {"500",} #, "800", "1000"}
+                masses = {"320",}#"400", "500", "700", "800", "1000", "1500", "2000"}
                 spins = {"0",}
-                for mass in masses:
-                    for spin in spins:
-                        pdnn_params = DNNParams(mass, spin)
-                        infile = os.path.join(basepath_in, tag, chn, "Spin"+spin+"_Mass"+mass, 'combined_outLimits.root')
-                        outdir = os.path.join(basepath_out, tag, chn, cat)
-
-                        factory = PlotterFactory(infile, outdir, multithreading=False)
-                        factory.produce(factory.data_mc_signal_with_ratio_worker, pars=pars, pdnn=pdnn_params)
-                
+                if singlethreaded:
+                    for mass in masses:
+                        for spin in spins:
+                            dnn_parallel(mass, spin, tag, chn, cat, pars)
+                else:
+                    num_workers = multiprocessing.cpu_count()-1
+                    with multiprocessing.Pool(processes=num_workers) as pool:
+                        func_args = [(mass, spin, tag, chn, cat, pars) for mass in masses for spin in spins]
+                        pool.starmap(dnn_parallel, func_args)                
                         
             else:
-                infile = os.path.join(basepath_in, tag, chn, 'combined_outLimits.root')
-                outdir = os.path.join(basepath_out, tag, chn, cat)
+                infile = os.path.join(basepath_in, tag, chn, 'combined_outPlots.root')
 
                 factory = PlotterFactory(infile, outdir, multithreading=not args.singlethreaded)
                 factory.produce(factory.data_mc_with_ratio_worker, pars=pars)
-
                 
     # mass, spin = "500", "0"
     # sm_str = "Spin" + spin + "_Mass" + mass
@@ -247,4 +323,4 @@ if __name__ == '__main__':
     parser.add_argument('--pdnn', action='store_true', help='Plot DNN variables')
     args = parser.parse_args()
 
-    makeFinalPlots(args.tag, args.year, args.pdnn)
+    makeFinalPlots(args.tag, args.year, args.pdnn, args.singlethreaded)

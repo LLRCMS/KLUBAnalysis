@@ -264,7 +264,8 @@ class Params:
         else:
             selections = self.base_selections.extend(self.selections)
 
-        with open('scripts/edges_' + m_year[self.year] + '.json') as f:
+        #with open('scripts/edges_' + m_year[self.year] + '.json') as f:
+        with open('scripts/bin_edges_flatsguarded10_2017.json') as f:
             d = json.load(f)
             for var in variables:
                 # Dummy binning needed to have make the binning for different categories work properly.
@@ -274,7 +275,8 @@ class Params:
                 for reg in self.regions[channel].keys():
                     for sel in selections:
                         if self.is_for_limits(spin, mass):
-                            key = '_'.join((m_chn[channel], m_cat[sel], 'spin', spin, 'mass', mass))
+                            #key = '_'.join((m_chn[channel], m_cat[sel], 'spin', spin, 'mass', mass))
+                            key = '_'.join(("2017", m_chn[channel], m_cat[sel], 'os_iso_', 's' + spin, '_m' + mass))
                         else:
                             key = '_'.join((m_chn[channel], m_cat[sel], 'spin', self.spin_for_plots, 'mass', mass))
                         bins += sel + '_' + reg + ':' + var + " = " + str(d[key])[1:-1] + '\n'
@@ -507,6 +509,7 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         "pNetBTagM = fatjet_particleNetMDJetTags_score >= " + pfnet["M"],
         "pNetBTagL = fatjet_particleNetMDJetTags_score >= " + pfnet["L"],
         "",
+        "massCutTau = tauH_mass > 20 && tauH_mass < 130",
         "massCut    = bH_mass > 50 && bH_mass < 270 && tauH_mass > 20 && tauH_mass < 130",
         "massCutInv = bH_mass < 50 || bH_mass > 270 || tauH_mass < 20 || tauH_mass > 130",
         "",
@@ -518,7 +521,7 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         "res1b = baseline, btagM , isBoosted != 1, massCut",
         "res2b = baseline, btagMM, isBoosted != 1, massCut",
         "",
-        "boostedL_pnet = baseline_boosted, pNetBTagL",
+        "boostedL_pnet = baseline_boosted, pNetBTagL, massCutTau",
         "",
         "[selectionWeights]",
         "baseline = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
