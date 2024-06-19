@@ -393,10 +393,11 @@ double ScaleFactor::get_ScaleFactorError(double effData, double effMC, double er
 
   double SF_error = 0.;
 
-  if (errData==0. && errMC==0.) {
+  if (errData==0. and errMC==0.) {
     std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: uncertainty on data and MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;
   }
-  if (effData==0. || effMC==0.) {
+
+  if (effData==0. or effMC==0.) {
     std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: efficiency in data or MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;
     return 0.;
   }
