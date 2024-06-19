@@ -432,6 +432,9 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
     else:
         selections = pars.base_selections + pars.selections[channel]
 
+    if channel == "MuMu":
+        pars.qcd = ""
+        
     content = '\n'.join((
         "[general]",
         "lumi = " + pars.lumi,
