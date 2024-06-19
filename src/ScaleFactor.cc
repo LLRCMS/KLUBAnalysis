@@ -80,13 +80,13 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF) {
       data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
       data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
       data_pt_errlow[iptbin]   = hslice_data->GetXaxis()->GetBinCenter(iptbin+1) - hslice_data->GetXaxis()->GetBinLowEdge(iptbin+1);
-      data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
+      data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
       data_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
       if(isTriggerSF) {
 	mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 	mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
 	mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1) - hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
-	mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
+	mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 	mc_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
       }
 
@@ -189,13 +189,13 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 		data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
 		data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
 		data_pt_errlow[iptbin]   = hslice_data->GetXaxis()->GetBinCenter(iptbin+1) - hslice_data->GetXaxis()->GetBinLowEdge(iptbin+1);
-		data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
+		data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
 		data_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
 
 		mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 		mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
 		mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1) - hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
-		mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+2) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
+		mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
 		mc_eff_err[iptbin]     = hslice_mc->GetBinError(iptbin+1);
       }
 	  
