@@ -128,7 +128,7 @@ if __name__ == "__main__":
                         help='Parallellize over spin and masses for DNN.')
     parser.add_argument('--year', required=True, choices=("UL16APV", "UL16", "UL17", "UL18"),
                         help='Data period.')
-    parser.add_argument('--channel', required=True, choices=("ETau", "MuTau", "TauTau"),
+    parser.add_argument('--channel', required=True, choices=("ETau", "MuTau", "TauTau", "MuMu"),
                         help='Analysis channel.')
     parser.add_argument('--eos', default='bfontana',
                         help='EOS username (can be ignored if input files are not stored in /eos/.')

@@ -35,21 +35,25 @@ class Params:
                 "ETau": ["DsingleEleF", "DsingleEleG", "DsingleEleH"],
                 "MuTau": ["DsingleMuF", "DsingleMuG", "DsingleMuH"],
                 "TauTau": ["DTauF", "DTauG", "DTauH"],
+                "MuMu": ["DsingleMuF", "DsingleMuG", "DsingleMuH"],
             },
             "UL16APV": {
                 "ETau": ["DsingleEleB", "DsingleEleC", "DsingleEleD", "DsingleEleE", "DsingleEleF"],
                 "MuTau": ["DsingleMuB", "DsingleMuC", "DsingleMuD", "DsingleMuE", "DsingleMuF"],
-                "TauTau": ["DTauB", "DTauC", "DTauD", "DTauE", "DTauF"]
+                "TauTau": ["DTauB", "DTauC", "DTauD", "DTauE", "DTauF"],
+                "MuMu": ["DsingleMuB", "DsingleMuC", "DsingleMuD", "DsingleMuE", "DsingleMuF"],
             },
             "UL17": {
                 "ETau": ["EGamma_Run2017B", "EGamma_Run2017C", "EGamma_Run2017D", "EGamma_Run2017E", "EGamma_Run2017F"],
                 "MuTau": ["SingleMuon_Run2017B", "SingleMuon_Run2017C", "SingleMuon_Run2017D", "SingleMuon_Run2017E", "SingleMuon_Run2017F"],
-                "TauTau": ["Tau_Run2017B", "Tau_Run2017C", "Tau_Run2017D", "Tau_Run2017E", "Tau_Run2017F"]
+                "TauTau": ["Tau_Run2017B", "Tau_Run2017C", "Tau_Run2017D", "Tau_Run2017E", "Tau_Run2017F"],
+                "MuMu": ["SingleMuon_Run2017B", "SingleMuon_Run2017C", "SingleMuon_Run2017D", "SingleMuon_Run2017E", "SingleMuon_Run2017F"],
             },
             "UL18": {
                 "ETau":   ["DsingleEleA", "DsingleEleB", "DsingleEleC", "DsingleEleD"],
                 "MuTau":  ["DsingleMuA", "DsingleMuB", "DsingleMuC", "DsingleMuD"],
-                "TauTau": ["DTauA", "DTauB", "DTauC", "DTauD"]
+                "TauTau": ["DTauA", "DTauB", "DTauC", "DTauD"],
+                "MuMu":   ["DsingleMuA", "DsingleMuB", "DsingleMuC", "DsingleMuD"],
             }
         }
 
@@ -126,7 +130,11 @@ class Params:
             }
 
         self.base_selections = ["baseline", "baseline_boosted"]
-        self.selections = ["res1b", "res2b", "boostedL_pnet"]
+        _selections = ["res1b", "res2b", "boostedL_pnet"]
+        self.selections = {"ETau": _selections,
+                           "MuTau": _selections + ["ttbarCR"],
+                           "TauTau": _selections,
+                           "MuMu": _selections + ["dyCR"]}
 
         self.regions = {
             "ETau":
@@ -146,6 +154,9 @@ class Params:
              "SStight": "isOS == 0 && dau1_deepTauVsJet >= 5 && dau2_deepTauVsJet >= 5",
              "OSinviso": "isOS != 0 && dau1_deepTauVsJet >= 5 && dau2_deepTauVsJet >= 1 && dau2_deepTauVsJet < 5",
              "SSinviso": "isOS == 0 && dau1_deepTauVsJet >= 5 && dau2_deepTauVsJet >= 1 && dau2_deepTauVsJet < 5"
+             },
+            "MuMu":
+            {"SR": "isOS != 0 && dau1_iso < 0.15 && dau2_iso < 0.15",
              },
         }
         
@@ -252,17 +263,18 @@ class Params:
 
     def define_dnn_binning(self, variables, channel, spin='', mass=''):
         m_chn = {"ETau": "etau", "MuTau": "mutau", "TauTau": "tautau"}
-        m_cat = {"res1b": "resolved1b", "res2b": "resolved2b", "boostedL_pnet": "boosted"}
+        m_cat = {"res1b": "resolved1b", "res2b": "resolved2b", "boostedL_pnet": "boosted",
+                 "ttbarCR": r"\bar{t}t CR", "dyCR": "DY CR"}
         m_year = {"UL16": "2016", "UL16APV": "2016APV", "UL17": "2017", "UL18": "2018"}
 
         bins = "\n[binning]\n\n"
 
         if self.is_for_limits(spin, mass):
-            selections = self.selections
+            selections = self.selections[channel]
             if float(mass) < 320:
                 selections = [s for s in selections if 'boosted' not in s]
         else:
-            selections = self.base_selections.extend(self.selections)
+            selections = self.base_selections.extend(self.selections[channel])
 
         #with open('scripts/edges_' + m_year[self.year] + '.json') as f:
         with open('scripts/bin_edges_flatsguarded10_2017.json') as f:
@@ -414,11 +426,11 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
         signals = "signals = " + ', '.join(((pars.signals[pars.spin_for_plots](m) for m in pars.masses[::5])))
 
     if pars.is_for_limits(spin, mass):
-        selections = pars.selections
+        selections = pars.selections[channel]
         if float(mass) < 320:
             selections = [s for s in selections if 'boosted' not in s]
     else:
-        selections = pars.base_selections + pars.selections
+        selections = pars.base_selections + pars.selections[channel]
 
     content = '\n'.join((
         "[general]",
@@ -482,7 +494,7 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
             for v, m in zip(dnn_variables, pars.masses):
                 binning += Params(year).define_dnn_binning([v], channel, pars.spin_for_plots, m)
 
-    chn_idx = {"ETau": "1", "MuTau": "0", "TauTau": "2"}[channel]
+    chn_idx = {"ETau": "1", "MuTau": "0", "TauTau": "2", "MuMu": "3"}[channel]
     deepjet = {"UL18":    {"loose": "0.0490", "medium": "0.2783"},
                "UL17":    {"loose": "0.0532", "medium": "0.3040"},
                "UL16APV": {"loose": "0.0508", "medium": "0.2598"},
@@ -493,7 +505,18 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
              "UL16APV": {"L": "0.9088", "M": "0.9737", "H": "0.9883"},
              "UL16":    {"L": "0.9137", "M": "0.9735", "H": "0.9883"},
              }[year]
-              
+
+    category_definitions = '\n'.join((
+        "res1b = baseline, btagM , isBoosted != 1, massCut",
+        "res2b = baseline, btagMM, isBoosted != 1, massCut",
+        "boostedL_pnet = baseline_boosted, pNetBTagL, massCutTau",
+        ))
+    if channel == "MuTau":
+        category_definitions += '\n' + "ttbarCR = baseline, btagMM, isBoosted != 1, massCutTT"
+    elif channel == "MuMu":
+        category_definitions += '\n' + "dyCR = baseline, isBoosted != 1, massCutDY"
+
+
     baseline = "(isLeptrigger || isMETtrigger || isSingleTautrigger) && pairType == {} && nleps == 0".format(chn_idx)
     content = '\n'.join((
         "[selections]",
@@ -512,16 +535,15 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         "massCutTau = tauH_mass > 20 && tauH_mass < 130",
         "massCut    = bH_mass > 50 && bH_mass < 270 && tauH_mass > 20 && tauH_mass < 130",
         "massCutInv = bH_mass < 50 || bH_mass > 270 || tauH_mass < 20 || tauH_mass > 130",
+        "massCutTT  = tauH_mass > 130",
+        "massCutDY  = tauH_mass > 80 && tauH_mass < 100",
         "",
         reg,
         "",
         "baselineMcut    = baseline, massCut",
         "baselineInvMcut = baseline, massCutInv",
         "",
-        "res1b = baseline, btagM , isBoosted != 1, massCut",
-        "res2b = baseline, btagMM, isBoosted != 1, massCut",
-        "",
-        "boostedL_pnet = baseline_boosted, pNetBTagL, massCutTau",
+        category_definitions,
         "",
         "[selectionWeights]",
         "baseline = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
