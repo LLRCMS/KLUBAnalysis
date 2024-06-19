@@ -3220,13 +3220,13 @@ int main (int argc, char** argv)
 				  double Err_Data_SL_mu = passSingle * SFL_Data_Err - passCross * passSingle * (SFl_Data > SFL_Data) * SFL_Data_Err * SFtau_Data;
 				  double Err_MC_SL_mu   = passSingle * SFL_MC_Err   - passCross * passSingle * (SFl_MC   > SFL_MC)   * SFL_MC_Err   * SFtau_MC;
 
-				  double trigSF_SL_mu_err = 0;
+				  double trigSF_SL_mu_err = 0.;
 				  if(passSingle) trigSF_SL_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_mu, Err_MC_SL_mu);
 
 				  double Err_Data_cross_mu = - passCross * passSingle * (SFl_Data < SFL_Data) * SFl_Data_Err * SFtau_Data + passCross * SFl_Data_Err * SFtau_Data;
 				  double Err_MC_cross_mu   = - passCross * passSingle * (SFl_MC   < SFL_MC)   * SFl_MC_Err   * SFtau_MC   + passCross * SFl_MC_Err   * SFtau_MC;
 
-				  double trigSF_cross_mu_err = 0;
+				  double trigSF_cross_mu_err = 0.;
 				  if(passCross and !(passSingle and (SFl_Data < SFL_Data))) trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
 
 				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
@@ -3234,7 +3234,7 @@ int main (int argc, char** argv)
 				  double trigSF_mu_err   = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_mu, Err_MC_mu);
 
 				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
-				  vector <double> trigSF_err    (N_tauhDM, 0);
+				  vector <double> trigSF_err    (N_tauhDM, 0.);
 				  if(passCross and ((SFl_Data > SFL_Data) or (SFl_MC > SFL_MC))){
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
@@ -3438,20 +3438,20 @@ int main (int argc, char** argv)
 				  double Err_Data_SL_ele = passSingle * SFL_Data_Err - passCross * passSingle * (SFl_Data > SFL_Data) * SFL_Data_Err * SFtau_Data;
 				  double Err_MC_SL_ele   = passSingle * SFL_MC_Err   - passCross * passSingle * (SFl_MC   > SFL_MC)   * SFL_MC_Err   * SFtau_MC;
 
-				  double trigSF_SL_ele_err = 0;
+				  double trigSF_SL_ele_err = 0.;
 				  if(passSingle) trigSF_SL_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_ele, Err_MC_SL_ele);
 
 				  double Err_Data_cross_ele = - passCross * passSingle * (SFl_Data < SFL_Data) * SFl_Data_Err * SFtau_Data + passCross * SFl_Data_Err * SFtau_Data;
 				  double Err_MC_cross_ele   = - passCross * passSingle * (SFl_MC   < SFL_MC)   * SFl_MC_Err   * SFtau_MC   + passCross * SFl_MC_Err   * SFtau_MC;
 
-				  double trigSF_cross_ele_err = 0;
+				  double trigSF_cross_ele_err = 0.;
 				  if(passCross and !(passSingle and (SFl_Data < SFL_Data))) trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
 
 				  double Err_Data_ele = Err_Data_SL_ele + Err_Data_cross_ele;
 				  double Err_MC_ele   = Err_MC_SL_ele   + Err_MC_cross_ele;
 				  double trigSF_ele_err   = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_ele, Err_MC_ele);
 				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
-				  vector <double> trigSF_err    (N_tauhDM, 0);
+				  vector <double> trigSF_err    (N_tauhDM, 0.);
 				  if(passCross and ((SFl_Data > SFL_Data) or (SFl_MC > SFL_MC))){
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
