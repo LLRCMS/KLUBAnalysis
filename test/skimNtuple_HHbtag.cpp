@@ -3190,44 +3190,44 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross  = 0;
 
 				  // lepton trigger
-				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
+				  double Eff_SL_mu_Data = 1., Eff_SL_mu_MC = 1., Eff_SL_mu_Data_Err = 0., Eff_SL_mu_MC_Err = 0.;
 				  if (passSingle) {
-					SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFL_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFL_MC_Err   = muTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_MC_Err   = muTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
+				  double Eff_cross_mu_Data = 1., Eff_cross_mu_MC = 1., Eff_cross_mu_Data_Err = 0., Eff_cross_mu_MC_Err = 0.;
 				  if (passCross) {
-					SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFl_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFl_MC_Err   = muTauTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_MC_Err   = muTauTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
 
 				  //tau leg
-				  double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-				  double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
 				  // Compute efficiencies
-				  double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
-				  double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+				  double Eff_Data = passSingle * Eff_SL_mu_Data - passCross * passSingle * std::min(Eff_cross_mu_Data, Eff_SL_mu_Data) * Eff_cross_tau_Data + passCross * Eff_cross_mu_Data * Eff_cross_tau_Data;
+				  double Eff_MC   = passSingle * Eff_SL_mu_MC   - passCross * passSingle * std::min(Eff_cross_mu_MC  , Eff_SL_mu_MC)   * Eff_cross_tau_MC   + passCross * Eff_cross_mu_MC   * Eff_cross_tau_MC;
 
 				  // Compute uncertainties (separate for SingleMuon and mu leg of cross trigger)
-				  double Err_Data_SL_mu = passSingle * SFL_Data_Err - passCross * passSingle * (SFl_Data > SFL_Data) * SFL_Data_Err * SFtau_Data;
-				  double Err_MC_SL_mu   = passSingle * SFL_MC_Err   - passCross * passSingle * (SFl_MC   > SFL_MC)   * SFL_MC_Err   * SFtau_MC;
+				  double Err_Data_SL_mu = passSingle * Eff_SL_mu_Data_Err - passCross * passSingle * (Eff_cross_mu_Data > Eff_SL_mu_Data) * Eff_SL_mu_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_SL_mu   = passSingle * Eff_SL_mu_MC_Err   - passCross * passSingle * (Eff_cross_mu_MC   > Eff_SL_mu_MC)   * Eff_SL_mu_MC_Err   * Eff_cross_tau_MC;
 
 				  double trigSF_SL_mu_err = 0.;
 				  if(passSingle) trigSF_SL_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_mu, Err_MC_SL_mu);
 
-				  double Err_Data_cross_mu = - passCross * passSingle * (SFl_Data < SFL_Data) * SFl_Data_Err * SFtau_Data + passCross * SFl_Data_Err * SFtau_Data;
-				  double Err_MC_cross_mu   = - passCross * passSingle * (SFl_MC   < SFL_MC)   * SFl_MC_Err   * SFtau_MC   + passCross * SFl_MC_Err   * SFtau_MC;
+				  double Err_Data_cross_mu = - passCross * passSingle * (Eff_cross_mu_Data < Eff_SL_mu_Data) * Eff_cross_mu_Data_Err * Eff_cross_tau_Data + passCross * Eff_cross_mu_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_cross_mu   = - passCross * passSingle * (Eff_cross_mu_MC   < Eff_SL_mu_MC)   * Eff_cross_mu_MC_Err   * Eff_cross_tau_MC   + passCross * Eff_cross_mu_MC_Err   * Eff_cross_tau_MC;
 
 				  double trigSF_cross_mu_err = 0.;
-				  if(passCross and !(passSingle and (SFl_Data < SFL_Data))) trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
+				  if(passCross and !(passSingle and (Eff_cross_mu_Data < Eff_SL_mu_Data))) trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
 
 				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
 				  double Err_MC_mu   = Err_MC_SL_mu   + Err_MC_cross_mu;
@@ -3235,13 +3235,13 @@ int main (int argc, char** argv)
 
 				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
 				  vector <double> trigSF_err    (N_tauhDM, 0.);
-				  if(passCross and ((SFl_Data > SFL_Data) or (SFl_MC > SFL_MC))){
+				  if(passCross and ((Eff_cross_mu_Data > Eff_SL_mu_Data) or (Eff_cross_mu_MC > Eff_SL_mu_MC))){
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
-							double SFtau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
-							double SFtau_MC_Up   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
-							double Eff_Data_Up = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data_Up   + passCross * SFl_Data * SFtau_Data_Up;
-							double Eff_MC_Up   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC_Up     + passCross * SFl_MC   * SFtau_MC_Up;
+							double Eff_cross_tau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_cross_tau_MC_Up   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_Data_Up = passSingle * Eff_SL_mu_Data - passCross * passSingle * std::min(Eff_cross_mu_Data, Eff_SL_mu_Data) * Eff_cross_tau_Data_Up   + passCross * Eff_cross_mu_Data * Eff_cross_tau_Data_Up;
+							double Eff_MC_Up   = passSingle * Eff_SL_mu_MC   - passCross * passSingle * std::min(Eff_cross_mu_MC  , Eff_SL_mu_MC)   * Eff_cross_tau_MC_Up     + passCross * Eff_cross_mu_MC   * Eff_cross_tau_MC_Up;
 							trigSF_err[idm] = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Eff_Data_Up - Eff_Data, Eff_MC_Up - Eff_MC);
 						}
 					}
@@ -3250,12 +3250,12 @@ int main (int argc, char** argv)
 				  if(DEBUG)
 					{
 					  cout << "--- DEBUG Trigger weights --- " << endl;
-					  cout << "SFL_Data: "   << SFL_Data   << endl;
-					  cout << "SFL_MC: "     << SFL_MC     << endl;
-					  cout << "SFl_Data: "   << SFl_Data   << endl;
-					  cout << "SFl_MC: "     << SFl_MC     << endl;
-					  cout << "SFtau_Data: " << SFtau_Data << endl;
-					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
+					  cout << "Eff_SL_mu_Data: "   << Eff_SL_mu_Data   << endl;
+					  cout << "Eff_SL_mu_MC: "     << Eff_SL_mu_MC     << endl;
+					  cout << "Eff_cross_mu_Data: "   << Eff_cross_mu_Data   << endl;
+					  cout << "Eff_cross_mu_MC: "     << Eff_cross_mu_MC     << endl;
+					  cout << "Eff_cross_tau_Data: " << Eff_cross_tau_Data << endl;
+					  cout << "Eff_cross_tau_MC: "   << Eff_cross_tau_MC   << endl;
 					}
 
 				  trigSF                = muTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
@@ -3408,57 +3408,57 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
 				  //lepton trigger
-				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
+				  double Eff_SL_ele_Data = 1., Eff_SL_ele_MC = 1., Eff_SL_ele_Data_Err = 0., Eff_SL_ele_MC_Err = 0.;
 				  if (passSingle) {
-					SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFL_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFL_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  }
 
 				  //cross-trigger
 				  //e leg
-				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
+				  double Eff_cross_ele_Data = 1., Eff_cross_ele_MC = 1., Eff_cross_ele_Data_Err = 0., Eff_cross_ele_MC_Err = 0.;
 				  if (passCross) {
-					SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFl_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-					SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFl_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
 				  }
 
 				  //tau leg
-				  double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-				  double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
 				  // Compute efficiencies
-				  double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
-				  double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+				  double Eff_Data = passSingle * Eff_SL_ele_Data - passCross * passSingle * std::min(Eff_cross_ele_Data, Eff_SL_ele_Data) * Eff_cross_tau_Data + passCross * Eff_cross_ele_Data * Eff_cross_tau_Data;
+				  double Eff_MC   = passSingle * Eff_SL_ele_MC   - passCross * passSingle * std::min(Eff_cross_ele_MC  , Eff_SL_ele_MC)   * Eff_cross_tau_MC   + passCross * Eff_cross_ele_MC   * Eff_cross_tau_MC;
 
 				  // Compute uncertainties (separate for SingleElectron and ele leg of cross trigger)
-				  double Err_Data_SL_ele = passSingle * SFL_Data_Err - passCross * passSingle * (SFl_Data > SFL_Data) * SFL_Data_Err * SFtau_Data;
-				  double Err_MC_SL_ele   = passSingle * SFL_MC_Err   - passCross * passSingle * (SFl_MC   > SFL_MC)   * SFL_MC_Err   * SFtau_MC;
+				  double Err_Data_SL_ele = passSingle * Eff_SL_ele_Data_Err - passCross * passSingle * (Eff_cross_ele_Data > Eff_SL_ele_Data) * Eff_SL_ele_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_SL_ele   = passSingle * Eff_SL_ele_MC_Err   - passCross * passSingle * (Eff_cross_ele_MC   > Eff_SL_ele_MC)   * Eff_SL_ele_MC_Err   * Eff_cross_tau_MC;
 
 				  double trigSF_SL_ele_err = 0.;
 				  if(passSingle) trigSF_SL_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_ele, Err_MC_SL_ele);
 
-				  double Err_Data_cross_ele = - passCross * passSingle * (SFl_Data < SFL_Data) * SFl_Data_Err * SFtau_Data + passCross * SFl_Data_Err * SFtau_Data;
-				  double Err_MC_cross_ele   = - passCross * passSingle * (SFl_MC   < SFL_MC)   * SFl_MC_Err   * SFtau_MC   + passCross * SFl_MC_Err   * SFtau_MC;
+				  double Err_Data_cross_ele = - passCross * passSingle * (Eff_cross_ele_Data < Eff_SL_ele_Data) * Eff_cross_ele_Data_Err * Eff_cross_tau_Data + passCross * Eff_cross_ele_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_cross_ele   = - passCross * passSingle * (Eff_cross_ele_MC   < Eff_SL_ele_MC)   * Eff_cross_ele_MC_Err   * Eff_cross_tau_MC   + passCross * Eff_cross_ele_MC_Err   * Eff_cross_tau_MC;
 
 				  double trigSF_cross_ele_err = 0.;
-				  if(passCross and !(passSingle and (SFl_Data < SFL_Data))) trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
+				  if(passCross and !(passSingle and (Eff_cross_ele_Data < Eff_SL_ele_Data))) trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
 
 				  double Err_Data_ele = Err_Data_SL_ele + Err_Data_cross_ele;
 				  double Err_MC_ele   = Err_MC_SL_ele   + Err_MC_cross_ele;
 				  double trigSF_ele_err   = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_ele, Err_MC_ele);
 				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
 				  vector <double> trigSF_err    (N_tauhDM, 0.);
-				  if(passCross and ((SFl_Data > SFL_Data) or (SFl_MC > SFL_MC))){
+				  if(passCross and ((Eff_cross_ele_Data > Eff_SL_ele_Data) or (Eff_cross_ele_MC > Eff_SL_ele_MC))){
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
-							double SFtau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
-							double SFtau_MC_Up   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
-							double Eff_Data_Up = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data_Up   + passCross * SFl_Data * SFtau_Data_Up;
-							double Eff_MC_Up   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC_Up     + passCross * SFl_MC   * SFtau_MC_Up;
+							double Eff_cross_tau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_cross_tau_MC_Up   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_Data_Up = passSingle * Eff_SL_ele_Data - passCross * passSingle * std::min(Eff_cross_ele_Data, Eff_SL_ele_Data) * Eff_cross_tau_Data_Up   + passCross * Eff_cross_ele_Data * Eff_cross_tau_Data_Up;
+							double Eff_MC_Up   = passSingle * Eff_SL_ele_MC   - passCross * passSingle * std::min(Eff_cross_ele_MC  , Eff_SL_ele_MC)   * Eff_cross_tau_MC_Up     + passCross * Eff_cross_ele_MC   * Eff_cross_tau_MC_Up;
 							trigSF_err[idm] = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Eff_Data_Up - Eff_Data, Eff_MC_Up - Eff_MC);
 						}
 					}
@@ -3466,12 +3466,12 @@ int main (int argc, char** argv)
 				  if(DEBUG)
 					{
 					  cout << "--- DEBUG Trigger weights --- " << endl;
-					  cout << "SFL_Data: "   << SFL_Data   << endl;
-					  cout << "SFL_MC: "     << SFL_MC     << endl;
-					  cout << "SFl_Data: "   << SFl_Data   << endl;
-					  cout << "SFl_MC: "     << SFl_MC     << endl;
-					  cout << "SFtau_Data: " << SFtau_Data << endl;
-					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
+					  cout << "Eff_SL_ele_Data: "   << Eff_SL_ele_Data   << endl;
+					  cout << "Eff_SL_ele_MC: "     << Eff_SL_ele_MC     << endl;
+					  cout << "Eff_cross_ele_Data: "   << Eff_cross_ele_Data   << endl;
+					  cout << "Eff_cross_ele_MC: "     << Eff_cross_ele_MC     << endl;
+					  cout << "Eff_cross_tau_Data: " << Eff_cross_tau_Data << endl;
+					  cout << "Eff_cross_tau_MC: "   << Eff_cross_tau_MC   << endl;
 					}
 
 				  trigSF                = eTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
