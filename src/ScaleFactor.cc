@@ -65,16 +65,16 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF) {
     }
     const int nbin_pt = hslice_data->GetNbinsX();
 
-    double data_pt_nom[nbin_pt] = {0};
-    double data_eff_nom[nbin_pt] = {0};
-    double data_pt_errlow[nbin_pt] = {0};
-    double data_pt_errhigh[nbin_pt] = {0};
-    double data_eff_err[nbin_pt] = {0};
-    double mc_pt_nom[nbin_pt] = {0};
-    double mc_eff_nom[nbin_pt] = {0};
-    double mc_pt_errlow[nbin_pt] = {0};
-    double mc_pt_errhigh[nbin_pt] = {0};
-    double mc_eff_err[nbin_pt] = {0};
+    double data_pt_nom[nbin_pt] = {0.};
+    double data_eff_nom[nbin_pt] = {0.};
+    double data_pt_errlow[nbin_pt] = {0.};
+    double data_pt_errhigh[nbin_pt] = {0.};
+    double data_eff_err[nbin_pt] = {0.};
+    double mc_pt_nom[nbin_pt] = {0.};
+    double mc_eff_nom[nbin_pt] = {0.};
+    double mc_pt_errlow[nbin_pt] = {0.};
+    double mc_pt_errhigh[nbin_pt] = {0.};
+    double mc_eff_err[nbin_pt] = {0.};
 
     for(int iptbin=0; iptbin<nbin_pt; iptbin++){
       data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
@@ -173,17 +173,17 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
 
       const int nbin_pt = hslice_data->GetNbinsX();
 
-      double data_pt_nom[nbin_pt]      = {0};
-      double data_eff_nom[nbin_pt]     = {0};
-      double data_pt_errlow[nbin_pt]   = {0};
-      double data_pt_errhigh[nbin_pt]  = {0};
-      double data_eff_err[nbin_pt]  = {0};
+      double data_pt_nom[nbin_pt]      = {0.};
+      double data_eff_nom[nbin_pt]     = {0.};
+      double data_pt_errlow[nbin_pt]   = {0.};
+      double data_pt_errhigh[nbin_pt]  = {0.};
+      double data_eff_err[nbin_pt]  = {0.};
 
-      double mc_pt_nom[nbin_pt]      = {0};
-      double mc_eff_nom[nbin_pt]     = {0};
-      double mc_pt_errlow[nbin_pt]   = {0};
-      double mc_pt_errhigh[nbin_pt]  = {0};
-      double mc_eff_err[nbin_pt]  = {0};
+      double mc_pt_nom[nbin_pt]      = {0.};
+      double mc_eff_nom[nbin_pt]     = {0.};
+      double mc_pt_errlow[nbin_pt]   = {0.};
+      double mc_pt_errhigh[nbin_pt]  = {0.};
+      double mc_eff_err[nbin_pt]  = {0.};
 
       for(int iptbin=0; iptbin<nbin_pt; iptbin++) {
 		data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
@@ -318,8 +318,8 @@ double ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) {
   if (ptbin == -99){eff =1;} // if pt is underflow
   else eff= eff_mc[label]->GetY()[ptbin-1];
 
-  if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Efficiency in MC > 1. Set eff = 1." << std::endl; eff =1;}
-  if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Negative efficiency in MC. Set eff = 0." <<std::endl; eff =0;}
+  if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Efficiency in MC > 1. Set eff = 1." << std::endl; eff =1.;}
+  if (eff < 0. ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Negative efficiency in MC. Set eff = 0." <<std::endl; eff =0.;}
 
   return eff;
 
@@ -393,12 +393,12 @@ double ScaleFactor::get_ScaleFactorError(double effData, double effMC, double er
 
   double SF_error = 0.;
 
-  if (errData==0 && errMC==0) {
+  if (errData==0. && errMC==0.) {
     std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: uncertainty on data and MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;
   }
-  if (effData==0 || effMC==0) {
+  if (effData==0. || effMC==0.) {
     std::cout<<"WARNING in ScaleFactor::get_ScaleFactorError(double effData, double effMC, double errData, double errMC) from src/ScaleFactor.cc: efficiency in data or MC = 0, can not calculate uncertainty on scale factor. Uncertainty set to 0." << std::endl;
-    return 0;
+    return 0.;
   }
   else {
     SF_error = pow((errData/effData),2) + pow((errMC/effMC),2);
