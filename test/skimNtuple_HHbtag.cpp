@@ -2825,6 +2825,7 @@ int main (int argc, char** argv)
 	
 	  if (isMC) {
 		if (pType == 0 or pType == 3) {
+		  // use absolute value of eta for muons, because the SFs are given from 0 to 2.4
 		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
 		}
 		else if (pType == 1 or pType == 4) {
@@ -2833,6 +2834,7 @@ int main (int argc, char** argv)
 	  }
 
 	  if(isMC and pType == 3) { //MuMu
+		// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
 		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
 	  }
 	  else if(isMC and pType == 4) { //EleEle
@@ -3192,6 +3194,7 @@ int main (int argc, char** argv)
 				  // lepton trigger
 				  double Eff_SL_mu_Data = 1., Eff_SL_mu_MC = 1., Eff_SL_mu_Data_Err = 0., Eff_SL_mu_MC_Err = 0.;
 				  if (passSingle) {
+					// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
 					Eff_SL_mu_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 					Eff_SL_mu_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 					Eff_SL_mu_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
@@ -3202,6 +3205,7 @@ int main (int argc, char** argv)
 				  //mu leg
 				  double Eff_cross_mu_Data = 1., Eff_cross_mu_MC = 1., Eff_cross_mu_Data_Err = 0., Eff_cross_mu_MC_Err = 0.;
 				  if (passCross) {
+					// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
 					Eff_cross_mu_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 					Eff_cross_mu_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 					Eff_cross_mu_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
@@ -3307,6 +3311,7 @@ int main (int argc, char** argv)
 						 << " The weight will be set to one." << endl;
 				  }
 				  else {
+					// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
 					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      fabs(tlv_firstLepton.Eta()), pType);
 					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
@@ -3732,6 +3737,7 @@ int main (int argc, char** argv)
 				}
 			  else if (trgRegions["legacy"])
 				{
+				  // use absolute value of eta for muons, because the SFs are given from 0 to 2.4
 				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  trigSF = SF;
