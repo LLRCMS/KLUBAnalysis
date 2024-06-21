@@ -161,10 +161,15 @@ class Histograms:
             hsplit = hsplit_old
                         
         if order is not None:
-            assert set([k.name for k in hsplit]) == set(order), "Ensure that the order list contains all the histograms."
+            if set([k.name for k in hsplit]) != set(order):
+                mes = "Ensure that the order list contains all the histograms. We have:\n"
+                mes += " - order = {}\n".format(order)
+                mes += " - hsplit = {}\n".format([k.name for k in hsplit])
+                raise RuntimeError(mes)
 
             # order the histograms
-            index_order = [order.index(k.name) for k in hsplit]
+            names = [k.name for k in hsplit]
+            index_order = [names.index(o) for o in order]
             hsplit = [hsplit[i] for i in index_order]
 
         return hist.Stack(*hsplit)
@@ -195,18 +200,21 @@ class Plotter:
         if self.npads > 1:
             plt.subplots_adjust(left=0.1, right=.95, top=.95, bottom=0.1,
                                 wspace=0., hspace=0.04)
-        self.fontsize = 40
-        self.fontscale = 0.8
+        self.fontsize = 45
+        self.fontscales = (0.6, 0.8)
+        
         hep.cms.text(' Preliminary', fontsize=self.fontsize, ax=self.axes[0][0])
 
         lumi = {"2016APV": "19.5", "2016": "16.8", "2017": "41.5", "2018": "59.7"}[year]
-        mu, tau = '\u03BC','\u03C4'
-        chn_map = {"ETau": r"$bb\;e$"+tau, "TauTau":r"$bb\;$"+tau+tau,
-                   "MuMu": r"$bb\;$"+mu+mu, "MuTau": r"$bb\;$"+mu+tau}
+        chn_map = {"ETau": r"$bb\;e\tau$", "TauTau":r"$bb\;\tau\tau$",
+                   "MuMu": r"$bb\;\mu\mu$", "MuTau": r"$bb\;\mu\tau$"}
+        cat_map = {"baseline": "baseline",
+                   "res1b": "res1b", "res2b": "res2b", "boosted": "boosted",
+                   "dyCR": "DY CR", "ttCR": r"$t\bar{t}$ CR"}
         hep.cms.lumitext(r"{} $fb^{{-1}}$ (13 TeV)".format(lumi),
-                         fontsize=self.fontscale*self.fontsize, ax=self.axes[0][0])
+                         fontsize=self.fontscales[1]*self.fontsize, ax=self.axes[0][0])
         self.axes[0][0].text(0.03, 0.95, chn_map[channel], transform=self.axes[0][0].transAxes)
-        self.axes[0][0].text(0.03, 0.91, cat, transform=self.axes[0][0].transAxes)
+        self.axes[0][0].text(0.03, 0.91, cat_map[cat], transform=self.axes[0][0].transAxes)
         
         self.colors = plt.cm.tab20.colors
         self.iter_colors = iter(self.colors)
@@ -241,29 +249,30 @@ class Plotter:
     def mc_signal(self, stackmc, hsignals, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         self.mc(stackmc, *args, **kwargs)
-        if not isinstance(hsignals, (tuple, list)):
-            hsignals = [hsignals]
-        for hsignal in hsignals:
-            self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", *args, **kwargs)
+        self.signal(hsignals, *args, **kwargs)
 
-    def data_mc_signal(self, hdata, stackmc, hsignal, *args, **kwargs):
+    def data_mc_signal(self, hdata, stackmc, hsignals, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         self.data_mc(hdata, stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label=hsignal.label, histtype="step", linecolor="black", *args, **kwargs)
-
+        self.signal(hsignals, *args, **kwargs)
+        
     def data_mc_with_ratio(self, hdata, stackmc, *args, **kwargs):
         """Convenience function to plot data and MC with ratio."""
         assert self.npads > 1, "Need at least two pads to plot ratio."
         self.data_mc(hdata, stackmc, *args, **kwargs)
+
+        # the ratio has always a vertical linear scale
+        if 'yscale' in kwargs and kwargs['yscale'] == 'log':
+            kwargs['yscale'] = 'linear'
+
         self.ratio(hdata, stackmc, loc=1, *args, **kwargs)
     
-    def data_mc_signal_with_ratio(self, hdata, stackmc, hsignal, *args, **kwargs):
+    def data_mc_signal_with_ratio(self, hdata, stackmc, hsignals, *args, **kwargs):
         """Convenience function to plot data and MC with ratio, and the signal."""
         assert self.npads > 1, "Need at least two pads to plot ratio."
+        self.signal(hsignals, *args, **kwargs)
         self.data_mc_with_ratio(hdata, stackmc, *args, **kwargs)
-        self.histo(hsignal, loc=0, label=hsignal.label,
-                   histtype="step", edgecolor="black", *args, **kwargs)
-
+        
     def _define_yunits(self):
         return {
             ("dau1_pt", "dau2_pt", "bjet1_pt", "bjet2_pt", "tauH_mass", "tauH_pt", "bH_mass", "bH_pt",
@@ -321,7 +330,7 @@ class Plotter:
 
         if 'ylabel' not in kwargs:
             bin_label = self._read_bins(h)
-            self.ax.set_ylabel(bin_label, fontsize=self.fontscale*self.fontsize)
+            self.ax.set_ylabel(bin_label, fontsize=self.fontscales[1]*self.fontsize)
 
         self._set_options(data=h, *args, **kwargs)
 
@@ -342,7 +351,7 @@ class Plotter:
                          label=kwargs['label'] if 'label' in kwargs else "")
 
         bin_label = self._read_bins(g)
-        self.ax.set_ylabel(bin_label, fontsize=self.fontscale*self.fontsize)
+        self.ax.set_ylabel(bin_label, fontsize=self.fontscales[1]*self.fontsize)
         self._set_options(data=g, *args, **kwargs)
 
     @_select_axis
@@ -361,8 +370,7 @@ class Plotter:
         newh.view().value = values
         newh.view().variance = variances
         if set_xticks:
-            xedges = [round(x,6) for x in xedges]
-            self.ax.set_xticks(newh.axes[0].edges, xedges, rotation=60)
+            self._set_xticks(newh, xedges)
 
         return newh
 
@@ -376,7 +384,7 @@ class Plotter:
                 if len(self.axes)>1 and ax==self.axes[1] and self.was_ratio_run < 2:
                     continue
 
-                leg = a.legend(fontsize=0.7*self.fontscale*self.fontsize,
+                leg = a.legend(fontsize=0.7*self.fontscales[1]*self.fontsize,
                                ncols=ncols, bbox_to_anchor=(0.99,0.99), loc="upper right",
                                frameon=True, facecolor='white', edgecolor='black', framealpha=1.)
                 leg.get_frame().set_boxstyle('Square', pad=0.0)
@@ -385,7 +393,7 @@ class Plotter:
     def ratio(self, hup, hdo, mode="errorbar", ylim=(0.4, 1.6), *args, **kwargs):
         """Plot the ratio of two histograms."""
         self.was_ratio_run += 1
-        self.ax.set_ylabel("Ratio", ha="center")
+        self.ax.set_ylabel("Ratio", ha="center", fontsize=self.fontscales[1]*self.fontsize)
 
         plot_opt = dict(
             linewidth=kwargs['linewidth'] if 'linewidth' in kwargs else 1,
@@ -409,7 +417,7 @@ class Plotter:
         if mode == "errorbar":
             # plot uncertainty bands on top of the current axis
             curr_loc = self._get_current_axis_location()
-            self._stats_band(hdo, loc=curr_loc, mode="ratio", *args, **kwargs)
+            self._stats_band(hdo, loc=curr_loc, mode="ratio")
             
             uncert_up = self._div(np.sqrt(upvars), upvals)
             self.ax.errorbar(x=hup.axes[0].centers, y=ratio, yerr=uncert_up,
@@ -457,28 +465,52 @@ class Plotter:
         return "Events " + bin_size_str
         
     def save(self, name, ncols_leg=1):
+        """
+        Save the plot.
+        Controls the number of columns of the plot's legend.
+        """
         self._legend(ncols_leg)
         name = os.path.join(self.output, name)
         self._debug("Save {}.".format(name))
+
         for ext in ("pdf", "png"):
             plt.savefig(name + "." + ext)
+
+    def _set_xticks(self, h, xedges):
+        """
+        Set the x-ticks for the histogram.
+        Remove xtick labels when there are too many (limit defined at 25 labels)
+        """
+        xedges = [str(round(x,6)) for x in xedges]
+        freq_remove = np.ceil(len(xedges) / 25)
+        xedges = [x if xedges.index(x)%freq_remove==0 else "" for x in xedges]        
+        self.ax.set_xticks(h.axes[0].edges, xedges, rotation=60)
+
+    def signal(self, hsignals, *args, **kwargs):
+        if not isinstance(hsignals, (tuple, list)):
+            hsignals = [hsignals]
+
+        signal_colors = self.colors[::-1] # invert palette to distinguish signal from mc
+        for hsignal in hsignals:
+            self.histo(hsignal, loc=0, label=hsignal.label, histtype="step",
+                       edgecolor=signal_colors[hsignals.index(hsignal)], *args, **kwargs)
 
     @_select_axis
     def stack(self, stack, *args, **kwargs):
         """Plot a stack of histograms."""
         bin_label = self._read_bins(stack)
-        self.ax.set_ylabel(bin_label)
+        self.ax.set_ylabel(bin_label, fontsize=self.fontscales[1]*self.fontsize)
         if 'equalwidth' in kwargs and kwargs['equalwidth']:
             stack = self._stack_equalwidth(stack)
-        plot_opt = dict(linewidth=kwargs['linewidth'] if 'linewidth' in kwargs else 1,
-                        edgecolor='black')
+
+        plot_opt = dict(linewidth=0., edgecolor=None)
 
         weights = {k.name:k.values() for k in stack.__dict__['_stack']}
         bins = stack.axes[0].edges
         labels = [k.split('_')[0] for k in list(weights.keys())]
         self.ax.hist([bins[:-1] for _ in range(len(weights))], bins=bins,
                      weights=weights.values(), stacked=True,
-                     color=self.colors[:len(weights)], label=labels)
+                     color=self.colors[:len(weights)], label=labels, **plot_opt)
 
         self._set_options(data=stack, *args, **kwargs)
         
@@ -490,9 +522,8 @@ class Plotter:
         newstack = hist.Stack.from_dict(newhistos)
 
         if set_xticks:
-            xedges = [round(x,6) for x in xedges]
-            self.ax.set_xticks(newstack.axes[0].edges, xedges, rotation=60)
-
+            self._set_xticks(new_stack, xedges)
+            
         return newstack
 
     @_select_axis
@@ -527,7 +558,7 @@ class Plotter:
     def _set_options(self, data=None, *args, **kwargs):
         """ Set the options for the plot."""
         options = {
-            ('title', 'xlabel', 'ylabel'): dict(fontsize=self.fontscale*self.fontsize),
+            ('title', 'xlabel', 'ylabel', 'xticks', 'yticks'): dict(fontsize=self.fontscales[1]*self.fontsize),
             ('xscale', 'yscale'): dict()
         }
 
@@ -539,7 +570,6 @@ class Plotter:
                     except KeyError or AttributeError:
                         getattr(self.ax, opt)(kwargs[opt], **options[option])
 
-
         # define bottom limit for log scale    
         if 'yscale' in kwargs and kwargs['yscale'] == 'log':
             self.ax.set_ylim(bottom=5E-2) # default
@@ -549,8 +579,12 @@ class Plotter:
                 assert min_y >= 0, "Minimum value is negative."
                 if min_y > 0:
                     self.ax.set_ylim(0.05*min_y)
-            
-                
+
+        self.ax.tick_params(axis='both', which='major', labelsize=self.fontscales[0]*self.fontsize)
+
+        # set the position of the offset text used in the y-axis for scientific notation
+        self.ax.get_yaxis().get_offset_text().set_position((-0.04,0.))
+        
         if data:
             self._add_top_margin(data, margin=0.25)
 

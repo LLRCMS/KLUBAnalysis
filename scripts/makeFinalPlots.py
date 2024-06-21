@@ -26,9 +26,9 @@ class DNNParams:
 class Params:
     def __init__(self, channel="TauTau", category="boostedL_pnet", region="SR", year="2018"):
         self.years     = {"2016", "2016APV", "2017", "2018"}
-        self.cat_res   = {"baseline", "res1b", "res2b"}
+        self.cat_res   = {"baseline", "res1b", "res2b", "ttCR", "dyCR", "dyCR_res2b"}
         self.cat_boost = {"baseline_boosted", "boostedL_pnet"}
-        self.channels  = {"ETau", "MuTau", "TauTau"}
+        self.channels  = {"ETau", "MuTau", "TauTau", "MuMu"}
         self.regions   = {"SR", "SStight", "OSinviso", "SSinviso"}
 
         self.channel  = channel
@@ -64,42 +64,54 @@ class PlotterFactory:
         self.hists = Histograms(infile)
 
         self.dnn_scale = {
-            "320":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
-                     "TauTau": {"res1b": 20, "res2b": 3., "boostedL_pnet": 35.}},
-            "400":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 50.},
-                     "TauTau": {"res1b": 20, "res2b": 3., "boostedL_pnet": 35.}},
-            "500":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 10.},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 10.},
-                     "TauTau": {"res1b": 10, "res2b": 3., "boostedL_pnet": 5.}},
-            "700":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.6},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.6},
-                     "TauTau": {"res1b": 10, "res2b": 2.5, "boostedL_pnet": 0.3}},
-            "800":  {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
-                     "TauTau": {"res1b": 10, "res2b": 3., "boostedL_pnet": 0.1}},
-            "1000": {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
-                     "TauTau": {"res1b": 10, "res2b": 3., "boostedL_pnet": 0.1}},
-            "1500": {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.1},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.1},
-                     "TauTau": {"res1b": 20, "res2b": 3., "boostedL_pnet": 0.05}},
-            "2000": {"ETau":   {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
-                     "MuTau":  {"res1b": 180, "res2b": 130., "boostedL_pnet": 0.2},
-                     "TauTau": {"res1b": 130, "res2b": 3., "boostedL_pnet": 0.1}}
-        }
+            "320":  {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 35.}},
+			"400":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 35.}},
+			"2E3":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 5.}},
+			"550":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 5.}},
+			"700":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},					  
+					 "TauTau": {"res1b": 10,  "res2b": 2.5,	 "dyCR": 2.5,  "dyCR_res2b": 2.5,	 "boostedL_pnet": 0.3}},
+			"800":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}},
+			"1000": {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}},
+			"1500": {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.1},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.1},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.05}},
+			"2000": {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 130, "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}}
+		}																 
 
         # name, sigscale per channel
         self.variables = {
-            # "dau1_pt"              : (r"$pT_{1}\;[GeV]$",              (90, 50, 20, 5000)),
-			# "dau2_pt"			   : (r"$pT_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
-			# "bjet1_pt"			   : (r"$pT_{j1}\;[GeV]$",			  (90, 90, 9, 10000)),
-			# "bjet2_pt"			   : (r"$pT_{j2}\;[GeV]$",			  (90, 90, 9, 10000)),
-			# "dau1_eta"			   : (r"$\eta_{1}$",					  (40, 40, 2, 4000)),
-			# "dau2_eta"			   : (r"$\eta_{2}$",					  (40, 40, 2, 4000)),
-			# "bjet1_eta"			   : (r"$\eta_{j1}$",				  (40, 40, 4, 4000)),
-			# "bjet2_eta"			   : (r"$\eta_{j2}$",				  (40, 40, 4, 4000)),
+            "dau1_pt"              : (r"$pT^{\,\text{lepton}}_{1}\;[GeV]$",              (90, 50, 20, 5000)),
+			"dau2_pt"			   : (r"$pT^{\,\text{lepton}}_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
+			"bjet1_pt"			   : (r"$pT^{\,\text{jet}}_{1}\;[GeV]$",			  (90, 90, 9, 10000)),
+			"bjet2_pt"			   : (r"$pT^{\,\text{jet}}_{2}\;[GeV]$",			  (90, 90, 9, 10000)),
+			"dau1_eta"			   : (r"$\eta^{\,\text{lepton}}_{1}$",					  (40, 40, 2, 4000)),
+			"dau2_eta"			   : (r"$\eta^{\,\text{lepton}}_{1}$",					  (40, 40, 2, 4000)),
+			"bjet1_eta"			   : (r"$\eta^{\,\text{jet}}_{2}$",				  (40, 40, 4, 4000)),
+			"bjet2_eta"			   : (r"$\eta^{\,\text{jet}}_{2}$",				  (40, 40, 4, 4000)),
 			# "tauH_mass"			   : (r"$m_{H\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
 			# "tauH_pt"			   : (r"$pT_{H\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
 			# # "tauH_eta"			   : (r"$\eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
@@ -137,7 +149,7 @@ class PlotterFactory:
 			# "HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
 			# "HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
 			"HH_mass"			   : (r"$m_{HH}\:\:[GeV]$",			  (1, 1, 1, 150)),
-			"HHKin_mass"		   : (r"$m_{HH}^{Kin}\:\:[GeV]$",			  (1, 1, 1, 150)),
+			"HHKin_mass"		   : (r"$m^{Kin}_{HH}\:\:[GeV]$",			  (1, 1, 1, 150)),
         }
 
         self.systematics = {"tes_DM0", "tes_DM1", "tes_DM10", "tes_DM11"}
@@ -150,23 +162,26 @@ class PlotterFactory:
         Worker function for producing the data/mc plots with ratio for the given channel and category.
         """
         suffix = '_' + pars.histo_name + '_' + variable
-        #hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
-        stackmc = self.hists.stack_mc(keys='.*'+suffix)
-        hsignals = []
-        for m in {"700", "1000", "1500"}:
-            hsignals.append(self.hists.hists(keys='GGF_Radion'+m+suffix,
-                                             scale=self.dnn_scale[m][pars.channel][pars.category],
-                                             label="Sig "+m)['GGF_Radion'+m+suffix])
+        hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
 
-        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
-        #p.data_mc_signal_with_ratio
-        p.mc_signal(stackmc=stackmc, hsignals=hsignals, #hdata=hdata, 
-                    linewidth=3,
-					yscale='log' if variable in self.logvariables or 'pdnn' in variable else 'linear',
-					xlabel=self.variables[variable][0],
-                    equalwidth=variable in self.equalwidth)
+        stackmc = self.hists.stack_mc(keys='.*'+suffix,
+                                      order=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix ])
+
         
-        p.save('plot_' + pars.name + '_' + variable, ncols_leg=3)
+        hsignals = []
+        # for m in {"550", "800", "1500"}:
+        #     hsignals.append(self.hists.hists(keys='GGF_Radion'+m+suffix,
+        #                                      scale=self.dnn_scale[m][pars.channel][pars.category],
+        #                                      label="Sig "+m)['GGF_Radion'+m+suffix])
+
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=2)
+        p.data_mc_signal_with_ratio(stackmc=stackmc, hsignals=hsignals, hdata=hdata, 
+                                    linewidth=5,
+					                yscale='log' if variable in self.logvariables or 'pdnn' in variable else 'linear',
+					                xlabel=self.variables[variable][0],
+                                    equalwidth=variable in self.equalwidth)
+        
+        p.save('plot_' + pars.name + '_' + variable, ncols_leg=2)
 
     def data_mc_signal_worker(self, variable, pars, pdnn) -> None:
         """
@@ -204,14 +219,19 @@ class PlotterFactory:
         """
         suffix = '_' + pars.histo_name + '_' + variable
 
-        #hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
-        stackmc = self.hists.stack_mc(keys='.*'+suffix)
+        hdata = self.hists.hists(keys='data_obs'+suffix, leglabel="Data")['data_obs'+suffix]
+
+        processes_other = ('VVV', 'TTX', 'VV', 'ggH', 'EWK', 'TW', 'HH', 'qqH', 'WH', 'singleT', 'ttH', 'ZH')
+        mc_groups = {'others': tuple(proc + suffix for proc in processes_other)}
+        stackmc = self.hists.stack_mc(keys='.*'+suffix, groups=mc_groups,
+                                      order=['TT'+suffix, 'DY'+suffix, 'W'+suffix, 'H'+suffix, 'others'])
+
         hsignal = self.hists.hists(keys='GGF_Radion'+pdnn.mass+suffix,
                                    scale=self.dnn_scale[pdnn.mass][pars.channel][pars.category],
                                    label="Sig "+pdnn.mass)['GGF_Radion'+pdnn.mass+suffix]
 
         p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
-        p.mc_signal(stackmc=stackmc, hsignals=hsignal, #hdata=hdata,
+        p.mc_signal(stackmc=stackmc, hsignals=hsignal, hdata=hdata,
                     linewidth=3,
                     edgecolor="black",
 					yscale='log' if variable in self.logvariables or 'pdnn' in variable else 'linear',
@@ -271,8 +291,10 @@ def makeFinalPlots(tag, year, pdnn, singlethreaded=False):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
 
-    channels = ("TauTau", "MuTau", "ETau")
-    categories = ("boostedL_pnet", "res1b", "res2b")
+    # channels = ("TauTau", "MuTau", "ETau")
+    # categories = ("boostedL_pnet", "res1b", "res2b")
+    channels = ("MuMu",)
+    categories = ("baseline",)
 
     for chn in channels:
         for cat in categories:

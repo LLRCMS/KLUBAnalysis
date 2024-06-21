@@ -119,14 +119,16 @@ class Params:
                 "TT": ("TTfullyHad", "TTfullyLep", "TTsemiLep"),
                 "W": ("WJets_HT_0_70", "WJets_HT_70_100", "WJets_HT_100_200", "WJets_HT_200_400", "WJets_HT_400_600",
                       "WJets_HT_600_800", "WJets_HT_800_1200", "WJets_HT_1200_2500", "WJets_HT_2500_Inf"),
-                "H": ("ZH_HTauTau", "ZH_HBB_ZLL", "WplusHTauTau", "WminusHTauTau", "ttHJetToTauTau", "ttHJetTononBB", "ttHJetToBB"),
+                "H": ("ZH_HTauTau", "ZH_HBB_ZLL", "ZH_HBB_ZQQ", "WplusHTauTau", "WminusHTauTau", "ttHJetToTauTau", "ttHJetTononBB", "ttHJetToBB"),
                 "other": ("EWKWMinus2Jets_WToLNu", "EWKWPlus2Jets_WToLNu", "EWKZ2Jets_ZToLL",
                           "TWtop", "TWantitop",
                           "singleTop_top", "singleTop_antitop",
                           "WW", "WZ", "ZZ",
                           "TTWW", "TTWZ", "TTZZ", "TTWJetsToQQ", "TTWJetsToLNu", "TTZToQQ", "TTZToLLNuNu",
                           "TTWH", "TTZH",
-                          "WWW", "WWZ", "WZZ", "ZZZ"),
+                          "WWW", "WWZ", "WZZ", "ZZZ",
+                          "VBFHTauTau", "ggHTauTau",
+                          "GGHH_SM"),
             }
 
         self.base_selections = ["baseline", "baseline_boosted"]
