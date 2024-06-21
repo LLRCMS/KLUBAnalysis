@@ -231,7 +231,7 @@ class Plotter:
             margin = 10
         margin *= max_y
         new_max = max_y + margin
-        if new_max > self.ymax: 
+        if new_max > self.ymax:
             self.ax.set_ylim(self.ax.get_ylim()[0], new_max)
             self.ymax = new_max
 
@@ -542,6 +542,8 @@ class Plotter:
         if mode == "ratio":
             bottom = 1.
             uncert_band.view().value = np.nan_to_num(self._div(np.sqrt(variances), vals), nan=0.)
+            # remove infinities (or very large values)
+            uncert_band.view().value[(np.isinf(uncert_band.view().value)) | (uncert_band.view().value>1E300)] = 0.
         elif mode == "standard":
             bottom = sum(h).values() if isinstance(h, hist.Stack) else h.values()
             uncert_band.view().value = np.sqrt(variances)

@@ -378,7 +378,7 @@ if __name__ == '__main__':
     parser.add_argument('--dir', dest='dir', help='analysis output folder name',
                         default='/data_CMS/cms/' + os.environ['USER'] + '/HHresonant_hist/')
     parser.add_argument('--tag', help='tag name used after skimming', required=True)
-    parser.add_argument('--channel', required=True, choices=("ETau", "MuTau", "TauTau"),
+    parser.add_argument('--channel', required=True, choices=("ETau", "MuTau", "TauTau", "MuMu"),
                         help='Analysis channel.')
     parser.add_argument('--year', required=True, choices=("UL16APV", "UL16", "UL17", "UL18"),
                         help='Data period.')

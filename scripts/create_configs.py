@@ -136,7 +136,7 @@ class Params:
         self.selections = {"ETau": _selections,
                            "MuTau": _selections + ["ttbarCR"],
                            "TauTau": _selections,
-                           "MuMu": _selections + ["dyCR"]}
+                           "MuMu": _selections + ["dyCR", "dyCR_res1b", "dyCR_res2b"]}
 
         self.regions = {
             "ETau":
@@ -266,7 +266,8 @@ class Params:
     def define_dnn_binning(self, variables, channel, spin='', mass=''):
         m_chn = {"ETau": "etau", "MuTau": "mutau", "TauTau": "tautau"}
         m_cat = {"res1b": "resolved1b", "res2b": "resolved2b", "boostedL_pnet": "boosted",
-                 "ttbarCR": r"\bar{t}t CR", "dyCR": "DY CR"}
+                 "ttbarCR": r"\bar{t}t CR",
+                 "dyCR": "baseline DY CR", "dyCR_res1b": "res1b DY CR", "dyCR_res2b": "res2b DY CR"}
         m_year = {"UL16": "2016", "UL16APV": "2016APV", "UL17": "2017", "UL18": "2018"}
 
         bins = "\n[binning]\n\n"
@@ -520,7 +521,8 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         category_definitions += '\n' + "ttbarCR = baseline, btagMM, isBoosted != 1, massCutTT"
     elif channel == "MuMu":
         category_definitions += '\n' + "dyCR = baseline, isBoosted != 1, massCutDY"
-
+        category_definitions += '\n' + "dyCR_res1b = baseline, btagM, isBoosted != 1, massCutDY"
+        category_definitions += '\n' + "dyCR_res2b = baseline, btagMM, isBoosted != 1, massCutDY"
 
     baseline = "(isLeptrigger || isMETtrigger || isSingleTautrigger) && pairType == {} && nleps == 0".format(chn_idx)
     content = '\n'.join((
