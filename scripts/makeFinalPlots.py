@@ -26,7 +26,7 @@ class DNNParams:
 class Params:
     def __init__(self, channel="TauTau", category="boostedL_pnet", region="SR", year="2018"):
         self.years     = {"2016", "2016APV", "2017", "2018"}
-        self.cat_res   = {"baseline", "res1b", "res2b", "ttCR", "dyCR", "dyCR_res2b"}
+        self.cat_res   = {"baseline", "res1b", "res2b", "ttbarCR", "dyCR", "dyCR_res1b", "dyCR_res2b"}
         self.cat_boost = {"baseline_boosted", "boostedL_pnet"}
         self.channels  = {"ETau", "MuTau", "TauTau", "MuMu"}
         self.regions   = {"SR", "SStight", "OSinviso", "SSinviso"}
@@ -64,59 +64,59 @@ class PlotterFactory:
         self.hists = Histograms(infile)
 
         self.dnn_scale = {
-            "320":  {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
-					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 35.}},
-			"400":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
-					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 35.}},
-			"2E3":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
-					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 5.}},
-			"550":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
-					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 5.}},
-			"700":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},					  
-					 "TauTau": {"res1b": 10,  "res2b": 2.5,	 "dyCR": 2.5,  "dyCR_res2b": 2.5,	 "boostedL_pnet": 0.3}},
-			"800":	{"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},					  
-					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}},
-			"1000": {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},					  
-					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}},
-			"1500": {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.1},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.1},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 2E3,  "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},					  
-					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.05}},
-			"2000": {"ETau":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},
-					 "MuTau":  {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},
-					 "MuMu":   {"res1b": 180, "res2b": 130., "dyCR": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},					  
-					 "TauTau": {"res1b": 130, "res2b": 3.,	 "dyCR": 3.,   "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}}
+            "320":  {"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 35.}},
+			"400":	{"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 50.},
+					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 35.}},
+			"2E3":	{"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 10.},
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 5.}},
+			"550":	{"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 10.},
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 5.}},
+			"700":	{"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.6},					  
+					 "TauTau": {"res1b": 10,  "res2b": 2.5,	 "ttbarCR": 2.5,  "dyCR": 2.5,	 "dyCR_res1b": 2.5,	 "dyCR_res2b": 2.5,	 "boostedL_pnet": 0.3}},
+			"800":	{"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}},
+			"1000": {"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 180., "dyCR": 180., "dyCR_res1b": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 180., "dyCR": 180., "dyCR_res1b": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 180., "dyCR": 180., "dyCR_res1b": 180., "dyCR_res2b": 180., "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 10,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}},
+			"1500": {"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.1},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.1},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 2E3,  "dyCR": 2E3,	 "dyCR_res1b": 2E3,	 "dyCR_res2b": 2E3,	 "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 20,  "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 0.05}},
+			"2000": {"ETau":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},
+					 "MuTau":  {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},
+					 "MuMu":   {"res1b": 180, "res2b": 130., "ttbarCR": 130., "dyCR": 130., "dyCR_res1b": 130., "dyCR_res2b": 130., "boostedL_pnet": 0.2},					  
+					 "TauTau": {"res1b": 130, "res2b": 3.,	 "ttbarCR": 3.,   "dyCR": 3.,	 "dyCR_res1b": 3.,	 "dyCR_res2b": 3.,	 "boostedL_pnet": 0.1}}
 		}																 
 
         # name, sigscale per channel
         self.variables = {
-            "dau1_pt"              : (r"$pT^{\,\text{lepton}}_{1}\;[GeV]$",              (90, 50, 20, 5000)),
-			"dau2_pt"			   : (r"$pT^{\,\text{lepton}}_{2}\;[GeV]$",			  (90, 50, 9, 5000)),
-			"bjet1_pt"			   : (r"$pT^{\,\text{jet}}_{1}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"bjet2_pt"			   : (r"$pT^{\,\text{jet}}_{2}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"dau1_eta"			   : (r"$\eta^{\,\text{lepton}}_{1}$",					  (40, 40, 2, 4000)),
-			"dau2_eta"			   : (r"$\eta^{\,\text{lepton}}_{1}$",					  (40, 40, 2, 4000)),
-			"bjet1_eta"			   : (r"$\eta^{\,\text{jet}}_{2}$",				  (40, 40, 4, 4000)),
-			"bjet2_eta"			   : (r"$\eta^{\,\text{jet}}_{2}$",				  (40, 40, 4, 4000)),
-			"tauH_mass"			   : (r"$m_{H\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
-			"tauH_pt"			   : (r"$pT_{H\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
-			# # "tauH_eta"			   : (r"$\eta_{H\tau} [GeV]$",		  (30, 30, 9, 10000)),
-			"bH_mass"			   : (r"$m_{Hb}\;[GeV]$",			  (10, 10, 2, 1000)),
-			"bH_pt"				   : (r"$pT_{Hb}\;[GeV]$",			  (30, 30, 2, 10000)),
+            "dau1_pt"              : (r"$pT^{\,\text{lepton \#1}}\;[GeV]$",              (90, 50, 20, 5000)),
+			"dau2_pt"			   : (r"$pT^{\,\text{lepton \#2}}\;[GeV]$",			  (90, 50, 9, 5000)),
+			"bjet1_pt"			   : (r"$pT^{\,\text{jet \#1}}\;[GeV]$",			  (90, 90, 9, 10000)),
+			"bjet2_pt"			   : (r"$pT^{\,\text{jet \#2}}\;[GeV]$",			  (90, 90, 9, 10000)),
+			"dau1_eta"			   : (r"$\eta^{\,\text{lepton \#1}}$",					  (40, 40, 2, 4000)),
+			"dau2_eta"			   : (r"$\eta^{\,\text{lepton \#2}}$",					  (40, 40, 2, 4000)),
+			"bjet1_eta"			   : (r"$\eta^{\,\text{jet \#1}}$",				  (40, 40, 4, 4000)),
+			"bjet2_eta"			   : (r"$\eta^{\,\text{jet \#2}}$",				  (40, 40, 4, 4000)),
+			"tauH_mass"			   : (r"$m_{H\rightarrow\tau\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
+			"tauH_pt"			   : (r"$pT_{H\rightarrow\tau\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
+			"tauH_eta"			   : (r"$\eta_{H\rightarrow\tau\tau} [GeV]$",		  (30, 30, 9, 10000)),
+			"bH_mass"			   : (r"$m_{H\rightarrow bb}\;[GeV]$",			  (10, 10, 2, 1000)),
+			"bH_pt"				   : (r"$pT_{H\rightarrow bb}\;[GeV]$",			  (30, 30, 2, 10000)),
 			"ditau_deltaR"		   : (r"$\Delta R(\tau\tau)$",		  (10, 10, 2, 1000)),
 			"dib_deltaR"		   : (r"$\Delta R(bb)$",				  (10, 10, 2, 1000)),
 			"HH_deltaR"			   : (r"$\Delta R(HH)$",				  (30, 30, 2, 7000)),
@@ -125,29 +125,29 @@ class PlotterFactory:
 			"met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
 			"metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
 			"metnomu_phi"		   : (r"$MET_{no\mu}-\phi$",			  (10, 10, 1, 5000)),
-			# "dau1_dxy"			   : (r"$dxy_{1}$",					  (10, 10, 1, 5000)),
-			# "dau1_dz"			   : (r"$dz_{1}$",					  (10, 10, 1, 5000)),
-			# "dau2_dxy"			   : (r"$dxy_{2}$",					  (10, 10, 1, 4000)),
-			# "dau2_dz"			   : (r"$dz_{2}$",					  (10, 10, 1, 4000)),
-			# "METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
-			# "METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
+			"dau1_dxy"			   : (r"$d^{\,\text{lepton \#1}}_{xy}$",					  (10, 10, 1, 5000)),
+			"dau1_dz"			   : (r"$d^{\,\text{lepton \#1}}_{z}$",					  (10, 10, 1, 5000)),
+			"dau2_dxy"			   : (r"$d^{\,\text{lepton \#2}}_{xy}$",					  (10, 10, 1, 4000)),
+			"dau2_dz"			   : (r"$d^{\,\text{lepton \#2}}_{z}$",					  (10, 10, 1, 4000)),
+			"METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
+			"METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
 			# "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
 			# "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
 			# "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
-			"bjet1_bID_deepFlavor" : ("Deep Flavour (jet #1)",		  (10, 10, 1, 4000)),
-			"bjet2_bID_deepFlavor" : ("Deep Flavour (jet #2)",		  (10, 10, 1, 4000)),
-			# "bjet1_CvsB"		   : (r"$CvsB_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet1_CvsL"		   : (r"$CvsL_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet2_CvsB"		   : (r"$CvsB_{j2}$",				  (10, 10, 1, 4000)),
-			# "bjet2_CvsL"		   : (r"$CvsL_{j2}$",				  (10, 10, 1, 4000)),
-			# "bjet1_HHbtag"		   : (r"$HHbTag_{j1}$",				  (10, 10, 1, 4000)),
-			# "bjet2_HHbtag"		   : (r"$HHbTag_{j2}$",				  (10, 10, 1, 4000)),
+			"bjet1_bID_deepFlavor" : (r"$Deep\:Flavour^{\,\text{jet \#1}}$",		  (10, 10, 1, 4000)),
+			"bjet2_bID_deepFlavor" : (r"$Deep\:Flavour^{\,\text{jet \#2}}$",		  (10, 10, 1, 4000)),
+			"bjet1_CvsB"		   : (r"$CvsB^{\,\text{jet \#1}}$",				  (10, 10, 1, 4000)),
+			"bjet1_CvsL"		   : (r"$CvsL^{\,\text{jet \#1}}$",				  (10, 10, 1, 4000)),
+			"bjet2_CvsB"		   : (r"$CvsB^{\,\text{jet \#2}}$",				  (10, 10, 1, 4000)),
+			"bjet2_CvsL"		   : (r"$CvsL^{\,\text{jet \#2}}$",				  (10, 10, 1, 4000)),
+			"bjet1_HHbtag"		   : (r"$HH-BTag^{\,\text{jet \#1}}$",				  (10, 10, 1, 4000)),
+			"bjet2_HHbtag"		   : (r"$HH-BTag^{\,\text{jet \#2}}$",				  (10, 10, 1, 4000)),
 			"tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit}\;[GeV]$",	  (30, 30, 2, 10000)),
 			"tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit}\;[GeV]$",  (10, 10, 2, 10000)),
 			# "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
-			"HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet}\;[GeV]$",		  (1, 1, 1, 150)),
-			"HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
-			"HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
+			# "HHbregrsvfit_m"	   : (r"$m_{HH}^{PNet}\;[GeV]$",		  (1, 1, 1, 150)),
+			# "HHbregrsvfit_pt"	   : (r"$pT_{HH}^{PNet}\;[GeV]$",	  (30, 30, 10, 10000)),
+			# "HHbregrsvfit_eta"	   : (r"$\eta_{HH}^{PNet}$",			  (40, 40, 2, 4000)),
 			"HH_mass"			   : (r"$m_{HH}\:\:[GeV]$",			  (1, 1, 1, 150)),
 			"HHKin_mass"		   : (r"$m^{Kin}_{HH}\:\:[GeV]$",			  (1, 1, 1, 150)),
         }
@@ -164,7 +164,7 @@ class PlotterFactory:
         suffix = '_' + pars.histo_name + '_' + variable
         hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
 
-        stackmc = self.hists.stack_mc(keys='.*'+suffix,
+        stackmc = self.hists.stack_mc(keys=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix],
                                       order=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix ])
 
         
@@ -293,8 +293,10 @@ def makeFinalPlots(tag, year, pdnn, singlethreaded=False):
 
     # channels = ("TauTau", "MuTau", "ETau")
     # categories = ("boostedL_pnet", "res1b", "res2b")
-    channels = ("MuMu",)
-    categories = ("res2b",)
+    # channels = ("MuMu",)
+    # categories = ("baseline", "res2b", "dyCR", "dyCR_res1b", "dyCR_res2b")
+    channels = ("MuTau",)
+    categories = ("baseline", "ttbarCR",)
 
     for chn in channels:
         for cat in categories:

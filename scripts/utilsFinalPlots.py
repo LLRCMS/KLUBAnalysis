@@ -115,11 +115,16 @@ class Histograms:
         
         if sum_before != sum_after:
             self._debug("Removed negative bins from histogram " + h.name + ".")
-
+            
             if sum_after < 0.:
                 raise ValueError("Negative bins in histogram after removal.")
             elif sum_after > 0.:
-                h *= sum_before/sum_after
+                if sum_before > 0:
+                    h *= sum_before/sum_after
+                else:
+                    h *= 0.
+            else:
+                h *= 0.
 
     @_read_histograms()
     def group(self, keys, *args, **kwargs):
@@ -198,7 +203,7 @@ class Plotter:
 
 
         if self.npads > 1:
-            plt.subplots_adjust(left=0.1, right=.95, top=.95, bottom=0.1,
+            plt.subplots_adjust(left=0.12, right=.95, top=.95, bottom=0.12,
                                 wspace=0., hspace=0.04)
         self.fontsize = 45
         self.fontscales = (0.6, 0.8)
@@ -210,7 +215,8 @@ class Plotter:
                    "MuMu": r"$bb\;\mu\mu$", "MuTau": r"$bb\;\mu\tau$"}
         cat_map = {"baseline": "baseline",
                    "res1b": "res1b", "res2b": "res2b", "boosted": "boosted",
-                   "dyCR": "DY CR", "ttCR": r"$t\bar{t}$ CR"}
+                   "dyCR": "DY CR", "dyCR_res1b": "res1b DY CR", "dyCR_res2b": "res2b DY CR",
+                   "ttbarCR": r"$t\bar{t}$ CR"}
         hep.cms.lumitext(r"{} $fb^{{-1}}$ (13 TeV)".format(lumi),
                          fontsize=self.fontscales[1]*self.fontsize, ax=self.axes[0][0])
         self.axes[0][0].text(0.03, 0.95, chn_map[channel], transform=self.axes[0][0].transAxes)
@@ -578,7 +584,9 @@ class Plotter:
             if data:
                 min_y = (min(sum(data).values()) if isinstance(data, hist.Stack)
                          else min(data.values()))
-                assert min_y >= 0, "Minimum value is negative."
+                if min_y < 0:
+                    mes = "Minimum value is negative: {}".format(min_y)
+                    raise RuntimeError(mes)
                 if min_y > 0:
                     self.ax.set_ylim(0.05*min_y)
 
