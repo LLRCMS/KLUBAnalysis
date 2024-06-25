@@ -186,7 +186,9 @@ int main (int argc, char** argv)
   // external weight file for PUreweight - sample per sample
   TString PUreweightFile = argv[26];
   TString PUreweightFile_up = PUreweightFile.Copy().ReplaceAll(".txt", "_up.txt");
+  bool PUreweightFile_up_exists = ifstream(PUreweightFile_up).good();
   TString PUreweightFile_down = PUreweightFile.Copy().ReplaceAll(".txt", "_down.txt");
+  bool PUreweightFile_down_exists = ifstream(PUreweightFile_down).good();
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
 
   int DY_nJets  = atoi(argv[27]);
@@ -446,9 +448,21 @@ int main (int argc, char** argv)
   // ------------------------------
   //PUReweight reweight (PUReweight::RUN2ANALYSIS); // NONE : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
-  PUReweight reweight_up (PUReweight::RUN2ANALYSIS, PUreweightFile_up);
-  PUReweight reweight_down (PUReweight::RUN2ANALYSIS, PUreweightFile_down);
+  PUReweight reweight_up (PUReweight::NONE);
+  PUReweight reweight_down (PUReweight::NONE);
+  if(PUreweightFile_up_exists){
+	reweight_up = PUReweight(PUReweight::RUN2ANALYSIS, PUreweightFile_up);
+  }
+  else{
+	std::cout<<"WARNING: PU reweight file for the up variation does not exist. The weight for the up variation will be set to 1!"<<std::endl;
+  }
 
+  if(PUreweightFile_down_exists){
+	reweight_down = PUReweight(PUReweight::RUN2ANALYSIS, PUreweightFile_down);
+  }
+  else{
+	std::cout<<"WARNING: PU reweight file for the down variation does not exist. The weight for the down variation will be set to 1!"<<std::endl;
+  }
   // ------------------------------
   string home = gConfigParser->readStringOption("parameters::home");
   string bTag_SFFile = home + gConfigParser->readStringOption("bTagScaleFactors::SFFileDeepFlavor");
