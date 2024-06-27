@@ -3237,7 +3237,7 @@ int main (int argc, char** argv)
 				  // if single lepton trigger and cross trigger are passed and the cross trigger is less efficient than
 				  // the single lepton trigger, the "combined" efficiency reduces to the single lepton trigger efficiency
 				  // and the uncertainty on the cross trigger leg is 0, if this is the case in both Data and MC also the
-				  // uncertaintiy on the trigger scale factor is 0
+				  // uncertainty on the trigger scale factor is 0
 				  if(passCross and !(passSingle and (Eff_cross_mu_Data <= Eff_SL_mu_Data or Eff_cross_mu_MC <= Eff_SL_mu_MC))) {
 					trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
 				  }
@@ -3465,7 +3465,7 @@ int main (int argc, char** argv)
 				  // if single lepton trigger and cross trigger are passed and the cross trigger is less efficient than
 				  // the single lepton trigger, the "combined" efficiency reduces to the single lepton trigger efficiency
 				  // and the uncertainty on the cross trigger leg is 0, if this is the case in both Data and MC also the
-				  // uncertaintiy on the trigger scale factor is 0
+				  // uncertainty on the trigger scale factor is 0
 				  if(passCross and !(passSingle and (Eff_cross_ele_Data <= Eff_SL_ele_Data or Eff_cross_ele_MC <= Eff_SL_ele_MC))) {
 					trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
 				  }
