@@ -3233,22 +3233,15 @@ int main (int argc, char** argv)
 				  double Err_MC_cross_mu   = - passCross * passSingle * (Eff_cross_mu_MC   <= Eff_SL_mu_MC)   * Eff_cross_mu_MC_Err   * Eff_cross_tau_MC   + passCross * Eff_cross_mu_MC_Err   * Eff_cross_tau_MC;
 
 				  double trigSF_cross_mu_err = 0.;
-
-				  // if single lepton trigger and cross trigger are passed and the cross trigger is less efficient than
-				  // the single lepton trigger, the "combined" efficiency reduces to the single lepton trigger efficiency
-				  // and the uncertainty on the cross trigger leg is 0, if this is the case in both Data and MC also the
-				  // uncertainty on the trigger scale factor is 0
-				  if(passCross and !(passSingle and (Eff_cross_mu_Data <= Eff_SL_mu_Data or Eff_cross_mu_MC <= Eff_SL_mu_MC))) {
-					trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
-				  }
-
-				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
-				  double Err_MC_mu   = Err_MC_SL_mu   + Err_MC_cross_mu;
-				  double trigSF_mu_err   = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_mu, Err_MC_mu);
-
-				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
 				  vector <double> trigSF_err    (N_tauhDM, 0.);
-				  if(passCross and ((Eff_cross_mu_Data > Eff_SL_mu_Data) or (Eff_cross_mu_MC > Eff_SL_mu_MC))){
+				  // if single lepton trigger and cross trigger are passed and the lepton leg of the cross trigger is
+				  // less efficient than the single lepton trigger, the "combined" efficiency reduces to the single
+				  // lepton trigger efficiency and the uncertainties on the cross trigger legs are 0, if this is the
+				  // case in both Data and MC also the uncertainties on the trigger scale factors are 0. (ff statement
+				  // to avoid unnecessary get_ScaleFactorError calls and warnings)
+				  if(passCross and !(passSingle and (Eff_cross_mu_Data <= Eff_SL_mu_Data and Eff_cross_mu_MC <= Eff_SL_mu_MC))) {
+					trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
+					// for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
 							double Eff_cross_tau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
@@ -3259,6 +3252,10 @@ int main (int argc, char** argv)
 						}
 					}
 				  }
+
+				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
+				  double Err_MC_mu   = Err_MC_SL_mu   + Err_MC_cross_mu;
+				  double trigSF_mu_err   = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_mu, Err_MC_mu);
 
 				  if(DEBUG)
 					{
@@ -3461,21 +3458,15 @@ int main (int argc, char** argv)
 				  double Err_MC_cross_ele   = - passCross * passSingle * (Eff_cross_ele_MC   <= Eff_SL_ele_MC)   * Eff_cross_ele_MC_Err   * Eff_cross_tau_MC   + passCross * Eff_cross_ele_MC_Err   * Eff_cross_tau_MC;
 
 				  double trigSF_cross_ele_err = 0.;
-
-				  // if single lepton trigger and cross trigger are passed and the cross trigger is less efficient than
-				  // the single lepton trigger, the "combined" efficiency reduces to the single lepton trigger efficiency
-				  // and the uncertainty on the cross trigger leg is 0, if this is the case in both Data and MC also the
-				  // uncertainty on the trigger scale factor is 0
-				  if(passCross and !(passSingle and (Eff_cross_ele_Data <= Eff_SL_ele_Data or Eff_cross_ele_MC <= Eff_SL_ele_MC))) {
-					trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
-				  }
-
-				  double Err_Data_ele = Err_Data_SL_ele + Err_Data_cross_ele;
-				  double Err_MC_ele   = Err_MC_SL_ele   + Err_MC_cross_ele;
-				  double trigSF_ele_err   = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_ele, Err_MC_ele);
-				  // for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
 				  vector <double> trigSF_err    (N_tauhDM, 0.);
-				  if(passCross and ((Eff_cross_ele_Data > Eff_SL_ele_Data) or (Eff_cross_ele_MC > Eff_SL_ele_MC))){
+				  // if single lepton trigger and cross trigger are passed and the lepton leg of the cross trigger is
+				  // less efficient than the single lepton trigger, the "combined" efficiency reduces to the single
+				  // lepton trigger efficiency and the uncertainties on the cross trigger legs are 0, if this is the
+				  // case in both Data and MC also the uncertainties on the trigger scale factors are 0. (If statement
+				  // to avoid unnecessary get_ScaleFactorError calls and warnings)
+				  if(passCross and !(passSingle and (Eff_cross_ele_Data <= Eff_SL_ele_Data and Eff_cross_ele_MC <= Eff_SL_ele_MC))) {
+					trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
+					// for each DM, get the trigSF error if the tauh has the corresponding DM, otherwise 0
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
 							double Eff_cross_tau_Data_Up = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
@@ -3486,6 +3477,11 @@ int main (int argc, char** argv)
 						}
 					}
 				  }
+
+				  double Err_Data_ele = Err_Data_SL_ele + Err_Data_cross_ele;
+				  double Err_MC_ele   = Err_MC_SL_ele   + Err_MC_cross_ele;
+				  double trigSF_ele_err   = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_ele, Err_MC_ele);
+
 				  if(DEBUG)
 					{
 					  cout << "--- DEBUG Trigger weights --- " << endl;
