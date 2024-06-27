@@ -3478,8 +3478,8 @@ int main (int argc, char** argv)
 				  if(passCross and ((Eff_cross_ele_Data > Eff_SL_ele_Data) or (Eff_cross_ele_MC > Eff_SL_ele_MC))){
 					for (int idm  = 0; idm < N_tauhDM; idm ++){
 						if (isthisDM_second[idm]){
-							double Eff_cross_tau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
-							double Eff_cross_tau_MC_Up   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_cross_tau_Data_Up = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_cross_tau_MC_Up   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
 							double Eff_Data_Up = passSingle * Eff_SL_ele_Data - passCross * passSingle * std::min(Eff_cross_ele_Data, Eff_SL_ele_Data) * Eff_cross_tau_Data_Up   + passCross * Eff_cross_ele_Data * Eff_cross_tau_Data_Up;
 							double Eff_MC_Up   = passSingle * Eff_SL_ele_MC   - passCross * passSingle * std::min(Eff_cross_ele_MC  , Eff_SL_ele_MC)   * Eff_cross_tau_MC_Up     + passCross * Eff_cross_ele_MC   * Eff_cross_tau_MC_Up;
 							trigSF_err[idm] = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Eff_Data_Up - Eff_Data, Eff_MC_Up - Eff_MC);
