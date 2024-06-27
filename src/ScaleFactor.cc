@@ -369,7 +369,10 @@ double ScaleFactor::get_EfficiencyDataError(double pt, double eta, int pType) {
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
 
   double effData = get_EfficiencyData(pt, eta, pType);
-  if (eff_error > effData) eff_error = 0.5*effData;
+  if (eff_error > effData) {
+    eff_error = 0.5*effData;
+    std::cout<<"WARNING in ScaleFactor::get_EfficiencyDataError(double pt, double eta, int pType) from src/ScaleFactor.cc: error on data efficiency > efficiency. Set error = 0.5*efficiency." << std::endl;
+  }
   return eff_error;
 }
 
@@ -385,7 +388,10 @@ double ScaleFactor::get_EfficiencyMCError(double pt, double eta, int pType) {
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
 
   double effMC = get_EfficiencyMC(pt, eta, pType);
-  if (eff_error > effMC ) eff_error = 0.5*effMC;
+  if (eff_error > effMC ){
+    eff_error = 0.5*effMC;
+    std::cout<<"WARNING in ScaleFactor::get_EfficiencyMCError(double pt, double eta, int pType) from src/ScaleFactor.cc: error on MC efficiency > efficiency. Set error = 0.5*efficiency." << std::endl;
+  }
   return eff_error;
 }
 
