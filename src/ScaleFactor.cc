@@ -63,38 +63,38 @@ void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF) {
       hslice_mc   = (TH1F*)heffmc->ProjectionX("slicedata",iBin,iBin);
 
     }
-    const int nbin_pt = hslice_data->GetNbinsX();
+    const int n_pt_points = hslice_data->GetNbinsX();
 
-    double data_pt_nom[nbin_pt] = {0.};
-    double data_eff_nom[nbin_pt] = {0.};
-    double data_pt_errlow[nbin_pt] = {0.};
-    double data_pt_errhigh[nbin_pt] = {0.};
-    double data_eff_err[nbin_pt] = {0.};
-    double mc_pt_nom[nbin_pt] = {0.};
-    double mc_eff_nom[nbin_pt] = {0.};
-    double mc_pt_errlow[nbin_pt] = {0.};
-    double mc_pt_errhigh[nbin_pt] = {0.};
-    double mc_eff_err[nbin_pt] = {0.};
+    double data_pt_nom[n_pt_points] = {0.};
+    double data_eff_nom[n_pt_points] = {0.};
+    double data_pt_errlow[n_pt_points] = {0.};
+    double data_pt_errhigh[n_pt_points] = {0.};
+    double data_eff_err[n_pt_points] = {0.};
+    double mc_pt_nom[n_pt_points] = {0.};
+    double mc_eff_nom[n_pt_points] = {0.};
+    double mc_pt_errlow[n_pt_points] = {0.};
+    double mc_pt_errhigh[n_pt_points] = {0.};
+    double mc_eff_err[n_pt_points] = {0.};
 
-    for(int iptbin=0; iptbin<nbin_pt; iptbin++){
-      data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
-      data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
-      data_pt_errlow[iptbin]   = hslice_data->GetXaxis()->GetBinCenter(iptbin+1) - hslice_data->GetXaxis()->GetBinLowEdge(iptbin+1);
-      data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
-      data_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
+    for(int i_pt_point=0; i_pt_point<n_pt_points; i_pt_point++){
+      data_pt_nom[i_pt_point]      = hslice_data->GetXaxis()->GetBinCenter(i_pt_point+1);
+      data_eff_nom[i_pt_point]     = hslice_data->GetBinContent(i_pt_point+1);
+      data_pt_errlow[i_pt_point]   = hslice_data->GetXaxis()->GetBinCenter(i_pt_point+1) - hslice_data->GetXaxis()->GetBinLowEdge(i_pt_point+1);
+      data_pt_errhigh[i_pt_point]  = hslice_data->GetXaxis()->GetBinUpEdge(i_pt_point+1) - hslice_data->GetXaxis()->GetBinCenter(i_pt_point+1);
+      data_eff_err[i_pt_point]     = hslice_data->GetBinError(i_pt_point+1);
       if(isTriggerSF) {
-	mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
-	mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
-	mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1) - hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
-	mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
-	mc_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
+        mc_pt_nom[i_pt_point]      = hslice_mc->GetXaxis()->GetBinCenter(i_pt_point+1);
+        mc_eff_nom[i_pt_point]     = hslice_mc->GetBinContent(i_pt_point+1);
+        mc_pt_errlow[i_pt_point]   = hslice_mc->GetXaxis()->GetBinCenter(i_pt_point+1) - hslice_mc->GetXaxis()->GetBinLowEdge(i_pt_point+1);
+        mc_pt_errhigh[i_pt_point]  = hslice_mc->GetXaxis()->GetBinUpEdge(i_pt_point+1) - hslice_mc->GetXaxis()->GetBinCenter(i_pt_point+1);
+        mc_eff_err[i_pt_point]     = hslice_data->GetBinError(i_pt_point+1);
       }
 
     }
 
-    eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_err, data_eff_err);
+    eff_data[etaLabel] = new TGraphAsymmErrors(n_pt_points, data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_err, data_eff_err);
     if(isTriggerSF){
-      eff_mc[etaLabel] = new TGraphAsymmErrors(nbin_pt,mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_err, mc_eff_err);
+      eff_mc[etaLabel] = new TGraphAsymmErrors(n_pt_points, mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_err, mc_eff_err);
     }
   }
 }
@@ -113,8 +113,8 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
     std::string etaLabel, GraphName;
     int nEtaBins = etaBinsH->GetNbinsX();
 
-    for (int iBin=0; iBin<nEtaBins; iBin++) {
-      etaLabel = etaBinsH->GetXaxis()->GetBinLabel(iBin+1);
+    for (int iBin=1; iBin<=nEtaBins; iBin++) {
+      etaLabel = etaBinsH->GetXaxis()->GetBinLabel(iBin);
       GraphName = HistoBaseName+etaLabel+"_Data";
       eff_data[etaLabel] = (TGraphAsymmErrors*)fileIn->Get(TString(GraphName));
       SetAxisBins(eff_data[etaLabel]);
@@ -171,36 +171,36 @@ void ScaleFactor::init_ScaleFactor(TString inputRootFile, std::string HistoBaseN
       TH1F *hslice_data = (TH1F*)heff_data->ProjectionY("slicedata",iBin,iBin);
       TH1F *hslice_mc   = (TH1F*)heff_mc->ProjectionY("slicemc",iBin,iBin);
 
-      const int nbin_pt = hslice_data->GetNbinsX();
+      const int n_pt_points = hslice_data->GetNbinsX();
 
-      double data_pt_nom[nbin_pt]      = {0.};
-      double data_eff_nom[nbin_pt]     = {0.};
-      double data_pt_errlow[nbin_pt]   = {0.};
-      double data_pt_errhigh[nbin_pt]  = {0.};
-      double data_eff_err[nbin_pt]  = {0.};
+      double data_pt_nom[n_pt_points] = {0.};
+      double data_eff_nom[n_pt_points] = {0.};
+      double data_pt_errlow[n_pt_points] = {0.};
+      double data_pt_errhigh[n_pt_points] = {0.};
+      double data_eff_err[n_pt_points] = {0.};
 
-      double mc_pt_nom[nbin_pt]      = {0.};
-      double mc_eff_nom[nbin_pt]     = {0.};
-      double mc_pt_errlow[nbin_pt]   = {0.};
-      double mc_pt_errhigh[nbin_pt]  = {0.};
-      double mc_eff_err[nbin_pt]  = {0.};
+      double mc_pt_nom[n_pt_points] = {0.};
+      double mc_eff_nom[n_pt_points] = {0.};
+      double mc_pt_errlow[n_pt_points] = {0.};
+      double mc_pt_errhigh[n_pt_points] = {0.};
+      double mc_eff_err[n_pt_points] = {0.};
 
-      for(int iptbin=0; iptbin<nbin_pt; iptbin++) {
-		data_pt_nom[iptbin]      = hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
-		data_eff_nom[iptbin]     = hslice_data->GetBinContent(iptbin+1);
-		data_pt_errlow[iptbin]   = hslice_data->GetXaxis()->GetBinCenter(iptbin+1) - hslice_data->GetXaxis()->GetBinLowEdge(iptbin+1);
-		data_pt_errhigh[iptbin]  = hslice_data->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_data->GetXaxis()->GetBinCenter(iptbin+1);
-		data_eff_err[iptbin]     = hslice_data->GetBinError(iptbin+1);
+      for(int i_pt_point=0; i_pt_point<n_pt_points; i_pt_point++) {
+        data_pt_nom[i_pt_point]      = hslice_data->GetXaxis()->GetBinCenter(i_pt_point+1);
+        data_eff_nom[i_pt_point]     = hslice_data->GetBinContent(i_pt_point+1);
+        data_pt_errlow[i_pt_point]   = hslice_data->GetXaxis()->GetBinCenter(i_pt_point+1) - hslice_data->GetXaxis()->GetBinLowEdge(i_pt_point+1);
+        data_pt_errhigh[i_pt_point]  = hslice_data->GetXaxis()->GetBinUpEdge(i_pt_point+1) - hslice_data->GetXaxis()->GetBinCenter(i_pt_point+1);
+        data_eff_err[i_pt_point]     = hslice_data->GetBinError(i_pt_point+1);
 
-		mc_pt_nom[iptbin]      = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
-		mc_eff_nom[iptbin]     = hslice_mc->GetBinContent(iptbin+1);
-		mc_pt_errlow[iptbin]   = hslice_mc->GetXaxis()->GetBinCenter(iptbin+1) - hslice_mc->GetXaxis()->GetBinLowEdge(iptbin+1);
-		mc_pt_errhigh[iptbin]  = hslice_mc->GetXaxis()->GetBinUpEdge(iptbin+1) - hslice_mc->GetXaxis()->GetBinCenter(iptbin+1);
-		mc_eff_err[iptbin]     = hslice_mc->GetBinError(iptbin+1);
+        mc_pt_nom[i_pt_point]      = hslice_mc->GetXaxis()->GetBinCenter(i_pt_point+1);
+        mc_eff_nom[i_pt_point]     = hslice_mc->GetBinContent(i_pt_point+1);
+        mc_pt_errlow[i_pt_point]   = hslice_mc->GetXaxis()->GetBinCenter(i_pt_point+1) - hslice_mc->GetXaxis()->GetBinLowEdge(i_pt_point+1);
+        mc_pt_errhigh[i_pt_point]  = hslice_mc->GetXaxis()->GetBinUpEdge(i_pt_point+1) - hslice_mc->GetXaxis()->GetBinCenter(i_pt_point+1);
+        mc_eff_err[i_pt_point]     = hslice_mc->GetBinError(i_pt_point+1);
       }
 	  
-      eff_data[etaLabel] = new TGraphAsymmErrors(nbin_pt,data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_err, data_eff_err);
-      eff_mc[etaLabel]   = new TGraphAsymmErrors(nbin_pt,mc_pt_nom,   mc_eff_nom,   mc_pt_errlow,   mc_pt_errhigh,   mc_eff_err,   mc_eff_err  );
+      eff_data[etaLabel] = new TGraphAsymmErrors(n_pt_points, data_pt_nom, data_eff_nom, data_pt_errlow, data_pt_errhigh, data_eff_err, data_eff_err);
+      eff_mc[etaLabel]   = new TGraphAsymmErrors(n_pt_points, mc_pt_nom, mc_eff_nom, mc_pt_errlow, mc_pt_errhigh, mc_eff_err, mc_eff_err);
     }
   }
 
@@ -263,15 +263,15 @@ std::string ScaleFactor::FindEtaLabel(double Eta, std::string Which){
 }
 
 
-int ScaleFactor::FindPtBin(std::map<std::string, TGraphAsymmErrors*> eff_map,
+int ScaleFactor::FindPtPoint(std::map<std::string, TGraphAsymmErrors*> eff_map,
 						   std::string EtaLabel, double Pt, double Eta, int pType)
 {
   int Npoints = eff_map[EtaLabel]->GetN();
   double ptMAX = eff_map[EtaLabel]->GetX()[Npoints-1] + eff_map[EtaLabel]->GetErrorXhigh(Npoints-1);
   double ptMIN = eff_map[EtaLabel]->GetX()[0] - eff_map[EtaLabel]->GetErrorXlow(0);
 
-  if (Pt >= ptMAX) { // if pt is overflow, return last pt bin
-	return Npoints;
+  if (Pt >= ptMAX) { // if pt is overflow, return last pt point
+	return Npoints-1;
   }
   else if (Pt < ptMIN) { // if pt is underflow, return nonsense number and warning
     std::cout << "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: "
@@ -282,10 +282,10 @@ int ScaleFactor::FindPtBin(std::map<std::string, TGraphAsymmErrors*> eff_map,
     return -99;
   }
   else { // if pt is in range
-    for (int graphBin=0; graphBin < Npoints; graphBin++) {
-      if (Pt >= eff_map[EtaLabel]->GetPointX(graphBin) - eff_map[EtaLabel]->GetErrorXlow(graphBin)
-		  && Pt < eff_map[EtaLabel]->GetPointX(graphBin) + eff_map[EtaLabel]->GetErrorXhigh(graphBin))
-		return graphBin+1;
+    for (int graphPoint=0; graphPoint < Npoints; graphPoint++) {
+      if (Pt >= eff_map[EtaLabel]->GetPointX(graphPoint) - eff_map[EtaLabel]->GetErrorXlow(graphPoint)
+		  && Pt < eff_map[EtaLabel]->GetPointX(graphPoint) + eff_map[EtaLabel]->GetErrorXhigh(graphPoint))
+		return graphPoint;
     }
   }
   
@@ -298,9 +298,9 @@ double ScaleFactor::get_EfficiencyData(double pt, double eta, int pType){
   double eff;
   std::string label = FindEtaLabel(eta, "data");
 
-  int ptbin = FindPtBin(eff_data, label, pt, eta, pType);
-  if (ptbin == -99){eff =1;} // if pt is underflow
-  else eff = eff_data[label]->GetY()[ptbin-1];
+  int pt_point = FindPtPoint(eff_data, label, pt, eta, pType);
+  if (pt_point == -99){eff = 1;} // if pt is underflow
+  else eff = eff_data[label]->GetY()[pt_point];
 
   if (eff > 1.) {std::cout<< "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: Efficiency in data > 1. Set eff = 1." << std::endl; eff=1;}
   if (eff < 0 ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: Negative efficiency in data. Set eff = 0." <<std::endl; eff=0;}
@@ -314,9 +314,9 @@ double ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) {
 
   double eff;
   std::string label = FindEtaLabel(eta, "mc");
-  int ptbin = FindPtBin(eff_mc, label, pt, eta, pType);
-  if (ptbin == -99){eff =1;} // if pt is underflow
-  else eff= eff_mc[label]->GetY()[ptbin-1];
+  int pt_point = FindPtPoint(eff_mc, label, pt, eta, pType);
+  if (pt_point == -99){eff = 1;} // if pt is underflow
+  else eff= eff_mc[label]->GetY()[pt_point];
 
   if (eff > 1. ) {std::cout << "WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Efficiency in MC > 1. Set eff = 1." << std::endl; eff =1.;}
   if (eff < 0. ) {std::cout<<"WARNING in ScaleFactor::get_EfficiencyMC(double pt, double eta, int pType) from src/ScaleFactor.cc : Negative efficiency in MC. Set eff = 0." <<std::endl; eff =0.;}
@@ -348,11 +348,11 @@ double ScaleFactor::get_ScaleFactor(double pt, double eta, int pType) {
 double ScaleFactor::get_direct_ScaleFactor(double pt, double eta, int pType){
 
   std::string label = FindEtaLabel(eta, "data");
-  int ptbin = FindPtBin(eff_data, label, pt, eta, pType); // when available, SF stored in eff_data (lazy implementation that should be improved)
+  int pt_point = FindPtPoint(eff_data, label, pt, eta, pType); // when available, SF stored in eff_data (lazy implementation that should be improved)
   double SF;
 
-  if (ptbin == -99){SF =1;} // if pt is underflow
-  else SF= eff_data[label]->GetY()[ptbin-1];
+  if (pt_point == -99){SF = 1;} // if pt is underflow
+  else SF= eff_data[label]->GetY()[pt_point];
 
   return SF;
 
@@ -363,9 +363,9 @@ double ScaleFactor::get_EfficiencyDataError(double pt, double eta, int pType) {
 
   double eff_error;
   std::string label = FindEtaLabel(eta, "data");
-  int ptbin = FindPtBin(eff_data, label, pt, eta, pType);
-  if (ptbin == -99){eff_error =0.;} // if pt is underflow
-  else eff_error= eff_data[label]->GetErrorYhigh(ptbin-1);
+  int pt_point = FindPtPoint(eff_data, label, pt, eta, pType);
+  if (pt_point == -99){eff_error = 0.;} // if pt is underflow
+  else eff_error= eff_data[label]->GetErrorYhigh(pt_point);
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
 
   double effData = get_EfficiencyData(pt, eta, pType);
@@ -379,9 +379,9 @@ double ScaleFactor::get_EfficiencyMCError(double pt, double eta, int pType) {
 
   double eff_error;
   std::string label = FindEtaLabel(eta,"mc");
-  int ptbin = FindPtBin(eff_mc, label, pt, eta, pType);
-  if (ptbin == -99){eff_error =0.;} // if pt is underflow
-  else eff_error= eff_mc[label]->GetErrorYhigh(ptbin-1);
+  int pt_point = FindPtPoint(eff_mc, label, pt, eta, pType);
+  if (pt_point == -99){eff_error = 0.;} // if pt is underflow
+  else eff_error= eff_mc[label]->GetErrorYhigh(pt_point);
   // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
 
   double effMC = get_EfficiencyMC(pt, eta, pType);

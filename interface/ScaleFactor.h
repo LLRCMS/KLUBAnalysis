@@ -26,7 +26,7 @@ private:
   void SetAxisBins(TGraphAsymmErrors*);
   bool check_SameBinning(TGraphAsymmErrors*, TGraphAsymmErrors*);
   std::string FindEtaLabel(double, std::string);
-  int FindPtBin(std::map<std::string, TGraphAsymmErrors *>, std::string, double, double, int);
+  int FindPtPoint(std::map<std::string, TGraphAsymmErrors *>, std::string, double, double, int);
 
 public:
   ScaleFactor(){};
