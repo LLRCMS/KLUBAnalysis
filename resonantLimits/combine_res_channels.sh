@@ -4,9 +4,9 @@ declare -a MASSES;
 declare -a SELECTION_PREFIXES;
 
 # Defaults
-TAG="10Feb_UL18"
-VAR="DNNoutSM_kl_1"
-SIGNAL="ggFRadion"
+TAG=""
+VAR="pdnn_m{1}_s0_hh"
+SIGNAL="GGF_Radion"
 PERIOD=""
 PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
@@ -49,15 +49,15 @@ while [[ $# -gt 0 ]]; do
             TAG=${2}
             shift; shift;
             ;;
-	-b|--base)
-	    BASEDIR=${2}
-	    shift; shift;
-	    ;;
+		-b|--base)
+			BASEDIR=${2}
+			shift; shift;
+			;;
         -s|--signal)
             SIGNAL=${2}
             shift; shift;
             ;;
-	-v|--var)
+		-v|--var)
             VAR=${2}
             shift; shift;
             ;;
@@ -114,10 +114,8 @@ fi
 
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 NEWDIR="${LIMIT_DIR}/cards_${TAG}_CombChn"
+echo "Output folder: ${NEWDIR}/"
 mkdir -p ${NEWDIR}
-for selp in ${SELECTION_PREFIXES[@]}; do
-    mkdir -p ${NEWDIR}/"${selp}_${VAR}"
-done
 
 declare -a MASSES_IF;
 declare -a MHIGH;
@@ -131,17 +129,11 @@ cd ${NEWDIR}
 for selprefix in ${SELECTION_PREFIXES[@]}; do
     # all directories will have the same categories, hence the wildcard 
     # (impossible to tell beforehand which channel was chosen)
-    declare -a allpref=($(cd ${LIMIT_DIR}/cards_${TAG}_*Tau/ && ls -d -1 ${selprefix}*/))
+    declare -a allpref=($(cd ${LIMIT_DIR}/cards_${TAG}/*Tau/ && ls -d -1 ${selprefix}*/))
     echo "Processing all selections starting with '${selprefix}' (${#allpref[@]} in total): "
     for selp in ${allpref[@]}; do
 		echo "- ${selp}"
     done
-
-    proc="${SIGNAL}_${VAR}_{}"
-    path_out_="${NEWDIR}/${selprefix}_${VAR}/comb.${proc}"
-    path_txt="${path_out_}.txt"
-    path_root="${path_out_}.root"
-	echo "Output folder: ${NEWDIR}/${selprefix}_${VAR}/"
 	
     # remove low masses for boosted categories
     if [[ ${selprefix} =~ .*boosted.* ]]; then
@@ -150,14 +142,23 @@ for selprefix in ${SELECTION_PREFIXES[@]}; do
 		MASSES_IF=${MASSES[@]};
     fi
 
+    proc="${SIGNAL}_${VAR}"
+	path_out_="${NEWDIR}/${selprefix}_${VAR}"
+
+	parallel mkdir -p ${path_out_} ::: ${MASSES_IF[@]}
+
+    path_out_="${path_out_}/comb.${proc}"
+    path_txt="${path_out_}.txt"
+    path_root="${path_out_}.root"
+		
     # parallelize over the mass
     parallel rm -f -- ${path_txt} ::: ${MASSES_IF[@]}
     parallel rm -f -- ${path_root} ::: ${MASSES_IF[@]}
 
     parallel combineCards.py \
-			 -S ${LIMIT_DIR}/cards_${TAG}*Tau/${selprefix}*_${VAR}/hhres_${PERIOD}_*Tau_${selprefix}*${SIGNAL}{}.txt \
+			 -S ${LIMIT_DIR}/cards_${TAG}/*Tau/${selprefix}*_${VAR}/hhres_${PERIOD}_*Tau_${selprefix}*${SIGNAL}{1}.txt \
 			 ">" ${path_txt} ::: ${MASSES_IF[@]}
-    parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${path_txt} ::: ${MASSES_IF[@]}
+    parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${path_txt} ::: ${MASSES_IF[@]}
     parallel text2workspace.py ${path_txt} -o ${path_root} ::: ${MASSES_IF[@]}
 
 done

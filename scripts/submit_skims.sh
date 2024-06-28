@@ -491,9 +491,9 @@ elif [ ${DATA_PERIOD} == "UL16" ]; then
 		["Tau__Run2016G"]="-n 10 -q long --datasetType 2"
 		["Tau__Run2016H"]="-n 10 -q long --datasetType 2"
 		
-		["SingleMuon__Run2016F"]="-n 20 -q long"
-		["SingleMuon__Run2016G"]="-n 20 -q long"
-		["SingleMuon__Run2016H"]="-n 20 -q long"
+		["SingleMuon__Run2016F"]="-n 30 -q long"
+		["SingleMuon__Run2016G"]="-n 30 -q long"
+		["SingleMuon__Run2016H"]="-n 30 -q long"
 		
 		["MET__Run2016F"]="-n 10 -q long --datasetType 1"
 		["MET__Run2016G"]="-n 10 -q long --datasetType 1"
@@ -528,21 +528,21 @@ elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 fi
 	
 # Skimming submission
-for ds in ${!DATA_MAP[@]}; do
-	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
-		echo "WARNING: No files found in "${LIST_DATA_DIR}"."
-	fi
-    sample=$(find_sample ${ds} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-    if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-		ERRORS+=( ${sample} )
-    else
-		eval `scram unsetenv -sh` # unset CMSSW environment
-		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
-		cmsenv # set CMSSW environment
-		run_skim --isdata 1 -i ${DATA_DIR} --sample ${REGEX_MAP[${sample}]} ${DATA_MAP[${ds}]}
-		cmsenv # set CMSSW environment
-    fi
-done
+# for ds in ${!DATA_MAP[@]}; do
+# 	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
+# 		echo "WARNING: No files found in "${LIST_DATA_DIR}"."
+# 	fi
+#     sample=$(find_sample ${ds} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+#     if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 		ERRORS+=( ${sample} )
+#     else
+# 		eval `scram unsetenv -sh` # unset CMSSW environment
+# 		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
+# 		cmsenv # set CMSSW environment
+# 		run_skim --isdata 1 -i ${DATA_DIR} --sample ${REGEX_MAP[${sample}]} ${DATA_MAP[${ds}]}
+# 		cmsenv # set CMSSW environment
+#     fi
+# done
 
 ### Run on HH resonant signal samples
 LIST_SIG_DIR=${LIST_DIR}"Sig_"${IN_TAG}
@@ -550,8 +550,10 @@ eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
 
-DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
-MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
+# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+DATA_LIST=( "GluGluToRad" )
+MASSES=("1000")
 for ds in ${DATA_LIST[@]}; do
 	for mass in ${MASSES[@]}; do
 		pattern="${ds}.+_M-${mass}_";
@@ -560,7 +562,6 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Sig --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
-			echo ${sample}
 			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q long --ishhsignal 1
 		fi
 	done
@@ -577,84 +578,84 @@ ZH_HToBB_ZToQQ_BR=`echo "0.69911*0.5824" | bc`
 ZH_HToBB_ZToLL_BR=`echo "(0.033696 +0.033662 + 0.033632)*0.5824" | bc`
 
 MC_MAP=(
-    ["TTToHadronic"]="-n 120 -x ${FullyHadXSec} -q short"
-    ["TTTo2L2Nu"]="-n 3069 -x ${FullyLepXSec} -q short"
-    ["TTToSemiLeptonic"]="-n 400 -x ${SemiLepXSec} -q long"
+    # ["TTToHadronic"]="-n 120 -x ${FullyHadXSec} -q short"
+    # ["TTTo2L2Nu"]="-n 3069 -x ${FullyLepXSec} -q short"
+    # ["TTToSemiLeptonic"]="-n 400 -x ${SemiLepXSec} -q long"
 
-    ["DYJetsToLL_M-50_TuneCP5_13TeV-amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
-    ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 200  -x 377.12 -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 795 -x 3.512   -g ${STITCHING_ON} --DY 0 -q short" # some jobs are killed even with a single file (in the short queue)
-    ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 200 -x 0.4826  -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 212 -x 0.04487 -g ${STITCHING_ON} --DY 0 -q short"
-    ["DYJetsToLL_0J"]="-n 200 -x 4867.28  -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_1J"]="-n 200 -x 902.95   -g ${STITCHING_ON} --DY 0 -q long"
-    ["DYJetsToLL_2J"]="-n 200 -x 342.96   -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_M-50_TuneCP5_13TeV-amc"]="-n 600 -x 6077.22 -g ${STITCHING_ON} --DY 0 -q long" # inclusive NLO
+    # ["DYJetsToLL_LHEFilterPtZ-0To50"]="-n 200    -x 1409.22 -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_LHEFilterPtZ-50To100"]="-n 200  -x 377.12 -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_LHEFilterPtZ-100To250"]="-n 200 -x 92.24   -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_LHEFilterPtZ-250To400"]="-n 100 -x 3.512   -g ${STITCHING_ON} --DY 0 -q long" # some jobs are killed even with a single file (in the short queue)
+    # ["DYJetsToLL_LHEFilterPtZ-400To650"]="-n 200 -x 0.4826  -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_LHEFilterPtZ-650ToInf"]="-n 212 -x 0.04487 -g ${STITCHING_ON} --DY 0 -q short"
+    # ["DYJetsToLL_0J"]="-n 200 -x 4867.28  -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_1J"]="-n 200 -x 902.95   -g ${STITCHING_ON} --DY 0 -q long"
+    # ["DYJetsToLL_2J"]="-n 200 -x 342.96   -g ${STITCHING_ON} --DY 0 -q long"
 
-    ["WJetsToLNu_TuneCP5_13TeV-madgraph"]="-n 40 -x 48917.48 -y 1.213784 -z 70 -q short" # for 0 < HT < 70
-    ["WJetsToLNu_HT-70To100"]="-n 100 -x 1362 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-100To200"]="-n 100 -x 1345 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-200To400"]="-n 250 -x 359.7 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-400To600"]="-n 50 -x 48.91 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-600To800"]="-n 50 -x 12.05 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-800To1200"]="-n 50 -x 5.501 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-1200To2500"]="-n 50 -x 1.329 -y 1.213784 -q short"
-    ["WJetsToLNu_HT-2500ToInf"]="-n 50 -x 0.03216 -y 1.213784 -q short"
+    # ["WJetsToLNu_TuneCP5_13TeV-madgraph"]="-n 40 -x 48917.48 -y 1.213784 -z 70 -q short" # for 0 < HT < 70
+    # ["WJetsToLNu_HT-70To100"]="-n 100 -x 1362 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-100To200"]="-n 100 -x 1345 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-200To400"]="-n 250 -x 359.7 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-400To600"]="-n 50 -x 48.91 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-600To800"]="-n 50 -x 12.05 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-800To1200"]="-n 50 -x 5.501 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-1200To2500"]="-n 50 -x 1.329 -y 1.213784 -q short"
+    # ["WJetsToLNu_HT-2500ToInf"]="-n 50 -x 0.03216 -y 1.213784 -q short"
 
-    ["EWKWPlus2Jets_WToLNu"]="-n 20 -x 25.62 -q short"
-    ["EWKWMinus2Jets_WToLNu"]="-n 20 -x 20.25 -q short"
-    ["EWKZ2Jets_ZToLL"]="-n 19 -x 3.987 -q short"
+    # ["EWKWPlus2Jets_WToLNu"]="-n 20 -x 25.62 -q short"
+    # ["EWKWMinus2Jets_WToLNu"]="-n 20 -x 20.25 -q short"
+    # ["EWKZ2Jets_ZToLL"]="-n 19 -x 3.987 -q short"
 
-    ["ST_tW_antitop_5f_inclusive"]="-n 20 -x 35.85 -q short"
-    ["ST_tW_top_5f_inclusive"]="-n 20 -x 35.85 -q short"
-    ["ST_t-channel_antitop"]="-n 100 -x 80.95 -q short"
-    ["ST_t-channel_top"]="-n 400 -x 136.02 -q short"
+    # ["ST_tW_antitop_5f_inclusive"]="-n 20 -x 35.85 -q short"
+    # ["ST_tW_top_5f_inclusive"]="-n 20 -x 35.85 -q short"
+    # ["ST_t-channel_antitop"]="-n 100 -x 80.95 -q short"
+    # ["ST_t-channel_top"]="-n 400 -x 136.02 -q short"
 
-    ["GluGluHToTauTau"]="-n 60 -x 48.68 -y 0.06272 -q short"
-    ["VBFHToTauTau"]="-n 40 -x 3.766 -y 0.06272 -q short"
-    ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.06272 -q short"
-    ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.06272 -q short"
-    ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.06272 -q short"
+    # ["GluGluHToTauTau"]="-n 60 -x 48.68 -y 0.06272 -q short"
+    # ["VBFHToTauTau"]="-n 40 -x 3.766 -y 0.06272 -q short"
+    # ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.06272 -q short"
+    # ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.06272 -q short"
+    # ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.06272 -q short"
 
-    ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
-    ["ZH_HToBB_ZToQQ"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR} -q short"
+    # ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
+    # ["ZH_HToBB_ZToQQ"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR} -q short"
     
-    ["_WW_TuneCP5"]="-n 30 -x 118.7 -q short"
-    ["_WZ_TuneCP5"]="-n 30 -x 47.13 -q short"
-    ["_ZZ_TuneCP5"]="-n 30 -x 16.523 -q short"
+    # ["_WW_TuneCP5"]="-n 30 -x 118.7 -q short"
+    # ["_WZ_TuneCP5"]="-n 30 -x 47.13 -q short"
+    # ["_ZZ_TuneCP5"]="-n 30 -x 16.523 -q short"
 
-    ["_WWW"]="-n 4  -x 0.209 -q short"
-    ["_WWZ"]="-n 5  -x 0.168 -q short"
-    ["_WZZ"]="-n 10 -x 0.057 -q short"
-    ["_ZZZ"]="-n 10 -x 0.0147 -q short"
+    # ["_WWW"]="-n 4  -x 0.209 -q short"
+    # ["_WWZ"]="-n 5  -x 0.168 -q short"
+    # ["_WZZ"]="-n 10 -x 0.057 -q short"
+    # ["_ZZZ"]="-n 10 -x 0.0147 -q short"
 
-	["ttHToTauTau"]="-n 600 -x 0.5071 -y 0.0632 -q short"
+	# ["ttHToTauTau"]="-n 50 -x 0.5071 -y 0.0632 -q long"
 	
-    ["TTWJetsToLNu"]="-n 200 -x 0.2043 -q short"
-    ["TTWJetsToQQ"]="-n 11 -x 0.4062 -q short"
-    ["TTZToLLNuNu"]="-n 250 -x 0.2529 -q short"
-    ["TTZToQQ"]="-n 500 -x 0.5104 -q short"
-    ["TTWW"]="-n 10 -x 0.006979 -q short"
-    ["TTZZ"]="-n 10 -x 0.001386 -q short"
-    ["TTWZ"]="-n 7 -x 0.00158 -q short"
+    # ["TTWJetsToLNu"]="-n 200 -x 0.2043 -q short"
+    # ["TTWJetsToQQ"]="-n 11 -x 0.4062 -q short"
+    # ["TTZToLLNuNu"]="-n 250 -x 0.2529 -q short"
+    # ["TTZToQQ"]="-n 500 -x 0.5104 -q short"
+    # ["TTWW"]="-n 10 -x 0.006979 -q short"
+    # ["TTZZ"]="-n 10 -x 0.001386 -q short"
+    # ["TTWZ"]="-n 7 -x 0.00158 -q short"
 
-    ["TTWH"]="-n 6 -x 0.001143 -q short"
-    ["TTZH"]="-n 15 -x 0.001136 -q short"
+    # ["TTWH"]="-n 6 -x 0.001143 -q short"
+    # ["TTZH"]="-n 15 -x 0.001136 -q short"
 
-    ["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
+    # ["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
 )
-if [ ${DATA_PERIOD} == "UL18" ] || [ ${DATA_PERIOD} == "UL17" ] || [ ${DATA_PERIOD} == "UL16APV" ]; then
-    MC_MAP+=(
-		["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
-		["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
-	)
-elif [ ${DATA_PERIOD} == "UL16" ]; then
-    MC_MAP+=(
-		["ttHJetToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
-		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
-	)
-fi
+# if [ ${DATA_PERIOD} == "UL18" ] || [ ${DATA_PERIOD} == "UL17" ] || [ ${DATA_PERIOD} == "UL16APV" ]; then
+#     MC_MAP+=(
+# 		["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
+# 		["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+# 	)
+# elif [ ${DATA_PERIOD} == "UL16" ]; then
+#     MC_MAP+=(
+# 		["ttHJetToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
+# 		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+# 	)
+# fi
 
 # Sanity checks for Drell-Yan stitching
 DY_PATTERN=".*DY.*"
