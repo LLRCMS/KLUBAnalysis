@@ -2580,87 +2580,87 @@ int main (int argc, char** argv)
 		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
 		}
 	  
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down	= 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down	= idSF_leg1_deep_vsJet_2d;
 
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down	= 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down	= idSF_leg1_deep_vsJet_2d;
 
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down = 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down = idSF_leg1_deep_vsJet_2d;
 
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down = 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down = idSF_leg1_deep_vsJet_2d;
 
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = 1.f;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = idSF_leg1_deep_vsJet_2d;
 		  
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down	= 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down	= idSF_leg2_deep_vsJet_2d;
 
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down	= 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down	= idSF_leg2_deep_vsJet_2d;
 
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down = 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down = idSF_leg2_deep_vsJet_2d;
 
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down = 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down = idSF_leg2_deep_vsJet_2d;
 
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= 1.f;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= idSF_leg2_deep_vsJet_2d;
 	  
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
@@ -2728,10 +2728,6 @@ int main (int argc, char** argv)
 		else if (leg1pt > 200.) {
 		  idSF_leg1_deep_vsJet_2d_stat1gt140_up   = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatUp");
 		  idSF_leg1_deep_vsJet_2d_stat1gt140_down = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "Gt140StatDown");
-		}
-		else { // set to the nominal values
-		  idSF_leg1_deep_vsJet_2d_stat1gt140_up   = idSF_leg1_deep_vsJet_2d;
-		  idSF_leg1_deep_vsJet_2d_stat1gt140_down = idSF_leg1_deep_vsJet_2d;
 		}
 
 		idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch, "SystCorrDMErasUp");
