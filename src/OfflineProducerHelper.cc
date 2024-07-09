@@ -188,7 +188,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   if (pairType == MuHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = muBaseline  (tree, dau1index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = muBaseline  (tree, dau1index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
     leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
   }
 
@@ -210,7 +210,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   if (pairType == EMu)
   {
     leg1 = eleBaseline (tree, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = muBaseline  (tree, dau2index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg2 = muBaseline  (tree, dau2index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
   }
 
   if (pairType == EE)
@@ -221,8 +221,8 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
   if (pairType == MuMu)
   {
-    leg1 = muBaseline (tree, dau1index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
-    leg2 = muBaseline (tree, dau2index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = muBaseline (tree, dau1index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
+    leg2 = muBaseline (tree, dau2index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
   }
 
   bool result = (leg1 && leg2);
@@ -332,7 +332,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
 
 bool OfflineProducerHelper::muBaseline (
   bigTree* tree, int iDau, float ptMin,
-  float etaMax, float relIsopf, int muIDWPpf, float relIsotk, int muIDWPtk, TString whatApply, bool debug)
+  float etaMax, float relIsopf, int muIDWPpf, TString whatApply, bool debug)
 {
   float px = tree->daughters_px->at(iDau);
   float py = tree->daughters_py->at(iDau);
@@ -364,20 +364,17 @@ bool OfflineProducerHelper::muBaseline (
     if (whatApply.Contains("etaMax")) byp_etaS = false;
   }
 
-  if (muIDWPpf < 0 || muIDWPpf > 3 || muIDWPtk < 0 || muIDWPtk > 4)
+  if (muIDWPpf < 0 || muIDWPpf > 3)
   {
-	std::string mes = " ** OfflineProducerHelper::muBaseline: muIDWPpf=" + std::to_string(muIDWPpf) + " must be between 0 and 3 and muIDWPtk=" + std::to_string(muIDWPtk) + " must be between 0 and 4.";
+	std::string mes = " ** OfflineProducerHelper::muBaseline: muIDWPpf=" + std::to_string(muIDWPpf) + " must be between 0 and 3.";
 	throw std::invalid_argument(mes);
   }
 
   bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
 
   bool idpfS = checkBit (discr, muIDWPpf) || byp_idS;
-  bool idtkS = checkBit (discr, muIDWPtk) || byp_idS;
   bool isopfS = (tree->combreliso->at(iDau) < relIsopf) || byp_isoS;
-  bool isotkS = (tree->tkRelIso->at(iDau) < relIsotk) || byp_isoS;
-  bool idS = (idpfS && isopfS) || (idtkS && isotkS);
-			  
+  bool idS = (idpfS && isopfS);
   bool ptS = (p4.Pt() > ptMin) || byp_ptS;
   bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
