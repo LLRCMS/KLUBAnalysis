@@ -1306,10 +1306,10 @@ int main (int argc, char** argv)
 			{
 			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
 											  0.15, OfflineProducerHelper::MuTight,
-											  0.15, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
+											  string("All"), (DEBUG ? true : false));
 			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
 											  0.30, OfflineProducerHelper::MuTight,
-											  0.30, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
+											  string("All"), (DEBUG ? true : false));
 
 			  if (passMu) ++nmu;
 			  else if (passMu10) ++nmu10;
@@ -3883,9 +3883,13 @@ int main (int argc, char** argv)
 			  // For muon, Tight does not imply Medium. However, the difference is minimal.
 			  // https://cms-talk.web.cern.ch/t/medium-vs-tight-muon-identification/42605/2
 			  bool passMedium = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
-												0.3, OfflineProducerHelper::MuMedium,
-												0.3, OfflineProducerHelper::MuHighPt);
-			  if (!passMedium) continue; // if it passes medium --> the "if" is false and the lepton is saved as an extra lepton
+												0.3, OfflineProducerHelper::MuMedium);
+			  bool passTight = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
+											   0.3, OfflineProducerHelper::MuTight);
+			  if (!passMedium and !passTight) {
+				// if it passes one of the two: the "if" is false and the lepton is saved as an extra lepton
+				continue;
+			  }
 			}
 		  else if (theBigTree.particleType->at (iLep) == 1) // electrons
 			{
