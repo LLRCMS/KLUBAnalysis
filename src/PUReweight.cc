@@ -12,6 +12,9 @@ std::vector<float> PUReweight::LoadExternalWeights (TString filename)
 
   //cout << "=== begin parser ===" << endl;
   std::ifstream infile(filename.Data());
+  if(!infile.good()){
+    throw std::runtime_error("ERROR: PUReweight - Cannot open external file: " + filename);
+  }
   std::string line;
   while (std::getline(infile, line))
   {
