@@ -1570,23 +1570,40 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
-											theBigTree.daughters_py->at (firstDaughterIndex),
-											theBigTree.daughters_pz->at (firstDaughterIndex),
-											theBigTree.daughters_e->at (firstDaughterIndex)
-											);
+	  const TLorentzVector tlv_firstLepton(theBigTree.daughters_px->at(firstDaughterIndex),
+										   theBigTree.daughters_py->at(firstDaughterIndex),
+										   theBigTree.daughters_pz->at(firstDaughterIndex),
+										   theBigTree.daughters_e->at(firstDaughterIndex));
+	  const TLorentzVector tlv_secondLepton(theBigTree.daughters_px->at(secondDaughterIndex),
+											theBigTree.daughters_py->at(secondDaughterIndex),
+											theBigTree.daughters_pz->at(secondDaughterIndex),
+											theBigTree.daughters_e->at(secondDaughterIndex));
 
-	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
-											 theBigTree.daughters_py->at (secondDaughterIndex),
-											 theBigTree.daughters_pz->at (secondDaughterIndex),
-											 theBigTree.daughters_e->at (secondDaughterIndex)
-											 );
+	  TLorentzVector tlv_firstLepton_eesUp = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eesDown = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eesUp = tlv_secondLepton;
+	  TLorentzVector tlv_secondLepton_eesDown = tlv_secondLepton;
 
-	  auto met_phi_corr = met_phi_correction_pxpy(
-												  theBigTree.METx->at(chosenTauPair),
+	  TLorentzVector tlv_firstLepton_eerUp = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eerDown = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eerUp = tlv_secondLepton;
+	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
+
+	  if(theBigTree.genmatch->at(firstDaughterIndex)==1) {
+		tlv_firstLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(firstDaughterIndex));
+		tlv_firstLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(firstDaughterIndex));
+		tlv_secondLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(secondDaughterIndex));
+		tlv_secondLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(secondDaughterIndex));
+
+		tlv_firstLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(firstDaughterIndex));
+		tlv_firstLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(firstDaughterIndex));
+		tlv_secondLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(secondDaughterIndex));
+		tlv_secondLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(secondDaughterIndex));
+	  }
+	  
+	  auto met_phi_corr = met_phi_correction_pxpy(theBigTree.METx->at(chosenTauPair),
 												  theBigTree.METy->at(chosenTauPair),
-												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-												  );
+												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC);
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second,
 						 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
@@ -2388,6 +2405,18 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau1_e_eledown_DM0  = tlv_firstLepton_eledown[0].E();
 	  theSmallTree.m_dau1_e_eledown_DM1  = tlv_firstLepton_eledown[1].E();
 
+	  // electron energy scale in etau channel
+	  theSmallTree.m_dau1_pt_eesUp   = tlv_firstLepton_eesUp.Pt();
+	  theSmallTree.m_dau1_pt_eesDown = tlv_firstLepton_eesDown.Pt();
+	  theSmallTree.m_dau1_e_eesUp    = tlv_firstLepton_eesUp.E();
+	  theSmallTree.m_dau1_e_eesDown  = tlv_firstLepton_eesDown.E();
+
+	  // electron energy resolution in etau channel
+	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerUp.Pt();
+	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerDown.Pt();
+	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerUp.E();
+	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerDown.E();
+	  
 	  theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
 	  theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
 	  theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
@@ -2429,6 +2458,18 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau2_pt_eledown_DM1 = tlv_secondLepton_eledown[1].Pt();
 	  theSmallTree.m_dau2_e_eledown_DM0 = tlv_secondLepton_eledown[0].E();
 	  theSmallTree.m_dau2_e_eledown_DM1 = tlv_secondLepton_eledown[1].E();
+
+	  // electron energy scale in etau channel
+	  theSmallTree.m_dau2_pt_eesUp   = tlv_secondLepton_eesUp.Pt();
+	  theSmallTree.m_dau2_pt_eesDown = tlv_secondLepton_eesDown.Pt();
+	  theSmallTree.m_dau2_e_eesUp    = tlv_secondLepton_eesUp.E();
+	  theSmallTree.m_dau2_e_eesDown  = tlv_secondLepton_eesDown.E();
+
+	  // electron energy resolution in etau channel
+	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerUp.Pt();
+	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerDown.Pt();
+	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerUp.E();
+	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerDown.E();
 
 	  theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
 	  theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
@@ -5463,8 +5504,8 @@ int main (int argc, char** argv)
 		  // Shifted MET for TES/EES (and unpacK: first is tes, second is ees)
 		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
 		  auto vMET_shift_tes = vMET_shifts_tes_ees.first;
-		  auto vMET_shift_ees = vMET_shifts_tes_ees.second;
-
+		  auto vMET_shift_ees_fakes = vMET_shifts_tes_ees.second;
+		  
 		  // Shifted MET for TES
 		  theSmallTree.m_METx_tauup_DM0  = vMET_shift_tes.first.at(0).X();
 		  theSmallTree.m_METx_tauup_DM1  = vMET_shift_tes.first.at(1).X();
@@ -5486,21 +5527,34 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_taudown_DM10 = vMET_shift_tes.second.at(2).Y();
 		  theSmallTree.m_METy_taudown_DM11 = vMET_shift_tes.second.at(3).Y();
 
-		  // Shifted MET for EES
-		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees.first.at(0).X();
-		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees.first.at(1).X();
+		  // Shifted MET for EES (electrons reconstructed as fake taus)
+		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees_fakes.first.at(0).X();
+		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees_fakes.first.at(1).X();
 
-		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_ees.first.at(0).Y();
-		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_ees.first.at(1).Y();
+		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_ees_fakes.first.at(0).Y();
+		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_ees_fakes.first.at(1).Y();
 
-		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_ees.second.at(0).X();
-		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_ees.second.at(1).X();
+		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_ees_fakes.second.at(0).X();
+		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_ees_fakes.second.at(1).X();
 
-		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees.second.at(0).Y();
-		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees.second.at(1).Y();
-		  
+		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees_fakes.second.at(0).Y();
+		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees_fakes.second.at(1).Y();
+
+		  // Shifted MET for EES (real electrons not in tautau)
+		  auto vMET_shift_electrons_scale = getShiftedMET_electrons(vMET, theBigTree, pairType, true);
+		  theSmallTree.m_METx_eesUp   = vMET_shift_electrons_scale.first.X();
+		  theSmallTree.m_METy_eesUp   = vMET_shift_electrons_scale.first.Y();
+		  theSmallTree.m_METx_eesDown = vMET_shift_electrons_scale.second.X();
+		  theSmallTree.m_METy_eesDown = vMET_shift_electrons_scale.second.Y();
+
+		  auto vMET_shift_electrons_smear = getShiftedMET_electrons(vMET, theBigTree, pairType, false);
+		  theSmallTree.m_METx_eesUp   = vMET_shift_electrons_smear.first.X();
+		  theSmallTree.m_METy_eesUp   = vMET_shift_electrons_smear.first.Y();
+		  theSmallTree.m_METx_eesDown = vMET_shift_electrons_smear.second.X();
+		  theSmallTree.m_METy_eesDown = vMET_shift_electrons_smear.second.Y();
+
 		  // Shifted MET for MES
-		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
+		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree);
 		  theSmallTree.m_METx_muup   = vMET_shift_mes.first.X();
 		  theSmallTree.m_METy_muup   = vMET_shift_mes.first.Y();
 		  theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();

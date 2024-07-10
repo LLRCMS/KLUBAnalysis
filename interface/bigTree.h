@@ -74,6 +74,10 @@ class bigTree {
   std::vector<float>    *daughters_EESshiftDM1dw;
   std::vector<float>   *daughters_MESshiftup;
   std::vector<float>   *daughters_MESshiftdw;
+  std::vector<float>   *daughters_energyScaleUp;
+  std::vector<float>   *daughters_energyScaleDown;
+  std::vector<float>   *daughters_energySigmaUp;
+  std::vector<float>   *daughters_energySigmaDown;
   std::vector<float>   *daughters_px_EleUp;
   std::vector<float>   *daughters_py_EleUp;
   std::vector<float>   *daughters_pz_EleUp;
@@ -350,6 +354,10 @@ class bigTree {
   TBranch        *b_daughters_EESshiftDM1dw; //!
   TBranch        *b_daughters_MESshiftup;   //!
   TBranch        *b_daughters_MESshiftdw;   //!
+  TBranch        *b_daughters_energyScaleUp;   //!
+  TBranch        *b_daughters_energyScaleDown;   //!
+  TBranch        *b_daughters_energySigmaUp;   //!
+  TBranch        *b_daughters_energySigmaDown;   //!  
   TBranch        *b_daughters_px_EleUp;   //!
   TBranch        *b_daughters_py_EleUp;   //!
   TBranch        *b_daughters_pz_EleUp;   //!
@@ -621,6 +629,10 @@ class bigTree {
     daughters_EESshiftDM1dw = 0;
     daughters_MESshiftup = 0;
     daughters_MESshiftdw = 0;
+	daughters_energyScaleUp = 0;
+	daughters_energyScaleDown = 0;
+	daughters_energySigmaUp = 0;
+	daughters_energySigmaDown = 0;
     daughters_px_EleUp = 0;
     daughters_py_EleUp = 0;
     daughters_pz_EleUp = 0;
@@ -1098,6 +1110,10 @@ class bigTree {
       fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_EESshiftDM1dw, &b_daughters_EESshiftDM1dw);
       fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
       fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
+	  fChain->SetBranchAddress("daughters_energyScaleUp", &daughters_energyScaleUp, &b_daughters_energyScaleUp);
+	  fChain->SetBranchAddress("daughters_energyScaleDown", &daughters_energyScaleDown, &b_daughters_energyScaleDown);
+	  fChain->SetBranchAddress("daughters_energySigmaUp", &daughters_energySigmaUp, &b_daughters_energySigmaUp);
+	  fChain->SetBranchAddress("daughters_energySigmaDown", &daughters_energySigmaDown, &b_daughters_energySigmaDown);
       fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
       fChain->SetBranchAddress("daughters_py_EleUp", &daughters_py_EleUp, &b_daughters_py_EleUp);
       fChain->SetBranchAddress("daughters_pz_EleUp", &daughters_pz_EleUp, &b_daughters_pz_EleUp);

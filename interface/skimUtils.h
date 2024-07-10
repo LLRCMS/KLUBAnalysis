@@ -598,7 +598,7 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
 // returns a pair of TVector2 objects
 // first: up variation
 // second: down variation
-pair <TVector2, TVector2> getShiftedMET_mes (TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+pair <TVector2, TVector2> getShiftedMET_mes (TVector2 MET, bigTree & theBigTree)
 {
   double corrMETx_muup =  MET.Px();
   double corrMETy_muup =  MET.Py();
@@ -642,6 +642,60 @@ pair <TVector2, TVector2> getShiftedMET_mes (TVector2 MET, bigTree & theBigTree,
   shiftedMET_mudown.Set(corrMETx_mudown, corrMETy_mudown);
 
   return make_pair(shiftedMET_muup, shiftedMET_mudown);
+}
+
+pair <TVector2, TVector2> getShiftedMET_electrons(TVector2 met, bigTree &theBigTree, int pairType, bool isScale)
+{
+  // do nothing in the tautau channel (electrons faking taus)
+  // it is already taken into account in the getShiftedMET_tes_ees() function
+  if(pairType == 2) {
+	return make_pair(met, met);
+  }
+  
+  TVector2 met_up, met_do;
+  double metx_up = met.Px(), metx_do = met.Px();
+  double mety_up = met.Py(), mety_do = met.Py();
+
+  TLorentzVector tlv_new_up;
+  TLorentzVector tlv_new_do;
+
+  for (unsigned int idau=0 ; idau<theBigTree.daughters_px->size() ; ++idau)
+	{
+	  TLorentzVector tlv_old(theBigTree.daughters_px->at(idau),
+							 theBigTree.daughters_py->at(idau),
+							 theBigTree.daughters_pz->at(idau),
+							 theBigTree.daughters_e->at(idau));
+
+	  if (theBigTree.genmatch->at(idau)==1) { // select prompt electrons
+		tlv_new_up = tlv_old;
+		tlv_new_do = tlv_old;
+
+		if(isScale) {
+		  tlv_new_up.SetE(theBigTree.daughters_energyScaleUp->at(idau));
+		  tlv_new_do.SetE(theBigTree.daughters_energyScaleDown->at(idau));
+		}
+		else {
+		  tlv_new_up.SetE(theBigTree.daughters_energySigmaUp->at(idau));
+		  tlv_new_do.SetE(theBigTree.daughters_energySigmaDown->at(idau));
+		}
+		
+		// shift MET: first the original, old tau
+		metx_up += tlv_old.Px();
+		mety_up += tlv_old.Py();
+		metx_do += tlv_old.Px();
+		mety_do += tlv_old.Py();
+
+		// shift MET: then the shifted, new tau
+		metx_up -= tlv_new_up.Px();
+		mety_up -= tlv_new_up.Py();
+		metx_do -= tlv_new_do.Px();
+		mety_do -= tlv_new_do.Py();
+	  }
+	}
+
+  met_up.Set(metx_up, mety_up);
+  met_do.Set(metx_do, mety_do);
+  return make_pair(met_up, met_do);
 }
 
 #endif

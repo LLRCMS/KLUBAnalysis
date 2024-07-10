@@ -308,7 +308,12 @@ struct smallTree
 	  m_METx_eledown_DM1 = 0.;
 	  m_METy_eledown_DM0 = 0.;
 	  m_METy_eledown_DM1 = 0.;
-	  
+
+	  m_METx_eesUp = 0., m_METx_eesDown = 0.;
+	  m_METx_eerUp = 0., m_METx_eerDown = 0.;
+	  m_METy_eesUp = 0., m_METy_eesDown = 0.;
+	  m_METy_eerUp = 0., m_METy_eerDown = 0.;
+
       m_METx_muup       = 0.;
 	  m_METy_muup		= 0.;
 	  m_METx_mudown		= 0.;
@@ -370,6 +375,23 @@ struct smallTree
       m_dau1_pt_eledown_DM1  = -1. ;
       m_dau1_e_eledown_DM0  = -1. ;
       m_dau1_e_eledown_DM1  = -1. ;
+
+	  m_dau1_pt_eesUp   = -1.;
+	  m_dau1_pt_eesDown = -1.;
+	  m_dau1_pt_eerUp   = -1.;
+	  m_dau1_pt_eerDown = -1.;
+	  m_dau1_pt_eesUp   = -1.;
+	  m_dau1_pt_eesDown = -1.;
+	  m_dau1_pt_eerUp   = -1.;
+	  m_dau1_pt_eerDown = -1.;
+	  m_dau1_e_eesUp    = -1.;
+	  m_dau1_e_eesDown  = -1.;
+	  m_dau1_e_eerUp    = -1.;
+	  m_dau1_e_eerDown  = -1.;
+	  m_dau1_e_eesUp    = -1.;
+	  m_dau1_e_eesDown  = -1.;
+	  m_dau1_e_eerUp    = -1.;
+	  m_dau1_e_eerDown  = -1.;
 
       m_dau1_eta  = -1. ;
       m_dau1_phi  = -1. ;
@@ -526,6 +548,24 @@ struct smallTree
       m_dau2_e_eledown_DM0  = -1.;
       m_dau2_e_eledown_DM1  = -1.;
 
+	  m_dau2_pt_eesUp  = -1.;
+	  m_dau2_pt_eesDown  = -1.;
+	  m_dau2_pt_eerUp  = -1.;
+	  m_dau2_pt_eerDown  = -1.;
+	  m_dau2_pt_eesUp  = -1.;
+	  m_dau2_pt_eesDown  = -1.;
+	  m_dau2_pt_eerUp  = -1.;
+	  m_dau2_pt_eerDown  = -1.;
+
+	  m_dau2_e_eesUp  = -1.;
+	  m_dau2_e_eesDown  = -1.;
+	  m_dau2_e_eerUp  = -1.;
+	  m_dau2_e_eerDown  = -1.;
+	  m_dau2_e_eesUp  = -1.;
+	  m_dau2_e_eesDown  = -1.;
+	  m_dau2_e_eerUp  = -1.;
+	  m_dau2_e_eerDown  = -1.;
+	  
       m_dau2_eta  = -1.;
       m_dau2_phi  = -1.;
       m_dau2_e  = -1.;
@@ -1314,6 +1354,15 @@ struct smallTree
 	  m_smallT->Branch ("METy_eledown_DM0", &m_METy_eledown_DM0, "METy_eledown_DM0/F");
 	  m_smallT->Branch ("METy_eledown_DM1", &m_METy_eledown_DM1, "METy_eledown_DM1/F");
 
+	  m_smallT->Branch ("METx_eesUp",   &m_METx_eesUp,   "METx_eesUp/F");
+	  m_smallT->Branch ("METx_eesDown", &m_METx_eesDown, "METx_eesDown/F");
+	  m_smallT->Branch ("METy_eesUp",   &m_METy_eesUp,   "METy_eesUp/F");
+	  m_smallT->Branch ("METy_eesDown", &m_METy_eesDown, "METy_eesDown/F");
+	  m_smallT->Branch ("METx_eerUp",   &m_METx_eerUp,   "METx_eerUp/F");
+	  m_smallT->Branch ("METx_eerDown", &m_METx_eerDown, "METx_eerDown/F");
+	  m_smallT->Branch ("METy_eerUp",   &m_METy_eerUp,   "METy_eerUp/F");
+	  m_smallT->Branch ("METy_eerDown", &m_METy_eerDown, "METy_eerDown/F");
+
       m_smallT->Branch ("METx_muup",   &m_METx_muup,   "METx_muup/F");
       m_smallT->Branch ("METy_muup",   &m_METy_muup,   "METy_muup/F");
       m_smallT->Branch ("METx_mudown", &m_METx_mudown, "METx_mudown/F");
@@ -1374,6 +1423,15 @@ struct smallTree
       m_smallT->Branch ("dau1_pt_eledown_DM1", &m_dau1_pt_eledown_DM1, "dau1_pt_eledown_DM1/F");
       m_smallT->Branch ("dau1_e_eledown_DM0",  &m_dau1_e_eledown_DM0,  "dau1_e_eledown_DM0/F");
       m_smallT->Branch ("dau1_e_eledown_DM1",  &m_dau1_e_eledown_DM1,  "dau1_e_eledown_DM1/F");
+
+	  m_smallT->Branch ("dau1_pt_eesUp",   &m_dau1_pt_eesUp,   "dau1_pt_eesUp/F");
+	  m_smallT->Branch ("dau1_pt_eesDown", &m_dau1_pt_eesDown, "dau1_pt_eesDown/F");
+	  m_smallT->Branch ("dau1_pt_eerUp",   &m_dau1_pt_eerUp,   "dau1_pt_eerUp/F");
+	  m_smallT->Branch ("dau1_pt_eerDown", &m_dau1_pt_eerDown, "dau1_pt_eerDown/F");
+	  m_smallT->Branch ("dau1_e_eesUp",   &m_dau1_e_eesUp,   "dau1_e_eesUp/F");
+	  m_smallT->Branch ("dau1_e_eesDown", &m_dau1_e_eesDown, "dau1_e_eesDown/F");
+	  m_smallT->Branch ("dau1_e_eerUp",   &m_dau1_e_eerUp,   "dau1_e_eerUp/F");
+	  m_smallT->Branch ("dau1_e_eerDown", &m_dau1_e_eerDown, "dau1_e_eerDown/F");
 
       m_smallT->Branch ("dau1_eta",       &m_dau1_eta,       "dau1_eta/F");
       m_smallT->Branch ("dau1_phi",       &m_dau1_phi,       "dau1_phi/F");
@@ -1529,6 +1587,15 @@ struct smallTree
       m_smallT->Branch ("dau2_pt_eledown_DM1", &m_dau2_pt_eledown_DM1, "dau2_pt_eledown_DM1/F");
       m_smallT->Branch ("dau2_e_eledown_DM0",  &m_dau2_e_eledown_DM0,  "dau2_e_eledown_DM0/F");
       m_smallT->Branch ("dau2_e_eledown_DM1",  &m_dau2_e_eledown_DM1,  "dau2_e_eledown_DM1/F");
+
+	  m_smallT->Branch ("dau2_pt_eesUp",   &m_dau2_pt_eesUp,   "dau2_pt_eesUp/F");
+	  m_smallT->Branch ("dau2_pt_eesDown", &m_dau2_pt_eesDown, "dau2_pt_eesDown/F");
+	  m_smallT->Branch ("dau2_pt_eerUp",   &m_dau2_pt_eerUp,   "dau2_pt_eerUp/F");
+	  m_smallT->Branch ("dau2_pt_eerDown", &m_dau2_pt_eerDown, "dau2_pt_eerDown/F");
+	  m_smallT->Branch ("dau2_e_eesUp",   &m_dau2_e_eesUp,   "dau2_e_eesUp/F");
+	  m_smallT->Branch ("dau2_e_eesDown", &m_dau2_e_eesDown, "dau2_e_eesDown/F");
+	  m_smallT->Branch ("dau2_e_eerUp",   &m_dau2_e_eerUp,   "dau2_e_eerUp/F");
+	  m_smallT->Branch ("dau2_e_eerDown", &m_dau2_e_eerDown, "dau2_e_eerDown/F");
 
       m_smallT->Branch ("dau2_eta", &m_dau2_eta, "dau2_eta/F") ;
       m_smallT->Branch ("dau2_phi", &m_dau2_phi, "dau2_phi/F") ;
@@ -2216,7 +2283,12 @@ struct smallTree
   Float_t m_METy_eleup_DM0, m_METy_eleup_DM1;
   Float_t m_METx_eledown_DM0, m_METx_eledown_DM1;
   Float_t m_METy_eledown_DM0, m_METy_eledown_DM1;
-  
+
+  Float_t m_METx_eesUp, m_METx_eesDown;
+  Float_t m_METx_eerUp, m_METx_eerDown;
+  Float_t m_METy_eesUp, m_METy_eesDown;
+  Float_t m_METy_eerUp, m_METy_eerDown;
+
   Float_t m_METx_muup;
   Float_t m_METx_mudown;
   Float_t m_METy_muup;
@@ -2255,11 +2327,13 @@ struct smallTree
   Float_t m_dau1_pt_taudown_DM0, m_dau1_pt_taudown_DM1, m_dau1_pt_taudown_DM10, m_dau1_pt_taudown_DM11;
   Float_t m_dau1_pt_eleup_DM0, m_dau1_pt_eleup_DM1;
   Float_t m_dau1_pt_eledown_DM0, m_dau1_pt_eledown_DM1;
+  Float_t m_dau1_pt_eesUp, m_dau1_pt_eesDown, m_dau1_pt_eerUp, m_dau1_pt_eerDown;
   Float_t m_dau1_e_tauup_DM0, m_dau1_e_tauup_DM1, m_dau1_e_tauup_DM10, m_dau1_e_tauup_DM11;
   Float_t m_dau1_e_taudown_DM0, m_dau1_e_taudown_DM1, m_dau1_e_taudown_DM10, m_dau1_e_taudown_DM11;
   Float_t m_dau1_e_eleup_DM0, m_dau1_e_eleup_DM1;
   Float_t m_dau1_e_eledown_DM0, m_dau1_e_eledown_DM1;
-
+  Float_t m_dau1_e_eesUp, m_dau1_e_eesDown, m_dau1_e_eerUp, m_dau1_e_eerDown;
+  
   Float_t m_dau1_eta ;
   Float_t m_dau1_phi ;
   Float_t m_dau1_e ;
@@ -2416,6 +2490,9 @@ struct smallTree
   Float_t m_dau2_e_eledown_DM0;
   Float_t m_dau2_e_eledown_DM1;
 
+  Float_t m_dau2_pt_eesUp, m_dau2_pt_eesDown, m_dau2_pt_eerUp, m_dau2_pt_eerDown;
+  Float_t m_dau2_e_eesUp,  m_dau2_e_eesDown,  m_dau2_e_eerUp,  m_dau2_e_eerDown;
+  
   Float_t m_dau2_eta;
   Float_t m_dau2_phi;
   Float_t m_dau2_e;
