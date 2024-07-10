@@ -1200,13 +1200,13 @@ int main (int argc, char** argv)
 		  genHHDecMode = 0; // dummy protection if couldn't find initial H
 		  cout << "** WARNING: negative dec mode, for safety set it ot 0" << endl;
 		}
-	  double EvtW = 1.;
-	  double EvtW_PUReweight_up = 1.;
-	  double EvtW_PUReweight_down = 1.;
+	  float EvtW = 1.;
+	  float EvtW_PUReweight_up = 1.;
+	  float EvtW_PUReweight_down = 1.;
 	  theSmallTree.m_PUReweight  = 1.;
 	  theSmallTree.m_PUReweight_up = 1.;
 	  theSmallTree.m_PUReweight_down = 1.;
-	  double npu = std::min(theBigTree.npu, 99.f);
+	  float npu = std::min(theBigTree.npu, 99.f);
 	  if(isMC){
 		if(npu < 0){
 			throw std::runtime_error("ERROR: negative number of pileup interactions in MC sample!");
