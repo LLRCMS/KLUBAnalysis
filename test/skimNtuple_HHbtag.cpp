@@ -1200,34 +1200,29 @@ int main (int argc, char** argv)
 		  genHHDecMode = 0; // dummy protection if couldn't find initial H
 		  cout << "** WARNING: negative dec mode, for safety set it ot 0" << endl;
 		}
-	  double EvtW;
-	  double EvtW_PUReweight_up;
-	  double EvtW_PUReweight_down;
-	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) { // good PU weights
-		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile) * topPtReweight * HHweight) : 1.0;
-		EvtW_PUReweight_up = isMC ? (theBigTree.aMCatNLOweight * reweight_up.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile_up) * topPtReweight * HHweight) : 1.0;
-		EvtW_PUReweight_down = isMC ? (theBigTree.aMCatNLOweight * reweight_down.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile_down) * topPtReweight * HHweight) : 1.0;
+	  double EvtW = 1.;
+	  double EvtW_PUReweight_up = 1.;
+	  double EvtW_PUReweight_down = 1.;
+	  theSmallTree.m_PUReweight  = 1.;
+	  theSmallTree.m_PUReweight_up = 1.;
+	  theSmallTree.m_PUReweight_down = 1.;
+	  double npu = std::min(theBigTree.npu, 99.f);
+	  if(isMC){
+		if(npu < 0){
+			throw std::runtime_error("ERROR: negative number of pileup interactions in MC sample!");
+		}
+		theSmallTree.m_PUReweight = reweight.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile);
+		theSmallTree.m_PUReweight_up = reweight_up.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile_up);
+		theSmallTree.m_PUReweight_down = reweight_down.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile_down);
+
+		EvtW = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight * topPtReweight * HHweight;
+		EvtW_PUReweight_up = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight_up * topPtReweight * HHweight;
+		EvtW_PUReweight_down = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight_down * topPtReweight * HHweight;
 	  }
-	  else if (theBigTree.npu >= 100) {                  // use the last available bin for the PU weight
-		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
-		EvtW_PUReweight_up = isMC ? (theBigTree.aMCatNLOweight * reweight_up.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile_up) * topPtReweight * HHweight) : 1.0;
-		EvtW_PUReweight_down = isMC ? (theBigTree.aMCatNLOweight * reweight_down.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile_down) * topPtReweight * HHweight) : 1.0;
-	  }
-	  else {                                             // if npu<0 --> bug in MC --> weight=0
-		EvtW = isMC ? 0.0 : 1.0;
-		EvtW_PUReweight_up = isMC ? 0.0 : 1.0;
-		EvtW_PUReweight_down = isMC ? 0.0 : 1.0;
-	  }
-	  if (isMC)	{
-		totalEvents += EvtW;
-		totalEvents_PUReweight_up += EvtW_PUReweight_up;
-		totalEvents_PUReweight_down += EvtW_PUReweight_down;
-	  }
-	  else {
-		totalEvents += 1 ;
-		totalEvents_PUReweight_up += 1;
-		totalEvents_PUReweight_down += 1;
-	  }
+	  totalEvents += EvtW;
+	  totalEvents_PUReweight_up += EvtW_PUReweight_up;
+	  totalEvents_PUReweight_down += EvtW_PUReweight_down;
+
 
 	  ec.Increment("all", EvtW);
 	  if (isHHsignal) {
@@ -2155,23 +2150,6 @@ int main (int argc, char** argv)
 		}
 
 	  theSmallTree.m_pairType    = pType ;
-
-	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99){ // good PU weights
-		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) : 1) ;
-		theSmallTree.m_PUReweight_up = (isMC ? reweight_up.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile_up) : 1) ;
-		theSmallTree.m_PUReweight_down = (isMC ? reweight_down.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile_down) : 1) ;
-	  }
-	  else if (theBigTree.npu >= 100){                  // use the last available bin for the PU weight
-		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile) : 1) ;
-		theSmallTree.m_PUReweight_up = (isMC ? reweight_up.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile_up) : 1) ;
-		theSmallTree.m_PUReweight_down = (isMC ? reweight_down.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile_down) : 1) ;
-	  }
-	  else{                                             // if npu<0 --> bug in MC --> weight=0
-		theSmallTree.m_PUReweight  = (isMC ? 0 : 1) ;
-		theSmallTree.m_PUReweight_up = (isMC ? 0 : 1) ;
-		theSmallTree.m_PUReweight_down = (isMC ? 0 : 1) ;
-	  }
-
 	  theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
 	  theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
 	  theSmallTree.m_EventNumber = theBigTree.EventNumber ;
