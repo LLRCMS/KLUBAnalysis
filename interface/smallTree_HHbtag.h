@@ -186,6 +186,14 @@ struct smallTree
       m_idFakeSF_etauFR_barrel_down       = -99.;
       m_idFakeSF_etauFR_endcap_down       = -99.;
 
+      m_idFakeSF_muID_up                  = -99.;
+      m_idFakeSF_muID_down                = -99.;
+      m_idFakeSF_muIso_up                 = -99.;
+      m_idFakeSF_muIso_down               = -99.;
+
+      m_idFakeSF_eleID_up                 = -99.;
+      m_idFakeSF_eleID_down               = -99.;
+
       m_jetFakeSF = 1.;
       m_lheNOutPartons = -1;
       m_lheNOutB = -1;
@@ -1181,6 +1189,13 @@ struct smallTree
       m_smallT->Branch ("idFakeSF_etauFR_barrel_down"      , &m_idFakeSF_etauFR_barrel_down      , "idFakeSF_etauFR_barrel_down/F");
       m_smallT->Branch ("idFakeSF_etauFR_endcap_down"      , &m_idFakeSF_etauFR_endcap_down      , "idFakeSF_etauFR_endcap_down/F");
 
+      m_smallT->Branch ("idFakeSF_muID_up   ", &m_idFakeSF_muID_up   , "idFakeSF_muID_up/F");
+      m_smallT->Branch ("idFakeSF_muID_down ", &m_idFakeSF_muID_down , "idFakeSF_muID_down/F");
+      m_smallT->Branch ("idFakeSF_muIso_up  ", &m_idFakeSF_muIso_up  , "idFakeSF_muIso_up/F");
+      m_smallT->Branch ("idFakeSF_muIso_down", &m_idFakeSF_muIso_down, "idFakeSF_muIso_down/F");
+      m_smallT->Branch ("idFakeSF_eleID_up  ", &m_idFakeSF_eleID_up  , "idFakeSF_eleID_up/F");
+      m_smallT->Branch ("idFakeSF_eleID_down", &m_idFakeSF_eleID_down, "idFakeSF_eleID_down/F");
+
       m_smallT->Branch ("lheNOutPartons", &m_lheNOutPartons, "lheNOutPartons/I");
       m_smallT->Branch ("lheNOutB", &m_lheNOutB, "lheNOutB/I");
       m_smallT->Branch ("EventNumber", &m_EventNumber, "EventNumber/l") ;
@@ -2134,6 +2149,14 @@ struct smallTree
   Float_t m_idFakeSF_etauFR_endcap_up        ;
   Float_t m_idFakeSF_etauFR_barrel_down      ;
   Float_t m_idFakeSF_etauFR_endcap_down      ;
+
+  Float_t m_idFakeSF_muID_up;
+  Float_t m_idFakeSF_muID_down;
+  Float_t m_idFakeSF_muIso_up;
+  Float_t m_idFakeSF_muIso_down;
+
+  Float_t m_idFakeSF_eleID_up;
+  Float_t m_idFakeSF_eleID_down;
 
   Int_t m_lheNOutPartons ;
   Int_t m_lheNOutB ;

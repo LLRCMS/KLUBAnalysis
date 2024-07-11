@@ -2497,6 +2497,14 @@ int main (int argc, char** argv)
 	  float idFakeSF_etauFR_barrel_down = -99.0;
 	  float idFakeSF_etauFR_endcap_down = -99.0;
 
+	  float idFakeSF_muID_up = -99.0;
+	  float idFakeSF_muID_down = -99.0;
+	  float idFakeSF_muIso_up = -99.0;
+	  float idFakeSF_muIso_down = -99.0;
+
+	  float idFakeSF_eleID_up = -99.0;
+	  float idFakeSF_eleID_down = -99.0;
+
 	  // bool helpers for tauID syst bins
 	  vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
 		((theSmallTree.m_dau1_pt >= 20 && theSmallTree.m_dau1_pt < 25) ? true : false),
@@ -2558,6 +2566,22 @@ int main (int argc, char** argv)
 	  float idSF_leg2_deep_vsEle	= -99.f;
 	  float idSF_leg2_deep_vsMu		= -99.f;
 
+	  float idSF_leg1_muID_up       = -99.f;
+	  float idSF_leg1_muID_down     = -99.f;
+	  float idSF_leg1_muIso_up      = -99.f;
+	  float idSF_leg1_muIso_down    = -99.f;
+
+	  float idSF_leg1_eleID_up      = -99.f;
+	  float idSF_leg1_eleID_down    = -99.f;
+
+	  float idSF_leg2_muID_up       = -99.f;
+	  float idSF_leg2_muID_down     = -99.f;
+	  float idSF_leg2_muIso_up      = -99.f;
+	  float idSF_leg2_muIso_down    = -99.f;
+
+	  float idSF_leg2_eleID_up      = -99.f;
+	  float idSF_leg2_eleID_down    = -99.f;
+
 	  bool isFakeJet1 = true;
 	  bool isFakeJet2 = true;
 	  if (tau1Genmatch<6) {
@@ -2567,22 +2591,88 @@ int main (int argc, char** argv)
 		isFakeJet2 = false;
 	  }
 
-	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2)
-		{
-		  idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
-		  idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
-		  idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
-		}
+	  if(isMC) {
+		// all channels with one tau in the second leg
+		if (pType<3) {
+			idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
+			idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
+			idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
 
-	  // all channels with one tau in the second leg
-	  if (isMC and pType<3)
-		{
-		  idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
+			// only TauTau has a tau as the first leg
+			if (pType==2) {
+				idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
+				idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
+				idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
+			}
+
+			else if (pType == 0) {
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg1_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+
+			idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+			idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+			idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+
+			idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+			idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+			}
+
+			else if (pType == 1) {
+				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+
+				idSF_leg1 = leg1_eleID_SF;
+				idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
+				idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
+			}
 		}
-	  
+		else if(pType == 3) { //MuMu
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg1_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+
+			idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+			idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+			idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+
+			idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+			idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg2_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+
+			idSF_leg2 = leg2_muID_SF * leg2_muIso_SF;
+			idSF_leg2_muID_up = (leg2_muID_SF + leg2_muID_SFerr) * leg2_muIso_SF;
+			idSF_leg2_muID_down = (leg2_muID_SF - leg2_muID_SFerr) * leg2_muIso_SF;
+
+			idSF_leg2_muIso_up = leg2_muID_SF * (leg2_muIso_SF + leg2_muIso_SFerr);
+			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
+		}
+		else if(pType == 4) { //EleEle
+				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+
+				idSF_leg1 = leg1_eleID_SF;
+				idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
+				idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
+
+				float leg2_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				float leg2_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+
+				idSF_leg2 = leg2_eleID_SF;
+				idSF_leg2_eleID_up = leg2_eleID_SF + leg2_eleID_SFerr;
+				idSF_leg2_eleID_down = leg2_eleID_SF - leg2_eleID_SFerr;
+		}
+	  }
+
 	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_up				= idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_down			= idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_up				= idSF_leg1_deep_vsJet_2d;
@@ -2623,7 +2713,7 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_down			= idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = idSF_leg1_deep_vsJet_2d;
-		  
+
 	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_up				= idSF_leg2_deep_vsJet_2d;
@@ -2664,13 +2754,13 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_down			= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= idSF_leg2_deep_vsJet_2d;
-	  
+
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  
+
 	  // only TauTau has a tau as the first leg
 	  if (isMC and pType==2) {	
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
@@ -2821,24 +2911,6 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_2d_extrapgt140_up            = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapUp");
 		idSF_leg2_deep_vsJet_2d_extrapgt140_down          = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapDown");
 	  }
-	
-	  if (isMC) {
-		if (pType == 0 or pType == 3) {
-		  // use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-		}
-		else if (pType == 1 or pType == 4) {
-		  idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-		}
-	  }
-
-	  if(isMC and pType == 3) { //MuMu
-		// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
-	  }
-	  else if(isMC and pType == 4) { //EleEle
-		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-	  }
 
 	  float except_VsJet, except_vsMu, except_vsEle;
 	  // EleTau and MuTau
@@ -2850,7 +2922,8 @@ int main (int argc, char** argv)
 		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
-		
+		  float except_leg1 = idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+
 		  idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
 		  idFakeSF_tauid_2d_stat0_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
@@ -2893,7 +2966,7 @@ int main (int argc, char** argv)
 		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
 		  idFakeSF_tauid_2d_extrapgt140_up 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
 		  idFakeSF_tauid_2d_extrapgt140_down	        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
-		
+
 		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
 		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
 		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg2_deep_vsMu_up[2];
@@ -2904,11 +2977,30 @@ int main (int argc, char** argv)
 		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
 		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
 		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg2_deep_vsMu_down[4];
-	
+
 		  idFakeSF_etauFR_barrel_up		= except_vsEle * idSF_leg2_deep_vsEle_up[0];
 		  idFakeSF_etauFR_endcap_up		= except_vsEle * idSF_leg2_deep_vsEle_up[1];  
 		  idFakeSF_etauFR_barrel_down	= except_vsEle * idSF_leg2_deep_vsEle_down[0];
 		  idFakeSF_etauFR_endcap_down	= except_vsEle * idSF_leg2_deep_vsEle_down[1];
+
+		  if(pType==0){
+			idFakeSF_muID_up = except_leg1 * idSF_leg1_muID_up;
+			idFakeSF_muID_down = except_leg1 * idSF_leg1_muID_down;
+			idFakeSF_muIso_up = except_leg1 * idSF_leg1_muIso_up;
+			idFakeSF_muIso_down = except_leg1 * idSF_leg1_muIso_down;
+
+			idFakeSF_eleID_up = except_leg1 * idSF_leg1
+			idFakeSF_eleID_down = except_leg1 * idSF_leg1
+		  }
+		  else{
+			idFakeSF_muID_up = except_leg1 * idSF_leg1;
+			idFakeSF_muID_down = except_leg1 * idSF_leg1;
+			idFakeSF_muIso_up = except_leg1 * idSF_leg1;
+			idFakeSF_muIso_down = except_leg1 * idSF_leg1;
+
+			idFakeSF_eleID_up = except_leg1 * idSF_leg1_eleID_up;
+			idFakeSF_eleID_down = except_leg1 * idSF_leg1_eleID_down;
+		  }
 		}
 	  else if (isMC and pType == 2) // TauTau
 		{
@@ -2977,6 +3069,14 @@ int main (int argc, char** argv)
 		  idFakeSF_etauFR_endcap_up   = except_vsEle * idSF_leg1_deep_vsEle_up[1]   * idSF_leg2_deep_vsEle_up[1];
 		  idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
 		  idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+
+		  idFakeSF_muID_up = idFakeSF_deep_2d;
+		  idFakeSF_muID_down = idFakeSF_deep_2d;
+		  idFakeSF_muIso_up = idFakeSF_deep_2d;
+		  idFakeSF_muIso_down = idFakeSF_deep_2d;
+
+		  idFakeSF_eleID_up = idFakeSF_deep_2d;
+		  idFakeSF_eleID_down = idFakeSF_deep_2d;
 		}
 	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
@@ -3059,6 +3159,14 @@ int main (int argc, char** argv)
 	  theSmallTree.m_idFakeSF_etauFR_endcap_up			= idFakeSF_etauFR_endcap_up;		
 	  theSmallTree.m_idFakeSF_etauFR_barrel_down		= idFakeSF_etauFR_barrel_down;		
 	  theSmallTree.m_idFakeSF_etauFR_endcap_down		= idFakeSF_etauFR_endcap_down;
+
+	  theSmallTree.m_idFakeSF_muID_up		= idFakeSF_muID_up;
+	  theSmallTree.m_idFakeSF_muID_down		= idFakeSF_muID_down;
+	  theSmallTree.m_idFakeSF_muIso_up		= idFakeSF_muIso_up;
+	  theSmallTree.m_idFakeSF_muIso_down	= idFakeSF_muIso_down;
+
+	  theSmallTree.m_idFakeSF_eleID_up		= idFakeSF_eleID_up;
+	  theSmallTree.m_idFakeSF_eleID_down	= idFakeSF_eleID_down;
 	  
 	  //Jet faking Tau SF
 	  //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/

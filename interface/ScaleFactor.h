@@ -42,6 +42,8 @@ public:
   double get_EfficiencyMCError(double, double, int);
   double get_ScaleFactorError(double, double, double, double); // effData, effMC, errData, errMC
   double get_ScaleFactorError(double, double, int);
+  double get_direct_ScaleFactorError(double, double, int);
+
 
 };
 

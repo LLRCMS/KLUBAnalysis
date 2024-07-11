@@ -423,3 +423,17 @@ double ScaleFactor::get_ScaleFactorError(double pt, double eta, int pType) {
 
   return get_ScaleFactorError(effData, effMC, errData, errMC);
 }
+
+double ScaleFactor::get_direct_ScaleFactorError(double pt, double eta, int pType){
+
+  std::string label = FindEtaLabel(eta, "data");
+  int pt_point = FindPtPoint(eff_data, label, pt, eta, pType); // when available, SF stored in eff_data (lazy implementation that should be improved)
+  double SF_error;
+
+  if (pt_point == -99){SF_error = 0;} // if pt is underflow
+  else SF_error= eff_data[label]->GetErrorYhigh(pt_point);
+  // errors are supposed to be symmetric, can use GetErrorYhigh or GetErrorYlow
+
+  return SF_error;
+
+}
