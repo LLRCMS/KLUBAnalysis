@@ -298,6 +298,10 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
   bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
   bool idS = false;
   bool nISOidS = false;
+
+  // veto events with electrons in ECAL barrel-endcap transition region
+  //TODO: should be super cluster eta (not available in bigntuples at the moment)
+  bool etaGap = fabs(p4.Eta()) > 1.44 && fabs(p4.Eta()) < 1.57 && whatApply.Contains("etaGapVeto");
   if (MVAIDflag == 0) // Tight = 80%
   {
     idS = tree->daughters_iseleWP80->at(iDau) || byp_idS ;
@@ -314,7 +318,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     nISOidS = tree->daughters_iseleNoIsoWPLoose->at(iDau) || byp_noISOidS;
   }
 
-  bool totalS = (vertexS && idS && ptS && etaS && isoS && nISOidS);
+  bool totalS = (vertexS && idS && ptS && etaS && isoS && nISOidS && !etaGap);
 
   if (debug)
   {

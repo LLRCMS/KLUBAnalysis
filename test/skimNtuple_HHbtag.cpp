@@ -1571,8 +1571,6 @@ int main (int argc, char** argv)
 											theBigTree.daughters_pz->at (firstDaughterIndex),
 											theBigTree.daughters_e->at (firstDaughterIndex)
 											);
-	  // veto events with electrons in ECAL barrel-endcap transition region
-	  if((pairType == 1) && fabs(tlv_firstLepton.Eta()) > 1.44 && fabs(tlv_firstLepton.Eta()) < 1.57) continue;
 
 	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
 											 theBigTree.daughters_py->at (secondDaughterIndex),
@@ -2633,6 +2631,7 @@ int main (int argc, char** argv)
 			}
 
 			else if (pType == 1) {
+				//TODO: should be super cluster eta (not available in bigntuples at the moment)
 				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
 				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 				float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
@@ -2674,6 +2673,7 @@ int main (int argc, char** argv)
 			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
 		}
 		else if(pType == 4) { //EleEle
+				//TODO: should be super cluster eta (not available in bigntuples at the moment)
 				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
 				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 				float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
@@ -2686,6 +2686,7 @@ int main (int argc, char** argv)
 				idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
 				idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
 
+				//TODO: should be super cluster eta (not available in bigntuples at the moment)
 				float leg2_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
 				float leg2_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 				float leg2_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
