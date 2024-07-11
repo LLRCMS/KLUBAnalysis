@@ -401,7 +401,7 @@ int main (int argc, char** argv)
   // systematics
   int N_jecSources = 11; //jec sources
   int N_tauhDM = 4;      //tauh DMs
-  int N_tauhDM_EES = 2;  //tauh DMs with EES
+  int N_tauhDM_FES = 2;  //tauh DMs with FES
 
   // ------------------------------
   TH1F* hTriggers = getFirstFileHisto (inputFile.c_str());
@@ -1440,8 +1440,8 @@ int main (int argc, char** argv)
 	  const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
 	  bool lep1HasTES = false;
 	  bool lep2HasTES = false;
-	  bool lep1HasEES = false;
-	  bool lep2HasEES = false;
+	  bool lep1HasFES = false;
+	  bool lep2HasFES = false;
 	  bool lep1HasMES = false;
 	  bool lep2HasMES = false;
 
@@ -1483,8 +1483,8 @@ int main (int argc, char** argv)
 		  int nRealTaus= 0;
 		  lep1HasTES = (theBigTree.genmatch->at(firstDaughterIndex)  == 5 ? true : false);
 		  lep2HasTES = (theBigTree.genmatch->at(secondDaughterIndex) == 5 ? true : false);
-		  lep1HasEES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 1 || theBigTree.genmatch->at(firstDaughterIndex)  == 3) ? true : false);
-		  lep2HasEES = ((theBigTree.genmatch->at(secondDaughterIndex) == 1 || theBigTree.genmatch->at(secondDaughterIndex) == 3) ? true : false);
+		  lep1HasFES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 1 || theBigTree.genmatch->at(firstDaughterIndex)  == 3) ? true : false);
+		  lep2HasFES = ((theBigTree.genmatch->at(secondDaughterIndex) == 1 || theBigTree.genmatch->at(secondDaughterIndex) == 3) ? true : false);
 		  lep1HasMES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 2 || theBigTree.genmatch->at(firstDaughterIndex)  == 4) ? true : false);
 		  lep2HasMES = ((theBigTree.genmatch->at(secondDaughterIndex) == 2 || theBigTree.genmatch->at(secondDaughterIndex) == 4) ? true : false);
 
@@ -1508,10 +1508,10 @@ int main (int argc, char** argv)
 	  double uncorrEn1 = tlv_firstLepton.E();
 	  double uncorrEn2 = tlv_secondLepton.E();
 	  if (isMC) {
-		if(abs(theBigTree.genpart_pdg->at(firstDaughterIndex))==11 and isMC) {
+		if(oph.isElectron(type1)) {
 		  tlv_firstLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex) / uncorrEn1;
 		}
-		if(abs(theBigTree.genpart_pdg->at(secondDaughterIndex))==11 and isMC) {
+		if(oph.isElectron(type2)) {
 		  tlv_secondLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex) / uncorrEn2;
 		}
 	  }
@@ -1732,29 +1732,29 @@ int main (int argc, char** argv)
 	  vector <TLorentzVector> tlv_secondLepton_tauup   (N_tauhDM, tlv_secondLepton);
 	  vector <TLorentzVector> tlv_secondLepton_taudown (N_tauhDM, tlv_secondLepton);
 
-	  //EES:
-	  vector <double> unc_EESup_first ;
-	  vector <double> unc_EESup_second;
-	  vector <double> unc_EESdw_first ;
-	  vector <double> unc_EESdw_second;
+	  //FES:
+	  vector <double> unc_FESup_first ;
+	  vector <double> unc_FESup_second;
+	  vector <double> unc_FESdw_first ;
+	  vector <double> unc_FESdw_second;
 
 	  if (isMC)
 		{
-		  unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
-		  unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
-		  unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
-		  unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
+		  unc_FESup_first.push_back(theBigTree.daughters_FESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
+		  unc_FESup_first.push_back(theBigTree.daughters_FESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
+		  unc_FESdw_first.push_back(theBigTree.daughters_FESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
+		  unc_FESdw_first.push_back(theBigTree.daughters_FESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
 
-		  unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
-		  unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
-		  unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
-		  unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
+		  unc_FESup_second.push_back(theBigTree.daughters_FESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
+		  unc_FESup_second.push_back(theBigTree.daughters_FESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
+		  unc_FESdw_second.push_back(theBigTree.daughters_FESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
+		  unc_FESdw_second.push_back(theBigTree.daughters_FESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
 		}
 
-	  vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_EES, tlv_firstLepton);
-	  vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_EES, tlv_firstLepton);
-	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_EES, tlv_secondLepton);
-	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_EES, tlv_secondLepton);
+	  vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_FES, tlv_firstLepton);
+	  vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_FES, tlv_firstLepton);
+	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_FES, tlv_secondLepton);
+	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_FES, tlv_secondLepton);
 
 	  // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
 	  // just for protection, probably it's not needed
@@ -1780,20 +1780,20 @@ int main (int argc, char** argv)
 			  tlv_firstLepton_tauup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			  tlv_firstLepton_taudown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			}
-		  else if(lep1HasEES && idm < N_tauhDM_EES)
+		  else if(lep1HasFES && idm < N_tauhDM_FES)
 			{
-			  tlv_firstLepton_eleup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_EESup_first[idm], isthisDM_first[idm]);
-			  tlv_firstLepton_eledown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_EESdw_first[idm], isthisDM_first[idm]);
+			  tlv_firstLepton_eleup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_FESup_first[idm], isthisDM_first[idm]);
+			  tlv_firstLepton_eledown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_FESdw_first[idm], isthisDM_first[idm]);
 			}
 		  if (lep2HasTES)
 			{
 			  tlv_secondLepton_tauup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			  tlv_secondLepton_taudown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			}
-		  else if(lep2HasEES && idm < N_tauhDM_EES)
+		  else if(lep2HasFES && idm < N_tauhDM_FES)
 			{
-			  tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_EESup_second[idm], isthisDM_second[idm]);
-			  tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_EESdw_second[idm], isthisDM_second[idm]);
+			  tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_FESup_second[idm], isthisDM_second[idm]);
+			  tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_FESdw_second[idm], isthisDM_second[idm]);
 			}
 		} // end loop over DMs
 
@@ -4189,7 +4189,7 @@ int main (int argc, char** argv)
 
 		  // electron energy scales and smears
 		  double uncorrEn = tlv_dummyLepton.E();
-		  if(isMC and abs(theBigTree.genpart_pdg->at(firstDaughterIndex))==11) {
+		  if(isMC and oph.isElectron(theBigTree.particleType->at(iLep))) {
 			tlv_dummyLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(iLep) / uncorrEn;
 		  }
 
@@ -5443,8 +5443,8 @@ int main (int argc, char** argv)
 
 	  if (isMC)
 		{
-		  // Shifted MET for TES/EES (and unpacK: first is tes, second is ees)
-		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
+		  // Shifted MET for TES/FES (and unpacK: first is tes, second is ees)
+		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_FES, vMET, theBigTree, DEBUG);
 		  auto vMET_shift_tes = vMET_shifts_tes_ees.first;
 		  auto vMET_shift_ees_fakes = vMET_shifts_tes_ees.second;
 		  
@@ -5469,7 +5469,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_taudown_DM10 = vMET_shift_tes.second.at(2).Y();
 		  theSmallTree.m_METy_taudown_DM11 = vMET_shift_tes.second.at(3).Y();
 
-		  // Shifted MET for EES (electrons reconstructed as fake taus)
+		  // Shifted MET for FES (electrons reconstructed as fake taus)
 		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees_fakes.first.at(0).X();
 		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees_fakes.first.at(1).X();
 
@@ -5482,7 +5482,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees_fakes.second.at(0).Y();
 		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees_fakes.second.at(1).Y();
 
-		  // Shifted MET for EES (real electrons not in tautau)
+		  // Shifted MET for EES (real electrons)
 		  auto vMET_shift_electrons_scale = getShiftedMET_electrons(vMET, theBigTree, pairType, true);
 		  theSmallTree.m_METx_eesUp   = vMET_shift_electrons_scale.first.X();
 		  theSmallTree.m_METy_eesUp   = vMET_shift_electrons_scale.first.Y();
@@ -5577,10 +5577,10 @@ int main (int argc, char** argv)
   TH1F h_syst ("h_syst", "h_syst", 3 , 0, 3) ; //systematics
   h_syst.SetBinContent (1, N_jecSources) ;
   h_syst.SetBinContent (2, N_tauhDM) ;
-  h_syst.SetBinContent (3, N_tauhDM_EES) ;
+  h_syst.SetBinContent (3, N_tauhDM_FES) ;
   h_syst.GetXaxis()->SetBinLabel(1, "jec unc sources");
   h_syst.GetXaxis()->SetBinLabel(2, "tauh decay modes for TES");
-  h_syst.GetXaxis()->SetBinLabel(3, "tauh decay modes for EES");
+  h_syst.GetXaxis()->SetBinLabel(3, "tauh decay modes for FES");
 
   TH1F* hEffHHSigsSummary [6];
   if (isHHsignal)
