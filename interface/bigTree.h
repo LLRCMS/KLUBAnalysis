@@ -74,6 +74,7 @@ class bigTree {
   std::vector<float>    *daughters_EESshiftDM1dw;
   std::vector<float>   *daughters_MESshiftup;
   std::vector<float>   *daughters_MESshiftdw;
+  std::vector<float>   *daughters_ecalTrkEnergyPostCorr;
   std::vector<float>   *daughters_energyScaleUp;
   std::vector<float>   *daughters_energyScaleDown;
   std::vector<float>   *daughters_energySigmaUp;
@@ -354,6 +355,7 @@ class bigTree {
   TBranch        *b_daughters_EESshiftDM1dw; //!
   TBranch        *b_daughters_MESshiftup;   //!
   TBranch        *b_daughters_MESshiftdw;   //!
+  TBranch        *b_daughters_ecalTrkEnergyPostCorr;   //!
   TBranch        *b_daughters_energyScaleUp;   //!
   TBranch        *b_daughters_energyScaleDown;   //!
   TBranch        *b_daughters_energySigmaUp;   //!
@@ -629,6 +631,7 @@ class bigTree {
     daughters_EESshiftDM1dw = 0;
     daughters_MESshiftup = 0;
     daughters_MESshiftdw = 0;
+	daughters_ecalTrkEnergyPostCorr = 0;
 	daughters_energyScaleUp = 0;
 	daughters_energyScaleDown = 0;
 	daughters_energySigmaUp = 0;
@@ -1110,6 +1113,7 @@ class bigTree {
       fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_EESshiftDM1dw, &b_daughters_EESshiftDM1dw);
       fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
       fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
+	  fChain->SetBranchAddress("daughters_ecalTrkEnergyPostCorr", &daughters_ecalTrkEnergyPostCorr, &b_daughters_ecalTrkEnergyPostCorr);
 	  fChain->SetBranchAddress("daughters_energyScaleUp", &daughters_energyScaleUp, &b_daughters_energyScaleUp);
 	  fChain->SetBranchAddress("daughters_energyScaleDown", &daughters_energyScaleDown, &b_daughters_energyScaleDown);
 	  fChain->SetBranchAddress("daughters_energySigmaUp", &daughters_energySigmaUp, &b_daughters_energySigmaUp);

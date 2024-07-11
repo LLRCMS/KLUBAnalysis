@@ -1344,26 +1344,6 @@ int main (int argc, char** argv)
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
 			}
-
-		  if(DEBUG)	{
-			TLorentzVector dauTlvDebug(theBigTree.daughters_px->at (idau),
-									   theBigTree.daughters_py->at (idau),
-									   theBigTree.daughters_pz->at (idau),
-									   theBigTree.daughters_e ->at (idau));
-			
-			// NB: remember to align this debug to the content of OfflineProducerHelper
-			cout << ".... reco part "
-				 << " idx dau="   << setw(3)  << left << idau
-				 << " type="      << setw(3)  << left << dauType
-				 << " pt="        << setw(10) << left << dauTlvDebug.Pt()
-				 << " eta="       << setw(10) << left << dauTlvDebug.Eta()
-				 << " phi="       << setw(10) << left << dauTlvDebug.Phi()
-				 << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-				 << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
-				 << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
-				 << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-				 << endl;
-		  }
 		} // end loop on daughters
 
 	  int pairType = 2; // tau tau
@@ -1409,39 +1389,6 @@ int main (int argc, char** argv)
 	  // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
 	  else
 		{
-		  if(DEBUG)
-			{
-			  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-				{
-				  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-				  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-				  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-				  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-				  cout << " **## Pair: " << iPair << " indexes(" <<t_firstDaughterIndex << "," << t_secondDaughterIndex << ") pairType: "<< pairType << " getPairType: "<< oph.getPairType (t_type1, t_type2) << endl;
-				}
-
-			  for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
-				{
-				  TLorentzVector tlv_dummyLepton(
-												 theBigTree.daughters_px->at (iLep),
-												 theBigTree.daughters_py->at (iLep),
-												 theBigTree.daughters_pz->at (iLep),
-												 theBigTree.daughters_e ->at (iLep)) ;
-
-				  cout << " idx="  << iLep
-					   << " type=" << theBigTree.particleType->at(iLep)
-					   << " DM="   << theBigTree.decayMode->at(iLep)
-					   << " DMold="<< theBigTree.daughters_decayModeFindingOldDMs->at(iLep)
-					   << " pt="   << tlv_dummyLepton.Pt()
-					   << " eta="  << tlv_dummyLepton.Eta()
-					   << " phi="  << tlv_dummyLepton.Phi()
-					   << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
-					   << " dxy="  << theBigTree.dxy->at(iLep)
-					   << " dz="   << theBigTree.dz->at(iLep)
-					   << endl;
-				}
-			} // end DEBUG
-
 		  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 			{
 			  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
@@ -1458,28 +1405,6 @@ int main (int argc, char** argv)
 				}
 			}
 		} // end else (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
-
-	  if(DEBUG)
-		{
-		  cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
-		  cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
-		  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-			{
-			  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-			  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-			  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-			  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-			  if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-			  TLorentzVector tttt (
-								   theBigTree.daughters_px->at (t_secondDaughterIndex),
-								   theBigTree.daughters_py->at (t_secondDaughterIndex),
-								   theBigTree.daughters_pz->at (t_secondDaughterIndex),
-								   theBigTree.daughters_e ->at (t_secondDaughterIndex));
-
-			  cout << "- " << iPair << " idx1=" << t_firstDaughterIndex << " idx2=" << t_secondDaughterIndex << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
-			  cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
-			}
-		}
 
 	  if (chosenTauPair < 0) continue; // no pair found over baseline
 
@@ -1570,14 +1495,26 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-	  const TLorentzVector tlv_firstLepton(theBigTree.daughters_px->at(firstDaughterIndex),
-										   theBigTree.daughters_py->at(firstDaughterIndex),
-										   theBigTree.daughters_pz->at(firstDaughterIndex),
-										   theBigTree.daughters_e->at(firstDaughterIndex));
-	  const TLorentzVector tlv_secondLepton(theBigTree.daughters_px->at(secondDaughterIndex),
-											theBigTree.daughters_py->at(secondDaughterIndex),
-											theBigTree.daughters_pz->at(secondDaughterIndex),
-											theBigTree.daughters_e->at(secondDaughterIndex));
+	  TLorentzVector tlv_firstLepton(theBigTree.daughters_px->at(firstDaughterIndex),
+									 theBigTree.daughters_py->at(firstDaughterIndex),
+									 theBigTree.daughters_pz->at(firstDaughterIndex),
+									 theBigTree.daughters_e->at(firstDaughterIndex));
+	  TLorentzVector tlv_secondLepton(theBigTree.daughters_px->at(secondDaughterIndex),
+									  theBigTree.daughters_py->at(secondDaughterIndex),
+									  theBigTree.daughters_pz->at(secondDaughterIndex),
+									  theBigTree.daughters_e->at(secondDaughterIndex));
+
+	  // electron energy scales and smears
+	  double uncorrEn1 = tlv_firstLepton.E();
+	  double uncorrEn2 = tlv_secondLepton.E();
+	  if (isMC) {
+		if(theBigTree.genmatch->at(firstDaughterIndex)==1 and isMC) {
+		  tlv_firstLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex) / uncorrEn1;
+		}
+		if(theBigTree.genmatch->at(secondDaughterIndex)==1 and isMC) {
+		  tlv_secondLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex) / uncorrEn2;
+		}
+	  }
 
 	  TLorentzVector tlv_firstLepton_eesUp    = tlv_firstLepton;
 	  TLorentzVector tlv_firstLepton_eesDown  = tlv_firstLepton;
@@ -1590,16 +1527,16 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
 
 	  if(theBigTree.genmatch->at(firstDaughterIndex)==1 and isMC) {
-		tlv_firstLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(firstDaughterIndex));
-		tlv_firstLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(firstDaughterIndex));
-		tlv_firstLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(firstDaughterIndex));
-		tlv_firstLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(firstDaughterIndex));
+		tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / uncorrEn1;
+		tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / uncorrEn1;
+		tlv_firstLepton_eerUp	*= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / uncorrEn1;				  
+		tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / uncorrEn1;
 	  }
 	  if(theBigTree.genmatch->at(secondDaughterIndex)==1 and isMC) {
-		tlv_secondLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(secondDaughterIndex));
-		tlv_secondLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(secondDaughterIndex));
-		tlv_secondLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(secondDaughterIndex));
-		tlv_secondLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(secondDaughterIndex));
+		tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp	->at(secondDaughterIndex) / uncorrEn2;
+		tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / uncorrEn2;
+		tlv_secondLepton_eerUp	 *= theBigTree.daughters_energySigmaUp	->at(secondDaughterIndex) / uncorrEn2;				  
+		tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / uncorrEn2;
 	  }
 	  
 	  auto met_phi_corr = met_phi_correction_pxpy(theBigTree.METx->at(chosenTauPair),
@@ -4218,13 +4155,11 @@ int main (int argc, char** argv)
 				continue; 
 			}
 
-		  TLorentzVector tlv_dummyLepton(
-										 theBigTree.daughters_px->at (iLep),
-										 theBigTree.daughters_py->at (iLep),
-										 theBigTree.daughters_pz->at (iLep),
-										 theBigTree.daughters_e->at (iLep)
-										 );
-		  thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
+		  TLorentzVector tlv_dummyLepton(theBigTree.daughters_px->at(iLep),
+										 theBigTree.daughters_py->at(iLep),
+										 theBigTree.daughters_pz->at(iLep),
+										 theBigTree.daughters_e->at(iLep));
+		  thirdLeptons.push_back(make_pair(tlv_dummyLepton.Pt(), iLep)) ;
 
 		  if(DEBUG)
 			{
@@ -4245,18 +4180,24 @@ int main (int argc, char** argv)
 	  // reverse loop to start from last one == highest pT
 	  for (int iLep = thirdLeptons.size() -1; (iLep >=0) && (theSmallTree.m_nleps < 2) ; iLep--)
 		{
-		  TLorentzVector tlv_dummyLepton(
-										 theBigTree.daughters_px->at (iLep),
+		  TLorentzVector tlv_dummyLepton(theBigTree.daughters_px->at (iLep),
 										 theBigTree.daughters_py->at (iLep),
 										 theBigTree.daughters_pz->at (iLep),
-										 theBigTree.daughters_e->at (iLep)
-										 );
+										 theBigTree.daughters_e->at (iLep));
+
+		  // electron energy scales and smears
+		  double uncorrEn = tlv_dummyLepton.E();
+		  if (isMC) {
+			if(theBigTree.genmatch->at(iLep)==1 and isMC) {
+			  tlv_dummyLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(iLep) / uncorrEn;
+			}
+		  }
 
 		  theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
 		  theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
 		  theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
 		  theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
-		  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
+		  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at(iLep)) ;
 		  ++theSmallTree.m_nleps ;
 		}
 

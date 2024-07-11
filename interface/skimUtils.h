@@ -665,18 +665,19 @@ pair <TVector2, TVector2> getShiftedMET_electrons(TVector2 met, bigTree &theBigT
 							 theBigTree.daughters_py->at(idau),
 							 theBigTree.daughters_pz->at(idau),
 							 theBigTree.daughters_e->at(idau));
+	  double uncorrEn = tlv_old.E();
 
 	  if (theBigTree.genmatch->at(idau)==1) { // select prompt electrons
 		tlv_new_up = tlv_old;
 		tlv_new_do = tlv_old;
 
 		if(isScale) {
-		  tlv_new_up.SetE(theBigTree.daughters_energyScaleUp->at(idau));
-		  tlv_new_do.SetE(theBigTree.daughters_energyScaleDown->at(idau));
+		  tlv_new_up *= theBigTree.daughters_energyScaleUp  ->at(idau) / uncorrEn;
+		  tlv_new_do *= theBigTree.daughters_energyScaleDown->at(idau) / uncorrEn;
 		}
 		else {
-		  tlv_new_up.SetE(theBigTree.daughters_energySigmaUp->at(idau));
-		  tlv_new_do.SetE(theBigTree.daughters_energySigmaDown->at(idau));
+		  tlv_new_up *= theBigTree.daughters_energySigmaUp  ->at(idau) / uncorrEn;
+		  tlv_new_do *= theBigTree.daughters_energySigmaDown->at(idau) / uncorrEn;
 		}
 		
 		// shift MET: first the original, old tau
