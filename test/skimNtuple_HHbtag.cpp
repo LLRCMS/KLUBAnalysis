@@ -1589,13 +1589,13 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_secondLepton_eerUp   = tlv_secondLepton;
 	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
 
-	  if(theBigTree.genmatch->at(firstDaughterIndex)==1) {
+	  if(theBigTree.genmatch->at(firstDaughterIndex)==1 and isMC) {
 		tlv_firstLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(firstDaughterIndex));
 		tlv_firstLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(firstDaughterIndex));
 		tlv_firstLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(firstDaughterIndex));
 		tlv_firstLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(firstDaughterIndex));
 	  }
-	  if(theBigTree.genmatch->at(secondDaughterIndex)==1) {
+	  if(theBigTree.genmatch->at(secondDaughterIndex)==1 and isMC) {
 		tlv_secondLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(secondDaughterIndex));
 		tlv_secondLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(secondDaughterIndex));
 		tlv_secondLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(secondDaughterIndex));
