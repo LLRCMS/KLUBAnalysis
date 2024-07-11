@@ -665,12 +665,12 @@ pair <TVector2, TVector2> getShiftedMET_electrons(TVector2 met, bigTree &theBigT
 							 theBigTree.daughters_py->at(idau),
 							 theBigTree.daughters_pz->at(idau),
 							 theBigTree.daughters_e->at(idau));
-	  double uncorrEn = tlv_old.E();
 
 	  if (theBigTree.genmatch->at(idau)==1) { // select prompt electrons
 		tlv_new_up = tlv_old;
 		tlv_new_do = tlv_old;
 
+		double uncorrEn = tlv_old.E();
 		if(isScale) {
 		  tlv_new_up *= theBigTree.daughters_energyScaleUp  ->at(idau) / uncorrEn;
 		  tlv_new_do *= theBigTree.daughters_energyScaleDown->at(idau) / uncorrEn;
