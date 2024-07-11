@@ -2616,18 +2616,18 @@ int main (int argc, char** argv)
 			}
 
 			else if (pType == 0) {
-			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-			float leg1_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-			float leg1_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
-			float leg1_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-			float leg1_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+				// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+				float leg1_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
 
-			idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
-			idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
-			idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+				idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+				idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+				idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
 
-			idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
-			idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+				idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+				idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
 			}
 
 			else if (pType == 1) {
@@ -2673,31 +2673,31 @@ int main (int argc, char** argv)
 			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
 		}
 		else if(pType == 4) { //EleEle
-				//TODO: should be super cluster eta (not available in bigntuples at the moment)
-				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
-				float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			//TODO: should be super cluster eta (not available in bigntuples at the moment)
+			float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
-				idSF_leg1 = leg1_eleID_SF;
-				idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
-				idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
+			idSF_leg1 = leg1_eleID_SF;
+			idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
+			idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
 
-				idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
-				idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
+			idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
+			idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
 
-				//TODO: should be super cluster eta (not available in bigntuples at the moment)
-				float leg2_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-				float leg2_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
-				float leg2_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-				float leg2_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			//TODO: should be super cluster eta (not available in bigntuples at the moment)
+			float leg2_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			float leg2_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
-				idSF_leg2 = leg2_eleID_SF;
-				idSF_leg2_eleID_up = leg2_eleID_SF + leg2_eleID_SFerr;
-				idSF_leg2_eleID_down = leg2_eleID_SF - leg2_eleID_SFerr;
+			idSF_leg2 = leg2_eleID_SF;
+			idSF_leg2_eleID_up = leg2_eleID_SF + leg2_eleID_SFerr;
+			idSF_leg2_eleID_down = leg2_eleID_SF - leg2_eleID_SFerr;
 
-				idSF_leg2_eleReco_up = leg2_eleID_SF * (leg2_eleReco_SF + leg2_eleReco_SFerr);
-				idSF_leg2_eleReco_down = leg2_eleID_SF * (leg2_eleReco_SF - leg2_eleReco_SFerr);
+			idSF_leg2_eleReco_up = leg2_eleID_SF * (leg2_eleReco_SF + leg2_eleReco_SFerr);
+			idSF_leg2_eleReco_down = leg2_eleID_SF * (leg2_eleReco_SF - leg2_eleReco_SFerr);
 		}
 	  }
 
