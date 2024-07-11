@@ -1508,10 +1508,10 @@ int main (int argc, char** argv)
 	  double uncorrEn1 = tlv_firstLepton.E();
 	  double uncorrEn2 = tlv_secondLepton.E();
 	  if (isMC) {
-		if(theBigTree.genmatch->at(firstDaughterIndex)==1 and isMC) {
+		if(abs(theBigTree.genpart_pdg->at(firstDaughterIndex))==11 and isMC) {
 		  tlv_firstLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex) / uncorrEn1;
 		}
-		if(theBigTree.genmatch->at(secondDaughterIndex)==1 and isMC) {
+		if(abs(theBigTree.genpart_pdg->at(secondDaughterIndex))==11 and isMC) {
 		  tlv_secondLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex) / uncorrEn2;
 		}
 	  }
@@ -1526,17 +1526,19 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_secondLepton_eerUp   = tlv_secondLepton;
 	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
 
-	  if(theBigTree.genmatch->at(firstDaughterIndex)==1 and isMC) {
-		tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / uncorrEn1;
-		tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / uncorrEn1;
-		tlv_firstLepton_eerUp	*= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / uncorrEn1;				  
-		tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / uncorrEn1;
-	  }
-	  if(theBigTree.genmatch->at(secondDaughterIndex)==1 and isMC) {
-		tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp	->at(secondDaughterIndex) / uncorrEn2;
-		tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / uncorrEn2;
-		tlv_secondLepton_eerUp	 *= theBigTree.daughters_energySigmaUp	->at(secondDaughterIndex) / uncorrEn2;				  
-		tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / uncorrEn2;
+	  if (isMC) {
+		if(abs(theBigTree.genpart_pdg->at(firstDaughterIndex))==11) {
+		  tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / uncorrEn1;
+		  tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / uncorrEn1;
+		  tlv_firstLepton_eerUp	  *= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / uncorrEn1;				  
+		  tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / uncorrEn1;
+		}
+		if(abs(theBigTree.genpart_pdg->at(secondDaughterIndex))==11) {
+		  tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(secondDaughterIndex) / uncorrEn2;
+		  tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / uncorrEn2;
+		  tlv_secondLepton_eerUp   *= theBigTree.daughters_energySigmaUp  ->at(secondDaughterIndex) / uncorrEn2;				  
+		  tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / uncorrEn2;
+		}
 	  }
 	  
 	  auto met_phi_corr = met_phi_correction_pxpy(theBigTree.METx->at(chosenTauPair),
@@ -4187,10 +4189,8 @@ int main (int argc, char** argv)
 
 		  // electron energy scales and smears
 		  double uncorrEn = tlv_dummyLepton.E();
-		  if (isMC) {
-			if(theBigTree.genmatch->at(iLep)==1 and isMC) {
-			  tlv_dummyLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(iLep) / uncorrEn;
-			}
+		  if(isMC and abs(theBigTree.genpart_pdg->at(firstDaughterIndex))==11) {
+			tlv_dummyLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(iLep) / uncorrEn;
 		  }
 
 		  theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;

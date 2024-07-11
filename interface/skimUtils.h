@@ -666,7 +666,7 @@ pair <TVector2, TVector2> getShiftedMET_electrons(TVector2 met, bigTree &theBigT
 							 theBigTree.daughters_pz->at(idau),
 							 theBigTree.daughters_e->at(idau));
 
-	  if (theBigTree.genmatch->at(idau)==1) { // select prompt electrons
+	  if (abs(theBigTree.genpart_pdg->at(idau))==11) {
 		tlv_new_up = tlv_old;
 		tlv_new_do = tlv_old;
 
