@@ -1571,6 +1571,8 @@ int main (int argc, char** argv)
 											theBigTree.daughters_pz->at (firstDaughterIndex),
 											theBigTree.daughters_e->at (firstDaughterIndex)
 											);
+	  // veto events with electrons in ECAL barrel-endcap transition region
+	  if((pairType == 1) && fabs(tlv_firstLepton.Eta()) > 1.44 && fabs(tlv_firstLepton.Eta()) < 1.57) continue;
 
 	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
 											 theBigTree.daughters_py->at (secondDaughterIndex),
