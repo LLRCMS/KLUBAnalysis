@@ -1508,11 +1508,16 @@ int main (int argc, char** argv)
 	  double uncorrEn1 = tlv_firstLepton.E();
 	  double uncorrEn2 = tlv_secondLepton.E();
 	  if (isMC) {
+		double corr1 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex);
+		double corr2 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex);
+		if (corr1 == -999. or corr2 == -999.) {
+		  throw std::runtime_error("ERROR: unchanged electron energy scale!");
+		}
 		if(oph.isElectron(type1)) {
-		  tlv_firstLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex) / uncorrEn1;
+		  tlv_firstLepton *= corr1 / uncorrEn1;
 		}
 		if(oph.isElectron(type2)) {
-		  tlv_secondLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex) / uncorrEn2;
+		  tlv_secondLepton *= corr2 / uncorrEn2;
 		}
 	  }
 
