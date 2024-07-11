@@ -193,6 +193,8 @@ struct smallTree
 
       m_idFakeSF_eleID_up                 = -99.;
       m_idFakeSF_eleID_down               = -99.;
+      m_idFakeSF_eleReco_up               = -99.;
+      m_idFakeSF_eleReco_down             = -99.;
 
       m_jetFakeSF = 1.;
       m_lheNOutPartons = -1;
@@ -1195,6 +1197,8 @@ struct smallTree
       m_smallT->Branch ("idFakeSF_muIso_down", &m_idFakeSF_muIso_down, "idFakeSF_muIso_down/F");
       m_smallT->Branch ("idFakeSF_eleID_up  ", &m_idFakeSF_eleID_up  , "idFakeSF_eleID_up/F");
       m_smallT->Branch ("idFakeSF_eleID_down", &m_idFakeSF_eleID_down, "idFakeSF_eleID_down/F");
+      m_smallT->Branch ("idFakeSF_eleReco_up", &m_idFakeSF_eleReco_up, "idFakeSF_eleReco_up/F");
+      m_smallT->Branch ("idFakeSF_eleReco_down", &m_idFakeSF_eleReco_down, "idFakeSF_eleReco_down/F");
 
       m_smallT->Branch ("lheNOutPartons", &m_lheNOutPartons, "lheNOutPartons/I");
       m_smallT->Branch ("lheNOutB", &m_lheNOutB, "lheNOutB/I");
@@ -2157,6 +2161,8 @@ struct smallTree
 
   Float_t m_idFakeSF_eleID_up;
   Float_t m_idFakeSF_eleID_down;
+  Float_t m_idFakeSF_eleReco_up;
+  Float_t m_idFakeSF_eleReco_down;
 
   Int_t m_lheNOutPartons ;
   Int_t m_lheNOutB ;

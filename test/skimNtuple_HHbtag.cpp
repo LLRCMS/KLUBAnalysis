@@ -610,8 +610,8 @@ int main (int argc, char** argv)
   }
     
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
-  for (int i=0; i<3; i++) {
+  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO, 3:eleReco]
+  for (int i=0; i<4; i++) {
     myIDandISOScaleFactor[i] = new ScaleFactor();
   }
   if (PERIOD == "2018") {
@@ -620,6 +620,7 @@ int main (int argc, char** argv)
 	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
   }
   else if (PERIOD == "2017") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
@@ -627,6 +628,7 @@ int main (int argc, char** argv)
 	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
   }
   else if (PERIOD == "2016preVFP") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
@@ -634,6 +636,7 @@ int main (int argc, char** argv)
 	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
   }
   else if (PERIOD == "2016postVFP") {
 	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
@@ -641,6 +644,7 @@ int main (int argc, char** argv)
 	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
 	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
   }
   
   // tau IdAndIso SF
@@ -2504,6 +2508,8 @@ int main (int argc, char** argv)
 
 	  float idFakeSF_eleID_up = -99.0;
 	  float idFakeSF_eleID_down = -99.0;
+	  float idFakeSF_eleReco_up = -99.0;
+	  float idFakeSF_eleReco_down = -99.0;
 
 	  // bool helpers for tauID syst bins
 	  vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
@@ -2573,6 +2579,8 @@ int main (int argc, char** argv)
 
 	  float idSF_leg1_eleID_up      = -99.f;
 	  float idSF_leg1_eleID_down    = -99.f;
+	  float idSF_leg1_eleReco_up	= -99.f;
+	  float idSF_leg1_eleReco_down	= -99.f;
 
 	  float idSF_leg2_muID_up       = -99.f;
 	  float idSF_leg2_muID_down     = -99.f;
@@ -2581,6 +2589,8 @@ int main (int argc, char** argv)
 
 	  float idSF_leg2_eleID_up      = -99.f;
 	  float idSF_leg2_eleID_down    = -99.f;
+	  float idSF_leg2_eleReco_up	= -99.f;
+	  float idSF_leg2_eleReco_down	= -99.f;
 
 	  bool isFakeJet1 = true;
 	  bool isFakeJet2 = true;
@@ -2623,10 +2633,15 @@ int main (int argc, char** argv)
 			else if (pType == 1) {
 				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
 				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
-				idSF_leg1 = leg1_eleID_SF;
-				idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
-				idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
+				idSF_leg1 = leg1_eleID_SF * leg1_eleReco_SF;
+				idSF_leg1_eleID_up = (leg1_eleID_SF + leg1_eleID_SFerr) * leg1_eleReco_SF;
+				idSF_leg1_eleID_down = (leg1_eleID_SF - leg1_eleID_SFerr) * leg1_eleReco_SF;
+
+				idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
+				idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
 			}
 		}
 		else if(pType == 3) { //MuMu
@@ -2659,17 +2674,27 @@ int main (int argc, char** argv)
 		else if(pType == 4) { //EleEle
 				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
 				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
 				idSF_leg1 = leg1_eleID_SF;
 				idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
 				idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
 
+				idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
+				idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
+
 				float leg2_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
 				float leg2_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+				float leg2_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				float leg2_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
 				idSF_leg2 = leg2_eleID_SF;
 				idSF_leg2_eleID_up = leg2_eleID_SF + leg2_eleID_SFerr;
 				idSF_leg2_eleID_down = leg2_eleID_SF - leg2_eleID_SFerr;
+
+				idSF_leg2_eleReco_up = leg2_eleID_SF * (leg2_eleReco_SF + leg2_eleReco_SFerr);
+				idSF_leg2_eleReco_down = leg2_eleID_SF * (leg2_eleReco_SF - leg2_eleReco_SFerr);
 		}
 	  }
 
@@ -2989,8 +3014,10 @@ int main (int argc, char** argv)
 			idFakeSF_muIso_up = except_leg1 * idSF_leg1_muIso_up;
 			idFakeSF_muIso_down = except_leg1 * idSF_leg1_muIso_down;
 
-			idFakeSF_eleID_up = except_leg1 * idSF_leg1
-			idFakeSF_eleID_down = except_leg1 * idSF_leg1
+			idFakeSF_eleID_up = except_leg1 * idSF_leg1;
+			idFakeSF_eleID_down = except_leg1 * idSF_leg1;
+			idFakeSF_eleReco_up = except_leg1 * idSF_leg1;
+			idFakeSF_eleReco_down = except_leg1 * idSF_leg1;
 		  }
 		  else{
 			idFakeSF_muID_up = except_leg1 * idSF_leg1;
@@ -3000,6 +3027,8 @@ int main (int argc, char** argv)
 
 			idFakeSF_eleID_up = except_leg1 * idSF_leg1_eleID_up;
 			idFakeSF_eleID_down = except_leg1 * idSF_leg1_eleID_down;
+			idFakeSF_eleReco_up = except_leg1 * idSF_leg1_eleReco_up;
+			idFakeSF_eleReco_down = except_leg1 * idSF_leg1_eleReco_down;
 		  }
 		}
 	  else if (isMC and pType == 2) // TauTau
@@ -3077,6 +3106,8 @@ int main (int argc, char** argv)
 
 		  idFakeSF_eleID_up = idFakeSF_deep_2d;
 		  idFakeSF_eleID_down = idFakeSF_deep_2d;
+		  idFakeSF_eleReco_up = idFakeSF_deep_2d;
+		  idFakeSF_eleReco_down = idFakeSF_deep_2d;
 		}
 	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
@@ -3167,6 +3198,8 @@ int main (int argc, char** argv)
 
 	  theSmallTree.m_idFakeSF_eleID_up		= idFakeSF_eleID_up;
 	  theSmallTree.m_idFakeSF_eleID_down	= idFakeSF_eleID_down;
+	  theSmallTree.m_idFakeSF_eleReco_up	= idFakeSF_eleReco_up;
+	  theSmallTree.m_idFakeSF_eleReco_down	= idFakeSF_eleReco_down;
 	  
 	  //Jet faking Tau SF
 	  //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
