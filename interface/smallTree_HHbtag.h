@@ -380,14 +380,6 @@ struct smallTree
 	  m_dau1_pt_eesDown = -1.;
 	  m_dau1_pt_eerUp   = -1.;
 	  m_dau1_pt_eerDown = -1.;
-	  m_dau1_pt_eesUp   = -1.;
-	  m_dau1_pt_eesDown = -1.;
-	  m_dau1_pt_eerUp   = -1.;
-	  m_dau1_pt_eerDown = -1.;
-	  m_dau1_e_eesUp    = -1.;
-	  m_dau1_e_eesDown  = -1.;
-	  m_dau1_e_eerUp    = -1.;
-	  m_dau1_e_eerDown  = -1.;
 	  m_dau1_e_eesUp    = -1.;
 	  m_dau1_e_eesDown  = -1.;
 	  m_dau1_e_eerUp    = -1.;
@@ -552,15 +544,7 @@ struct smallTree
 	  m_dau2_pt_eesDown  = -1.;
 	  m_dau2_pt_eerUp  = -1.;
 	  m_dau2_pt_eerDown  = -1.;
-	  m_dau2_pt_eesUp  = -1.;
-	  m_dau2_pt_eesDown  = -1.;
-	  m_dau2_pt_eerUp  = -1.;
-	  m_dau2_pt_eerDown  = -1.;
 
-	  m_dau2_e_eesUp  = -1.;
-	  m_dau2_e_eesDown  = -1.;
-	  m_dau2_e_eerUp  = -1.;
-	  m_dau2_e_eerDown  = -1.;
 	  m_dau2_e_eesUp  = -1.;
 	  m_dau2_e_eesDown  = -1.;
 	  m_dau2_e_eerUp  = -1.;

@@ -1509,14 +1509,17 @@ int main (int argc, char** argv)
 	  double uncorrEn2 = tlv_secondLepton.E();
 	  if (isMC) {
 		double corr1 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex);
-		double corr2 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex);
-		if (corr1 == -999. or corr2 == -999.) {
-		  throw std::runtime_error("ERROR: unchanged electron energy scale!");
-		}
 		if(oph.isElectron(type1)) {
+		  if (corr1 == -999.) {
+			throw std::runtime_error("ERROR: unchanged electron energy scale!");
+		  }
 		  tlv_firstLepton *= corr1 / uncorrEn1;
 		}
+		double corr2 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex);
 		if(oph.isElectron(type2)) {
+		  if (corr2 == -999.) {
+			throw std::runtime_error("ERROR: unchanged electron energy scale!");
+		  }
 		  tlv_secondLepton *= corr2 / uncorrEn2;
 		}
 	  }
@@ -1532,13 +1535,13 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
 
 	  if (isMC) {
-		if(abs(theBigTree.genpart_pdg->at(firstDaughterIndex))==11) {
+		if(oph.isElectron(type1)) {
 		  tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / uncorrEn1;
 		  tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / uncorrEn1;
 		  tlv_firstLepton_eerUp	  *= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / uncorrEn1;				  
 		  tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / uncorrEn1;
 		}
-		if(abs(theBigTree.genpart_pdg->at(secondDaughterIndex))==11) {
+		if(oph.isElectron(type2)) {
 		  tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(secondDaughterIndex) / uncorrEn2;
 		  tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / uncorrEn2;
 		  tlv_secondLepton_eerUp   *= theBigTree.daughters_energySigmaUp  ->at(secondDaughterIndex) / uncorrEn2;				  
@@ -5449,9 +5452,9 @@ int main (int argc, char** argv)
 	  if (isMC)
 		{
 		  // Shifted MET for TES/FES (and unpacK: first is tes, second is ees)
-		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_FES, vMET, theBigTree, DEBUG);
-		  auto vMET_shift_tes = vMET_shifts_tes_ees.first;
-		  auto vMET_shift_ees_fakes = vMET_shifts_tes_ees.second;
+		  auto vMET_shifts_tes_fes = getShiftedMET_tes_fes(N_tauhDM, N_tauhDM_FES, vMET, theBigTree);
+		  auto vMET_shift_tes = vMET_shifts_tes_fes.first;
+		  auto vMET_shift_fes = vMET_shifts_tes_fes.second;
 		  
 		  // Shifted MET for TES
 		  theSmallTree.m_METx_tauup_DM0  = vMET_shift_tes.first.at(0).X();
@@ -5475,17 +5478,17 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_taudown_DM11 = vMET_shift_tes.second.at(3).Y();
 
 		  // Shifted MET for FES (electrons reconstructed as fake taus)
-		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees_fakes.first.at(0).X();
-		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees_fakes.first.at(1).X();
+		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_fes.first.at(0).X();
+		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_fes.first.at(1).X();
 
-		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_ees_fakes.first.at(0).Y();
-		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_ees_fakes.first.at(1).Y();
+		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_fes.first.at(0).Y();
+		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_fes.first.at(1).Y();
 
-		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_ees_fakes.second.at(0).X();
-		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_ees_fakes.second.at(1).X();
+		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_fes.second.at(0).X();
+		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_fes.second.at(1).X();
 
-		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees_fakes.second.at(0).Y();
-		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees_fakes.second.at(1).Y();
+		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_fes.second.at(0).Y();
+		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_fes.second.at(1).Y();
 
 		  // Shifted MET for EES (real electrons)
 		  auto vMET_shift_electrons_scale = getShiftedMET_electrons(vMET, theBigTree, pairType, true);
@@ -5508,7 +5511,7 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
 
 		  // Shifted MET for JES total
-		  auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
+		  auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider);
 		  theSmallTree.m_METx_jetupTot   = vMET_shift_jetTot.first.X();
 		  theSmallTree.m_METy_jetupTot   = vMET_shift_jetTot.first.Y();
 		  theSmallTree.m_METx_jetdownTot = vMET_shift_jetTot.second.X();
