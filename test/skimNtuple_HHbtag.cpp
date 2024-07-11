@@ -1579,24 +1579,25 @@ int main (int argc, char** argv)
 											theBigTree.daughters_pz->at(secondDaughterIndex),
 											theBigTree.daughters_e->at(secondDaughterIndex));
 
-	  TLorentzVector tlv_firstLepton_eesUp = tlv_firstLepton;
-	  TLorentzVector tlv_firstLepton_eesDown = tlv_firstLepton;
-	  TLorentzVector tlv_secondLepton_eesUp = tlv_secondLepton;
+	  TLorentzVector tlv_firstLepton_eesUp    = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eesDown  = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eesUp   = tlv_secondLepton;
 	  TLorentzVector tlv_secondLepton_eesDown = tlv_secondLepton;
 
-	  TLorentzVector tlv_firstLepton_eerUp = tlv_firstLepton;
-	  TLorentzVector tlv_firstLepton_eerDown = tlv_firstLepton;
-	  TLorentzVector tlv_secondLepton_eerUp = tlv_secondLepton;
+	  TLorentzVector tlv_firstLepton_eerUp    = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eerDown  = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eerUp   = tlv_secondLepton;
 	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
 
 	  if(theBigTree.genmatch->at(firstDaughterIndex)==1) {
 		tlv_firstLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(firstDaughterIndex));
 		tlv_firstLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(firstDaughterIndex));
-		tlv_secondLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(secondDaughterIndex));
-		tlv_secondLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(secondDaughterIndex));
-
 		tlv_firstLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(firstDaughterIndex));
 		tlv_firstLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(firstDaughterIndex));
+	  }
+	  if(theBigTree.genmatch->at(secondDaughterIndex)==1) {
+		tlv_secondLepton_eesUp.SetE(theBigTree.daughters_energyScaleUp->at(secondDaughterIndex));
+		tlv_secondLepton_eesDown.SetE(theBigTree.daughters_energyScaleDown->at(secondDaughterIndex));
 		tlv_secondLepton_eerUp.SetE(theBigTree.daughters_energySigmaUp->at(secondDaughterIndex));
 		tlv_secondLepton_eerDown.SetE(theBigTree.daughters_energySigmaDown->at(secondDaughterIndex));
 	  }
