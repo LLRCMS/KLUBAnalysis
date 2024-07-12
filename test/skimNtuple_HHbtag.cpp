@@ -610,41 +610,41 @@ int main (int argc, char** argv)
   }
     
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO, 3:eleReco]
+  ScaleFactor * lepSFs[4]; // [0: muID, 1: eleID, 2:muISO, 3:eleReco]
   for (int i=0; i<4; i++) {
-    myIDandISOScaleFactor[i] = new ScaleFactor();
+    lepSFs[i] = new ScaleFactor();
   }
   if (PERIOD == "2018") {
-	myIDandISOScaleFactor[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
+	lepSFs[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+	lepSFs[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
+	lepSFs[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
   }
   else if (PERIOD == "2017") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
+	lepSFs[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
+	lepSFs[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
   }
   else if (PERIOD == "2016preVFP") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
+	lepSFs[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
+	lepSFs[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
   }
   else if (PERIOD == "2016postVFP") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
+	lepSFs[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
+	lepSFs[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	myIDandISOScaleFactor[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
   }
   
   // tau IdAndIso SF
@@ -2617,10 +2617,10 @@ int main (int argc, char** argv)
 
 			else if (pType == 0) {
 				// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-				float leg1_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-				float leg1_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
-				float leg1_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-				float leg1_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+				float leg1_muID_SF = lepSFs[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SF = lepSFs[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SFerr = lepSFs[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
 
 				idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
 				idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
@@ -2632,10 +2632,10 @@ int main (int argc, char** argv)
 
 			else if (pType == 1) {
 				//TODO: should be super cluster eta (not available in bigntuples at the moment)
-				float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
-				float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				float leg1_eleID_SF = lepSFs[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleID_SFerr = lepSFs[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
 				idSF_leg1 = leg1_eleID_SF * leg1_eleReco_SF;
 				idSF_leg1_eleID_up = (leg1_eleID_SF + leg1_eleID_SFerr) * leg1_eleReco_SF;
@@ -2647,10 +2647,10 @@ int main (int argc, char** argv)
 		}
 		else if(pType == 3) { //MuMu
 			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-			float leg1_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-			float leg1_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
-			float leg1_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-			float leg1_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+			float leg1_muID_SF = lepSFs[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SF = lepSFs[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SFerr = lepSFs[2]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
 
 			idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
 			idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
@@ -2660,10 +2660,10 @@ int main (int argc, char** argv)
 			idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
 
 			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-			float leg2_muID_SF = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
-			float leg2_muID_SFerr = myIDandISOScaleFactor[0]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
-			float leg2_muIso_SF = myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
-			float leg2_muIso_SFerr = myIDandISOScaleFactor[2]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+			float leg2_muID_SF = lepSFs[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SF = lepSFs[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SFerr = lepSFs[2]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
 
 			idSF_leg2 = leg2_muID_SF * leg2_muIso_SF;
 			idSF_leg2_muID_up = (leg2_muID_SF + leg2_muID_SFerr) * leg2_muIso_SF;
@@ -2674,10 +2674,10 @@ int main (int argc, char** argv)
 		}
 		else if(pType == 4) { //EleEle
 			//TODO: should be super cluster eta (not available in bigntuples at the moment)
-			float leg1_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-			float leg1_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
-			float leg1_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-			float leg1_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			float leg1_eleID_SF = lepSFs[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleID_SFerr = lepSFs[1]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			float leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
 			idSF_leg1 = leg1_eleID_SF;
 			idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
@@ -2687,10 +2687,10 @@ int main (int argc, char** argv)
 			idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
 
 			//TODO: should be super cluster eta (not available in bigntuples at the moment)
-			float leg2_eleID_SF = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-			float leg2_eleID_SFerr = myIDandISOScaleFactor[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
-			float leg2_eleReco_SF = myIDandISOScaleFactor[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-			float leg2_eleReco_SFerr = myIDandISOScaleFactor[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			float leg2_eleID_SF = lepSFs[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleID_SFerr = lepSFs[1]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			float leg2_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
 			idSF_leg2 = leg2_eleID_SF;
 			idSF_leg2_eleID_up = leg2_eleID_SF + leg2_eleID_SFerr;
