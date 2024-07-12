@@ -114,7 +114,7 @@ double ScaleFactorMET::getSF(double metnomu)
   metnomu = mImposeBounds(metnomu);
 
   double sf;
-  if (mPeriod != "2017" and metnomu == mRange.at(mPeriod).second) {
+  if (metnomu == mRange.at(mPeriod).second) {
 	sf = 1.;
   }
   else {
