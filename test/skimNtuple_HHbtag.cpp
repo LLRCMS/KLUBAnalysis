@@ -2940,7 +2940,7 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_2d_extrapgt140_down          = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapDown");
 	  }
 
-	  float except_VsJet, except_vsMu, except_vsEle;
+	  float except_VsJet, except_vsMu, except_vsEle, except_leg1;
 	  // EleTau and MuTau
 	  if (isMC and (pType == 0 or pType == 1))
 		{
@@ -2950,7 +2950,7 @@ int main (int argc, char** argv)
 		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
-		  float except_leg1 = idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+		  except_leg1 = idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
 		  idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
