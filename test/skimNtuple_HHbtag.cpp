@@ -2680,11 +2680,11 @@ int main (int argc, char** argv)
 			float leg1_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
 			idSF_leg1 = leg1_eleID_SF;
-			idSF_leg1_eleID_up = leg1_eleID_SF + leg1_eleID_SFerr;
-			idSF_leg1_eleID_down = leg1_eleID_SF - leg1_eleID_SFerr;
+			idSF_leg1_eleID_up = leg1_eleReco_SF * (leg1_eleID_SF + leg1_eleID_SFerr);
+			idSF_leg1_eleID_down = leg1_eleReco_SF * (leg1_eleID_SF - leg1_eleID_SFerr);
 
-			idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
-			idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
+			idSF_leg1_eleReco_up = (leg1_eleReco_SF + leg1_eleReco_SFerr) * leg1_eleID_SF;
+			idSF_leg1_eleReco_down = (leg1_eleReco_SF - leg1_eleReco_SFerr) * leg1_eleID_SF;
 
 			//TODO: should be super cluster eta (not available in bigntuples at the moment)
 			float leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
@@ -2693,11 +2693,11 @@ int main (int argc, char** argv)
 			float leg2_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
 			idSF_leg2 = leg2_eleID_SF;
-			idSF_leg2_eleID_up = leg2_eleID_SF + leg2_eleID_SFerr;
-			idSF_leg2_eleID_down = leg2_eleID_SF - leg2_eleID_SFerr;
+			idSF_leg2_eleID_up = leg2_eleReco_SF * (leg2_eleID_SF + leg2_eleID_SFerr);
+			idSF_leg2_eleID_down = leg2_eleReco_SF * (leg2_eleID_SF - leg2_eleID_SFerr);
 
-			idSF_leg2_eleReco_up = leg2_eleID_SF * (leg2_eleReco_SF + leg2_eleReco_SFerr);
-			idSF_leg2_eleReco_down = leg2_eleID_SF * (leg2_eleReco_SF - leg2_eleReco_SFerr);
+			idSF_leg2_eleReco_up = (leg2_eleReco_SF + leg2_eleReco_SFerr) * leg2_eleID_SF;
+			idSF_leg2_eleReco_down = (leg2_eleReco_SF - leg2_eleReco_SFerr) * leg2_eleID_SF;
 		}
 	  }
 
