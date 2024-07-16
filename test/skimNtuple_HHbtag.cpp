@@ -2440,76 +2440,76 @@ int main (int argc, char** argv)
 	  // Still preliminary:
 	  // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
 	  // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
-	  float idSF_deep_2d		= -99.0;  // use this for DeepTauV2p1 DM and pT dependent
-	  float idFakeSF_deep_2d	= -99.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
-	  float fakeRateSF_deep		= -99.0;  // use this for e/mu->tauh fake SF DeepTau
+	  float idSF_deep_2d = -99.f;  // use this for DeepTauV2p1 DM and pT dependent
+	  float dauSFs = -99.f;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+	  float fakeRateSF_deep = -99.f;  // use this for e/mu->tauh fake SF DeepTau
 
-	  float idFakeSF_tauid_2d_stat0_DM0_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM0_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM0_up				= -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM0_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= -99.f;
+	  float dauSFs_tauid_2d_stat0_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM0_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM0_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM0_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM1_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM1_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM1_up				= -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM1_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_up   = -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= -99.f;	   
+	  float dauSFs_tauid_2d_stat0_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM1_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM1_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM1_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM10_up				 = -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM10_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM10_up				 = -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM10_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_up   = -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.f;	   
+	  float dauSFs_tauid_2d_stat0_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM10_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM10_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM10_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM11_up				 = -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM11_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM11_up				 = -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM11_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_up   = -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = -99.f;	   
+	  float dauSFs_tauid_2d_stat0_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM11_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM11_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM11_down = -99.f;
 
-	  float idFakeSF_tauid_2d_systcorrdmeras_up			= -99.f;		   
-	  float idFakeSF_tauid_2d_systcorrdmeras_down		= -99.f;		 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= -99.f;	 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= -99.f; 
-	  float idFakeSF_tauid_2d_systcorrerasgt140_up      = -99.f;
-	  float idFakeSF_tauid_2d_systcorrerasgt140_down	= -99.f;
-	  float idFakeSF_tauid_2d_stat0gt140_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat0gt140_down			= -99.f;
-	  float idFakeSF_tauid_2d_stat1gt140_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat1gt140_down			= -99.f;
-	  float idFakeSF_tauid_2d_extrapgt140_up     		= -99.f;
-	  float idFakeSF_tauid_2d_extrapgt140_down     		= -99.f;
+	  float dauSFs_tauid_2d_systcorrdmeras_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmeras_down = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmuncorreras_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmuncorreras_down = -99.f;
+	  float dauSFs_tauid_2d_systcorrerasgt140_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrerasgt140_down = -99.f;
+	  float dauSFs_tauid_2d_stat0gt140_up = -99.f;
+	  float dauSFs_tauid_2d_stat0gt140_down = -99.f;
+	  float dauSFs_tauid_2d_stat1gt140_up = -99.f;
+	  float dauSFs_tauid_2d_stat1gt140_down = -99.f;
+	  float dauSFs_tauid_2d_extrapgt140_up = -99.f;
+	  float dauSFs_tauid_2d_extrapgt140_down = -99.f;
 	
-	  float idFakeSF_mutauFR_etaLt0p4_up      = -99.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_up   = -99.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_up   = -99.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_up   = -99.0;
-	  float idFakeSF_mutauFR_etaGt1p7_up      = -99.0;
-	  float idFakeSF_mutauFR_etaLt0p4_down    = -99.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_down = -99.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_down = -99.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_down = -99.0;
-	  float idFakeSF_mutauFR_etaGt1p7_down    = -99.0;
+	  float dauSFs_mutauFR_etaLt0p4_up = -99.f;
+	  float dauSFs_mutauFR_eta0p4to0p8_up = -99.f;
+	  float dauSFs_mutauFR_eta0p8to1p2_up = -99.f;
+	  float dauSFs_mutauFR_eta1p2to1p7_up = -99.f;
+	  float dauSFs_mutauFR_etaGt1p7_up = -99.f;
+	  float dauSFs_mutauFR_etaLt0p4_down = -99.f;
+	  float dauSFs_mutauFR_eta0p4to0p8_down = -99.f;
+	  float dauSFs_mutauFR_eta0p8to1p2_down = -99.f;
+	  float dauSFs_mutauFR_eta1p2to1p7_down = -99.f;
+	  float dauSFs_mutauFR_etaGt1p7_down = -99.f;
 
-	  float idFakeSF_etauFR_barrel_up   = -99.0;
-	  float idFakeSF_etauFR_endcap_up   = -99.0;
-	  float idFakeSF_etauFR_barrel_down = -99.0;
-	  float idFakeSF_etauFR_endcap_down = -99.0;
+	  float dauSFs_etauFR_barrel_up = -99.f;
+	  float dauSFs_etauFR_endcap_up = -99.f;
+	  float dauSFs_etauFR_barrel_down = -99.f;
+	  float dauSFs_etauFR_endcap_down = -99.f;
 
-	  float idFakeSF_muID_up = -99.0;
-	  float idFakeSF_muID_down = -99.0;
-	  float idFakeSF_muIso_up = -99.0;
-	  float idFakeSF_muIso_down = -99.0;
+	  float dauSFs_muID_up = -99.f;
+	  float dauSFs_muID_down = -99.f;
+	  float dauSFs_muIso_up = -99.f;
+	  float dauSFs_muIso_down = -99.f;
 
-	  float idFakeSF_eleID_up = -99.0;
-	  float idFakeSF_eleID_down = -99.0;
-	  float idFakeSF_eleReco_up = -99.0;
-	  float idFakeSF_eleReco_down = -99.0;
+	  float dauSFs_eleID_up = -99.f;
+	  float dauSFs_eleID_down = -99.f;
+	  float dauSFs_eleReco_up = -99.f;
+	  float dauSFs_eleReco_down = -99.f;
 
 	  // bool helpers for tauID syst bins
 	  vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
@@ -2947,180 +2947,180 @@ int main (int argc, char** argv)
 		  idSF_deep_2d = idSF_leg1 * idSF_leg2_deep_vsJet_2d;
 		  fakeRateSF_deep = idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 		  except_leg1 = idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
+		  dauSFs = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
-		  idFakeSF_tauid_2d_stat0_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
-		  idFakeSF_tauid_2d_stat0_DM0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
-		  idFakeSF_tauid_2d_stat1_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
-		  idFakeSF_tauid_2d_stat1_DM0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
+		  dauSFs_tauid_2d_stat0_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
+		  dauSFs_tauid_2d_stat0_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
+		  dauSFs_tauid_2d_stat1_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
+		  dauSFs_tauid_2d_stat1_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
 
-		  idFakeSF_tauid_2d_stat0_DM1_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
-		  idFakeSF_tauid_2d_stat0_DM1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
-		  idFakeSF_tauid_2d_stat1_DM1_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
-		  idFakeSF_tauid_2d_stat1_DM1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
+		  dauSFs_tauid_2d_stat0_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
+		  dauSFs_tauid_2d_stat0_DM1_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
+		  dauSFs_tauid_2d_stat1_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
+		  dauSFs_tauid_2d_stat1_DM1_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
 
-		  idFakeSF_tauid_2d_stat0_DM10_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
-		  idFakeSF_tauid_2d_stat0_DM10_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
-		  idFakeSF_tauid_2d_stat1_DM10_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
-		  idFakeSF_tauid_2d_stat1_DM10_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
+		  dauSFs_tauid_2d_stat0_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
+		  dauSFs_tauid_2d_stat0_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
+		  dauSFs_tauid_2d_stat1_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
+		  dauSFs_tauid_2d_stat1_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
 
-		  idFakeSF_tauid_2d_stat0_DM11_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
-		  idFakeSF_tauid_2d_stat0_DM11_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
-		  idFakeSF_tauid_2d_stat1_DM11_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
-		  idFakeSF_tauid_2d_stat1_DM11_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+		  dauSFs_tauid_2d_stat0_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
+		  dauSFs_tauid_2d_stat0_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
+		  dauSFs_tauid_2d_stat1_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
+		  dauSFs_tauid_2d_stat1_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
 
-		  idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
-		  idFakeSF_tauid_2d_systcorrdmeras_down			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
-		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
-		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_stat0gt140_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
-		  idFakeSF_tauid_2d_stat0gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
-		  idFakeSF_tauid_2d_stat1gt140_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
-		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
-		  idFakeSF_tauid_2d_extrapgt140_up 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
-		  idFakeSF_tauid_2d_extrapgt140_down	        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
+		  dauSFs_tauid_2d_systcorrdmeras_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		  dauSFs_tauid_2d_systcorrdmeras_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		  dauSFs_tauid_2d_stat0gt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
+		  dauSFs_tauid_2d_stat0gt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
+		  dauSFs_tauid_2d_stat1gt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
+		  dauSFs_tauid_2d_stat1gt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
+		  dauSFs_tauid_2d_extrapgt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  dauSFs_tauid_2d_extrapgt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
 
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up	    = except_vsMu * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg2_deep_vsMu_down[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg2_deep_vsMu_down[4];
+		  dauSFs_mutauFR_etaLt0p4_up = except_vsMu * idSF_leg2_deep_vsMu_up[0];
+		  dauSFs_mutauFR_eta0p4to0p8_up = except_vsMu * idSF_leg2_deep_vsMu_up[1];
+		  dauSFs_mutauFR_eta0p8to1p2_up = except_vsMu * idSF_leg2_deep_vsMu_up[2];
+		  dauSFs_mutauFR_eta1p2to1p7_up = except_vsMu * idSF_leg2_deep_vsMu_up[3];
+		  dauSFs_mutauFR_etaGt1p7_up = except_vsMu * idSF_leg2_deep_vsMu_up[4];
+		  dauSFs_mutauFR_etaLt0p4_down = except_vsMu * idSF_leg2_deep_vsMu_down[0];
+		  dauSFs_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
+		  dauSFs_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
+		  dauSFs_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
+		  dauSFs_mutauFR_etaGt1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[4];
 
-		  idFakeSF_etauFR_barrel_up		= except_vsEle * idSF_leg2_deep_vsEle_up[0];
-		  idFakeSF_etauFR_endcap_up		= except_vsEle * idSF_leg2_deep_vsEle_up[1];  
-		  idFakeSF_etauFR_barrel_down	= except_vsEle * idSF_leg2_deep_vsEle_down[0];
-		  idFakeSF_etauFR_endcap_down	= except_vsEle * idSF_leg2_deep_vsEle_down[1];
+		  dauSFs_etauFR_barrel_up = except_vsEle * idSF_leg2_deep_vsEle_up[0];
+		  dauSFs_etauFR_endcap_up = except_vsEle * idSF_leg2_deep_vsEle_up[1];
+		  dauSFs_etauFR_barrel_down = except_vsEle * idSF_leg2_deep_vsEle_down[0];
+		  dauSFs_etauFR_endcap_down = except_vsEle * idSF_leg2_deep_vsEle_down[1];
 
 		  if(pType==0){
-			idFakeSF_muID_up = except_leg1 * idSF_leg1_muID_up;
-			idFakeSF_muID_down = except_leg1 * idSF_leg1_muID_down;
-			idFakeSF_muIso_up = except_leg1 * idSF_leg1_muIso_up;
-			idFakeSF_muIso_down = except_leg1 * idSF_leg1_muIso_down;
+			dauSFs_muID_up = except_leg1 * idSF_leg1_muID_up;
+			dauSFs_muID_down = except_leg1 * idSF_leg1_muID_down;
+			dauSFs_muIso_up = except_leg1 * idSF_leg1_muIso_up;
+			dauSFs_muIso_down = except_leg1 * idSF_leg1_muIso_down;
 
-			idFakeSF_eleID_up = except_leg1 * idSF_leg1;
-			idFakeSF_eleID_down = except_leg1 * idSF_leg1;
-			idFakeSF_eleReco_up = except_leg1 * idSF_leg1;
-			idFakeSF_eleReco_down = except_leg1 * idSF_leg1;
+			dauSFs_eleID_up = except_leg1 * idSF_leg1;
+			dauSFs_eleID_down = except_leg1 * idSF_leg1;
+			dauSFs_eleReco_up = except_leg1 * idSF_leg1;
+			dauSFs_eleReco_down = except_leg1 * idSF_leg1;
 		  }
 		  else{
-			idFakeSF_muID_up = except_leg1 * idSF_leg1;
-			idFakeSF_muID_down = except_leg1 * idSF_leg1;
-			idFakeSF_muIso_up = except_leg1 * idSF_leg1;
-			idFakeSF_muIso_down = except_leg1 * idSF_leg1;
+			dauSFs_muID_up = except_leg1 * idSF_leg1;
+			dauSFs_muID_down = except_leg1 * idSF_leg1;
+			dauSFs_muIso_up = except_leg1 * idSF_leg1;
+			dauSFs_muIso_down = except_leg1 * idSF_leg1;
 
-			idFakeSF_eleID_up = except_leg1 * idSF_leg1_eleID_up;
-			idFakeSF_eleID_down = except_leg1 * idSF_leg1_eleID_down;
-			idFakeSF_eleReco_up = except_leg1 * idSF_leg1_eleReco_up;
-			idFakeSF_eleReco_down = except_leg1 * idSF_leg1_eleReco_down;
+			dauSFs_eleID_up = except_leg1 * idSF_leg1_eleID_up;
+			dauSFs_eleID_down = except_leg1 * idSF_leg1_eleID_down;
+			dauSFs_eleReco_up = except_leg1 * idSF_leg1_eleReco_up;
+			dauSFs_eleReco_down = except_leg1 * idSF_leg1_eleReco_down;
 		  }
 		}
 	  else if (isMC and pType == 2) // TauTau
 		{
-		  idSF_deep_2d	= idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
+		  idSF_deep_2d = idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 
-		  except_VsJet	= idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
-		  except_vsMu	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
-		  except_vsEle	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+		  except_vsMu = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
+		  except_vsEle = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_deep_2d	= except_VsJet * idSF_deep_2d;
-		  fakeRateSF_deep	= except_VsJet;
+		  dauSFs = except_VsJet * idSF_deep_2d;
+		  fakeRateSF_deep = except_VsJet;
 
-		  idFakeSF_tauid_2d_stat0_DM0_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_up				 * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
-		  idFakeSF_tauid_2d_stat0_DM0_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_down			 * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
-		  idFakeSF_tauid_2d_stat1_DM0_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_up				 * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
-		  idFakeSF_tauid_2d_stat1_DM0_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_down			 * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	 * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
+		  dauSFs_tauid_2d_stat0_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_up * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
+		  dauSFs_tauid_2d_stat0_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_down * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
+		  dauSFs_tauid_2d_stat1_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_up * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
+		  dauSFs_tauid_2d_stat1_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_down * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
 
-		  idFakeSF_tauid_2d_stat0_DM1_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_up				 * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
-		  idFakeSF_tauid_2d_stat0_DM1_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_down			 * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
-		  idFakeSF_tauid_2d_stat1_DM1_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_up				 * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
-		  idFakeSF_tauid_2d_stat1_DM1_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_down			 * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	 * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
+		  dauSFs_tauid_2d_stat0_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_up * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
+		  dauSFs_tauid_2d_stat0_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_down * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
+		  dauSFs_tauid_2d_stat1_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_up * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
+		  dauSFs_tauid_2d_stat1_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_down * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
 
-		  idFakeSF_tauid_2d_stat0_DM10_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_up			    * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
-		  idFakeSF_tauid_2d_stat0_DM10_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_down		    * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
-		  idFakeSF_tauid_2d_stat1_DM10_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_up			    * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
-		  idFakeSF_tauid_2d_stat1_DM10_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_down		    * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
+		  dauSFs_tauid_2d_stat0_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_up * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
+		  dauSFs_tauid_2d_stat0_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_down * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
+		  dauSFs_tauid_2d_stat1_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_up * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
+		  dauSFs_tauid_2d_stat1_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_down * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
 
-		  idFakeSF_tauid_2d_stat0_DM11_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_up			    * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
-		  idFakeSF_tauid_2d_stat0_DM11_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_down		    * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
-		  idFakeSF_tauid_2d_stat1_DM11_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_up			    * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
-		  idFakeSF_tauid_2d_stat1_DM11_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_down		    * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+		  dauSFs_tauid_2d_stat0_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_up * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
+		  dauSFs_tauid_2d_stat0_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_down * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
+		  dauSFs_tauid_2d_stat1_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_up * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
+		  dauSFs_tauid_2d_stat1_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_down * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
 
-		  idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up		   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
-		  idFakeSF_tauid_2d_systcorrdmeras_down			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down	   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up   * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
-		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up      * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
-		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down    * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_stat0gt140_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_up		       * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
-		  idFakeSF_tauid_2d_stat0gt140_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_down		   * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
-		  idFakeSF_tauid_2d_stat1gt140_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_up		       * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
-		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_down		   * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
-		  idFakeSF_tauid_2d_extrapgt140_up            	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up            * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
-		  idFakeSF_tauid_2d_extrapgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down          * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
+		  dauSFs_tauid_2d_systcorrdmeras_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		  dauSFs_tauid_2d_systcorrdmeras_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		  dauSFs_tauid_2d_stat0gt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_up * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
+		  dauSFs_tauid_2d_stat0gt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_down * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
+		  dauSFs_tauid_2d_stat1gt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_up * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
+		  dauSFs_tauid_2d_stat1gt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_down * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
+		  dauSFs_tauid_2d_extrapgt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  dauSFs_tauid_2d_extrapgt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
 
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg1_deep_vsMu_up[2]   * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg1_deep_vsMu_up[3]   * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up      = except_vsMu * idSF_leg1_deep_vsMu_up[4]   * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
+		  dauSFs_mutauFR_etaLt0p4_up = except_vsMu * idSF_leg1_deep_vsMu_up[0] * idSF_leg2_deep_vsMu_up[0];
+		  dauSFs_mutauFR_eta0p4to0p8_up = except_vsMu * idSF_leg1_deep_vsMu_up[1] * idSF_leg2_deep_vsMu_up[1];
+		  dauSFs_mutauFR_eta0p8to1p2_up = except_vsMu * idSF_leg1_deep_vsMu_up[2] * idSF_leg2_deep_vsMu_up[2];
+		  dauSFs_mutauFR_eta1p2to1p7_up = except_vsMu * idSF_leg1_deep_vsMu_up[3] * idSF_leg2_deep_vsMu_up[3];
+		  dauSFs_mutauFR_etaGt1p7_up = except_vsMu * idSF_leg1_deep_vsMu_up[4] * idSF_leg2_deep_vsMu_up[4];
+		  dauSFs_mutauFR_etaLt0p4_down = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
+		  dauSFs_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
+		  dauSFs_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
+		  dauSFs_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
+		  dauSFs_mutauFR_etaGt1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
 
-		  idFakeSF_etauFR_barrel_up   = except_vsEle * idSF_leg1_deep_vsEle_up[0]   * idSF_leg2_deep_vsEle_up[0];
-		  idFakeSF_etauFR_endcap_up   = except_vsEle * idSF_leg1_deep_vsEle_up[1]   * idSF_leg2_deep_vsEle_up[1];
-		  idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
-		  idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+		  dauSFs_etauFR_barrel_up = except_vsEle * idSF_leg1_deep_vsEle_up[0] * idSF_leg2_deep_vsEle_up[0];
+		  dauSFs_etauFR_endcap_up = except_vsEle * idSF_leg1_deep_vsEle_up[1] * idSF_leg2_deep_vsEle_up[1];
+		  dauSFs_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
+		  dauSFs_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
 
-		  idFakeSF_muID_up = idFakeSF_deep_2d;
-		  idFakeSF_muID_down = idFakeSF_deep_2d;
-		  idFakeSF_muIso_up = idFakeSF_deep_2d;
-		  idFakeSF_muIso_down = idFakeSF_deep_2d;
+		  dauSFs_muID_up = dauSFs;
+		  dauSFs_muID_down = dauSFs;
+		  dauSFs_muIso_up = dauSFs;
+		  dauSFs_muIso_down = dauSFs;
 
-		  idFakeSF_eleID_up = idFakeSF_deep_2d;
-		  idFakeSF_eleID_down = idFakeSF_deep_2d;
-		  idFakeSF_eleReco_up = idFakeSF_deep_2d;
-		  idFakeSF_eleReco_down = idFakeSF_deep_2d;
+		  dauSFs_eleID_up = dauSFs;
+		  dauSFs_eleID_down = dauSFs;
+		  dauSFs_eleReco_up = dauSFs;
+		  dauSFs_eleReco_down = dauSFs;
 		}
 	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
-		  idSF_deep_2d = idFakeSF_deep_2d = idSF_leg1 * idSF_leg2;
+		  idSF_deep_2d = dauSFs = idSF_leg1 * idSF_leg2;
 		}
 	  
 	  if (DEBUG) {
 		cout << "--- DEBUG idSF ---" << endl;
 		cout << "pairType  : "              << pType                   << endl;
-		cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
+		cout << "totSF deep_2d: "           << dauSFs                  << endl;
 		cout << "idSF_leg1: "               << idSF_leg1               << endl;
 		cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
 		cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
@@ -3131,78 +3131,78 @@ int main (int argc, char** argv)
 	  }
 
 	  // Save the IDandISO SF (event per event)
-	  theSmallTree.m_IdSF_deep_2d				= idSF_deep_2d;
-	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d	= idSF_leg1_deep_vsJet_2d;
-	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d	= idSF_leg2_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_deep_2d = idSF_deep_2d;
+	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d = idSF_leg1_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d = idSF_leg2_deep_vsJet_2d;
 	  
-	  theSmallTree.m_IdFakeSF_deep_2d = idFakeSF_deep_2d;
+	  theSmallTree.m_dauSFs = dauSFs;
 	  theSmallTree.m_FakeRateSF_deep  = fakeRateSF_deep;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM0_up				 = idFakeSF_tauid_2d_stat0_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM0_down			 = idFakeSF_tauid_2d_stat0_DM0_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM0_up				 = idFakeSF_tauid_2d_stat1_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM0_down			 = idFakeSF_tauid_2d_stat1_DM0_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	 = idFakeSF_tauid_2d_systuncorrdmeras_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = idFakeSF_tauid_2d_systuncorrdmeras_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM0_up = dauSFs_tauid_2d_stat0_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM0_down = dauSFs_tauid_2d_stat0_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM0_up = dauSFs_tauid_2d_stat1_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM0_down = dauSFs_tauid_2d_stat1_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM0_up = dauSFs_tauid_2d_systuncorrdmeras_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM0_down = dauSFs_tauid_2d_systuncorrdmeras_DM0_down;
 	  
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM1_up				 = idFakeSF_tauid_2d_stat0_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM1_down			 = idFakeSF_tauid_2d_stat0_DM1_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM1_up				 = idFakeSF_tauid_2d_stat1_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM1_down			 = idFakeSF_tauid_2d_stat1_DM1_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	 = idFakeSF_tauid_2d_systuncorrdmeras_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = idFakeSF_tauid_2d_systuncorrdmeras_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM1_up = dauSFs_tauid_2d_stat0_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM1_down = dauSFs_tauid_2d_stat0_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM1_up = dauSFs_tauid_2d_stat1_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM1_down = dauSFs_tauid_2d_stat1_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM1_up = dauSFs_tauid_2d_systuncorrdmeras_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM1_down = dauSFs_tauid_2d_systuncorrdmeras_DM1_down;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM10_up			  = idFakeSF_tauid_2d_stat0_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM10_down			  = idFakeSF_tauid_2d_stat0_DM10_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM10_up			  = idFakeSF_tauid_2d_stat1_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM10_down			  = idFakeSF_tauid_2d_stat1_DM10_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	  = idFakeSF_tauid_2d_systuncorrdmeras_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = idFakeSF_tauid_2d_systuncorrdmeras_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM10_up = dauSFs_tauid_2d_stat0_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM10_down = dauSFs_tauid_2d_stat0_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM10_up = dauSFs_tauid_2d_stat1_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM10_down = dauSFs_tauid_2d_stat1_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM10_up = dauSFs_tauid_2d_systuncorrdmeras_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM10_down = dauSFs_tauid_2d_systuncorrdmeras_DM10_down;
 	  
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM11_up			  = idFakeSF_tauid_2d_stat0_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM11_down			  = idFakeSF_tauid_2d_stat0_DM11_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM11_up			  = idFakeSF_tauid_2d_stat1_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM11_down			  = idFakeSF_tauid_2d_stat1_DM11_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	  = idFakeSF_tauid_2d_systuncorrdmeras_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = idFakeSF_tauid_2d_systuncorrdmeras_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM11_up = dauSFs_tauid_2d_stat0_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM11_down = dauSFs_tauid_2d_stat0_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM11_up = dauSFs_tauid_2d_stat1_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM11_down = dauSFs_tauid_2d_stat1_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM11_up = dauSFs_tauid_2d_systuncorrdmeras_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM11_down = dauSFs_tauid_2d_systuncorrdmeras_DM11_down;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_up			= idFakeSF_tauid_2d_systcorrdmeras_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_down			= idFakeSF_tauid_2d_systcorrdmeras_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_up		= idFakeSF_tauid_2d_systcorrdmuncorreras_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_down	= idFakeSF_tauid_2d_systcorrdmuncorreras_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_up			= idFakeSF_tauid_2d_systcorrerasgt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_down		= idFakeSF_tauid_2d_systcorrerasgt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0gt140_up				= idFakeSF_tauid_2d_stat0gt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0gt140_down				= idFakeSF_tauid_2d_stat0gt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1gt140_up				= idFakeSF_tauid_2d_stat1gt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1gt140_down				= idFakeSF_tauid_2d_stat1gt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_up				= idFakeSF_tauid_2d_extrapgt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_down				= idFakeSF_tauid_2d_extrapgt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmeras_up = dauSFs_tauid_2d_systcorrdmeras_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmeras_down = dauSFs_tauid_2d_systcorrdmeras_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmuncorreras_up = dauSFs_tauid_2d_systcorrdmuncorreras_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmuncorreras_down = dauSFs_tauid_2d_systcorrdmuncorreras_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrerasgt140_up = dauSFs_tauid_2d_systcorrerasgt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrerasgt140_down = dauSFs_tauid_2d_systcorrerasgt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0gt140_up = dauSFs_tauid_2d_stat0gt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0gt140_down = dauSFs_tauid_2d_stat0gt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1gt140_up = dauSFs_tauid_2d_stat1gt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1gt140_down = dauSFs_tauid_2d_stat1gt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_extrapgt140_up = dauSFs_tauid_2d_extrapgt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_extrapgt140_down = dauSFs_tauid_2d_extrapgt140_down;
 	
-	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		= idFakeSF_mutauFR_etaLt0p4_up;		
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	= idFakeSF_mutauFR_eta0p4to0p8_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_up	= idFakeSF_mutauFR_eta0p8to1p2_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_up	= idFakeSF_mutauFR_eta1p2to1p7_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_up		= idFakeSF_mutauFR_etaGt1p7_up;		
-	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_down		= idFakeSF_mutauFR_etaLt0p4_down;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_down	= idFakeSF_mutauFR_eta0p4to0p8_down;
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_down	= idFakeSF_mutauFR_eta0p8to1p2_down;
-	  theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_down	= idFakeSF_mutauFR_eta1p2to1p7_down;
-	  theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_down		= idFakeSF_mutauFR_etaGt1p7_down;
-	  theSmallTree.m_idFakeSF_etauFR_barrel_up			= idFakeSF_etauFR_barrel_up;	
-	  theSmallTree.m_idFakeSF_etauFR_endcap_up			= idFakeSF_etauFR_endcap_up;		
-	  theSmallTree.m_idFakeSF_etauFR_barrel_down		= idFakeSF_etauFR_barrel_down;		
-	  theSmallTree.m_idFakeSF_etauFR_endcap_down		= idFakeSF_etauFR_endcap_down;
+	  theSmallTree.m_dauSFs_mutauFR_etaLt0p4_up = dauSFs_mutauFR_etaLt0p4_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p4to0p8_up = dauSFs_mutauFR_eta0p4to0p8_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p8to1p2_up = dauSFs_mutauFR_eta0p8to1p2_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta1p2to1p7_up = dauSFs_mutauFR_eta1p2to1p7_up;
+	  theSmallTree.m_dauSFs_mutauFR_etaGt1p7_up = dauSFs_mutauFR_etaGt1p7_up;
+	  theSmallTree.m_dauSFs_mutauFR_etaLt0p4_down = dauSFs_mutauFR_etaLt0p4_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p4to0p8_down = dauSFs_mutauFR_eta0p4to0p8_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p8to1p2_down = dauSFs_mutauFR_eta0p8to1p2_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta1p2to1p7_down = dauSFs_mutauFR_eta1p2to1p7_down;
+	  theSmallTree.m_dauSFs_mutauFR_etaGt1p7_down = dauSFs_mutauFR_etaGt1p7_down;
+	  theSmallTree.m_dauSFs_etauFR_barrel_up = dauSFs_etauFR_barrel_up;
+	  theSmallTree.m_dauSFs_etauFR_endcap_up = dauSFs_etauFR_endcap_up;
+	  theSmallTree.m_dauSFs_etauFR_barrel_down = dauSFs_etauFR_barrel_down;
+	  theSmallTree.m_dauSFs_etauFR_endcap_down = dauSFs_etauFR_endcap_down;
 
-	  theSmallTree.m_idFakeSF_muID_up		= idFakeSF_muID_up;
-	  theSmallTree.m_idFakeSF_muID_down		= idFakeSF_muID_down;
-	  theSmallTree.m_idFakeSF_muIso_up		= idFakeSF_muIso_up;
-	  theSmallTree.m_idFakeSF_muIso_down	= idFakeSF_muIso_down;
+	  theSmallTree.m_dauSFs_muID_up = dauSFs_muID_up;
+	  theSmallTree.m_dauSFs_muID_down = dauSFs_muID_down;
+	  theSmallTree.m_dauSFs_muIso_up = dauSFs_muIso_up;
+	  theSmallTree.m_dauSFs_muIso_down = dauSFs_muIso_down;
 
-	  theSmallTree.m_idFakeSF_eleID_up		= idFakeSF_eleID_up;
-	  theSmallTree.m_idFakeSF_eleID_down	= idFakeSF_eleID_down;
-	  theSmallTree.m_idFakeSF_eleReco_up	= idFakeSF_eleReco_up;
-	  theSmallTree.m_idFakeSF_eleReco_down	= idFakeSF_eleReco_down;
+	  theSmallTree.m_dauSFs_eleID_up = dauSFs_eleID_up;
+	  theSmallTree.m_dauSFs_eleID_down = dauSFs_eleID_down;
+	  theSmallTree.m_dauSFs_eleReco_up = dauSFs_eleReco_up;
+	  theSmallTree.m_dauSFs_eleReco_down = dauSFs_eleReco_down;
 	  
 	  //Jet faking Tau SF
 	  //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
@@ -4005,7 +4005,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_stau_down      = isMC ? trigSF_stau_down      : 1.0;
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
-									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
+									trigSF * theSmallTree.m_dauSFs: 1.0);
 
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
@@ -5396,7 +5396,7 @@ int main (int argc, char** argv)
 		  cout << " - Debug SFs -"			 << endl;
 		  cout << "	PU		   : "			 << theSmallTree.m_PUReweight		<< endl;
 		  cout << "	 IDandISO deep (2D): "	 << theSmallTree.m_IdSF_deep_2d		<< endl;
-		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_2d << endl;
+		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_dauSFs << endl;
 		  cout << "	trig		   : "		 << theSmallTree.m_trigSF			<< endl;
 		  cout << "	bTag		   : "		 << theSmallTree.m_bTagweightM		<< endl;
 		  cout << "	prescale	   : "		 << theSmallTree.m_prescaleWeight	<< endl;
@@ -5408,7 +5408,7 @@ int main (int argc, char** argv)
 		  cout << "stitchWeight	 : "		 << stitchWeight << endl;
 		  cout << "HHweight		 : "		 << HHweight << endl;
 		  cout << "MC_weight	 : "		 << theSmallTree.m_MC_weight << endl;
-		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_2d * theSmallTree.m_trigSF << endl;
+		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_dauSFs * theSmallTree.m_trigSF << endl;
 		  cout << "------------------------" << endl;
 		  cout << "--- FINAL DEBUG ---"      << endl;
 		  cout << "nbjetscand: "             << theSmallTree.m_nbjetscand << endl;
