@@ -143,13 +143,6 @@ struct smallTree
 	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = -99.;
 	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.;
 
-	  m_idFakeSF_tauid_2d_stat0_DM10_up              = -99.;
-	  m_idFakeSF_tauid_2d_stat0_DM10_down			 = -99.;
-	  m_idFakeSF_tauid_2d_stat1_DM10_up				 = -99.;
-	  m_idFakeSF_tauid_2d_stat1_DM10_down			 = -99.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	 = -99.;
-	  m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.;
-
 	  m_idFakeSF_tauid_2d_stat0_DM11_up              = -99.;
 	  m_idFakeSF_tauid_2d_stat0_DM11_down			 = -99.;
 	  m_idFakeSF_tauid_2d_stat1_DM11_up				 = -99.;
