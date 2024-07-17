@@ -610,8 +610,8 @@ int main (int argc, char** argv)
   }
     
   // electron/muon IdAndIso SF
-  ScaleFactor * lepSFs[4]; // [0: muID, 1: muISO , 2:eleReco, 3:eleID]
-  for (int i=0; i<4; i++) {
+  ScaleFactor * lepSFs[5]; // [0: muID, 1: muISO, 2: eleReco < 20 GeV, 3:eleReco > 20GeV, 4:eleID]
+  for (int i=0; i<5; i++) {
     lepSFs[i] = new ScaleFactor();
   }
   if (PERIOD == "2018") {
@@ -619,32 +619,36 @@ int main (int argc, char** argv)
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
 	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
-	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptBelow20.txt_EGM2D_UL2018.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
   }
   else if (PERIOD == "2017") {
 	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
 	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
-	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptBelow20.txt_EGM2D_UL2017.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
   }
   else if (PERIOD == "2016preVFP") {
 	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
 	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
-	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptBelow20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
   }
   else if (PERIOD == "2016postVFP") {
 	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
 	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
-	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
-	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptBelow20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
   }
   
   // tau IdAndIso SF
@@ -2632,10 +2636,20 @@ int main (int argc, char** argv)
 
 			else if (pType == 1) {
 				//TODO: should be super cluster eta (not available in bigntuples at the moment)
-				float leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
-				float leg1_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				float leg1_eleReco_SF;
+				float leg1_eleReco_SFerr;
+				// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+				if(leg1pt <= 20){
+					leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+					leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				}
+				else{
+					leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+					leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				}
+
+				float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
 				idSF_leg1 = leg1_eleID_SF * leg1_eleReco_SF;
 				idSF_leg1_eleID_up = (leg1_eleID_SF + leg1_eleID_SFerr) * leg1_eleReco_SF;
@@ -2674,8 +2688,18 @@ int main (int argc, char** argv)
 		}
 		else if(pType == 4) { //EleEle
 			//TODO: should be super cluster eta (not available in bigntuples at the moment)
-			float leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-			float leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			float leg1_eleReco_SF;
+			float leg1_eleReco_SFerr;
+			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+			if(leg1pt <= 20){
+				leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			}
+			else{
+				leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			}
+
 			float leg1_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
 			float leg1_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
@@ -2687,8 +2711,19 @@ int main (int argc, char** argv)
 			idSF_leg1_eleReco_down = (leg1_eleReco_SF - leg1_eleReco_SFerr) * leg1_eleID_SF;
 
 			//TODO: should be super cluster eta (not available in bigntuples at the moment)
-			float leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-			float leg2_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			float leg2_eleReco_SF;
+			float leg2_eleReco_SFerr;
+			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+			if(leg2pt <= 20){
+				leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				leg2_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			}
+			else{
+				leg2_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				leg2_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			}
+
+
 			float leg2_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
 			float leg2_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
