@@ -1,4 +1,5 @@
 // https://github.com/CMS-HTT/LeptonEff-interface.git
+#include <sstream>
 #include "ScaleFactor.h"
 
 void ScaleFactor::init_EG_ScaleFactor(TString inputRootFile, bool isTriggerSF) {
@@ -273,13 +274,14 @@ int ScaleFactor::FindPtPoint(std::map<std::string, TGraphAsymmErrors*> eff_map,
   if (Pt >= ptMAX) { // if pt is overflow, return last pt point
 	return Npoints-1;
   }
-  else if (Pt < ptMIN) { // if pt is underflow, return nonsense number and warning
-    std::cout << "WARNING in ScaleFactor::get_EfficiencyData(double pt, double eta, int pType) from src/ScaleFactor.cc: "
-			  << "pT too low (pt=" << Pt << ", "
-			  << "eta=" << Eta << "), min value is " << ptMIN
-			  << " (pType = " << pType << "). "
-			  << "Returned efficiency = 1. Weight will be 1. " << std::endl;
-    return -99;
+  else if (Pt < ptMIN) { // if pt is underflow, throw exception
+    std::stringstream mes;
+    mes << "ERROR in ScaleFactor::FindPtPoint(std::map<std::string, TGraphAsymmErrors*> eff_map, ";
+    mes << "std::string EtaLabel, double Pt, double Eta, int pType) from src/ScaleFactor.cc: ";
+    mes << "pT too low (pt=" << Pt << ", ";
+    mes << "eta=" << Eta << "), min value is " << ptMIN;
+    mes << " (pType = " << pType << ").";
+    throw std::runtime_error(mes.str());
   }
   else { // if pt is in range
     for (int graphPoint=0; graphPoint < Npoints; graphPoint++) {
