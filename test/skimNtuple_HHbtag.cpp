@@ -2632,6 +2632,7 @@ int main (int argc, char** argv)
 
 				idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
 				idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+
 			}
 
 			else if (pType == 1) {
@@ -2685,6 +2686,15 @@ int main (int argc, char** argv)
 
 			idSF_leg2_muIso_up = leg2_muID_SF * (leg2_muIso_SF + leg2_muIso_SFerr);
 			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
+
+			idSF_leg2_eleID_up = idSF_leg2;
+			idSF_leg2_eleID_down = idSF_leg2;
+
+			idSF_leg2_eleReco_up = idSF_leg2;
+			idSF_leg2_eleReco_down = idSF_leg2;
+
+			idSF_leg1_deep_vsJet_2d = idSF_leg1;
+			idSF_leg2_deep_vsJet_2d = idSF_leg2;
 		}
 		else if(pType == 4) { //EleEle
 			//TODO: should be super cluster eta (not available in bigntuples at the moment)
@@ -2728,11 +2738,21 @@ int main (int argc, char** argv)
 			float leg2_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
 			idSF_leg2 = leg2_eleID_SF;
+
+			idSF_leg2_muID_up = idSF_leg2;
+			idSF_leg2_muID_down = idSF_leg2;
+
+			idSF_leg2_muIso_up = idSF_leg2;
+			idSF_leg2_muIso_down = idSF_leg2;
+
 			idSF_leg2_eleID_up = leg2_eleReco_SF * (leg2_eleID_SF + leg2_eleID_SFerr);
 			idSF_leg2_eleID_down = leg2_eleReco_SF * (leg2_eleID_SF - leg2_eleID_SFerr);
 
 			idSF_leg2_eleReco_up = (leg2_eleReco_SF + leg2_eleReco_SFerr) * leg2_eleID_SF;
 			idSF_leg2_eleReco_down = (leg2_eleReco_SF - leg2_eleReco_SFerr) * leg2_eleID_SF;
+
+			idSF_leg1_deep_vsJet_2d = idSF_leg1;
+			idSF_leg2_deep_vsJet_2d = idSF_leg2;
 		}
 	  }
 
@@ -2825,7 +2845,7 @@ int main (int argc, char** argv)
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
 	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2) {	
+	  if (isMC and pType==2) {
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
 			{
@@ -3150,6 +3170,73 @@ int main (int argc, char** argv)
 	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
 		  idSF_deep_2d = dauSFs = idSF_leg1 * idSF_leg2;
+
+		  dauSFs_tauid_2d_stat0_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM0_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM0_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM1_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM1_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM10_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM10_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM11_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM11_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = dauSFs;
+
+		  dauSFs_tauid_2d_systcorrdmeras_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmeras_down = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= dauSFs;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = dauSFs;
+		  dauSFs_tauid_2d_stat0gt140_up = dauSFs;
+		  dauSFs_tauid_2d_stat0gt140_down = dauSFs;
+		  dauSFs_tauid_2d_stat1gt140_up = dauSFs;
+		  dauSFs_tauid_2d_stat1gt140_down = dauSFs;
+		  dauSFs_tauid_2d_extrapgt140_up = dauSFs;
+		  dauSFs_tauid_2d_extrapgt140_down = dauSFs;
+
+		  dauSFs_mutauFR_etaLt0p4_up = dauSFs;
+		  dauSFs_mutauFR_eta0p4to0p8_up = dauSFs;
+		  dauSFs_mutauFR_eta0p8to1p2_up = dauSFs;
+		  dauSFs_mutauFR_eta1p2to1p7_up = dauSFs;
+		  dauSFs_mutauFR_etaGt1p7_up = dauSFs;
+		  dauSFs_mutauFR_etaLt0p4_down = dauSFs;
+		  dauSFs_mutauFR_eta0p4to0p8_down = dauSFs;
+		  dauSFs_mutauFR_eta0p8to1p2_down = dauSFs;
+		  dauSFs_mutauFR_eta1p2to1p7_down = dauSFs;
+		  dauSFs_mutauFR_etaGt1p7_down = dauSFs;
+
+		  dauSFs_etauFR_barrel_up = dauSFs;
+		  dauSFs_etauFR_endcap_up = dauSFs;
+		  dauSFs_etauFR_barrel_down = dauSFs;
+		  dauSFs_etauFR_endcap_down = dauSFs;
+
+		  dauSFs_muID_up = idSF_leg1_muID_up * idSF_leg2_muID_up;
+		  dauSFs_muID_down = idSF_leg1_muID_down * idSF_leg2_muID_down;
+		  dauSFs_muIso_up = idSF_leg1_muIso_up * idSF_leg2_muIso_up;
+		  dauSFs_muIso_down = idSF_leg1_muIso_down * idSF_leg2_muIso_down;
+
+		  dauSFs_eleID_up = idSF_leg1_eleID_up * idSF_leg2_eleID_up;
+		  dauSFs_eleID_down = idSF_leg1_eleID_down * idSF_leg2_eleID_down;
+		  dauSFs_eleReco_up = idSF_leg1_eleReco_up * idSF_leg2_eleReco_up;
+		  dauSFs_eleReco_down = idSF_leg1_eleReco_down * idSF_leg2_eleReco_down;
 		}
 	  
 	  if (DEBUG) {
