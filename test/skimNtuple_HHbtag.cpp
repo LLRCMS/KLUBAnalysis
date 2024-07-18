@@ -5496,10 +5496,10 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_eesDown = vMET_shift_electrons_scale.second.Y();
 
 		  auto vMET_shift_electrons_smear = getShiftedMET_electrons(vMET, theBigTree, pairType, false);
-		  theSmallTree.m_METx_eesUp   = vMET_shift_electrons_smear.first.X();
-		  theSmallTree.m_METy_eesUp   = vMET_shift_electrons_smear.first.Y();
-		  theSmallTree.m_METx_eesDown = vMET_shift_electrons_smear.second.X();
-		  theSmallTree.m_METy_eesDown = vMET_shift_electrons_smear.second.Y();
+		  theSmallTree.m_METx_eerUp   = vMET_shift_electrons_smear.first.X();
+		  theSmallTree.m_METy_eerUp   = vMET_shift_electrons_smear.first.Y();
+		  theSmallTree.m_METx_eerDown = vMET_shift_electrons_smear.second.X();
+		  theSmallTree.m_METy_eerDown = vMET_shift_electrons_smear.second.Y();
 
 		  // Shifted MET for MES
 		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree);
