@@ -610,37 +610,45 @@ int main (int argc, char** argv)
   }
     
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
-  for (int i=0; i<3; i++) {
-    myIDandISOScaleFactor[i] = new ScaleFactor();
+  ScaleFactor * lepSFs[5]; // [0: muID, 1: muISO, 2: eleReco < 20 GeV, 3:eleReco > 20GeV, 4:eleID]
+  for (int i=0; i<5; i++) {
+    lepSFs[i] = new ScaleFactor();
   }
   if (PERIOD == "2018") {
-	myIDandISOScaleFactor[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
+	lepSFs[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptBelow20.txt_EGM2D_UL2018.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
   }
   else if (PERIOD == "2017") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptBelow20.txt_EGM2D_UL2017.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
   }
   else if (PERIOD == "2016preVFP") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptBelow20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
   }
   else if (PERIOD == "2016postVFP") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptBelow20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
   }
   
   // tau IdAndIso SF
@@ -2436,66 +2444,76 @@ int main (int argc, char** argv)
 	  // Still preliminary:
 	  // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
 	  // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
-	  float idSF_deep_2d		= -99.0;  // use this for DeepTauV2p1 DM and pT dependent
-	  float idFakeSF_deep_2d	= -99.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
-	  float fakeRateSF_deep		= -99.0;  // use this for e/mu->tauh fake SF DeepTau
+	  float idSF_deep_2d = -99.f;  // use this for DeepTauV2p1 DM and pT dependent
+	  float dauSFs = -99.f;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+	  float fakeRateSF_deep = -99.f;  // use this for e/mu->tauh fake SF DeepTau
 
-	  float idFakeSF_tauid_2d_stat0_DM0_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM0_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM0_up				= -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM0_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= -99.f;
+	  float dauSFs_tauid_2d_stat0_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM0_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM0_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM0_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM1_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM1_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM1_up				= -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM1_down			= -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_up   = -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= -99.f;	   
+	  float dauSFs_tauid_2d_stat0_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM1_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM1_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM1_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM10_up				 = -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM10_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM10_up				 = -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM10_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_up   = -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = -99.f;	   
+	  float dauSFs_tauid_2d_stat0_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM10_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM10_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM10_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM11_up				 = -99.f;
-	  float idFakeSF_tauid_2d_stat0_DM11_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM11_up				 = -99.f;					
-	  float idFakeSF_tauid_2d_stat1_DM11_down			 = -99.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_up   = -99.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = -99.f;	   
+	  float dauSFs_tauid_2d_stat0_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM11_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM11_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM11_down = -99.f;
 
-	  float idFakeSF_tauid_2d_systcorrdmeras_up			= -99.f;		   
-	  float idFakeSF_tauid_2d_systcorrdmeras_down		= -99.f;		 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= -99.f;	 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= -99.f; 
-	  float idFakeSF_tauid_2d_systcorrerasgt140_up      = -99.f;
-	  float idFakeSF_tauid_2d_systcorrerasgt140_down	= -99.f;
-	  float idFakeSF_tauid_2d_stat0gt140_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat0gt140_down			= -99.f;
-	  float idFakeSF_tauid_2d_stat1gt140_up				= -99.f;
-	  float idFakeSF_tauid_2d_stat1gt140_down			= -99.f;
-	  float idFakeSF_tauid_2d_extrapgt140_up     		= -99.f;
-	  float idFakeSF_tauid_2d_extrapgt140_down     		= -99.f;
+	  float dauSFs_tauid_2d_systcorrdmeras_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmeras_down = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmuncorreras_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmuncorreras_down = -99.f;
+	  float dauSFs_tauid_2d_systcorrerasgt140_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrerasgt140_down = -99.f;
+	  float dauSFs_tauid_2d_stat0gt140_up = -99.f;
+	  float dauSFs_tauid_2d_stat0gt140_down = -99.f;
+	  float dauSFs_tauid_2d_stat1gt140_up = -99.f;
+	  float dauSFs_tauid_2d_stat1gt140_down = -99.f;
+	  float dauSFs_tauid_2d_extrapgt140_up = -99.f;
+	  float dauSFs_tauid_2d_extrapgt140_down = -99.f;
 	
-	  float idFakeSF_mutauFR_etaLt0p4_up      = -99.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_up   = -99.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_up   = -99.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_up   = -99.0;
-	  float idFakeSF_mutauFR_etaGt1p7_up      = -99.0;
-	  float idFakeSF_mutauFR_etaLt0p4_down    = -99.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_down = -99.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_down = -99.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_down = -99.0;
-	  float idFakeSF_mutauFR_etaGt1p7_down    = -99.0;
+	  float dauSFs_mutauFR_etaLt0p4_up = -99.f;
+	  float dauSFs_mutauFR_eta0p4to0p8_up = -99.f;
+	  float dauSFs_mutauFR_eta0p8to1p2_up = -99.f;
+	  float dauSFs_mutauFR_eta1p2to1p7_up = -99.f;
+	  float dauSFs_mutauFR_etaGt1p7_up = -99.f;
+	  float dauSFs_mutauFR_etaLt0p4_down = -99.f;
+	  float dauSFs_mutauFR_eta0p4to0p8_down = -99.f;
+	  float dauSFs_mutauFR_eta0p8to1p2_down = -99.f;
+	  float dauSFs_mutauFR_eta1p2to1p7_down = -99.f;
+	  float dauSFs_mutauFR_etaGt1p7_down = -99.f;
 
-	  float idFakeSF_etauFR_barrel_up   = -99.0;
-	  float idFakeSF_etauFR_endcap_up   = -99.0;
-	  float idFakeSF_etauFR_barrel_down = -99.0;
-	  float idFakeSF_etauFR_endcap_down = -99.0;
+	  float dauSFs_etauFR_barrel_up = -99.f;
+	  float dauSFs_etauFR_endcap_up = -99.f;
+	  float dauSFs_etauFR_barrel_down = -99.f;
+	  float dauSFs_etauFR_endcap_down = -99.f;
+
+	  float dauSFs_muID_up = -99.f;
+	  float dauSFs_muID_down = -99.f;
+	  float dauSFs_muIso_up = -99.f;
+	  float dauSFs_muIso_down = -99.f;
+
+	  float dauSFs_eleID_up = -99.f;
+	  float dauSFs_eleID_down = -99.f;
+	  float dauSFs_eleReco_up = -99.f;
+	  float dauSFs_eleReco_down = -99.f;
 
 	  // bool helpers for tauID syst bins
 	  vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
@@ -2558,6 +2576,26 @@ int main (int argc, char** argv)
 	  float idSF_leg2_deep_vsEle	= -99.f;
 	  float idSF_leg2_deep_vsMu		= -99.f;
 
+	  float idSF_leg1_muID_up       = -99.f;
+	  float idSF_leg1_muID_down     = -99.f;
+	  float idSF_leg1_muIso_up      = -99.f;
+	  float idSF_leg1_muIso_down    = -99.f;
+
+	  float idSF_leg1_eleID_up      = -99.f;
+	  float idSF_leg1_eleID_down    = -99.f;
+	  float idSF_leg1_eleReco_up	= -99.f;
+	  float idSF_leg1_eleReco_down	= -99.f;
+
+	  float idSF_leg2_muID_up       = -99.f;
+	  float idSF_leg2_muID_down     = -99.f;
+	  float idSF_leg2_muIso_up      = -99.f;
+	  float idSF_leg2_muIso_down    = -99.f;
+
+	  float idSF_leg2_eleID_up      = -99.f;
+	  float idSF_leg2_eleID_down    = -99.f;
+	  float idSF_leg2_eleReco_up	= -99.f;
+	  float idSF_leg2_eleReco_down	= -99.f;
+
 	  bool isFakeJet1 = true;
 	  bool isFakeJet2 = true;
 	  if (tau1Genmatch<6) {
@@ -2567,22 +2605,165 @@ int main (int argc, char** argv)
 		isFakeJet2 = false;
 	  }
 
-	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2)
-		{
-		  idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
-		  idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
-		  idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
-		}
+	  if(isMC) {
+		// all channels with one tau in the second leg
+		if (pType<3) {
+			idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
+			idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
+			idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
 
-	  // all channels with one tau in the second leg
-	  if (isMC and pType<3)
-		{
-		  idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
+			// only TauTau has a tau as the first leg
+			if (pType==2) {
+				idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
+				idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
+				idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
+			}
+
+			else if (pType == 0) {
+				// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+				float leg1_muID_SF = lepSFs[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SF = lepSFs[1]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SFerr = lepSFs[1]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+
+				idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+				idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+				idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+
+				idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+				idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+
+			}
+
+			else if (pType == 1) {
+				//TODO: should be super cluster eta (not available in bigntuples at the moment)
+				float leg1_eleReco_SF;
+				float leg1_eleReco_SFerr;
+				// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+				if(leg1pt <= 20){
+					leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+					leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				}
+				else{
+					leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+					leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				}
+
+				float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+
+				idSF_leg1 = leg1_eleID_SF * leg1_eleReco_SF;
+				idSF_leg1_eleID_up = (leg1_eleID_SF + leg1_eleID_SFerr) * leg1_eleReco_SF;
+				idSF_leg1_eleID_down = (leg1_eleID_SF - leg1_eleID_SFerr) * leg1_eleReco_SF;
+
+				idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
+				idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
+			}
 		}
-	  
+		else if(pType == 3) { //MuMu
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg1_muID_SF = lepSFs[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SF = lepSFs[1]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SFerr = lepSFs[1]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+
+			idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+			idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+			idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+
+			idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+			idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg2_muID_SF = lepSFs[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SF = lepSFs[1]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SFerr = lepSFs[1]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+
+			idSF_leg2 = leg2_muID_SF * leg2_muIso_SF;
+			idSF_leg2_muID_up = (leg2_muID_SF + leg2_muID_SFerr) * leg2_muIso_SF;
+			idSF_leg2_muID_down = (leg2_muID_SF - leg2_muID_SFerr) * leg2_muIso_SF;
+
+			idSF_leg2_muIso_up = leg2_muID_SF * (leg2_muIso_SF + leg2_muIso_SFerr);
+			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
+
+			idSF_leg1_eleID_up = idSF_leg1;
+			idSF_leg1_eleID_down = idSF_leg1;
+			idSF_leg2_eleID_up = idSF_leg2;
+			idSF_leg2_eleID_down = idSF_leg2;
+
+			idSF_leg1_eleReco_up = idSF_leg1;
+			idSF_leg1_eleReco_down = idSF_leg1;
+			idSF_leg2_eleReco_up = idSF_leg2;
+			idSF_leg2_eleReco_down = idSF_leg2;
+
+			idSF_leg1_deep_vsJet_2d = idSF_leg1;
+			idSF_leg2_deep_vsJet_2d = idSF_leg2;
+		}
+		else if(pType == 4) { //EleEle
+			//TODO: should be super cluster eta (not available in bigntuples at the moment)
+			float leg1_eleReco_SF;
+			float leg1_eleReco_SFerr;
+			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+			if(leg1pt <= 20){
+				leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			}
+			else{
+				leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			}
+
+			float leg1_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+
+			idSF_leg1 = leg1_eleID_SF;
+			idSF_leg1_eleID_up = leg1_eleReco_SF * (leg1_eleID_SF + leg1_eleID_SFerr);
+			idSF_leg1_eleID_down = leg1_eleReco_SF * (leg1_eleID_SF - leg1_eleID_SFerr);
+
+			idSF_leg1_eleReco_up = (leg1_eleReco_SF + leg1_eleReco_SFerr) * leg1_eleID_SF;
+			idSF_leg1_eleReco_down = (leg1_eleReco_SF - leg1_eleReco_SFerr) * leg1_eleID_SF;
+
+			//TODO: should be super cluster eta (not available in bigntuples at the moment)
+			float leg2_eleReco_SF;
+			float leg2_eleReco_SFerr;
+			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+			if(leg2pt <= 20){
+				leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				leg2_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			}
+			else{
+				leg2_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				leg2_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			}
+
+
+			float leg2_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+
+			idSF_leg2 = leg2_eleID_SF;
+
+			idSF_leg2_eleID_up = leg2_eleReco_SF * (leg2_eleID_SF + leg2_eleID_SFerr);
+			idSF_leg2_eleID_down = leg2_eleReco_SF * (leg2_eleID_SF - leg2_eleID_SFerr);
+
+			idSF_leg2_eleReco_up = (leg2_eleReco_SF + leg2_eleReco_SFerr) * leg2_eleID_SF;
+			idSF_leg2_eleReco_down = (leg2_eleReco_SF - leg2_eleReco_SFerr) * leg2_eleID_SF;
+
+			idSF_leg1_muID_up = idSF_leg1;
+			idSF_leg1_muID_down = idSF_leg1;
+			idSF_leg2_muID_up = idSF_leg2;
+			idSF_leg2_muID_down = idSF_leg2;
+
+			idSF_leg1_muIso_up = idSF_leg1;
+			idSF_leg1_muIso_down = idSF_leg1;
+			idSF_leg2_muIso_up = idSF_leg2;
+			idSF_leg2_muIso_down = idSF_leg2;
+
+			idSF_leg1_deep_vsJet_2d = idSF_leg1;
+			idSF_leg2_deep_vsJet_2d = idSF_leg2;
+		}
+	  }
+
 	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_up				= idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_down			= idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_up				= idSF_leg1_deep_vsJet_2d;
@@ -2623,7 +2804,7 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_down			= idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = idSF_leg1_deep_vsJet_2d;
 	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = idSF_leg1_deep_vsJet_2d;
-		  
+
 	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_up				= idSF_leg2_deep_vsJet_2d;
@@ -2664,15 +2845,15 @@ int main (int argc, char** argv)
 	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_down			= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= idSF_leg2_deep_vsJet_2d;
 	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= idSF_leg2_deep_vsJet_2d;
-	  
+
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  
+
 	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2) {	
+	  if (isMC and pType==2) {
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
 			{
@@ -2821,172 +3002,255 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_2d_extrapgt140_up            = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapUp");
 		idSF_leg2_deep_vsJet_2d_extrapgt140_down          = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapDown");
 	  }
-	
-	  if (isMC) {
-		if (pType == 0 or pType == 3) {
-		  // use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
-		}
-		else if (pType == 1 or pType == 4) {
-		  idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-		}
-	  }
 
-	  if(isMC and pType == 3) { //MuMu
-		// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
-		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
-	  }
-	  else if(isMC and pType == 4) { //EleEle
-		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-	  }
-
-	  float except_VsJet, except_vsMu, except_vsEle;
+	  float except_VsJet, except_vsMu, except_vsEle, except_leg1;
 	  // EleTau and MuTau
 	  if (isMC and (pType == 0 or pType == 1))
 		{
 		  idSF_deep_2d = idSF_leg1 * idSF_leg2_deep_vsJet_2d;
 		  fakeRateSF_deep = idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
-		
-		  idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
+		  except_leg1 = idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_tauid_2d_stat0_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
-		  idFakeSF_tauid_2d_stat0_DM0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
-		  idFakeSF_tauid_2d_stat1_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
-		  idFakeSF_tauid_2d_stat1_DM0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
+		  dauSFs = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
-		  idFakeSF_tauid_2d_stat0_DM1_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
-		  idFakeSF_tauid_2d_stat0_DM1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
-		  idFakeSF_tauid_2d_stat1_DM1_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
-		  idFakeSF_tauid_2d_stat1_DM1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
+		  dauSFs_tauid_2d_stat0_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
+		  dauSFs_tauid_2d_stat0_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
+		  dauSFs_tauid_2d_stat1_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
+		  dauSFs_tauid_2d_stat1_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
 
-		  idFakeSF_tauid_2d_stat0_DM10_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
-		  idFakeSF_tauid_2d_stat0_DM10_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
-		  idFakeSF_tauid_2d_stat1_DM10_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
-		  idFakeSF_tauid_2d_stat1_DM10_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
+		  dauSFs_tauid_2d_stat0_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
+		  dauSFs_tauid_2d_stat0_DM1_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
+		  dauSFs_tauid_2d_stat1_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
+		  dauSFs_tauid_2d_stat1_DM1_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
 
-		  idFakeSF_tauid_2d_stat0_DM11_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
-		  idFakeSF_tauid_2d_stat0_DM11_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
-		  idFakeSF_tauid_2d_stat1_DM11_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
-		  idFakeSF_tauid_2d_stat1_DM11_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+		  dauSFs_tauid_2d_stat0_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
+		  dauSFs_tauid_2d_stat0_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
+		  dauSFs_tauid_2d_stat1_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
+		  dauSFs_tauid_2d_stat1_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
 
-		  idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
-		  idFakeSF_tauid_2d_systcorrdmeras_down			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
-		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
-		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_stat0gt140_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
-		  idFakeSF_tauid_2d_stat0gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
-		  idFakeSF_tauid_2d_stat1gt140_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
-		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
-		  idFakeSF_tauid_2d_extrapgt140_up 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
-		  idFakeSF_tauid_2d_extrapgt140_down	        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
-		
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up	    = except_vsMu * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg2_deep_vsMu_down[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg2_deep_vsMu_down[4];
-	
-		  idFakeSF_etauFR_barrel_up		= except_vsEle * idSF_leg2_deep_vsEle_up[0];
-		  idFakeSF_etauFR_endcap_up		= except_vsEle * idSF_leg2_deep_vsEle_up[1];  
-		  idFakeSF_etauFR_barrel_down	= except_vsEle * idSF_leg2_deep_vsEle_down[0];
-		  idFakeSF_etauFR_endcap_down	= except_vsEle * idSF_leg2_deep_vsEle_down[1];
+		  dauSFs_tauid_2d_stat0_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
+		  dauSFs_tauid_2d_stat0_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
+		  dauSFs_tauid_2d_stat1_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
+		  dauSFs_tauid_2d_stat1_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+
+		  dauSFs_tauid_2d_systcorrdmeras_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		  dauSFs_tauid_2d_systcorrdmeras_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		  dauSFs_tauid_2d_stat0gt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
+		  dauSFs_tauid_2d_stat0gt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
+		  dauSFs_tauid_2d_stat1gt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
+		  dauSFs_tauid_2d_stat1gt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
+		  dauSFs_tauid_2d_extrapgt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  dauSFs_tauid_2d_extrapgt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
+
+		  dauSFs_mutauFR_etaLt0p4_up = except_vsMu * idSF_leg2_deep_vsMu_up[0];
+		  dauSFs_mutauFR_eta0p4to0p8_up = except_vsMu * idSF_leg2_deep_vsMu_up[1];
+		  dauSFs_mutauFR_eta0p8to1p2_up = except_vsMu * idSF_leg2_deep_vsMu_up[2];
+		  dauSFs_mutauFR_eta1p2to1p7_up = except_vsMu * idSF_leg2_deep_vsMu_up[3];
+		  dauSFs_mutauFR_etaGt1p7_up = except_vsMu * idSF_leg2_deep_vsMu_up[4];
+		  dauSFs_mutauFR_etaLt0p4_down = except_vsMu * idSF_leg2_deep_vsMu_down[0];
+		  dauSFs_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
+		  dauSFs_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
+		  dauSFs_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
+		  dauSFs_mutauFR_etaGt1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[4];
+
+		  dauSFs_etauFR_barrel_up = except_vsEle * idSF_leg2_deep_vsEle_up[0];
+		  dauSFs_etauFR_endcap_up = except_vsEle * idSF_leg2_deep_vsEle_up[1];
+		  dauSFs_etauFR_barrel_down = except_vsEle * idSF_leg2_deep_vsEle_down[0];
+		  dauSFs_etauFR_endcap_down = except_vsEle * idSF_leg2_deep_vsEle_down[1];
+
+		  if(pType==0){
+			dauSFs_muID_up = except_leg1 * idSF_leg1_muID_up;
+			dauSFs_muID_down = except_leg1 * idSF_leg1_muID_down;
+			dauSFs_muIso_up = except_leg1 * idSF_leg1_muIso_up;
+			dauSFs_muIso_down = except_leg1 * idSF_leg1_muIso_down;
+
+			dauSFs_eleID_up = except_leg1 * idSF_leg1;
+			dauSFs_eleID_down = except_leg1 * idSF_leg1;
+			dauSFs_eleReco_up = except_leg1 * idSF_leg1;
+			dauSFs_eleReco_down = except_leg1 * idSF_leg1;
+		  }
+		  else{
+			dauSFs_muID_up = except_leg1 * idSF_leg1;
+			dauSFs_muID_down = except_leg1 * idSF_leg1;
+			dauSFs_muIso_up = except_leg1 * idSF_leg1;
+			dauSFs_muIso_down = except_leg1 * idSF_leg1;
+
+			dauSFs_eleID_up = except_leg1 * idSF_leg1_eleID_up;
+			dauSFs_eleID_down = except_leg1 * idSF_leg1_eleID_down;
+			dauSFs_eleReco_up = except_leg1 * idSF_leg1_eleReco_up;
+			dauSFs_eleReco_down = except_leg1 * idSF_leg1_eleReco_down;
+		  }
 		}
 	  else if (isMC and pType == 2) // TauTau
 		{
-		  idSF_deep_2d	= idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
+		  idSF_deep_2d = idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 
-		  except_VsJet	= idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
-		  except_vsMu	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
-		  except_vsEle	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+		  except_vsMu = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
+		  except_vsEle = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_deep_2d	= except_VsJet * idSF_deep_2d;
-		  fakeRateSF_deep	= except_VsJet;
+		  dauSFs = except_VsJet * idSF_deep_2d;
+		  fakeRateSF_deep = except_VsJet;
 
-		  idFakeSF_tauid_2d_stat0_DM0_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_up				 * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
-		  idFakeSF_tauid_2d_stat0_DM0_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_down			 * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
-		  idFakeSF_tauid_2d_stat1_DM0_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_up				 * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
-		  idFakeSF_tauid_2d_stat1_DM0_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_down			 * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	 * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
+		  dauSFs_tauid_2d_stat0_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_up * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
+		  dauSFs_tauid_2d_stat0_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_down * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
+		  dauSFs_tauid_2d_stat1_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_up * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
+		  dauSFs_tauid_2d_stat1_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_down * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
 
-		  idFakeSF_tauid_2d_stat0_DM1_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_up				 * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
-		  idFakeSF_tauid_2d_stat0_DM1_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_down			 * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
-		  idFakeSF_tauid_2d_stat1_DM1_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_up				 * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
-		  idFakeSF_tauid_2d_stat1_DM1_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_down			 * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	 * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
+		  dauSFs_tauid_2d_stat0_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_up * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
+		  dauSFs_tauid_2d_stat0_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_down * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
+		  dauSFs_tauid_2d_stat1_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_up * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
+		  dauSFs_tauid_2d_stat1_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_down * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
 
-		  idFakeSF_tauid_2d_stat0_DM10_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_up			    * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
-		  idFakeSF_tauid_2d_stat0_DM10_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_down		    * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
-		  idFakeSF_tauid_2d_stat1_DM10_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_up			    * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
-		  idFakeSF_tauid_2d_stat1_DM10_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_down		    * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
+		  dauSFs_tauid_2d_stat0_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_up * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
+		  dauSFs_tauid_2d_stat0_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_down * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
+		  dauSFs_tauid_2d_stat1_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_up * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
+		  dauSFs_tauid_2d_stat1_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_down * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
 
-		  idFakeSF_tauid_2d_stat0_DM11_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_up			    * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
-		  idFakeSF_tauid_2d_stat0_DM11_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_down		    * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
-		  idFakeSF_tauid_2d_stat1_DM11_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_up			    * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
-		  idFakeSF_tauid_2d_stat1_DM11_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_down		    * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+		  dauSFs_tauid_2d_stat0_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_up * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
+		  dauSFs_tauid_2d_stat0_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_down * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
+		  dauSFs_tauid_2d_stat1_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_up * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
+		  dauSFs_tauid_2d_stat1_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_down * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
 
-		  idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up		   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
-		  idFakeSF_tauid_2d_systcorrdmeras_down			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down	   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up   * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
-		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up      * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
-		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down    * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_stat0gt140_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_up		       * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
-		  idFakeSF_tauid_2d_stat0gt140_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_down		   * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
-		  idFakeSF_tauid_2d_stat1gt140_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_up		       * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
-		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_down		   * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
-		  idFakeSF_tauid_2d_extrapgt140_up            	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up            * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
-		  idFakeSF_tauid_2d_extrapgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down          * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
+		  dauSFs_tauid_2d_systcorrdmeras_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		  dauSFs_tauid_2d_systcorrdmeras_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		  dauSFs_tauid_2d_stat0gt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_up * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
+		  dauSFs_tauid_2d_stat0gt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_down * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
+		  dauSFs_tauid_2d_stat1gt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_up * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
+		  dauSFs_tauid_2d_stat1gt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_down * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
+		  dauSFs_tauid_2d_extrapgt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  dauSFs_tauid_2d_extrapgt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
 
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg1_deep_vsMu_up[2]   * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg1_deep_vsMu_up[3]   * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up      = except_vsMu * idSF_leg1_deep_vsMu_up[4]   * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
+		  dauSFs_mutauFR_etaLt0p4_up = except_vsMu * idSF_leg1_deep_vsMu_up[0] * idSF_leg2_deep_vsMu_up[0];
+		  dauSFs_mutauFR_eta0p4to0p8_up = except_vsMu * idSF_leg1_deep_vsMu_up[1] * idSF_leg2_deep_vsMu_up[1];
+		  dauSFs_mutauFR_eta0p8to1p2_up = except_vsMu * idSF_leg1_deep_vsMu_up[2] * idSF_leg2_deep_vsMu_up[2];
+		  dauSFs_mutauFR_eta1p2to1p7_up = except_vsMu * idSF_leg1_deep_vsMu_up[3] * idSF_leg2_deep_vsMu_up[3];
+		  dauSFs_mutauFR_etaGt1p7_up = except_vsMu * idSF_leg1_deep_vsMu_up[4] * idSF_leg2_deep_vsMu_up[4];
+		  dauSFs_mutauFR_etaLt0p4_down = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
+		  dauSFs_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
+		  dauSFs_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
+		  dauSFs_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
+		  dauSFs_mutauFR_etaGt1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
 
-		  idFakeSF_etauFR_barrel_up   = except_vsEle * idSF_leg1_deep_vsEle_up[0]   * idSF_leg2_deep_vsEle_up[0];
-		  idFakeSF_etauFR_endcap_up   = except_vsEle * idSF_leg1_deep_vsEle_up[1]   * idSF_leg2_deep_vsEle_up[1];
-		  idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
-		  idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+		  dauSFs_etauFR_barrel_up = except_vsEle * idSF_leg1_deep_vsEle_up[0] * idSF_leg2_deep_vsEle_up[0];
+		  dauSFs_etauFR_endcap_up = except_vsEle * idSF_leg1_deep_vsEle_up[1] * idSF_leg2_deep_vsEle_up[1];
+		  dauSFs_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
+		  dauSFs_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+
+		  dauSFs_muID_up = dauSFs;
+		  dauSFs_muID_down = dauSFs;
+		  dauSFs_muIso_up = dauSFs;
+		  dauSFs_muIso_down = dauSFs;
+
+		  dauSFs_eleID_up = dauSFs;
+		  dauSFs_eleID_down = dauSFs;
+		  dauSFs_eleReco_up = dauSFs;
+		  dauSFs_eleReco_down = dauSFs;
 		}
 	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
-		  idSF_deep_2d = idFakeSF_deep_2d = idSF_leg1 * idSF_leg2;
+		  idSF_deep_2d = dauSFs = idSF_leg1 * idSF_leg2;
+
+		  dauSFs_tauid_2d_stat0_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM0_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM0_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM1_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM1_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM10_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM10_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM11_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM11_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = dauSFs;
+
+		  dauSFs_tauid_2d_systcorrdmeras_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmeras_down = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= dauSFs;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = dauSFs;
+		  dauSFs_tauid_2d_stat0gt140_up = dauSFs;
+		  dauSFs_tauid_2d_stat0gt140_down = dauSFs;
+		  dauSFs_tauid_2d_stat1gt140_up = dauSFs;
+		  dauSFs_tauid_2d_stat1gt140_down = dauSFs;
+		  dauSFs_tauid_2d_extrapgt140_up = dauSFs;
+		  dauSFs_tauid_2d_extrapgt140_down = dauSFs;
+
+		  dauSFs_mutauFR_etaLt0p4_up = dauSFs;
+		  dauSFs_mutauFR_eta0p4to0p8_up = dauSFs;
+		  dauSFs_mutauFR_eta0p8to1p2_up = dauSFs;
+		  dauSFs_mutauFR_eta1p2to1p7_up = dauSFs;
+		  dauSFs_mutauFR_etaGt1p7_up = dauSFs;
+		  dauSFs_mutauFR_etaLt0p4_down = dauSFs;
+		  dauSFs_mutauFR_eta0p4to0p8_down = dauSFs;
+		  dauSFs_mutauFR_eta0p8to1p2_down = dauSFs;
+		  dauSFs_mutauFR_eta1p2to1p7_down = dauSFs;
+		  dauSFs_mutauFR_etaGt1p7_down = dauSFs;
+
+		  dauSFs_etauFR_barrel_up = dauSFs;
+		  dauSFs_etauFR_endcap_up = dauSFs;
+		  dauSFs_etauFR_barrel_down = dauSFs;
+		  dauSFs_etauFR_endcap_down = dauSFs;
+
+		  dauSFs_muID_up = idSF_leg1_muID_up * idSF_leg2_muID_up;
+		  dauSFs_muID_down = idSF_leg1_muID_down * idSF_leg2_muID_down;
+		  dauSFs_muIso_up = idSF_leg1_muIso_up * idSF_leg2_muIso_up;
+		  dauSFs_muIso_down = idSF_leg1_muIso_down * idSF_leg2_muIso_down;
+
+		  dauSFs_eleID_up = idSF_leg1_eleID_up * idSF_leg2_eleID_up;
+		  dauSFs_eleID_down = idSF_leg1_eleID_down * idSF_leg2_eleID_down;
+		  dauSFs_eleReco_up = idSF_leg1_eleReco_up * idSF_leg2_eleReco_up;
+		  dauSFs_eleReco_down = idSF_leg1_eleReco_down * idSF_leg2_eleReco_down;
 		}
 	  
 	  if (DEBUG) {
 		cout << "--- DEBUG idSF ---" << endl;
 		cout << "pairType  : "              << pType                   << endl;
-		cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
+		cout << "totSF deep_2d: "           << dauSFs                  << endl;
 		cout << "idSF_leg1: "               << idSF_leg1               << endl;
 		cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
 		cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
@@ -2997,68 +3261,78 @@ int main (int argc, char** argv)
 	  }
 
 	  // Save the IDandISO SF (event per event)
-	  theSmallTree.m_IdSF_deep_2d				= idSF_deep_2d;
-	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d	= idSF_leg1_deep_vsJet_2d;
-	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d	= idSF_leg2_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_deep_2d = idSF_deep_2d;
+	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d = idSF_leg1_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d = idSF_leg2_deep_vsJet_2d;
 	  
-	  theSmallTree.m_IdFakeSF_deep_2d = idFakeSF_deep_2d;
+	  theSmallTree.m_dauSFs = dauSFs;
 	  theSmallTree.m_FakeRateSF_deep  = fakeRateSF_deep;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM0_up				 = idFakeSF_tauid_2d_stat0_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM0_down			 = idFakeSF_tauid_2d_stat0_DM0_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM0_up				 = idFakeSF_tauid_2d_stat1_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM0_down			 = idFakeSF_tauid_2d_stat1_DM0_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	 = idFakeSF_tauid_2d_systuncorrdmeras_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = idFakeSF_tauid_2d_systuncorrdmeras_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM0_up = dauSFs_tauid_2d_stat0_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM0_down = dauSFs_tauid_2d_stat0_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM0_up = dauSFs_tauid_2d_stat1_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM0_down = dauSFs_tauid_2d_stat1_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM0_up = dauSFs_tauid_2d_systuncorrdmeras_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM0_down = dauSFs_tauid_2d_systuncorrdmeras_DM0_down;
 	  
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM1_up				 = idFakeSF_tauid_2d_stat0_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM1_down			 = idFakeSF_tauid_2d_stat0_DM1_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM1_up				 = idFakeSF_tauid_2d_stat1_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM1_down			 = idFakeSF_tauid_2d_stat1_DM1_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	 = idFakeSF_tauid_2d_systuncorrdmeras_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = idFakeSF_tauid_2d_systuncorrdmeras_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM1_up = dauSFs_tauid_2d_stat0_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM1_down = dauSFs_tauid_2d_stat0_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM1_up = dauSFs_tauid_2d_stat1_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM1_down = dauSFs_tauid_2d_stat1_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM1_up = dauSFs_tauid_2d_systuncorrdmeras_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM1_down = dauSFs_tauid_2d_systuncorrdmeras_DM1_down;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM10_up			  = idFakeSF_tauid_2d_stat0_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM10_down			  = idFakeSF_tauid_2d_stat0_DM10_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM10_up			  = idFakeSF_tauid_2d_stat1_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM10_down			  = idFakeSF_tauid_2d_stat1_DM10_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	  = idFakeSF_tauid_2d_systuncorrdmeras_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = idFakeSF_tauid_2d_systuncorrdmeras_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM10_up = dauSFs_tauid_2d_stat0_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM10_down = dauSFs_tauid_2d_stat0_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM10_up = dauSFs_tauid_2d_stat1_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM10_down = dauSFs_tauid_2d_stat1_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM10_up = dauSFs_tauid_2d_systuncorrdmeras_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM10_down = dauSFs_tauid_2d_systuncorrdmeras_DM10_down;
 	  
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM11_up			  = idFakeSF_tauid_2d_stat0_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM11_down			  = idFakeSF_tauid_2d_stat0_DM11_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM11_up			  = idFakeSF_tauid_2d_stat1_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM11_down			  = idFakeSF_tauid_2d_stat1_DM11_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	  = idFakeSF_tauid_2d_systuncorrdmeras_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = idFakeSF_tauid_2d_systuncorrdmeras_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM11_up = dauSFs_tauid_2d_stat0_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM11_down = dauSFs_tauid_2d_stat0_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM11_up = dauSFs_tauid_2d_stat1_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM11_down = dauSFs_tauid_2d_stat1_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM11_up = dauSFs_tauid_2d_systuncorrdmeras_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM11_down = dauSFs_tauid_2d_systuncorrdmeras_DM11_down;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_up			= idFakeSF_tauid_2d_systcorrdmeras_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_down			= idFakeSF_tauid_2d_systcorrdmeras_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_up		= idFakeSF_tauid_2d_systcorrdmuncorreras_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_down	= idFakeSF_tauid_2d_systcorrdmuncorreras_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_up			= idFakeSF_tauid_2d_systcorrerasgt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_down		= idFakeSF_tauid_2d_systcorrerasgt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0gt140_up				= idFakeSF_tauid_2d_stat0gt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0gt140_down				= idFakeSF_tauid_2d_stat0gt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1gt140_up				= idFakeSF_tauid_2d_stat1gt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1gt140_down				= idFakeSF_tauid_2d_stat1gt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_up				= idFakeSF_tauid_2d_extrapgt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_down				= idFakeSF_tauid_2d_extrapgt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmeras_up = dauSFs_tauid_2d_systcorrdmeras_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmeras_down = dauSFs_tauid_2d_systcorrdmeras_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmuncorreras_up = dauSFs_tauid_2d_systcorrdmuncorreras_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmuncorreras_down = dauSFs_tauid_2d_systcorrdmuncorreras_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrerasgt140_up = dauSFs_tauid_2d_systcorrerasgt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrerasgt140_down = dauSFs_tauid_2d_systcorrerasgt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0gt140_up = dauSFs_tauid_2d_stat0gt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0gt140_down = dauSFs_tauid_2d_stat0gt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1gt140_up = dauSFs_tauid_2d_stat1gt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1gt140_down = dauSFs_tauid_2d_stat1gt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_extrapgt140_up = dauSFs_tauid_2d_extrapgt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_extrapgt140_down = dauSFs_tauid_2d_extrapgt140_down;
 	
-	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		= idFakeSF_mutauFR_etaLt0p4_up;		
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	= idFakeSF_mutauFR_eta0p4to0p8_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_up	= idFakeSF_mutauFR_eta0p8to1p2_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_up	= idFakeSF_mutauFR_eta1p2to1p7_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_up		= idFakeSF_mutauFR_etaGt1p7_up;		
-	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_down		= idFakeSF_mutauFR_etaLt0p4_down;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_down	= idFakeSF_mutauFR_eta0p4to0p8_down;
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_down	= idFakeSF_mutauFR_eta0p8to1p2_down;
-	  theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_down	= idFakeSF_mutauFR_eta1p2to1p7_down;
-	  theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_down		= idFakeSF_mutauFR_etaGt1p7_down;
-	  theSmallTree.m_idFakeSF_etauFR_barrel_up			= idFakeSF_etauFR_barrel_up;	
-	  theSmallTree.m_idFakeSF_etauFR_endcap_up			= idFakeSF_etauFR_endcap_up;		
-	  theSmallTree.m_idFakeSF_etauFR_barrel_down		= idFakeSF_etauFR_barrel_down;		
-	  theSmallTree.m_idFakeSF_etauFR_endcap_down		= idFakeSF_etauFR_endcap_down;
+	  theSmallTree.m_dauSFs_mutauFR_etaLt0p4_up = dauSFs_mutauFR_etaLt0p4_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p4to0p8_up = dauSFs_mutauFR_eta0p4to0p8_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p8to1p2_up = dauSFs_mutauFR_eta0p8to1p2_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta1p2to1p7_up = dauSFs_mutauFR_eta1p2to1p7_up;
+	  theSmallTree.m_dauSFs_mutauFR_etaGt1p7_up = dauSFs_mutauFR_etaGt1p7_up;
+	  theSmallTree.m_dauSFs_mutauFR_etaLt0p4_down = dauSFs_mutauFR_etaLt0p4_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p4to0p8_down = dauSFs_mutauFR_eta0p4to0p8_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p8to1p2_down = dauSFs_mutauFR_eta0p8to1p2_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta1p2to1p7_down = dauSFs_mutauFR_eta1p2to1p7_down;
+	  theSmallTree.m_dauSFs_mutauFR_etaGt1p7_down = dauSFs_mutauFR_etaGt1p7_down;
+	  theSmallTree.m_dauSFs_etauFR_barrel_up = dauSFs_etauFR_barrel_up;
+	  theSmallTree.m_dauSFs_etauFR_endcap_up = dauSFs_etauFR_endcap_up;
+	  theSmallTree.m_dauSFs_etauFR_barrel_down = dauSFs_etauFR_barrel_down;
+	  theSmallTree.m_dauSFs_etauFR_endcap_down = dauSFs_etauFR_endcap_down;
+
+	  theSmallTree.m_dauSFs_muID_up = dauSFs_muID_up;
+	  theSmallTree.m_dauSFs_muID_down = dauSFs_muID_down;
+	  theSmallTree.m_dauSFs_muIso_up = dauSFs_muIso_up;
+	  theSmallTree.m_dauSFs_muIso_down = dauSFs_muIso_down;
+
+	  theSmallTree.m_dauSFs_eleID_up = dauSFs_eleID_up;
+	  theSmallTree.m_dauSFs_eleID_down = dauSFs_eleID_down;
+	  theSmallTree.m_dauSFs_eleReco_up = dauSFs_eleReco_up;
+	  theSmallTree.m_dauSFs_eleReco_down = dauSFs_eleReco_down;
 	  
 	  //Jet faking Tau SF
 	  //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
@@ -3861,7 +4135,7 @@ int main (int argc, char** argv)
 	  theSmallTree.m_trigSF_stau_down      = isMC ? trigSF_stau_down      : 1.0;
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
-									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
+									trigSF * theSmallTree.m_dauSFs: 1.0);
 
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
@@ -3895,7 +4169,7 @@ int main (int argc, char** argv)
 			  // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
 			  if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
 			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., eleEtaMax, 0.3,
-												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., eleEtaMax, 0.3,
 			  //                     OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
 			  if (!passIsoMVA) // if it passes --> the "if" is false and the lepton is saved as an extra lepton
@@ -4722,7 +4996,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
 
 		  // loop over jets
-		  int genjets = 0;
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
 			{
 			  // PG filter jets at will
@@ -4770,7 +5043,6 @@ int main (int argc, char** argv)
 						{
 						  hasgj = true;
 						}
-					  genjets ++;
 					}
 				}
 
@@ -5252,7 +5524,7 @@ int main (int argc, char** argv)
 		  cout << " - Debug SFs -"			 << endl;
 		  cout << "	PU		   : "			 << theSmallTree.m_PUReweight		<< endl;
 		  cout << "	 IDandISO deep (2D): "	 << theSmallTree.m_IdSF_deep_2d		<< endl;
-		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_2d << endl;
+		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_dauSFs << endl;
 		  cout << "	trig		   : "		 << theSmallTree.m_trigSF			<< endl;
 		  cout << "	bTag		   : "		 << theSmallTree.m_bTagweightM		<< endl;
 		  cout << "	prescale	   : "		 << theSmallTree.m_prescaleWeight	<< endl;
@@ -5264,7 +5536,7 @@ int main (int argc, char** argv)
 		  cout << "stitchWeight	 : "		 << stitchWeight << endl;
 		  cout << "HHweight		 : "		 << HHweight << endl;
 		  cout << "MC_weight	 : "		 << theSmallTree.m_MC_weight << endl;
-		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_2d * theSmallTree.m_trigSF << endl;
+		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_dauSFs * theSmallTree.m_trigSF << endl;
 		  cout << "------------------------" << endl;
 		  cout << "--- FINAL DEBUG ---"      << endl;
 		  cout << "nbjetscand: "             << theSmallTree.m_nbjetscand << endl;
