@@ -2687,9 +2687,13 @@ int main (int argc, char** argv)
 			idSF_leg2_muIso_up = leg2_muID_SF * (leg2_muIso_SF + leg2_muIso_SFerr);
 			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
 
+			idSF_leg1_eleID_up = idSF_leg1;
+			idSF_leg1_eleID_down = idSF_leg1;
 			idSF_leg2_eleID_up = idSF_leg2;
 			idSF_leg2_eleID_down = idSF_leg2;
 
+			idSF_leg1_eleReco_up = idSF_leg1;
+			idSF_leg1_eleReco_down = idSF_leg1;
 			idSF_leg2_eleReco_up = idSF_leg2;
 			idSF_leg2_eleReco_down = idSF_leg2;
 
@@ -2739,17 +2743,21 @@ int main (int argc, char** argv)
 
 			idSF_leg2 = leg2_eleID_SF;
 
-			idSF_leg2_muID_up = idSF_leg2;
-			idSF_leg2_muID_down = idSF_leg2;
-
-			idSF_leg2_muIso_up = idSF_leg2;
-			idSF_leg2_muIso_down = idSF_leg2;
-
 			idSF_leg2_eleID_up = leg2_eleReco_SF * (leg2_eleID_SF + leg2_eleID_SFerr);
 			idSF_leg2_eleID_down = leg2_eleReco_SF * (leg2_eleID_SF - leg2_eleID_SFerr);
 
 			idSF_leg2_eleReco_up = (leg2_eleReco_SF + leg2_eleReco_SFerr) * leg2_eleID_SF;
 			idSF_leg2_eleReco_down = (leg2_eleReco_SF - leg2_eleReco_SFerr) * leg2_eleID_SF;
+
+			idSF_leg1_muID_up = idSF_leg1;
+			idSF_leg1_muID_down = idSF_leg1;
+			idSF_leg2_muID_up = idSF_leg2;
+			idSF_leg2_muID_down = idSF_leg2;
+
+			idSF_leg1_muIso_up = idSF_leg1;
+			idSF_leg1_muIso_down = idSF_leg1;
+			idSF_leg2_muIso_up = idSF_leg2;
+			idSF_leg2_muIso_down = idSF_leg2;
 
 			idSF_leg1_deep_vsJet_2d = idSF_leg1;
 			idSF_leg2_deep_vsJet_2d = idSF_leg2;
@@ -4988,7 +4996,6 @@ int main (int argc, char** argv)
 		  theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
 
 		  // loop over jets
-		  int genjets = 0;
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
 			{
 			  // PG filter jets at will
@@ -5036,7 +5043,6 @@ int main (int argc, char** argv)
 						{
 						  hasgj = true;
 						}
-					  genjets ++;
 					}
 				}
 
