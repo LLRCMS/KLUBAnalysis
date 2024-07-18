@@ -1507,23 +1507,21 @@ int main (int argc, char** argv)
 	  // electron energy scales and smears
 	  double uncorrEn1 = tlv_firstLepton.E();
 	  double uncorrEn2 = tlv_secondLepton.E();
-	  if (isMC) {
-		double corr1 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex);
-		if(oph.isElectron(type1)) {
-		  if (corr1 == -999.) {
-			throw std::runtime_error("ERROR: unchanged electron energy scale!");
-		  }
-		  tlv_firstLepton *= corr1 / uncorrEn1;
+	  double corr1 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(firstDaughterIndex);
+	  if(oph.isElectron(type1)) {
+		if (corr1 == -999.) {
+		  throw std::runtime_error("ERROR: unchanged electron energy scale!");
 		}
-		double corr2 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex);
-		if(oph.isElectron(type2)) {
-		  if (corr2 == -999.) {
-			throw std::runtime_error("ERROR: unchanged electron energy scale!");
-		  }
-		  tlv_secondLepton *= corr2 / uncorrEn2;
-		}
+		tlv_firstLepton *= corr1 / uncorrEn1;
 	  }
-
+	  double corr2 = theBigTree.daughters_ecalTrkEnergyPostCorr->at(secondDaughterIndex);
+	  if(oph.isElectron(type2)) {
+		if (corr2 == -999.) {
+		  throw std::runtime_error("ERROR: unchanged electron energy scale!");
+		}
+		tlv_secondLepton *= corr2 / uncorrEn2;
+	  }
+	  
 	  TLorentzVector tlv_firstLepton_eesUp    = tlv_firstLepton;
 	  TLorentzVector tlv_firstLepton_eesDown  = tlv_firstLepton;
 	  TLorentzVector tlv_secondLepton_eesUp   = tlv_secondLepton;
@@ -4197,7 +4195,7 @@ int main (int argc, char** argv)
 
 		  // electron energy scales and smears
 		  double uncorrEn = tlv_dummyLepton.E();
-		  if(isMC and oph.isElectron(theBigTree.particleType->at(iLep))) {
+		  if(oph.isElectron(theBigTree.particleType->at(iLep))) {
 			tlv_dummyLepton *= theBigTree.daughters_ecalTrkEnergyPostCorr->at(iLep) / uncorrEn;
 		  }
 
