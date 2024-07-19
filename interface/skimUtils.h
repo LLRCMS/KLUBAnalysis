@@ -343,8 +343,7 @@ TLorentzVector getShiftedJet(TLorentzVector tlv_nominal, double shift, double un
 // returns a pair of vectors of TVector2 objects
 // first: up variations
 // second: down variations
-pair<vector<TVector2>, vector<TVector2>> getShiftedMET_jet(int N_jecSources, TVector2 MET, bigTree & theBigTree,
-														   JECKLUBinterface & JECprovider, bool DEBUG=false)
+pair<vector<TVector2>, vector<TVector2>> getShiftedMET_jet(int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider, bool DEBUG=false)
 {
 
   if (DEBUG) cout << "*********** DEBUGGING JETS *********** "<< endl;
@@ -402,8 +401,7 @@ pair<vector<TVector2>, vector<TVector2>> getShiftedMET_jet(int N_jecSources, TVe
 // returns a pair of TVector2 objects
 // first: up variations
 // second: down variations
-pair <TVector2, TVector2> getShiftedMET_jetTot(int N_jecSources, TVector2 MET, bigTree & theBigTree,
-											   JECKLUBinterface & JECprovider)
+pair <TVector2, TVector2> getShiftedMET_jetTot(int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider)
 {
   double corrMETx_up   = MET.Px();
   double corrMETy_up   = MET.Py();
