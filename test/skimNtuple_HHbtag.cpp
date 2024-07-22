@@ -1509,8 +1509,8 @@ int main (int argc, char** argv)
 									  corrLeptons.en[secondDaughterIndex]);
 
 	  // electron energy scales and smears
-	  double uncorrEn1 = tlv_firstLepton.E();
-	  double uncorrEn2 = tlv_secondLepton.E();	  
+	  double originalEn1 = tlv_firstLepton.E();
+	  double originalEn2 = tlv_secondLepton.E();	  
 	  TLorentzVector tlv_firstLepton_eesUp    = tlv_firstLepton;
 	  TLorentzVector tlv_firstLepton_eesDown  = tlv_firstLepton;
 	  TLorentzVector tlv_secondLepton_eesUp   = tlv_secondLepton;
@@ -1521,16 +1521,16 @@ int main (int argc, char** argv)
 	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
 	  if (isMC) {
 		if(oph.isElectron(type1)) {
-		  tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / uncorrEn1;
-		  tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / uncorrEn1;
-		  tlv_firstLepton_eerUp	  *= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / uncorrEn1;				  
-		  tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / uncorrEn1;
+		  tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / originalEn1;
+		  tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / originalEn1;
+		  tlv_firstLepton_eerUp	  *= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / originalEn1;				  
+		  tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / originalEn1;
 		}
 		if(oph.isElectron(type2)) {
-		  tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(secondDaughterIndex) / uncorrEn2;
-		  tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / uncorrEn2;
-		  tlv_secondLepton_eerUp   *= theBigTree.daughters_energySigmaUp  ->at(secondDaughterIndex) / uncorrEn2;				  
-		  tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / uncorrEn2;
+		  tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(secondDaughterIndex) / originalEn2;
+		  tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / originalEn2;
+		  tlv_secondLepton_eerUp   *= theBigTree.daughters_energySigmaUp  ->at(secondDaughterIndex) / originalEn2;				  
+		  tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / originalEn2;
 		}
 	  }
 	  
