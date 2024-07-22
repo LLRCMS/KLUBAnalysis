@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TLorentzVector.h>
 #include <iostream>
 // Header file for the classes stored in the TTree if any.
 #include <vector>
@@ -1127,6 +1128,45 @@ class bigTree {
       fChain->SetBranchAddress("daughters_pz_EleDown", &daughters_pz_EleDown, &b_daughters_pz_EleDown);
       fChain->SetBranchAddress("daughters_e_EleDown", &daughters_e_EleDown, &b_daughters_e_EleDown);
     }
+  }
+};
+
+class correctedLeptons { 
+public:
+  unsigned N = 0;
+  std::vector<float> px;
+  std::vector<float> py;
+  std::vector<float> pz;
+  std::vector<float> en;
+
+  correctedLeptons (const unsigned N_, bigTree* theBigTree) {
+	N = N_;
+	px.reserve(N);
+	py.reserve(N);
+	pz.reserve(N);
+	en.reserve(N);
+
+	correct(theBigTree);
+  };
+
+  void correct(bigTree* theBigTree) {
+	for (unsigned iLep=0; iLep<N; ++iLep)
+	  {
+		TLorentzVector tlv_corr(theBigTree->daughters_px->at(iLep), theBigTree->daughters_py->at(iLep),
+								theBigTree->daughters_pz->at(iLep), theBigTree->daughters_e->at(iLep));
+		double uncorrEn = tlv_corr.E();
+		if(theBigTree->particleType->at(iLep) == 1) {
+		  double corr = theBigTree->daughters_ecalTrkEnergyPostCorr->at(iLep);
+		  if (corr == -999.) {
+			throw std::runtime_error("ERROR: unchanged electron energy scale!");
+		  }
+		  tlv_corr *= corr / uncorrEn;
+		}
+		px[iLep] = tlv_corr.Px();
+		py[iLep] = tlv_corr.Py();
+		pz[iLep] = tlv_corr.Pz();
+		en[iLep] = tlv_corr.E();
+	  }
   }
 };
 
