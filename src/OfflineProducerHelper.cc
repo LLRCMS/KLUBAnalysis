@@ -260,8 +260,8 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, correctedLeptons* corrLeptons
                                     float ptMin, float etaMax, float relIso, int MVAIDflag,
                                     TString whatApply, bool debug)
 {
-  TLorentzVector p4(corrLeptons->px[iDau], corrLeptons->py[iDau],
-					corrLeptons->pz[iDau], corrLeptons->en[iDau]);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
 
   // bypasser(s) and taker according to the string content
   bool byp_vertexS  = false;
@@ -334,8 +334,8 @@ bool OfflineProducerHelper::muBaseline (
   bigTree* tree, correctedLeptons* corrLeptons, int iDau, float ptMin,
   float etaMax, float relIsopf, int muIDWPpf, TString whatApply, bool debug)
 {
-  TLorentzVector p4(corrLeptons->px[iDau], corrLeptons->py[iDau],
-					corrLeptons->pz[iDau], corrLeptons->en[iDau]);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
   int discr = tree->daughters_muonID->at(iDau);
 
   // bypasser(s) according to the string content
@@ -402,8 +402,8 @@ bool OfflineProducerHelper::tauBaseline(bigTree* tree, correctedLeptons* corrLep
     return false;
   }
 
-  TLorentzVector p4(corrLeptons->px[iDau], corrLeptons->py[iDau],
-					corrLeptons->pz[iDau], corrLeptons->en[iDau]);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
 
   // bypasser(s) according to the string content
   bool byp_vertexS = false;
@@ -556,8 +556,8 @@ bool OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int streng
 
 TLorentzVector OfflineProducerHelper::buildDauP4 (correctedLeptons* corrLeptons, int iDau)
 {
-  TLorentzVector p4(corrLeptons->px[iDau], corrLeptons->py[iDau],
-					corrLeptons->pz[iDau], corrLeptons->en[iDau]);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
   return p4;
 }
 
@@ -686,14 +686,14 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, correctedLeptons* 
     int t_type2 = tree->particleType->at (t_secondDaughterIndex) ;
     if ( getPairType (t_type1, t_type2) != 2 ) continue ; // tau tau only
 
-	TLorentzVector p4_1(corrLeptons->px[t_firstDaughterIndex],
-						corrLeptons->py[t_firstDaughterIndex],
-						corrLeptons->pz[t_firstDaughterIndex],
-						corrLeptons->en[t_firstDaughterIndex]);
-	TLorentzVector p4_2(corrLeptons->px[t_secondDaughterIndex],
-						corrLeptons->py[t_secondDaughterIndex],
-						corrLeptons->pz[t_secondDaughterIndex],
-						corrLeptons->en[t_secondDaughterIndex]);
+	TLorentzVector p4_1(corrLeptons->px(t_firstDaughterIndex),
+						corrLeptons->py(t_firstDaughterIndex),
+						corrLeptons->pz(t_firstDaughterIndex),
+						corrLeptons->en(t_firstDaughterIndex));
+	TLorentzVector p4_2(corrLeptons->px(t_secondDaughterIndex),
+						corrLeptons->py(t_secondDaughterIndex),
+						corrLeptons->pz(t_secondDaughterIndex),
+						corrLeptons->en(t_secondDaughterIndex));
 
     //float iso1 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_firstDaughterIndex);  // MVA2017v2
     //float iso2 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_secondDaughterIndex); // MVA2017v2
@@ -794,15 +794,15 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, correctedLe
     int t_type2 = tree->particleType->at (t_secondDaughterIndex) ;
     if ( getPairType (t_type1, t_type2) != 2 ) continue ; // tau tau only
 
-	TLorentzVector p4_1(corrLeptons->px[t_firstDaughterIndex],
-						corrLeptons->py[t_firstDaughterIndex],
-						corrLeptons->pz[t_firstDaughterIndex],
-						corrLeptons->en[t_firstDaughterIndex]);
+	TLorentzVector p4_1(corrLeptons->px(t_firstDaughterIndex),
+						corrLeptons->py(t_firstDaughterIndex),
+						corrLeptons->pz(t_firstDaughterIndex),
+						corrLeptons->en(t_firstDaughterIndex));
 
-	TLorentzVector p4_2(corrLeptons->px[t_secondDaughterIndex],
-						corrLeptons->py[t_secondDaughterIndex],
-						corrLeptons->pz[t_secondDaughterIndex],
-						corrLeptons->en[t_secondDaughterIndex]);
+	TLorentzVector p4_2(corrLeptons->px(t_secondDaughterIndex),
+						corrLeptons->py(t_secondDaughterIndex),
+						corrLeptons->pz(t_secondDaughterIndex),
+						corrLeptons->en(t_secondDaughterIndex));
 
     //float iso1 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_firstDaughterIndex);   // MVA2017v2
     //float iso2 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_secondDaughterIndex);  // MVA2017v2
@@ -986,7 +986,7 @@ bool OfflineProducerHelper::getHardTauFinalVisGenProducts (bigTree* tree, int& i
 bool OfflineProducerHelper::drMatchGenReco (bigTree* tree, correctedLeptons* corrLeptons, int iGen, int iReco, float dRcone)
 {
   TLorentzVector genP4 (tree->genpart_px->at(iGen), tree->genpart_py->at(iGen), tree->genpart_pz->at(iGen), tree->genpart_e->at(iGen));
-  TLorentzVector recoP4(corrLeptons->px[iReco], corrLeptons->py[iReco], corrLeptons->pz[iReco], corrLeptons->en[iReco]);
+  TLorentzVector recoP4(corrLeptons->px(iReco), corrLeptons->py(iReco), corrLeptons->pz(iReco), corrLeptons->en(iReco));
 
   if (genP4.DeltaR(recoP4) < dRcone) return true;
   else return false;
@@ -1011,7 +1011,7 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, correctedLeptons*
     if (!checkId) IDCheck = true; // bypass this requirement if I don't want ID to be checked
     if (IDCheck)
     {
-	  TLorentzVector recoP4(corrLeptons->px[iReco], corrLeptons->py[iReco], corrLeptons->pz[iReco], corrLeptons->en[iReco]);
+	  TLorentzVector recoP4(corrLeptons->px(iReco), corrLeptons->py(iReco), corrLeptons->pz(iReco), corrLeptons->en(iReco));
       float dR = genP4.DeltaR(recoP4);
       if (dR < dRcone) matchedReco.push_back (std::make_pair(dR, iReco));
     }
@@ -1026,9 +1026,9 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, correctedLeptons*
 
 float OfflineProducerHelper::DeltaRDau(correctedLeptons* corrLeptons, int dau1idx, int dau2idx)
 {
-  TLorentzVector v1(corrLeptons->px[dau1idx], corrLeptons->py[dau1idx],
-					corrLeptons->pz[dau1idx], corrLeptons->en[dau1idx]);
-  TLorentzVector v2(corrLeptons->px[dau2idx], corrLeptons->py[dau2idx],
-					corrLeptons->pz[dau2idx], corrLeptons->en[dau2idx]);
+  TLorentzVector v1(corrLeptons->px(dau1idx), corrLeptons->py(dau1idx),
+					corrLeptons->pz(dau1idx), corrLeptons->en(dau1idx));
+  TLorentzVector v2(corrLeptons->px(dau2idx), corrLeptons->py(dau2idx),
+					corrLeptons->pz(dau2idx), corrLeptons->en(dau2idx));
   return v1.DeltaR(v2);
 }

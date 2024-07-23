@@ -21,6 +21,7 @@
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file)
 #include "bigTree.h"
+#include "correctedLeptons.h"
 #include "smallTree_HHbtag.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
@@ -1499,14 +1500,14 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-	  TLorentzVector tlv_firstLepton(corrLeptons.px[firstDaughterIndex],
-									 corrLeptons.py[firstDaughterIndex],
-									 corrLeptons.pz[firstDaughterIndex],
-									 corrLeptons.en[firstDaughterIndex]);
-	  TLorentzVector tlv_secondLepton(corrLeptons.px[secondDaughterIndex],
-									  corrLeptons.py[secondDaughterIndex],
-									  corrLeptons.pz[secondDaughterIndex],
-									  corrLeptons.en[secondDaughterIndex]);
+	  TLorentzVector tlv_firstLepton(corrLeptons.px(firstDaughterIndex),
+									 corrLeptons.py(firstDaughterIndex),
+									 corrLeptons.pz(firstDaughterIndex),
+									 corrLeptons.en(firstDaughterIndex));
+	  TLorentzVector tlv_secondLepton(corrLeptons.px(secondDaughterIndex),
+									  corrLeptons.py(secondDaughterIndex),
+									  corrLeptons.pz(secondDaughterIndex),
+									  corrLeptons.en(secondDaughterIndex));
 
 	  // electron energy scales and smears
 	  double originalEn1 = tlv_firstLepton.E();
@@ -1533,9 +1534,10 @@ int main (int argc, char** argv)
 		  tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / originalEn2;
 		}
 	  }
-	  
-	  auto met_phi_corr = met_phi_correction_pxpy(theBigTree.METx->at(chosenTauPair),
-												  theBigTree.METy->at(chosenTauPair),
+
+	  std::pair<float, float> corrMET = corrLeptons.correctMET(theBigTree.METx->at(chosenTauPair),
+															   theBigTree.METy->at(chosenTauPair));
+	  auto met_phi_corr = met_phi_correction_pxpy(corrMET.first, corrMET.second,
 												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC);
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second,
@@ -4150,8 +4152,8 @@ int main (int argc, char** argv)
 				continue; 
 			}
 
-		  TLorentzVector tlv_dummyLepton(corrLeptons.px[iLep], corrLeptons.py[iLep],
-										 corrLeptons.pz[iLep], corrLeptons.en[iLep]);
+		  TLorentzVector tlv_dummyLepton(corrLeptons.px(iLep), corrLeptons.py(iLep),
+										 corrLeptons.pz(iLep), corrLeptons.en(iLep));
 		  thirdLeptons.push_back(make_pair(tlv_dummyLepton.Pt(), iLep)) ;
 
 		  if(DEBUG)
@@ -4173,8 +4175,8 @@ int main (int argc, char** argv)
 	  // reverse loop to start from last one == highest pT
 	  for (int iLep = thirdLeptons.size()-1; (iLep >=0) and (theSmallTree.m_nleps < 2); iLep--)
 		{
-		  TLorentzVector tlv_dummyLepton(corrLeptons.px[iLep], corrLeptons.py[iLep],
-										 corrLeptons.pz[iLep], corrLeptons.en[iLep]);
+		  TLorentzVector tlv_dummyLepton(corrLeptons.px(iLep), corrLeptons.py(iLep),
+										 corrLeptons.pz(iLep), corrLeptons.en(iLep));
 		  theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
 		  theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
 		  theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
