@@ -2,7 +2,6 @@
 #define correctedLeptons_h
 
 #include <vector>
-#include <utility>
 #include "bigTree.h"
 
 using vecf = std::vector<float>;
@@ -22,7 +21,7 @@ public:
   
  private:
   unsigned mSize = 0;
-  std::unique_ptr<bigTree> mBigTree;
+  bigTree* mBigTree;
   
   vecf mPx;
   vecf mPy;
