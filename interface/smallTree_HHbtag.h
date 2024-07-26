@@ -210,6 +210,9 @@ struct smallTree
       m_lumi = -1. ;
       m_triggerbit = -1. ;
       m_pass_triggerbit = -1. ;
+	  m_legacyAccept = -1;
+	  m_metAccept = -1;
+	  m_singletauAccept = -1;
       m_cross_monitoring_trig = false ;
       m_rho = -1. ;
 
@@ -1215,6 +1218,9 @@ struct smallTree
 
       m_smallT->Branch ("triggerbit", &m_triggerbit, "triggerbit/L") ;
       m_smallT->Branch ("pass_triggerbit", &m_pass_triggerbit, "pass_triggerbit/I") ;
+	  m_smallT->Branch ("legacyAccept", &m_legacyAccept, "legacyAccept/I") ;
+	  m_smallT->Branch ("metAccept", &m_metAccept, "metAccept/I") ;
+	  m_smallT->Branch ("singletauAccept", &m_singletauAccept, "singletauAccept/I") ;
       m_smallT->Branch ("cross_monitoring_trig", &m_cross_monitoring_trig, "cross_monitoring_trig/O") ;
       m_smallT->Branch ("rho", &m_rho, "rho/F") ;
 
@@ -2177,6 +2183,9 @@ struct smallTree
   Int_t m_lumi ;
   Long64_t m_triggerbit ;
   int m_pass_triggerbit ;
+  int m_legacyAccept ;
+  int m_metAccept ;
+  int m_singletauAccept ;
   Bool_t m_cross_monitoring_trig ;
   Float_t m_rho ;
 
