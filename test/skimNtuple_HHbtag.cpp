@@ -1971,7 +1971,7 @@ int main (int argc, char** argv)
 		  bool metAccept       = passMETTrg    and trgRegions["met"]; 
 		  bool singletauAccept = passSingleTau and trgRegions["tau"];
 		  if (!isMC) {
-			legacyAccept    = legacyAccept    and !isMETDataset and (!isTauDataset or pType!=2);
+			legacyAccept    = legacyAccept    and !isMETDataset and (!isTauDataset or pType==2);
 			metAccept       = metAccept       and isMETDataset;
 			singletauAccept = singletauAccept and !isMETDataset and isTauDataset;
 		  }
