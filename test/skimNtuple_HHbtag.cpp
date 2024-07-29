@@ -21,6 +21,7 @@
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file)
 #include "bigTree.h"
+#include "correctedLeptons.h"
 #include "smallTree_HHbtag.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
@@ -401,7 +402,7 @@ int main (int argc, char** argv)
   // systematics
   int N_jecSources = 11; //jec sources
   int N_tauhDM = 4;      //tauh DMs
-  int N_tauhDM_EES = 2;  //tauh DMs with EES
+  int N_tauhDM_FES = 2;  //tauh DMs with FES
 
   // ------------------------------
   TH1F* hTriggers = getFirstFileHisto (inputFile.c_str());
@@ -788,7 +789,8 @@ int main (int argc, char** argv)
 
   const float eleEtaMax = oph.getEtaCut("ele");
   const float muEtaMax  = oph.getEtaCut("mu");
-  
+
+  bool DEBUG = false;
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
@@ -797,10 +799,11 @@ int main (int argc, char** argv)
 	  theSmallTree.clearVars () ;
 
 	  int got = theBigTree.fChain->GetEntry(iEvent);
-
 	  if (got == 0) break;
-	  bool DEBUG = false;
 
+	  const unsigned ndaughters = theBigTree.daughters_px->size();
+	  correctedLeptons corrLeptons(ndaughters, &theBigTree);
+	  
 	  if (std::find(debugEvents.begin(), debugEvents.end(), theBigTree.EventNumber) != debugEvents.end())
 		{
 		  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1319,15 +1322,15 @@ int main (int argc, char** argv)
 		cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
 	  }
 
-	  for (unsigned int idau = 0; idau < theBigTree.daughters_px->size(); ++idau)
+	  for (unsigned idau = 0; idau < ndaughters; ++idau)
 		{
 		  int dauType = theBigTree.particleType->at(idau);
 		  if (oph.isMuon(dauType))
 			{
-			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
+			  bool passMu   = oph.muBaseline (&theBigTree, &corrLeptons, idau, 15., muEtaMax,
 											  0.15, OfflineProducerHelper::MuTight,
 											  string("All"), (DEBUG ? true : false));
-			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
+			  bool passMu10 = oph.muBaseline (&theBigTree, &corrLeptons, idau, 15., muEtaMax,
 											  0.30, OfflineProducerHelper::MuTight,
 											  string("All"), (DEBUG ? true : false));
 
@@ -1336,34 +1339,14 @@ int main (int argc, char** argv)
 			}
 		  else if (oph.isElectron(dauType))
 			{
-			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.1,
+			  bool passEle   = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.1,
 												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
-			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.3,
+			  bool passEle10 = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.3,
 												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
 			}
-
-		  if(DEBUG)	{
-			TLorentzVector dauTlvDebug(theBigTree.daughters_px->at (idau),
-									   theBigTree.daughters_py->at (idau),
-									   theBigTree.daughters_pz->at (idau),
-									   theBigTree.daughters_e ->at (idau));
-			
-			// NB: remember to align this debug to the content of OfflineProducerHelper
-			cout << ".... reco part "
-				 << " idx dau="   << setw(3)  << left << idau
-				 << " type="      << setw(3)  << left << dauType
-				 << " pt="        << setw(10) << left << dauTlvDebug.Pt()
-				 << " eta="       << setw(10) << left << dauTlvDebug.Eta()
-				 << " phi="       << setw(10) << left << dauTlvDebug.Phi()
-				 << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-				 << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
-				 << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
-				 << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-				 << endl;
-		  }
 		} // end loop on daughters
 
 	  int pairType = 2; // tau tau
@@ -1398,50 +1381,17 @@ int main (int argc, char** argv)
 
 	  if (pairType == 2 && sortStrategyThTh == kHTauTau)
 		{
-		  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
+		  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, &corrLeptons, leptonSelectionFlag, (DEBUG ? true : false));
 		}
 
 	  else if (pairType == 2 && sortStrategyThTh == kPtAndRawIso)
 		{
-		  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
+		  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, &corrLeptons, leptonSelectionFlag, (DEBUG ? true : false));
 		}
 
 	  // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
 	  else
 		{
-		  if(DEBUG)
-			{
-			  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-				{
-				  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-				  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-				  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-				  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-				  cout << " **## Pair: " << iPair << " indexes(" <<t_firstDaughterIndex << "," << t_secondDaughterIndex << ") pairType: "<< pairType << " getPairType: "<< oph.getPairType (t_type1, t_type2) << endl;
-				}
-
-			  for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
-				{
-				  TLorentzVector tlv_dummyLepton(
-												 theBigTree.daughters_px->at (iLep),
-												 theBigTree.daughters_py->at (iLep),
-												 theBigTree.daughters_pz->at (iLep),
-												 theBigTree.daughters_e ->at (iLep)) ;
-
-				  cout << " idx="  << iLep
-					   << " type=" << theBigTree.particleType->at(iLep)
-					   << " DM="   << theBigTree.decayMode->at(iLep)
-					   << " DMold="<< theBigTree.daughters_decayModeFindingOldDMs->at(iLep)
-					   << " pt="   << tlv_dummyLepton.Pt()
-					   << " eta="  << tlv_dummyLepton.Eta()
-					   << " phi="  << tlv_dummyLepton.Phi()
-					   << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
-					   << " dxy="  << theBigTree.dxy->at(iLep)
-					   << " dz="   << theBigTree.dz->at(iLep)
-					   << endl;
-				}
-			} // end DEBUG
-
 		  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 			{
 			  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
@@ -1449,37 +1399,17 @@ int main (int argc, char** argv)
 			  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
 			  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
 			  if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-			  string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
 
-			  if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (DEBUG ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-				{
-				  chosenTauPair = iPair;
-				  break;
-				}
+			  // for ee, mumu, emu, ask isolation in baseline
+			  string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")); 
+
+			  // rlx izo to limit to tau iso < 7 -- good for sideband
+			  if ( oph.pairPassBaseline(&theBigTree, &corrLeptons, iPair, baselineSels, (DEBUG ? true : false)) ) {
+				chosenTauPair = iPair;
+				break;
+			  }
 			}
 		} // end else (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
-
-	  if(DEBUG)
-		{
-		  cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
-		  cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
-		  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-			{
-			  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-			  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-			  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-			  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-			  if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-			  TLorentzVector tttt (
-								   theBigTree.daughters_px->at (t_secondDaughterIndex),
-								   theBigTree.daughters_py->at (t_secondDaughterIndex),
-								   theBigTree.daughters_pz->at (t_secondDaughterIndex),
-								   theBigTree.daughters_e ->at (t_secondDaughterIndex));
-
-			  cout << "- " << iPair << " idx1=" << t_firstDaughterIndex << " idx2=" << t_secondDaughterIndex << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
-			  cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
-			}
-		}
 
 	  if (chosenTauPair < 0) continue; // no pair found over baseline
 
@@ -1515,8 +1445,8 @@ int main (int argc, char** argv)
 	  const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
 	  bool lep1HasTES = false;
 	  bool lep2HasTES = false;
-	  bool lep1HasEES = false;
-	  bool lep2HasEES = false;
+	  bool lep1HasFES = false;
+	  bool lep2HasFES = false;
 	  bool lep1HasMES = false;
 	  bool lep2HasMES = false;
 
@@ -1558,8 +1488,8 @@ int main (int argc, char** argv)
 		  int nRealTaus= 0;
 		  lep1HasTES = (theBigTree.genmatch->at(firstDaughterIndex)  == 5 ? true : false);
 		  lep2HasTES = (theBigTree.genmatch->at(secondDaughterIndex) == 5 ? true : false);
-		  lep1HasEES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 1 || theBigTree.genmatch->at(firstDaughterIndex)  == 3) ? true : false);
-		  lep2HasEES = ((theBigTree.genmatch->at(secondDaughterIndex) == 1 || theBigTree.genmatch->at(secondDaughterIndex) == 3) ? true : false);
+		  lep1HasFES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 1 || theBigTree.genmatch->at(firstDaughterIndex)  == 3) ? true : false);
+		  lep2HasFES = ((theBigTree.genmatch->at(secondDaughterIndex) == 1 || theBigTree.genmatch->at(secondDaughterIndex) == 3) ? true : false);
 		  lep1HasMES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 2 || theBigTree.genmatch->at(firstDaughterIndex)  == 4) ? true : false);
 		  lep2HasMES = ((theBigTree.genmatch->at(secondDaughterIndex) == 2 || theBigTree.genmatch->at(secondDaughterIndex) == 4) ? true : false);
 
@@ -1570,23 +1500,45 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
-											theBigTree.daughters_py->at (firstDaughterIndex),
-											theBigTree.daughters_pz->at (firstDaughterIndex),
-											theBigTree.daughters_e->at (firstDaughterIndex)
-											);
+	  TLorentzVector tlv_firstLepton(corrLeptons.px(firstDaughterIndex),
+									 corrLeptons.py(firstDaughterIndex),
+									 corrLeptons.pz(firstDaughterIndex),
+									 corrLeptons.en(firstDaughterIndex));
+	  TLorentzVector tlv_secondLepton(corrLeptons.px(secondDaughterIndex),
+									  corrLeptons.py(secondDaughterIndex),
+									  corrLeptons.pz(secondDaughterIndex),
+									  corrLeptons.en(secondDaughterIndex));
 
-	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
-											 theBigTree.daughters_py->at (secondDaughterIndex),
-											 theBigTree.daughters_pz->at (secondDaughterIndex),
-											 theBigTree.daughters_e->at (secondDaughterIndex)
-											 );
+	  // electron energy scales and smears
+	  double originalEn1 = tlv_firstLepton.E();
+	  double originalEn2 = tlv_secondLepton.E();	  
+	  TLorentzVector tlv_firstLepton_eesUp    = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eesDown  = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eesUp   = tlv_secondLepton;
+	  TLorentzVector tlv_secondLepton_eesDown = tlv_secondLepton;
+	  TLorentzVector tlv_firstLepton_eerUp    = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eerDown  = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eerUp   = tlv_secondLepton;
+	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
+	  if (isMC) {
+		if(oph.isElectron(type1)) {
+		  tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / originalEn1;
+		  tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / originalEn1;
+		  tlv_firstLepton_eerUp	  *= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / originalEn1;				  
+		  tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / originalEn1;
+		}
+		if(oph.isElectron(type2)) {
+		  tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(secondDaughterIndex) / originalEn2;
+		  tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / originalEn2;
+		  tlv_secondLepton_eerUp   *= theBigTree.daughters_energySigmaUp  ->at(secondDaughterIndex) / originalEn2;				  
+		  tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / originalEn2;
+		}
+	  }
 
-	  auto met_phi_corr = met_phi_correction_pxpy(
-												  theBigTree.METx->at(chosenTauPair),
-												  theBigTree.METy->at(chosenTauPair),
-												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-												  );
+	  std::pair<float, float> corrMET = corrLeptons.correctMET(theBigTree.METx->at(chosenTauPair),
+															   theBigTree.METy->at(chosenTauPair));
+	  auto met_phi_corr = met_phi_correction_pxpy(corrMET.first, corrMET.second,
+												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC);
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second,
 						 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
@@ -1775,29 +1727,29 @@ int main (int argc, char** argv)
 	  vector <TLorentzVector> tlv_secondLepton_tauup   (N_tauhDM, tlv_secondLepton);
 	  vector <TLorentzVector> tlv_secondLepton_taudown (N_tauhDM, tlv_secondLepton);
 
-	  //EES:
-	  vector <double> unc_EESup_first ;
-	  vector <double> unc_EESup_second;
-	  vector <double> unc_EESdw_first ;
-	  vector <double> unc_EESdw_second;
+	  //FES:
+	  vector <double> unc_FESup_first ;
+	  vector <double> unc_FESup_second;
+	  vector <double> unc_FESdw_first ;
+	  vector <double> unc_FESdw_second;
 
 	  if (isMC)
 		{
-		  unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
-		  unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
-		  unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
-		  unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
+		  unc_FESup_first.push_back(theBigTree.daughters_FESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
+		  unc_FESup_first.push_back(theBigTree.daughters_FESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
+		  unc_FESdw_first.push_back(theBigTree.daughters_FESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
+		  unc_FESdw_first.push_back(theBigTree.daughters_FESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
 
-		  unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
-		  unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
-		  unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
-		  unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
+		  unc_FESup_second.push_back(theBigTree.daughters_FESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
+		  unc_FESup_second.push_back(theBigTree.daughters_FESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
+		  unc_FESdw_second.push_back(theBigTree.daughters_FESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
+		  unc_FESdw_second.push_back(theBigTree.daughters_FESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
 		}
 
-	  vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_EES, tlv_firstLepton);
-	  vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_EES, tlv_firstLepton);
-	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_EES, tlv_secondLepton);
-	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_EES, tlv_secondLepton);
+	  vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_FES, tlv_firstLepton);
+	  vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_FES, tlv_firstLepton);
+	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_FES, tlv_secondLepton);
+	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_FES, tlv_secondLepton);
 
 	  // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
 	  // just for protection, probably it's not needed
@@ -1823,20 +1775,20 @@ int main (int argc, char** argv)
 			  tlv_firstLepton_tauup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			  tlv_firstLepton_taudown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			}
-		  else if(lep1HasEES && idm < N_tauhDM_EES)
+		  else if(lep1HasFES && idm < N_tauhDM_FES)
 			{
-			  tlv_firstLepton_eleup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_EESup_first[idm], isthisDM_first[idm]);
-			  tlv_firstLepton_eledown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_EESdw_first[idm], isthisDM_first[idm]);
+			  tlv_firstLepton_eleup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_FESup_first[idm], isthisDM_first[idm]);
+			  tlv_firstLepton_eledown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_FESdw_first[idm], isthisDM_first[idm]);
 			}
 		  if (lep2HasTES)
 			{
 			  tlv_secondLepton_tauup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			  tlv_secondLepton_taudown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			}
-		  else if(lep2HasEES && idm < N_tauhDM_EES)
+		  else if(lep2HasFES && idm < N_tauhDM_FES)
 			{
-			  tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_EESup_second[idm], isthisDM_second[idm]);
-			  tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_EESdw_second[idm], isthisDM_second[idm]);
+			  tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_FESup_second[idm], isthisDM_second[idm]);
+			  tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_FESdw_second[idm], isthisDM_second[idm]);
 			}
 		} // end loop over DMs
 
@@ -2388,6 +2340,18 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau1_e_eledown_DM0  = tlv_firstLepton_eledown[0].E();
 	  theSmallTree.m_dau1_e_eledown_DM1  = tlv_firstLepton_eledown[1].E();
 
+	  // electron energy scale in etau channel
+	  theSmallTree.m_dau1_pt_eesUp   = tlv_firstLepton_eesUp.Pt();
+	  theSmallTree.m_dau1_pt_eesDown = tlv_firstLepton_eesDown.Pt();
+	  theSmallTree.m_dau1_e_eesUp    = tlv_firstLepton_eesUp.E();
+	  theSmallTree.m_dau1_e_eesDown  = tlv_firstLepton_eesDown.E();
+
+	  // electron energy resolution in etau channel
+	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerUp.Pt();
+	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerDown.Pt();
+	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerUp.E();
+	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerDown.E();
+	  
 	  theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
 	  theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
 	  theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
@@ -2429,6 +2393,18 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau2_pt_eledown_DM1 = tlv_secondLepton_eledown[1].Pt();
 	  theSmallTree.m_dau2_e_eledown_DM0 = tlv_secondLepton_eledown[0].E();
 	  theSmallTree.m_dau2_e_eledown_DM1 = tlv_secondLepton_eledown[1].E();
+
+	  // electron energy scale in etau channel
+	  theSmallTree.m_dau2_pt_eesUp   = tlv_secondLepton_eesUp.Pt();
+	  theSmallTree.m_dau2_pt_eesDown = tlv_secondLepton_eesDown.Pt();
+	  theSmallTree.m_dau2_e_eesUp    = tlv_secondLepton_eesUp.E();
+	  theSmallTree.m_dau2_e_eesDown  = tlv_secondLepton_eesDown.E();
+
+	  // electron energy resolution in etau channel
+	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerUp.Pt();
+	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerDown.Pt();
+	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerUp.E();
+	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerDown.E();
 
 	  theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
 	  theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
@@ -4142,7 +4118,7 @@ int main (int argc, char** argv)
 	  // Third lepton veto
 	  // loop over leptons
 	  vector<pair<float, int> > thirdLeptons ; // pt, idx
-	  for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
+	  for (unsigned iLep = 0; iLep < ndaughters; ++iLep)
 		{
 		  // skip the H decay candidates
 		  if (int (iLep) == firstDaughterIndex || int (iLep) == secondDaughterIndex)
@@ -4155,9 +4131,9 @@ int main (int argc, char** argv)
 			{
 			  // For muon, Tight does not imply Medium. However, the difference is minimal.
 			  // https://cms-talk.web.cern.ch/t/medium-vs-tight-muon-identification/42605/2
-			  bool passMedium = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
+			  bool passMedium = oph.muBaseline (&theBigTree, &corrLeptons, iLep, 10., muEtaMax,
 												0.3, OfflineProducerHelper::MuMedium);
-			  bool passTight = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
+			  bool passTight = oph.muBaseline (&theBigTree, &corrLeptons, iLep, 10., muEtaMax,
 											   0.3, OfflineProducerHelper::MuTight);
 			  if (!passMedium and !passTight) {
 				// if it passes one of the two: the "if" is false and the lepton is saved as an extra lepton
@@ -4168,7 +4144,7 @@ int main (int argc, char** argv)
 			{
 			  // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
 			  if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
-			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., eleEtaMax, 0.3,
+			  bool passIsoMVA = oph.eleBaseline(&theBigTree, &corrLeptons, iLep, 10., eleEtaMax, 0.3,
 												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., eleEtaMax, 0.3,
 			  //                     OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
@@ -4176,13 +4152,9 @@ int main (int argc, char** argv)
 				continue; 
 			}
 
-		  TLorentzVector tlv_dummyLepton(
-										 theBigTree.daughters_px->at (iLep),
-										 theBigTree.daughters_py->at (iLep),
-										 theBigTree.daughters_pz->at (iLep),
-										 theBigTree.daughters_e->at (iLep)
-										 );
-		  thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
+		  TLorentzVector tlv_dummyLepton(corrLeptons.px(iLep), corrLeptons.py(iLep),
+										 corrLeptons.pz(iLep), corrLeptons.en(iLep));
+		  thirdLeptons.push_back(make_pair(tlv_dummyLepton.Pt(), iLep)) ;
 
 		  if(DEBUG)
 			{
@@ -4201,20 +4173,15 @@ int main (int argc, char** argv)
 
 	  sort (thirdLeptons.begin(), thirdLeptons.end()) ;
 	  // reverse loop to start from last one == highest pT
-	  for (int iLep = thirdLeptons.size() -1; (iLep >=0) && (theSmallTree.m_nleps < 2) ; iLep--)
+	  for (int iLep = thirdLeptons.size()-1; (iLep >=0) and (theSmallTree.m_nleps < 2); iLep--)
 		{
-		  TLorentzVector tlv_dummyLepton(
-										 theBigTree.daughters_px->at (iLep),
-										 theBigTree.daughters_py->at (iLep),
-										 theBigTree.daughters_pz->at (iLep),
-										 theBigTree.daughters_e->at (iLep)
-										 );
-
+		  TLorentzVector tlv_dummyLepton(corrLeptons.px(iLep), corrLeptons.py(iLep),
+										 corrLeptons.pz(iLep), corrLeptons.en(iLep));
 		  theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
 		  theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
 		  theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
 		  theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
-		  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
+		  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at(iLep)) ;
 		  ++theSmallTree.m_nleps ;
 		}
 
@@ -5460,11 +5427,11 @@ int main (int argc, char** argv)
 
 	  if (isMC)
 		{
-		  // Shifted MET for TES/EES (and unpacK: first is tes, second is ees)
-		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
-		  auto vMET_shift_tes = vMET_shifts_tes_ees.first;
-		  auto vMET_shift_ees = vMET_shifts_tes_ees.second;
-
+		  // Shifted MET for TES/FES (and unpacK: first is tes, second is ees)
+		  auto vMET_shifts_tes_fes = getShiftedMET_tes_fes(N_tauhDM, N_tauhDM_FES, vMET, theBigTree);
+		  auto vMET_shift_tes = vMET_shifts_tes_fes.first;
+		  auto vMET_shift_fes = vMET_shifts_tes_fes.second;
+		  
 		  // Shifted MET for TES
 		  theSmallTree.m_METx_tauup_DM0  = vMET_shift_tes.first.at(0).X();
 		  theSmallTree.m_METx_tauup_DM1  = vMET_shift_tes.first.at(1).X();
@@ -5486,28 +5453,41 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_taudown_DM10 = vMET_shift_tes.second.at(2).Y();
 		  theSmallTree.m_METy_taudown_DM11 = vMET_shift_tes.second.at(3).Y();
 
-		  // Shifted MET for EES
-		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees.first.at(0).X();
-		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees.first.at(1).X();
+		  // Shifted MET for FES (electrons reconstructed as fake taus)
+		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_fes.first.at(0).X();
+		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_fes.first.at(1).X();
 
-		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_ees.first.at(0).Y();
-		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_ees.first.at(1).Y();
+		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_fes.first.at(0).Y();
+		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_fes.first.at(1).Y();
 
-		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_ees.second.at(0).X();
-		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_ees.second.at(1).X();
+		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_fes.second.at(0).X();
+		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_fes.second.at(1).X();
 
-		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees.second.at(0).Y();
-		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees.second.at(1).Y();
-		  
+		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_fes.second.at(0).Y();
+		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_fes.second.at(1).Y();
+
+		  // Shifted MET for EES (real electrons)
+		  auto vMET_shift_electrons_scale = getShiftedMET_electrons(vMET, theBigTree, pairType, true);
+		  theSmallTree.m_METx_eesUp   = vMET_shift_electrons_scale.first.X();
+		  theSmallTree.m_METy_eesUp   = vMET_shift_electrons_scale.first.Y();
+		  theSmallTree.m_METx_eesDown = vMET_shift_electrons_scale.second.X();
+		  theSmallTree.m_METy_eesDown = vMET_shift_electrons_scale.second.Y();
+
+		  auto vMET_shift_electrons_smear = getShiftedMET_electrons(vMET, theBigTree, pairType, false);
+		  theSmallTree.m_METx_eerUp   = vMET_shift_electrons_smear.first.X();
+		  theSmallTree.m_METy_eerUp   = vMET_shift_electrons_smear.first.Y();
+		  theSmallTree.m_METx_eerDown = vMET_shift_electrons_smear.second.X();
+		  theSmallTree.m_METy_eerDown = vMET_shift_electrons_smear.second.Y();
+
 		  // Shifted MET for MES
-		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
+		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree);
 		  theSmallTree.m_METx_muup   = vMET_shift_mes.first.X();
 		  theSmallTree.m_METy_muup   = vMET_shift_mes.first.Y();
 		  theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();
 		  theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
 
 		  // Shifted MET for JES total
-		  auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
+		  auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider);
 		  theSmallTree.m_METx_jetupTot   = vMET_shift_jetTot.first.X();
 		  theSmallTree.m_METy_jetupTot   = vMET_shift_jetTot.first.Y();
 		  theSmallTree.m_METx_jetdownTot = vMET_shift_jetTot.second.X();
@@ -5581,10 +5561,10 @@ int main (int argc, char** argv)
   TH1F h_syst ("h_syst", "h_syst", 3 , 0, 3) ; //systematics
   h_syst.SetBinContent (1, N_jecSources) ;
   h_syst.SetBinContent (2, N_tauhDM) ;
-  h_syst.SetBinContent (3, N_tauhDM_EES) ;
+  h_syst.SetBinContent (3, N_tauhDM_FES) ;
   h_syst.GetXaxis()->SetBinLabel(1, "jec unc sources");
   h_syst.GetXaxis()->SetBinLabel(2, "tauh decay modes for TES");
-  h_syst.GetXaxis()->SetBinLabel(3, "tauh decay modes for EES");
+  h_syst.GetXaxis()->SetBinLabel(3, "tauh decay modes for FES");
 
   TH1F* hEffHHSigsSummary [6];
   if (isHHsignal)

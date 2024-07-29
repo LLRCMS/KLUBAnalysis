@@ -309,7 +309,7 @@ bool bJetSort (const pair<float, int>& i, const pair<float, int>& j) {
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 // -----------------------------------------
-// get shifted dau (tes; ees)
+// get shifted dau (tes; fes)
 TLorentzVector getShiftedDau(TLorentzVector tlv_nominal, double shift, double unc, bool isthisDM, bool shiftMass = true)
 {
   TLorentzVector tlv_shifted;
@@ -343,7 +343,7 @@ TLorentzVector getShiftedJet(TLorentzVector tlv_nominal, double shift, double un
 // returns a pair of vectors of TVector2 objects
 // first: up variations
 // second: down variations
-pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider, bool DEBUG=false)
+pair<vector<TVector2>, vector<TVector2>> getShiftedMET_jet(int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider, bool DEBUG=false)
 {
 
   if (DEBUG) cout << "*********** DEBUGGING JETS *********** "<< endl;
@@ -401,7 +401,7 @@ pair <vector <TVector2>, vector <TVector2> > getShiftedMET_jet (int N_jecSources
 // returns a pair of TVector2 objects
 // first: up variations
 // second: down variations
-pair <TVector2, TVector2> getShiftedMET_jetTot (int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider, bool DEBUG=false)
+pair <TVector2, TVector2> getShiftedMET_jetTot(int N_jecSources, TVector2 MET, bigTree & theBigTree, JECKLUBinterface & JECprovider)
 {
   double corrMETx_up   = MET.Px();
   double corrMETy_up   = MET.Py();
@@ -483,11 +483,11 @@ TVector2 getShiftedMET_smear (float METx, float METy, bigTree & theBigTree, std:
 //first: tes variations
 //    first: up variations
 //    second: down variations
-//second: ees variations
+//second: fes variations
 //    first: up variations
 //    second: down variations
 
-auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+auto getShiftedMET_tes_fes(int N_tauhDM, int N_tauhDM_FES, TVector2 MET, bigTree & theBigTree)
 {
   vector <double> corrMETx_tauup(N_tauhDM, MET.Px());
   vector <double> corrMETy_tauup(N_tauhDM, MET.Py());
@@ -497,13 +497,13 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
   vector <TVector2> shiftedMET_tauup(N_tauhDM);
   vector <TVector2> shiftedMET_taudown(N_tauhDM);
 
-  vector <double> corrMETx_eleup(N_tauhDM_EES, MET.Px());
-  vector <double> corrMETy_eleup(N_tauhDM_EES, MET.Py());
-  vector <double> corrMETx_eledown(N_tauhDM_EES, MET.Px());
-  vector <double> corrMETy_eledown(N_tauhDM_EES, MET.Py());
+  vector <double> corrMETx_eleup(N_tauhDM_FES, MET.Px());
+  vector <double> corrMETy_eleup(N_tauhDM_FES, MET.Py());
+  vector <double> corrMETx_eledown(N_tauhDM_FES, MET.Px());
+  vector <double> corrMETy_eledown(N_tauhDM_FES, MET.Py());
 
-  vector <TVector2> shiftedMET_eleup(N_tauhDM_EES);
-  vector <TVector2> shiftedMET_eledown(N_tauhDM_EES);
+  vector <TVector2> shiftedMET_eleup(N_tauhDM_FES);
+  vector <TVector2> shiftedMET_eledown(N_tauhDM_FES);
 
   for (unsigned int idau = 0 ; idau < theBigTree.daughters_px->size () ; ++idau)
   {
@@ -513,16 +513,16 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
 
     // get uncertainty
     vector <double> unc_TES;
-    vector <double> unc_EESup;
-    vector <double> unc_EESdw;
+    vector <double> unc_FESup;
+    vector <double> unc_FESdw;
     unc_TES.push_back(theBigTree.daughters_TESshiftDM0->at(idau)); // first daughter, DM 0
     unc_TES.push_back(theBigTree.daughters_TESshiftDM1->at(idau)); // first daughter, DM 1
     unc_TES.push_back(theBigTree.daughters_TESshiftDM10->at(idau)); // first daughter, DM 10
     unc_TES.push_back(theBigTree.daughters_TESshiftDM11->at(idau)); // first daughter, DM 11
-    unc_EESup.push_back(theBigTree.daughters_EESshiftDM0up->at(idau)); // first daughter, DM 0
-    unc_EESup.push_back(theBigTree.daughters_EESshiftDM1up->at(idau)); // first daughter, DM 1
-    unc_EESdw.push_back(theBigTree.daughters_EESshiftDM0dw->at(idau)); // first daughter, DM 0
-    unc_EESdw.push_back(theBigTree.daughters_EESshiftDM1dw->at(idau)); // first daughter, DM 1
+    unc_FESup.push_back(theBigTree.daughters_FESshiftDM0up->at(idau)); // first daughter, DM 0
+    unc_FESup.push_back(theBigTree.daughters_FESshiftDM1up->at(idau)); // first daughter, DM 1
+    unc_FESdw.push_back(theBigTree.daughters_FESshiftDM0dw->at(idau)); // first daughter, DM 0
+    unc_FESdw.push_back(theBigTree.daughters_FESshiftDM1dw->at(idau)); // first daughter, DM 1
 
     // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
     // just for protection, probably it's not needed
@@ -535,7 +535,7 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
       };
 
     bool dauHasTES = (theBigTree.genmatch->at(idau)  == 5 ? true : false);
-    bool dauHasEES = ((theBigTree.genmatch->at(idau)==1 || theBigTree.genmatch->at(idau)==3) ? true : false);
+    bool dauHasFES = ((theBigTree.genmatch->at(idau)==1 || theBigTree.genmatch->at(idau)==3) ? true : false);
 
     // loop over DMs to fill the shifted TLVs
     for (int idm = 0; idm< N_tauhDM; idm++)
@@ -558,10 +558,10 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
         corrMETy_taudown[idm] -= tlv_dau_taudown.Py();
       }
 
-      if (dauHasEES && idm < N_tauhDM_EES)
+      if (dauHasFES && idm < N_tauhDM_FES)
       {
-        TLorentzVector tlv_dau_eleup   = getShiftedDau(tlv_dau, 1.,  unc_EESup[idm], isthisDM[idm]);
-        TLorentzVector tlv_dau_eledown = getShiftedDau(tlv_dau, -1., unc_EESdw[idm], isthisDM[idm]);
+        TLorentzVector tlv_dau_eleup   = getShiftedDau(tlv_dau, 1.,  unc_FESup[idm], isthisDM[idm]);
+        TLorentzVector tlv_dau_eledown = getShiftedDau(tlv_dau, -1., unc_FESdw[idm], isthisDM[idm]);
 
         // shift MET - first the original tau
         corrMETx_eleup[idm]   += tlv_dau.Px();
@@ -583,7 +583,7 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
     shiftedMET_tauup[idm].Set(corrMETx_tauup[idm], corrMETy_tauup[idm]);
     shiftedMET_taudown[idm].Set(corrMETx_taudown[idm], corrMETy_taudown[idm]);
 
-    if (idm < N_tauhDM_EES)
+    if (idm < N_tauhDM_FES)
     {
       shiftedMET_eleup[idm].Set(corrMETx_eleup[idm], corrMETy_eleup[idm]);
       shiftedMET_eledown[idm].Set(corrMETx_eledown[idm], corrMETy_eledown[idm]);
@@ -598,7 +598,7 @@ auto getShiftedMET_tes_ees (int N_tauhDM, int N_tauhDM_EES, TVector2 MET, bigTre
 // returns a pair of TVector2 objects
 // first: up variation
 // second: down variation
-pair <TVector2, TVector2> getShiftedMET_mes (TVector2 MET, bigTree & theBigTree, bool DEBUG=false)
+pair <TVector2, TVector2> getShiftedMET_mes(TVector2 MET, bigTree & theBigTree)
 {
   double corrMETx_muup =  MET.Px();
   double corrMETy_muup =  MET.Py();
@@ -642,6 +642,55 @@ pair <TVector2, TVector2> getShiftedMET_mes (TVector2 MET, bigTree & theBigTree,
   shiftedMET_mudown.Set(corrMETx_mudown, corrMETy_mudown);
 
   return make_pair(shiftedMET_muup, shiftedMET_mudown);
+}
+
+pair<TVector2, TVector2> getShiftedMET_electrons(TVector2 met, bigTree &theBigTree, int pairType, bool isScale)
+{
+  TVector2 met_up, met_do;
+  double metx_up = met.Px(), metx_do = met.Px();
+  double mety_up = met.Py(), mety_do = met.Py();
+
+  TLorentzVector tlv_new_up;
+  TLorentzVector tlv_new_do;
+
+  for (unsigned int idau=0; idau<theBigTree.daughters_px->size() ; ++idau)
+	{
+	  TLorentzVector tlv_old(theBigTree.daughters_px->at(idau),
+							 theBigTree.daughters_py->at(idau),
+							 theBigTree.daughters_pz->at(idau),
+							 theBigTree.daughters_e->at(idau));
+
+	  if (theBigTree.particleType->at(idau)==1) {
+		tlv_new_up = tlv_old;
+		tlv_new_do = tlv_old;
+
+		double uncorrEn = tlv_old.E();
+		if(isScale) {
+		  tlv_new_up *= theBigTree.daughters_energyScaleUp  ->at(idau) / uncorrEn;
+		  tlv_new_do *= theBigTree.daughters_energyScaleDown->at(idau) / uncorrEn;
+		}
+		else {
+		  tlv_new_up *= theBigTree.daughters_energySigmaUp  ->at(idau) / uncorrEn;
+		  tlv_new_do *= theBigTree.daughters_energySigmaDown->at(idau) / uncorrEn;
+		}
+		
+		// shift MET: first the original, old tau
+		metx_up += tlv_old.Px();
+		mety_up += tlv_old.Py();
+		metx_do += tlv_old.Px();
+		mety_do += tlv_old.Py();
+
+		// shift MET: then the shifted, new tau
+		metx_up -= tlv_new_up.Px();
+		mety_up -= tlv_new_up.Py();
+		metx_do -= tlv_new_do.Px();
+		mety_do -= tlv_new_do.Py();
+	  }
+	}
+
+  met_up.Set(metx_up, mety_up);
+  met_do.Set(metx_do, mety_do);
+  return make_pair(met_up, met_do);
 }
 
 #endif
