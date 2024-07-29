@@ -1340,9 +1340,9 @@ int main (int argc, char** argv)
 		  else if (oph.isElectron(dauType))
 			{
 			  bool passEle   = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.1,
-												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 			  bool passEle10 = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.3,
-												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
