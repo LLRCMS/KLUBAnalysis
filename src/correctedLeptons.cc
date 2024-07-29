@@ -47,5 +47,5 @@ std::pair<float, float> correctedLeptons::correctMET(float metx, float mety) {
 
   mMETx = metx;
   mMETy = mety;
-  return std::make_pair(mMETy, mMETy);
+  return std::make_pair(mMETx, mMETy);
 }
