@@ -967,6 +967,11 @@ class bigTree {
     fChain->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired, &b_daughters_L3FilterFired);
     fChain->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast, &b_daughters_L3FilterFiredLast);
     fChain->SetBranchAddress("daughters_HLTpt", &daughters_HLTpt, &b_daughters_HLTpt);
+    fChain->SetBranchAddress("daughters_ecalTrkEnergyPostCorr", &daughters_ecalTrkEnergyPostCorr, &b_daughters_ecalTrkEnergyPostCorr);
+    fChain->SetBranchAddress("daughters_energyScaleUp", &daughters_energyScaleUp, &b_daughters_energyScaleUp);
+    fChain->SetBranchAddress("daughters_energyScaleDown", &daughters_energyScaleDown, &b_daughters_energyScaleDown);
+    fChain->SetBranchAddress("daughters_energySigmaUp", &daughters_energySigmaUp, &b_daughters_energySigmaUp);
+    fChain->SetBranchAddress("daughters_energySigmaDown", &daughters_energySigmaDown, &b_daughters_energySigmaDown);
     fChain->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
     fChain->SetBranchAddress("jets_VBFleadFilterMatch", &jets_VBFleadFilterMatch, &b_jets_VBFleadFilterMatch);
     fChain->SetBranchAddress("jets_VBFsubleadFilterMatch", &jets_VBFsubleadFilterMatch, &b_jets_VBFsubleadFilterMatch);
@@ -1113,11 +1118,6 @@ class bigTree {
       fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_FESshiftDM1dw, &b_daughters_FESshiftDM1dw);
       fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
       fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
-	  fChain->SetBranchAddress("daughters_ecalTrkEnergyPostCorr", &daughters_ecalTrkEnergyPostCorr, &b_daughters_ecalTrkEnergyPostCorr);
-	  fChain->SetBranchAddress("daughters_energyScaleUp", &daughters_energyScaleUp, &b_daughters_energyScaleUp);
-	  fChain->SetBranchAddress("daughters_energyScaleDown", &daughters_energyScaleDown, &b_daughters_energyScaleDown);
-	  fChain->SetBranchAddress("daughters_energySigmaUp", &daughters_energySigmaUp, &b_daughters_energySigmaUp);
-	  fChain->SetBranchAddress("daughters_energySigmaDown", &daughters_energySigmaDown, &b_daughters_energySigmaDown);
       fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
       fChain->SetBranchAddress("daughters_py_EleUp", &daughters_py_EleUp, &b_daughters_py_EleUp);
       fChain->SetBranchAddress("daughters_pz_EleUp", &daughters_pz_EleUp, &b_daughters_pz_EleUp);
