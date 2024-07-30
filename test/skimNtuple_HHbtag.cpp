@@ -218,7 +218,7 @@ int main (int argc, char** argv)
 
   int datasetType = atoi(argv[33]);
   bool isMETDataset = datasetType == DataType::kMET;
-  bool isTauDataset = datasetType == DataType::kSingleTau; // currently not used
+  bool isTauDataset = datasetType == DataType::kSingleTau;
   cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
   cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
   if (isMC) {
@@ -1923,9 +1923,9 @@ int main (int argc, char** argv)
 		  bool metAccept       = passMETTrg    and trgRegions["met"]; 
 		  bool singletauAccept = passSingleTau and trgRegions["tau"];
 		  if (!isMC) {
-			legacyAccept    = legacyAccept    and !isMETDataset;
+			legacyAccept    = legacyAccept    and !isMETDataset and (!isTauDataset or pType==2);
 			metAccept       = metAccept       and isMETDataset;
-			singletauAccept = singletauAccept and !isMETDataset;
+			singletauAccept = singletauAccept and !isMETDataset and isTauDataset;
 		  }
 		  bool triggerAccept = legacyAccept or metAccept or singletauAccept;
 
@@ -1962,6 +1962,7 @@ int main (int argc, char** argv)
 		  if (!triggerAccept) continue;
 		  
 		  theSmallTree.m_pass_triggerbit = pass_triggerbit;
+
 		  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 		  if (isHHsignal && pairType == genHHDecMode) {
 			ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
@@ -1970,6 +1971,10 @@ int main (int argc, char** argv)
 		  theSmallTree.m_isLeptrigger = passTrg;
 		  theSmallTree.m_isMETtrigger = passMETTrg;
 		  theSmallTree.m_isSingleTautrigger = passSingleTau;
+
+		  theSmallTree.m_legacyAccept = legacyAccept;
+		  theSmallTree.m_metAccept = metAccept;
+		  theSmallTree.m_singletauAccept = singletauAccept;
 		} // end if applyTriggers
 
       // ----------------------------------------------------------
