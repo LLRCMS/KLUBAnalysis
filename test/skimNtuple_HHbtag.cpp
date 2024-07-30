@@ -1340,9 +1340,9 @@ int main (int argc, char** argv)
 		  else if (oph.isElectron(dauType))
 			{
 			  bool passEle   = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.1,
-												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 			  bool passEle10 = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.3,
-												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
@@ -2690,8 +2690,8 @@ int main (int argc, char** argv)
 				leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 			}
 
-			float leg1_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-			float leg1_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
 			idSF_leg1 = leg1_eleID_SF;
 			idSF_leg1_eleID_up = leg1_eleReco_SF * (leg1_eleID_SF + leg1_eleID_SFerr);
@@ -2714,8 +2714,8 @@ int main (int argc, char** argv)
 			}
 
 
-			float leg2_eleID_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-			float leg2_eleID_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			float leg2_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
 			idSF_leg2 = leg2_eleID_SF;
 
