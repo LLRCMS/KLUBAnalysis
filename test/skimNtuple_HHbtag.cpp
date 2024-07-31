@@ -5189,9 +5189,7 @@ int main (int argc, char** argv)
 			  std::cout << "----------------------" << std::endl;
 			}
 		} // end if (jets_and_sortPar.size () >= 2)
-	  
-		  if
-		  
+  
 	  // Boosted section
 	  theSmallTree.m_isBoosted = 0;
 	  vector<pair<float, int>> fatjets_pT, fatjets_bTag;
