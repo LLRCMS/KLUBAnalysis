@@ -4969,7 +4969,7 @@ int main (int argc, char** argv)
 
 		  // loop over jets
 
-		  bool HEM1516veto = false;
+		  int HEM1516veto = 0;
 
 		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()); ++iJet)
 			{
@@ -4984,7 +4984,7 @@ int main (int argc, char** argv)
 			  {
 			    int dauType = theBigTree.particleType->at(idau);
 			    if (oph.isMuon(dauType)){
-			      TLorentzVector tlv_mu(theBigTree.daugthers_px->at(iJet), theBigTree.daugthers_py->at(iJet), theBigTree.daugthers_pz->at(iJet), theBigTree.daugthers_e->at(iJet));
+			      TLorentzVector tlv_mu(theBigTree.daughters_px->at(iJet), theBigTree.daughters_py->at(iJet), theBigTree.daughters_pz->at(iJet), theBigTree.daughters_e->at(iJet));
 			      if(tlv_mu.DeltaR(tlv_dummyJet) < 0.2) noMuonOverlap = false; // all muons?
 			    }
 			  }
@@ -4992,10 +4992,10 @@ int main (int argc, char** argv)
 			  if( tlv_dummyJet.Pt() > 15. and
 			      tlv_dummyJet.Eta() < -1.3  and tlv_dummyJet.Eta() > -2.5  and
 			      tlv_dummyJet.Phi() < -0.87 and tlv_dummyJet.Phi() > -1.57 and
-			      (tlv_dummyJet >= 50. or CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) and
-			      (theBigTree.PFjetID->at(iJet) >= 2 or (theBigTree.PFJetID->at(iJet) >= 1 and noMuonOverlap and (theBigTree.jets_chEmEF->at(iJet) + theBigTree.jets_nEmEF->at(iJet) < 0.9)))
+			      (tlv_dummyJet.Pt() >= 50. or CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) and
+			      (theBigTree.PFjetID->at(iJet) >= 2 or (theBigTree.PFjetID->at(iJet) >= 1 and noMuonOverlap and (theBigTree.jets_chEmEF->at(iJet) + theBigTree.jets_nEmEF->at(iJet) < 0.9)))
 			    )
-			    HEM1516veto = true;
+			    HEM1516veto = 1;
 
 
 
@@ -5073,7 +5073,9 @@ int main (int argc, char** argv)
 
 		  // only apply HEM1516 veto to specific runs in data + corresponding fraction of MC
 		  if((!isMC and theBigTree.RunNumber < 319077) or
-		     (isMC and (100*iEvent) % 6347 != 0)) HEM1516veto = false; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
+		     (isMC and (100*iEvent) % 6347 != 0)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
+
+		  theSmallTree.m_HEM1516veto = HEM1516veto;
 
 		  if (DEBUG)
 			{
