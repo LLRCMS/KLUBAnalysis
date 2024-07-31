@@ -4984,7 +4984,7 @@ int main (int argc, char** argv)
 			  {
 			    int dauType = theBigTree.particleType->at(idau);
 			    if (oph.isMuon(dauType)){
-			      TLorentzVector tlv_mu(theBigTree.daughters_px->at(iJet), theBigTree.daughters_py->at(iJet), theBigTree.daughters_pz->at(iJet), theBigTree.daughters_e->at(iJet));
+			      TLorentzVector tlv_mu(theBigTree.daughters_px->at(idau), theBigTree.daughters_py->at(idau), theBigTree.daughters_pz->at(idau), theBigTree.daughters_e->at(idau));
 			      if(tlv_mu.DeltaR(tlv_dummyJet) < 0.2) noMuonOverlap = false; // all muons?
 			    }
 			  }
@@ -5002,7 +5002,7 @@ int main (int argc, char** argv)
 
 
 
-			  if (theSmallTree.m_njets < maxNjetsSaved) continue;
+			  if (theSmallTree.m_njets > maxNjetsSaved) continue;
 
 			  // PG filter jets at will
 			  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
@@ -5072,8 +5072,9 @@ int main (int argc, char** argv)
 			} // loop over jets
 
 		  // only apply HEM1516 veto to specific runs in data + corresponding fraction of MC
+		  TRandom3 *rand = new TRandom3();
 		  if((!isMC and theBigTree.RunNumber < 319077) or
-		     (isMC and (100*iEvent) % 6347 != 0)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
+		     (isMC and rand->Rndm(1234) < 0.6347)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
 
 		  theSmallTree.m_HEM1516veto = HEM1516veto;
 

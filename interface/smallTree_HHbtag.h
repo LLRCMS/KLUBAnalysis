@@ -1784,7 +1784,7 @@ struct smallTree
       m_smallT->Branch ("HT20Full", &m_HT20Full, "HT20Full/F");
       m_smallT->Branch ("jet20centrality", &m_jet20centrality, "jet20centrality/F");
 
-      m_smallT->Branch ("HEM1516veto", &m_HEM1516veto);
+      m_smallT->Branch ("HEM1516veto", &m_HEM1516veto, "HEM1516veto/I");
 
       m_smallT->Branch ("jets_pt", &m_jets_pt) ;
       m_smallT->Branch ("jets_eta", &m_jets_eta) ;
