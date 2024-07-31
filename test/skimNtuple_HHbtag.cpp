@@ -2353,9 +2353,9 @@ int main (int argc, char** argv)
 
 	  // electron energy resolution in etau channel
 	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerUp.Pt();
-	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerDown.Pt();
+	  theSmallTree.m_dau1_pt_eerDown   = tlv_firstLepton_eerDown.Pt();
 	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerUp.E();
-	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerDown.E();
+	  theSmallTree.m_dau1_e_eerDown    = tlv_firstLepton_eerDown.E();
 	  
 	  theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
 	  theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
@@ -2407,9 +2407,9 @@ int main (int argc, char** argv)
 
 	  // electron energy resolution in etau channel
 	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerUp.Pt();
-	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerDown.Pt();
+	  theSmallTree.m_dau2_pt_eerDown   = tlv_secondLepton_eerDown.Pt();
 	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerUp.E();
-	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerDown.E();
+	  theSmallTree.m_dau2_e_eerDown    = tlv_secondLepton_eerDown.E();
 
 	  theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
 	  theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
