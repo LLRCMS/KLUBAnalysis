@@ -4968,8 +4968,42 @@ int main (int argc, char** argv)
 		  theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
 
 		  // loop over jets
-		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
+
+		  bool HEM1516veto = false;
+
+		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()); ++iJet)
 			{
+
+
+			  // before anything check jets for HEM15/16 veto
+			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
+
+			  bool noMuonOverlap = true;
+			  for (unsigned idau = 0; idau < ndaughters; ++idau)
+			  {
+			    int dauType = theBigTree.particleType->at(idau);
+			    if (oph.isMuon(dauType)){
+			      TLorentzVector tlv_mu(theBigTree.daugthers_px->at(iJet), theBigTree.daugthers_py->at(iJet), theBigTree.daugthers_pz->at(iJet), theBigTree.daugthers_e->at(iJet));
+			      if(tlv_mu.DeltaR(tlv_dummyJet) < 0.2) noMuonOverlap = false; // all muons?
+			    }
+			  }
+
+			  if( tlv_dummyJet.Pt() > 15. and
+			      tlv_dummyJet.Eta() < -1.3  and tlv_dummyJet.Eta() > -2.5  and
+			      tlv_dummyJet.Phi() < -0.87 and tlv_dummyJet.Phi() > -1.57 and
+			      (tlv_dummyJet >= 50. or CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) and
+			      (theBigTree.PFjetID->at(iJet) >= 2 or (theBigTree.PFJetID->at(iJet) >= 1 and noMuonOverlap and (theBigTree.jets_chEmEF->at(iJet) + theBigTree.jets_nEmEF->at(iJet) < 0.9)))
+			    )
+			    HEM1516veto = true;
+
+
+
+
+
+
+			  if (theSmallTree.m_njets < maxNjetsSaved) continue;
+
 			  // PG filter jets at will
 			  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
@@ -4982,8 +5016,6 @@ int main (int argc, char** argv)
 				{
 				  continue;
 				}
-			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
 
 			  // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
 			  // PU jet ID WP = 2: loose
@@ -5038,6 +5070,10 @@ int main (int argc, char** argv)
 			  theSmallTree.m_jets_pnet_undef.push_back(theBigTree.bParticleNetAK4JetTags_probundef->at(iJet));
 			  ++theSmallTree.m_njets ;
 			} // loop over jets
+
+		  // only apply HEM1516 veto to specific runs in data + corresponding fraction of MC
+		  if((!isMC and theBigTree.RunNumber < 319077) or
+		     (isMC and (100*iEvent) % 6347 != 0)) HEM1516veto = false; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
 
 		  if (DEBUG)
 			{
@@ -5154,7 +5190,8 @@ int main (int argc, char** argv)
 			}
 		} // end if (jets_and_sortPar.size () >= 2)
 	  
-
+		  if
+		  
 	  // Boosted section
 	  theSmallTree.m_isBoosted = 0;
 	  vector<pair<float, int>> fatjets_pT, fatjets_bTag;
