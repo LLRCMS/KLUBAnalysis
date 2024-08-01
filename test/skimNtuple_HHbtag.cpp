@@ -790,6 +790,8 @@ int main (int argc, char** argv)
   const float eleEtaMax = oph.getEtaCut("ele");
   const float muEtaMax  = oph.getEtaCut("mu");
 
+  TRandom3 *rand = new TRandom3(); //RNG for HEM1516 issue in 2018
+
   bool DEBUG = false;
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -5072,9 +5074,9 @@ int main (int argc, char** argv)
 			} // loop over jets
 
 		  // only apply HEM1516 veto to specific runs in data + corresponding fraction of MC
-		  TRandom3 *rand = new TRandom3();
 		  if((!isMC and theBigTree.RunNumber < 319077) or
-		     (isMC and rand->Rndm(1234) < 0.6347)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
+		     PERIOD!="2018" or
+		     (isMC and rand->Rndm(1234) > 0.6347)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
 
 		  theSmallTree.m_HEM1516veto = HEM1516veto;
 
