@@ -89,8 +89,8 @@ struct smallTree
       m_TTtopPtreweight_down = 1. ;
       m_EventNumber = 0 ;
       m_trigSF = -1.;
-	  m_trigSFnoMET = -1.;
-	  m_trigSFnoTau = -1.;
+      m_trigSFnoMET = -1.;
+      m_trigSFnoTau = -1.;
       m_trigSF_ele_up = -1.;
       m_trigSF_SL_ele_up = -1.;
       m_trigSF_cross_ele_up = -1.;
@@ -753,7 +753,9 @@ struct smallTree
       m_HHkinsvfit_phi = -1;
       m_HHkinsvfit_e =-1;
       m_HHkinsvfit_m =-1;
-
+      
+      m_HEM1516veto = -1;
+      
       m_jets_pt.clear () ;
       m_jets_eta.clear () ;
       m_jets_phi.clear () ;
@@ -772,7 +774,7 @@ struct smallTree
       m_jets_pnet_pu.clear();
       m_jets_pnet_undef.clear();
       m_smearFactor_AK4.clear();
-	  m_smearFactor_AK8.clear();
+      m_smearFactor_AK8.clear();
       m_jets_flav.clear () ;
       m_jets_isH.clear () ;
       m_jets_hasgenjet.clear () ;
@@ -1782,6 +1784,8 @@ struct smallTree
       m_smallT->Branch ("HT20Full", &m_HT20Full, "HT20Full/F");
       m_smallT->Branch ("jet20centrality", &m_jet20centrality, "jet20centrality/F");
 
+      m_smallT->Branch ("HEM1516veto", &m_HEM1516veto, "HEM1516veto/I");
+
       m_smallT->Branch ("jets_pt", &m_jets_pt) ;
       m_smallT->Branch ("jets_eta", &m_jets_eta) ;
       m_smallT->Branch ("jets_phi", &m_jets_phi) ;
@@ -2693,6 +2697,7 @@ struct smallTree
   Float_t m_HT20Full ;
   Float_t m_jet20centrality ;
 
+  Int_t m_HEM1516veto;
 
   // additional jets
   std::vector<Float_t> m_jets_pt ;

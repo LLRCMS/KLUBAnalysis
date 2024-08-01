@@ -790,6 +790,8 @@ int main (int argc, char** argv)
   const float eleEtaMax = oph.getEtaCut("ele");
   const float muEtaMax  = oph.getEtaCut("mu");
 
+  TRandom3 *rand = new TRandom3(); //RNG for HEM1516 issue in 2018
+
   bool DEBUG = false;
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -4968,8 +4970,42 @@ int main (int argc, char** argv)
 		  theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
 
 		  // loop over jets
-		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
+
+		  int HEM1516veto = 0;
+
+		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()); ++iJet)
 			{
+
+
+			  // before anything check jets for HEM15/16 veto
+			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
+
+			  bool noMuonOverlap = true;
+			  for (unsigned idau = 0; idau < ndaughters; ++idau)
+			  {
+			    int dauType = theBigTree.particleType->at(idau);
+			    if (oph.isMuon(dauType)){
+			      TLorentzVector tlv_mu(theBigTree.daughters_px->at(idau), theBigTree.daughters_py->at(idau), theBigTree.daughters_pz->at(idau), theBigTree.daughters_e->at(idau));
+			      if(tlv_mu.DeltaR(tlv_dummyJet) < 0.2) noMuonOverlap = false; // all muons?
+			    }
+			  }
+
+			  if( tlv_dummyJet.Pt() > 15. and
+			      tlv_dummyJet.Eta() < -1.3  and tlv_dummyJet.Eta() > -2.5  and
+			      tlv_dummyJet.Phi() < -0.87 and tlv_dummyJet.Phi() > -1.57 and
+			      (tlv_dummyJet.Pt() >= 50. or CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) and
+			      (theBigTree.PFjetID->at(iJet) >= 2 or (theBigTree.PFjetID->at(iJet) >= 1 and noMuonOverlap and (theBigTree.jets_chEmEF->at(iJet) + theBigTree.jets_nEmEF->at(iJet) < 0.9)))
+			    )
+			    HEM1516veto = 1;
+
+
+
+
+
+
+			  if (theSmallTree.m_njets > maxNjetsSaved) continue;
+
 			  // PG filter jets at will
 			  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
@@ -4982,8 +5018,6 @@ int main (int argc, char** argv)
 				{
 				  continue;
 				}
-			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
 
 			  // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
 			  // PU jet ID WP = 2: loose
@@ -5038,6 +5072,13 @@ int main (int argc, char** argv)
 			  theSmallTree.m_jets_pnet_undef.push_back(theBigTree.bParticleNetAK4JetTags_probundef->at(iJet));
 			  ++theSmallTree.m_njets ;
 			} // loop over jets
+
+		  // only apply HEM1516 veto to specific runs in data + corresponding fraction of MC
+		  if((!isMC and theBigTree.RunNumber < 319077) or
+		     PERIOD!="2018" or
+		     (isMC and rand->Rndm(1234) > 0.6347)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
+
+		  theSmallTree.m_HEM1516veto = HEM1516veto;
 
 		  if (DEBUG)
 			{
@@ -5153,8 +5194,7 @@ int main (int argc, char** argv)
 			  std::cout << "----------------------" << std::endl;
 			}
 		} // end if (jets_and_sortPar.size () >= 2)
-	  
-
+  
 	  // Boosted section
 	  theSmallTree.m_isBoosted = 0;
 	  vector<pair<float, int>> fatjets_pT, fatjets_bTag;
