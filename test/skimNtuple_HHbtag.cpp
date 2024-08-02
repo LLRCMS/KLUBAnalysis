@@ -21,6 +21,7 @@
 
 // bigTree is produced on an existing ntuple as follows (see at the end of the file)
 #include "bigTree.h"
+#include "correctedLeptons.h"
 #include "smallTree_HHbtag.h"
 #include "OfflineProducerHelper.h"
 #include "PUReweight.h"
@@ -185,6 +186,8 @@ int main (int argc, char** argv)
 
   // external weight file for PUreweight - sample per sample
   TString PUreweightFile = argv[26];
+  TString PUreweightFile_up = PUreweightFile.Copy().ReplaceAll(".txt", "_up.txt");
+  TString PUreweightFile_down = PUreweightFile.Copy().ReplaceAll(".txt", "_down.txt");
   cout << "** INFO: PU reweight external file: " << PUreweightFile << endl;
 
   int DY_nJets  = atoi(argv[27]);
@@ -215,7 +218,7 @@ int main (int argc, char** argv)
 
   int datasetType = atoi(argv[33]);
   bool isMETDataset = datasetType == DataType::kMET;
-  bool isTauDataset = datasetType == DataType::kSingleTau; // currently not used
+  bool isTauDataset = datasetType == DataType::kSingleTau;
   cout << "** INFO: isMETDataset  : " << isMETDataset << endl;
   cout << "** INFO: isTauDataset  : " << isTauDataset << endl;
   if (isMC) {
@@ -392,12 +395,14 @@ int main (int argc, char** argv)
   float selectedEvents = 0. ;
   int totalNoWeightsEventsNum = 0 ;
   int selectedNoWeightsEventsNum = 0 ;
+  float totalEvents_PUReweight_up = 0 ;
+  float totalEvents_PUReweight_down = 0 ;
 
   // ------------------------------
   // systematics
   int N_jecSources = 11; //jec sources
   int N_tauhDM = 4;      //tauh DMs
-  int N_tauhDM_EES = 2;  //tauh DMs with EES
+  int N_tauhDM_FES = 2;  //tauh DMs with FES
 
   // ------------------------------
   TH1F* hTriggers = getFirstFileHisto (inputFile.c_str());
@@ -442,6 +447,8 @@ int main (int argc, char** argv)
   // ------------------------------
   //PUReweight reweight (PUReweight::RUN2ANALYSIS); // NONE : no PU reweight (always returns 1) - RUN2ANALYSIS: get weights according to MC and data targets
   PUReweight reweight (PUReweight::RUN2ANALYSIS, PUreweightFile);
+  PUReweight reweight_up (PUReweight::RUN2ANALYSIS, PUreweightFile_up);
+  PUReweight reweight_down (PUReweight::RUN2ANALYSIS, PUreweightFile_down);
 
   // ------------------------------
   string home = gConfigParser->readStringOption("parameters::home");
@@ -604,37 +611,45 @@ int main (int argc, char** argv)
   }
     
   // electron/muon IdAndIso SF
-  ScaleFactor * myIDandISOScaleFactor[3]; // [0: muID, 1: eleID, 2:muISO,]
-  for (int i=0; i<3; i++) {
-    myIDandISOScaleFactor[i] = new ScaleFactor();
+  ScaleFactor * lepSFs[5]; // [0: muID, 1: muISO, 2: eleReco < 20 GeV, 3:eleReco > 20GeV, 4:eleID]
+  for (int i=0; i<5; i++) {
+    lepSFs[i] = new ScaleFactor();
   }
   if (PERIOD == "2018") {
-	myIDandISOScaleFactor[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
+	lepSFs[0]->init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
                                                "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2018/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptBelow20.txt_EGM2D_UL2018.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi_ptAbove20.txt_EGM2D_UL2018.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2018/egammaEffi.txt_Ele_wp80iso_EGM2D.root", false);
   }
   else if (PERIOD == "2017") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2017/Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptBelow20.txt_EGM2D_UL2017.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi_ptAbove20.txt_EGM2D_UL2017.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2017/egammaEffi.txt_EGM2D_MVA80iso_UL17.root", false);
   }
   else if (PERIOD == "2016preVFP") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptBelow20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016preVFP.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_preVFP_EGM2D.root",false);
   }
   else if (PERIOD == "2016postVFP") {
-	myIDandISOScaleFactor[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
+	lepSFs[0] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
 												 "NUM_TightID_DEN_TrackerMuons_abseta_pt", true);
-	myIDandISOScaleFactor[1] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
-	myIDandISOScaleFactor[2] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
+	lepSFs[1] -> init_ScaleFactor("weights/MuPogSF_UL/2016/Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
 												 "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", true);
+	lepSFs[2] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptBelow20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[3] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi_ptAbove20.txt_EGM2D_UL2016postVFP.root", false);
+	lepSFs[4] -> init_EG_ScaleFactor("weights/EgammaPOGSF_UL/2016/egammaEffi.txt_Ele_wp80iso_postVFP_EGM2D.root", false);
   }
   
   // tau IdAndIso SF
@@ -774,7 +789,10 @@ int main (int argc, char** argv)
 
   const float eleEtaMax = oph.getEtaCut("ele");
   const float muEtaMax  = oph.getEtaCut("mu");
-  
+
+  TRandom3 *rand = new TRandom3(); //RNG for HEM1516 issue in 2018
+
+  bool DEBUG = false;
   // loop over events
   // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
   for (Long64_t iEvent = 0 ; true ; ++iEvent)
@@ -783,10 +801,11 @@ int main (int argc, char** argv)
 	  theSmallTree.clearVars () ;
 
 	  int got = theBigTree.fChain->GetEntry(iEvent);
-
 	  if (got == 0) break;
-	  bool DEBUG = false;
 
+	  const unsigned ndaughters = theBigTree.daughters_px->size();
+	  correctedLeptons corrLeptons(ndaughters, &theBigTree);
+	  
 	  if (std::find(debugEvents.begin(), debugEvents.end(), theBigTree.EventNumber) != debugEvents.end())
 		{
 		  cout << "****** DEBUG : debugging event=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << " (entry number=" << iEvent << ")" << endl;
@@ -1194,23 +1213,29 @@ int main (int argc, char** argv)
 		  genHHDecMode = 0; // dummy protection if couldn't find initial H
 		  cout << "** WARNING: negative dec mode, for safety set it ot 0" << endl;
 		}
-	  double EvtW;
-	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) { // good PU weights
-		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, theBigTree.npu, PUreweightFile) * topPtReweight * HHweight) : 1.0;
-	  }
-	  else if (theBigTree.npu >= 100) {                  // use the last available bin for the PU weight
-		EvtW = isMC ? (theBigTree.aMCatNLOweight * reweight.weight(PUReweight_MC, PUReweight_target, 99, PUreweightFile) * topPtReweight * HHweight) : 1.0;
-	  }
-	  else {                                             // if npu<0 --> bug in MC --> weight=0
-		EvtW = isMC ? 0.0 : 1.0;
-	  }
+	  float EvtW = 1.;
+	  float EvtW_PUReweight_up = 1.;
+	  float EvtW_PUReweight_down = 1.;
+	  theSmallTree.m_PUReweight  = 1.;
+	  theSmallTree.m_PUReweight_up = 1.;
+	  theSmallTree.m_PUReweight_down = 1.;
+	  float npu = std::min(theBigTree.npu, 99.f);
+	  if(isMC){
+		if(npu < 0){
+			throw std::runtime_error("ERROR: negative number of pileup interactions in MC sample!");
+		}
+		theSmallTree.m_PUReweight = reweight.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile);
+		theSmallTree.m_PUReweight_up = reweight_up.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile_up);
+		theSmallTree.m_PUReweight_down = reweight_down.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile_down);
 
-	  if (isMC)	{
-		totalEvents += EvtW;
+		EvtW = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight * topPtReweight * HHweight;
+		EvtW_PUReweight_up = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight_up * topPtReweight * HHweight;
+		EvtW_PUReweight_down = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight_down * topPtReweight * HHweight;
 	  }
-	  else {
-		totalEvents += 1 ;
-	  }
+	  totalEvents += EvtW;
+	  totalEvents_PUReweight_up += EvtW_PUReweight_up;
+	  totalEvents_PUReweight_down += EvtW_PUReweight_down;
+
 
 	  ec.Increment("all", EvtW);
 	  if (isHHsignal) {
@@ -1299,51 +1324,31 @@ int main (int argc, char** argv)
 		cout << "***** DEBUG: reco particles (remember: check if baseline sels are aligned to OfflineProducerHelper)" << endl;
 	  }
 
-	  for (unsigned int idau = 0; idau < theBigTree.daughters_px->size(); ++idau)
+	  for (unsigned idau = 0; idau < ndaughters; ++idau)
 		{
 		  int dauType = theBigTree.particleType->at(idau);
 		  if (oph.isMuon(dauType))
 			{
-			  bool passMu   = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
+			  bool passMu   = oph.muBaseline (&theBigTree, &corrLeptons, idau, 15., muEtaMax,
 											  0.15, OfflineProducerHelper::MuTight,
-											  0.15, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
-			  bool passMu10 = oph.muBaseline (&theBigTree, idau, 15., muEtaMax,
+											  string("All"), (DEBUG ? true : false));
+			  bool passMu10 = oph.muBaseline (&theBigTree, &corrLeptons, idau, 15., muEtaMax,
 											  0.30, OfflineProducerHelper::MuTight,
-											  0.30, OfflineProducerHelper::MuHighPt, string("All"), (DEBUG ? true : false));
+											  string("All"), (DEBUG ? true : false));
 
 			  if (passMu) ++nmu;
 			  else if (passMu10) ++nmu10;
 			}
 		  else if (oph.isElectron(dauType))
 			{
-			  bool passEle   = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.1,
-												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
-			  bool passEle10 = oph.eleBaseline (&theBigTree, idau, 10., eleEtaMax, 0.3,
-												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+			  bool passEle   = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.1,
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
+			  bool passEle10 = oph.eleBaseline (&theBigTree, &corrLeptons, idau, 10., eleEtaMax, 0.3,
+												OfflineProducerHelper::EMVATight, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 
 			  if (passEle) ++nele;
 			  else if (passEle10) ++nele10;
 			}
-
-		  if(DEBUG)	{
-			TLorentzVector dauTlvDebug(theBigTree.daughters_px->at (idau),
-									   theBigTree.daughters_py->at (idau),
-									   theBigTree.daughters_pz->at (idau),
-									   theBigTree.daughters_e ->at (idau));
-			
-			// NB: remember to align this debug to the content of OfflineProducerHelper
-			cout << ".... reco part "
-				 << " idx dau="   << setw(3)  << left << idau
-				 << " type="      << setw(3)  << left << dauType
-				 << " pt="        << setw(10) << left << dauTlvDebug.Pt()
-				 << " eta="       << setw(10) << left << dauTlvDebug.Eta()
-				 << " phi="       << setw(10) << left << dauTlvDebug.Phi()
-				 << " iso="       << setw(10) << left << getIso (idau, dauTlvDebug.Pt (), theBigTree)
-				 << " dxy="       << setw(15) << left << theBigTree.dxy->at(idau)
-				 << " dz="        << setw(15) << left << theBigTree.dz->at(idau)
-				 << " mutightID=" << setw(3)  << left << CheckBit(theBigTree.daughters_muonID->at(idau),3)
-				 << endl;
-		  }
 		} // end loop on daughters
 
 	  int pairType = 2; // tau tau
@@ -1378,50 +1383,17 @@ int main (int argc, char** argv)
 
 	  if (pairType == 2 && sortStrategyThTh == kHTauTau)
 		{
-		  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
+		  chosenTauPair = oph.getBestPairHTauTau(&theBigTree, &corrLeptons, leptonSelectionFlag, (DEBUG ? true : false));
 		}
 
 	  else if (pairType == 2 && sortStrategyThTh == kPtAndRawIso)
 		{
-		  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, leptonSelectionFlag, (DEBUG ? true : false));
+		  chosenTauPair = oph.getBestPairPtAndRawIsoOrd(&theBigTree, &corrLeptons, leptonSelectionFlag, (DEBUG ? true : false));
 		}
 
 	  // (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
 	  else
 		{
-		  if(DEBUG)
-			{
-			  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-				{
-				  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-				  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-				  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-				  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-				  cout << " **## Pair: " << iPair << " indexes(" <<t_firstDaughterIndex << "," << t_secondDaughterIndex << ") pairType: "<< pairType << " getPairType: "<< oph.getPairType (t_type1, t_type2) << endl;
-				}
-
-			  for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
-				{
-				  TLorentzVector tlv_dummyLepton(
-												 theBigTree.daughters_px->at (iLep),
-												 theBigTree.daughters_py->at (iLep),
-												 theBigTree.daughters_pz->at (iLep),
-												 theBigTree.daughters_e ->at (iLep)) ;
-
-				  cout << " idx="  << iLep
-					   << " type=" << theBigTree.particleType->at(iLep)
-					   << " DM="   << theBigTree.decayMode->at(iLep)
-					   << " DMold="<< theBigTree.daughters_decayModeFindingOldDMs->at(iLep)
-					   << " pt="   << tlv_dummyLepton.Pt()
-					   << " eta="  << tlv_dummyLepton.Eta()
-					   << " phi="  << tlv_dummyLepton.Phi()
-					   << " iso="  << getIso (iLep, tlv_dummyLepton.Pt (), theBigTree)
-					   << " dxy="  << theBigTree.dxy->at(iLep)
-					   << " dz="   << theBigTree.dz->at(iLep)
-					   << endl;
-				}
-			} // end DEBUG
-
 		  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
 			{
 			  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
@@ -1429,37 +1401,17 @@ int main (int argc, char** argv)
 			  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
 			  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
 			  if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-			  string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")) ; // for ee, mumu, emu, ask isolation in baseline
 
-			  if ( oph.pairPassBaseline (&theBigTree, iPair, baselineSels, (DEBUG ? true : false) ) ) // rlx izo to limit to tau iso < 7 -- good for sideband
-				{
-				  chosenTauPair = iPair;
-				  break;
-				}
+			  // for ee, mumu, emu, ask isolation in baseline
+			  string baselineSels = ( (pairType <= 2) ? leptonSelectionFlag : (leptonSelectionFlag + "-Iso")); 
+
+			  // rlx izo to limit to tau iso < 7 -- good for sideband
+			  if ( oph.pairPassBaseline(&theBigTree, &corrLeptons, iPair, baselineSels, (DEBUG ? true : false)) ) {
+				chosenTauPair = iPair;
+				break;
+			  }
 			}
 		} // end else (mu tauh), (e tauh), (tauhtauh && kLLRFramDefault)
-
-	  if(DEBUG)
-		{
-		  cout << "**** DEBUG : chosen pair : " << chosenTauPair << " str=" << leptonSelectionFlag << " pairType==" << pairType << endl;
-		  cout << "     ... going to list all pairs of same pairType as the one assessed with reco leptons" << endl;
-		  for (unsigned int iPair = 0 ; iPair < theBigTree.indexDau1->size () ; ++iPair)
-			{
-			  int t_firstDaughterIndex  = theBigTree.indexDau1->at (iPair) ;
-			  int t_secondDaughterIndex = theBigTree.indexDau2->at (iPair) ;
-			  int t_type1 = theBigTree.particleType->at (t_firstDaughterIndex) ;
-			  int t_type2 = theBigTree.particleType->at (t_secondDaughterIndex) ;
-			  if ( oph.getPairType (t_type1, t_type2) != pairType ) continue ;
-			  TLorentzVector tttt (
-								   theBigTree.daughters_px->at (t_secondDaughterIndex),
-								   theBigTree.daughters_py->at (t_secondDaughterIndex),
-								   theBigTree.daughters_pz->at (t_secondDaughterIndex),
-								   theBigTree.daughters_e ->at (t_secondDaughterIndex));
-
-			  cout << "- " << iPair << " idx1=" << t_firstDaughterIndex << " idx2=" << t_secondDaughterIndex << " isoTau=" <<  getIso (t_secondDaughterIndex, tttt.Pt (), theBigTree) << " tauPt=" << tttt.Pt() << " type2=" << t_type2 << " eta=" << tttt.Eta() << " phi=" << tttt.Phi() << endl;
-			  cout << "   >>> DM=" << theBigTree.daughters_decayModeFindingOldDMs->at(t_secondDaughterIndex) << " dxy=" << theBigTree.dxy->at(t_secondDaughterIndex) << " dz=" << theBigTree.dz->at(t_secondDaughterIndex) << endl;
-			}
-		}
 
 	  if (chosenTauPair < 0) continue; // no pair found over baseline
 
@@ -1495,8 +1447,8 @@ int main (int argc, char** argv)
 	  const int isOS  = theBigTree.isOSCand->at (chosenTauPair) ;
 	  bool lep1HasTES = false;
 	  bool lep2HasTES = false;
-	  bool lep1HasEES = false;
-	  bool lep2HasEES = false;
+	  bool lep1HasFES = false;
+	  bool lep2HasFES = false;
 	  bool lep1HasMES = false;
 	  bool lep2HasMES = false;
 
@@ -1538,8 +1490,8 @@ int main (int argc, char** argv)
 		  int nRealTaus= 0;
 		  lep1HasTES = (theBigTree.genmatch->at(firstDaughterIndex)  == 5 ? true : false);
 		  lep2HasTES = (theBigTree.genmatch->at(secondDaughterIndex) == 5 ? true : false);
-		  lep1HasEES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 1 || theBigTree.genmatch->at(firstDaughterIndex)  == 3) ? true : false);
-		  lep2HasEES = ((theBigTree.genmatch->at(secondDaughterIndex) == 1 || theBigTree.genmatch->at(secondDaughterIndex) == 3) ? true : false);
+		  lep1HasFES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 1 || theBigTree.genmatch->at(firstDaughterIndex)  == 3) ? true : false);
+		  lep2HasFES = ((theBigTree.genmatch->at(secondDaughterIndex) == 1 || theBigTree.genmatch->at(secondDaughterIndex) == 3) ? true : false);
 		  lep1HasMES = ((theBigTree.genmatch->at(firstDaughterIndex)  == 2 || theBigTree.genmatch->at(firstDaughterIndex)  == 4) ? true : false);
 		  lep2HasMES = ((theBigTree.genmatch->at(secondDaughterIndex) == 2 || theBigTree.genmatch->at(secondDaughterIndex) == 4) ? true : false);
 
@@ -1550,23 +1502,45 @@ int main (int argc, char** argv)
 		  theSmallTree.m_nRealTaus = nRealTaus;                     // -1: data; > 0: # real taus in MC
 		}
 
-	  const TLorentzVector tlv_firstLepton (theBigTree.daughters_px->at (firstDaughterIndex),
-											theBigTree.daughters_py->at (firstDaughterIndex),
-											theBigTree.daughters_pz->at (firstDaughterIndex),
-											theBigTree.daughters_e->at (firstDaughterIndex)
-											);
+	  TLorentzVector tlv_firstLepton(corrLeptons.px(firstDaughterIndex),
+									 corrLeptons.py(firstDaughterIndex),
+									 corrLeptons.pz(firstDaughterIndex),
+									 corrLeptons.en(firstDaughterIndex));
+	  TLorentzVector tlv_secondLepton(corrLeptons.px(secondDaughterIndex),
+									  corrLeptons.py(secondDaughterIndex),
+									  corrLeptons.pz(secondDaughterIndex),
+									  corrLeptons.en(secondDaughterIndex));
 
-	  const TLorentzVector tlv_secondLepton (theBigTree.daughters_px->at (secondDaughterIndex),
-											 theBigTree.daughters_py->at (secondDaughterIndex),
-											 theBigTree.daughters_pz->at (secondDaughterIndex),
-											 theBigTree.daughters_e->at (secondDaughterIndex)
-											 );
+	  // electron energy scales and smears
+	  double originalEn1 = tlv_firstLepton.E();
+	  double originalEn2 = tlv_secondLepton.E();	  
+	  TLorentzVector tlv_firstLepton_eesUp    = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eesDown  = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eesUp   = tlv_secondLepton;
+	  TLorentzVector tlv_secondLepton_eesDown = tlv_secondLepton;
+	  TLorentzVector tlv_firstLepton_eerUp    = tlv_firstLepton;
+	  TLorentzVector tlv_firstLepton_eerDown  = tlv_firstLepton;
+	  TLorentzVector tlv_secondLepton_eerUp   = tlv_secondLepton;
+	  TLorentzVector tlv_secondLepton_eerDown = tlv_secondLepton;
+	  if (isMC) {
+		if(oph.isElectron(type1)) {
+		  tlv_firstLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(firstDaughterIndex) / originalEn1;
+		  tlv_firstLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(firstDaughterIndex) / originalEn1;
+		  tlv_firstLepton_eerUp	  *= theBigTree.daughters_energySigmaUp  ->at(firstDaughterIndex) / originalEn1;				  
+		  tlv_firstLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(firstDaughterIndex) / originalEn1;
+		}
+		if(oph.isElectron(type2)) {
+		  tlv_secondLepton_eesUp   *= theBigTree.daughters_energyScaleUp  ->at(secondDaughterIndex) / originalEn2;
+		  tlv_secondLepton_eesDown *= theBigTree.daughters_energyScaleDown->at(secondDaughterIndex) / originalEn2;
+		  tlv_secondLepton_eerUp   *= theBigTree.daughters_energySigmaUp  ->at(secondDaughterIndex) / originalEn2;				  
+		  tlv_secondLepton_eerDown *= theBigTree.daughters_energySigmaDown->at(secondDaughterIndex) / originalEn2;
+		}
+	  }
 
-	  auto met_phi_corr = met_phi_correction_pxpy(
-												  theBigTree.METx->at(chosenTauPair),
-												  theBigTree.METy->at(chosenTauPair),
-												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC
-												  );
+	  std::pair<float, float> corrMET = corrLeptons.correctMET(theBigTree.METx->at(chosenTauPair),
+															   theBigTree.METy->at(chosenTauPair));
+	  auto met_phi_corr = met_phi_correction_pxpy(corrMET.first, corrMET.second,
+												  theBigTree.npv, theBigTree.RunNumber, PERIOD, isMC);
 	  TLorentzVector tlv_MET;
 	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second,
 						 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
@@ -1755,29 +1729,29 @@ int main (int argc, char** argv)
 	  vector <TLorentzVector> tlv_secondLepton_tauup   (N_tauhDM, tlv_secondLepton);
 	  vector <TLorentzVector> tlv_secondLepton_taudown (N_tauhDM, tlv_secondLepton);
 
-	  //EES:
-	  vector <double> unc_EESup_first ;
-	  vector <double> unc_EESup_second;
-	  vector <double> unc_EESdw_first ;
-	  vector <double> unc_EESdw_second;
+	  //FES:
+	  vector <double> unc_FESup_first ;
+	  vector <double> unc_FESup_second;
+	  vector <double> unc_FESdw_first ;
+	  vector <double> unc_FESdw_second;
 
 	  if (isMC)
 		{
-		  unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
-		  unc_EESup_first.push_back(theBigTree.daughters_EESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
-		  unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
-		  unc_EESdw_first.push_back(theBigTree.daughters_EESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
+		  unc_FESup_first.push_back(theBigTree.daughters_FESshiftDM0up ->at (firstDaughterIndex)); // first daughter, DM 0
+		  unc_FESup_first.push_back(theBigTree.daughters_FESshiftDM1up ->at (firstDaughterIndex)); // first daughter, DM 1
+		  unc_FESdw_first.push_back(theBigTree.daughters_FESshiftDM0dw ->at (firstDaughterIndex)); // first daughter, DM 0
+		  unc_FESdw_first.push_back(theBigTree.daughters_FESshiftDM1dw ->at (firstDaughterIndex)); // first daughter, DM 1
 
-		  unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
-		  unc_EESup_second.push_back(theBigTree.daughters_EESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
-		  unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
-		  unc_EESdw_second.push_back(theBigTree.daughters_EESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
+		  unc_FESup_second.push_back(theBigTree.daughters_FESshiftDM0up ->at (secondDaughterIndex)); // second daughter, DM 0
+		  unc_FESup_second.push_back(theBigTree.daughters_FESshiftDM1up ->at (secondDaughterIndex)); // second daughter, DM 1
+		  unc_FESdw_second.push_back(theBigTree.daughters_FESshiftDM0dw ->at (secondDaughterIndex)); // second daughter, DM 0
+		  unc_FESdw_second.push_back(theBigTree.daughters_FESshiftDM1dw ->at (secondDaughterIndex)); // second daughter, DM 1
 		}
 
-	  vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_EES, tlv_firstLepton);
-	  vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_EES, tlv_firstLepton);
-	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_EES, tlv_secondLepton);
-	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_EES, tlv_secondLepton);
+	  vector <TLorentzVector> tlv_firstLepton_eleup    (N_tauhDM_FES, tlv_firstLepton);
+	  vector <TLorentzVector> tlv_firstLepton_eledown  (N_tauhDM_FES, tlv_firstLepton);
+	  vector <TLorentzVector> tlv_secondLepton_eleup   (N_tauhDM_FES, tlv_secondLepton);
+	  vector <TLorentzVector> tlv_secondLepton_eledown (N_tauhDM_FES, tlv_secondLepton);
 
 	  // for each decay mode, bool indicating if this lepton matches the dacay mode in the loop
 	  // just for protection, probably it's not needed
@@ -1803,20 +1777,20 @@ int main (int argc, char** argv)
 			  tlv_firstLepton_tauup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			  tlv_firstLepton_taudown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_TES_first[idm], isthisDM_first[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			}
-		  else if(lep1HasEES && idm < N_tauhDM_EES)
+		  else if(lep1HasFES && idm < N_tauhDM_FES)
 			{
-			  tlv_firstLepton_eleup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_EESup_first[idm], isthisDM_first[idm]);
-			  tlv_firstLepton_eledown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_EESdw_first[idm], isthisDM_first[idm]);
+			  tlv_firstLepton_eleup[idm]   = getShiftedDau(tlv_firstLepton, 1.,  unc_FESup_first[idm], isthisDM_first[idm]);
+			  tlv_firstLepton_eledown[idm] = getShiftedDau(tlv_firstLepton, -1., unc_FESdw_first[idm], isthisDM_first[idm]);
 			}
 		  if (lep2HasTES)
 			{
 			  tlv_secondLepton_tauup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			  tlv_secondLepton_taudown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_TES_second[idm], isthisDM_second[idm], (idm != 0));  // no mass shift for DM == 0 (idm == 0)
 			}
-		  else if(lep2HasEES && idm < N_tauhDM_EES)
+		  else if(lep2HasFES && idm < N_tauhDM_FES)
 			{
-			  tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_EESup_second[idm], isthisDM_second[idm]);
-			  tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_EESdw_second[idm], isthisDM_second[idm]);
+			  tlv_secondLepton_eleup[idm]   = getShiftedDau(tlv_secondLepton, 1.,  unc_FESup_second[idm], isthisDM_second[idm]);
+			  tlv_secondLepton_eledown[idm] = getShiftedDau(tlv_secondLepton, -1., unc_FESdw_second[idm], isthisDM_second[idm]);
 			}
 		} // end loop over DMs
 
@@ -1903,7 +1877,6 @@ int main (int argc, char** argv)
 										tlv_secondLepton.Pt(), tlv_secondLepton.Eta()) ; // check only lepton triggers
 
 		  passMETTrg = trigReader.checkMET(triggerbit, &pass_triggerbit, vMETnoMu.Mod(), met_thresh);
-
 		  passSingleTau = trigReader.checkSingleTau(triggerbit, matchFlag1, matchFlag2, trgNotOverlapFlag,
 													goodTriggerType1, goodTriggerType2,
 													tlv_firstLepton.Pt(), tlv_firstLepton.Eta(),
@@ -1952,9 +1925,9 @@ int main (int argc, char** argv)
 		  bool metAccept       = passMETTrg    and trgRegions["met"]; 
 		  bool singletauAccept = passSingleTau and trgRegions["tau"];
 		  if (!isMC) {
-			legacyAccept    = legacyAccept    and !isMETDataset;
+			legacyAccept    = legacyAccept    and !isMETDataset and (!isTauDataset or pType==2);
 			metAccept       = metAccept       and isMETDataset;
-			singletauAccept = singletauAccept and !isMETDataset;
+			singletauAccept = singletauAccept and !isMETDataset and isTauDataset;
 		  }
 		  bool triggerAccept = legacyAccept or metAccept or singletauAccept;
 
@@ -1991,6 +1964,7 @@ int main (int argc, char** argv)
 		  if (!triggerAccept) continue;
 		  
 		  theSmallTree.m_pass_triggerbit = pass_triggerbit;
+
 		  ec.Increment ("Trigger", EvtW); // for data, EvtW is 1.0
 		  if (isHHsignal && pairType == genHHDecMode) {
 			ecHHsig[genHHDecMode].Increment ("Trigger", EvtW);
@@ -1999,6 +1973,10 @@ int main (int argc, char** argv)
 		  theSmallTree.m_isLeptrigger = passTrg;
 		  theSmallTree.m_isMETtrigger = passMETTrg;
 		  theSmallTree.m_isSingleTautrigger = passSingleTau;
+
+		  theSmallTree.m_legacyAccept = legacyAccept;
+		  theSmallTree.m_metAccept = metAccept;
+		  theSmallTree.m_singletauAccept = singletauAccept;
 		} // end if applyTriggers
 
       // ----------------------------------------------------------
@@ -2139,14 +2117,6 @@ int main (int argc, char** argv)
 		}
 
 	  theSmallTree.m_pairType    = pType ;
-
-	  if (theBigTree.npu >= 0 && theBigTree.npu <= 99) // good PU weights
-		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,theBigTree.npu,PUreweightFile) : 1) ;
-	  else if (theBigTree.npu >= 100)                  // use the last available bin for the PU weight
-		theSmallTree.m_PUReweight  = (isMC ? reweight.weight(PUReweight_MC,PUReweight_target,99,PUreweightFile) : 1) ;
-	  else                                             // if npu<0 --> bug in MC --> weight=0
-		theSmallTree.m_PUReweight  = (isMC ? 0 : 1) ;
-
 	  theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
 	  theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
 	  theSmallTree.m_EventNumber = theBigTree.EventNumber ;
@@ -2187,7 +2157,9 @@ int main (int argc, char** argv)
 	  theSmallTree.m_MHTnoMuy      = vMHTnoMu.Y();
 	
 	  // L1ECALPrefiringWeight - https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1ECALPrefiringWeightRecipe
-	  theSmallTree.m_L1pref_weight = theBigTree.prefiringweight;
+	  theSmallTree.m_L1pref_weight      = theBigTree.prefiringweight;
+	  theSmallTree.m_L1pref_weight_up   = theBigTree.prefiringweightup;
+	  theSmallTree.m_L1pref_weight_down = theBigTree.prefiringweightdown;
 	
 	  if (DEBUG)
 		{
@@ -2375,6 +2347,18 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau1_e_eledown_DM0  = tlv_firstLepton_eledown[0].E();
 	  theSmallTree.m_dau1_e_eledown_DM1  = tlv_firstLepton_eledown[1].E();
 
+	  // electron energy scale in etau channel
+	  theSmallTree.m_dau1_pt_eesUp   = tlv_firstLepton_eesUp.Pt();
+	  theSmallTree.m_dau1_pt_eesDown = tlv_firstLepton_eesDown.Pt();
+	  theSmallTree.m_dau1_e_eesUp    = tlv_firstLepton_eesUp.E();
+	  theSmallTree.m_dau1_e_eesDown  = tlv_firstLepton_eesDown.E();
+
+	  // electron energy resolution in etau channel
+	  theSmallTree.m_dau1_pt_eerUp   = tlv_firstLepton_eerUp.Pt();
+	  theSmallTree.m_dau1_pt_eerDown   = tlv_firstLepton_eerDown.Pt();
+	  theSmallTree.m_dau1_e_eerUp    = tlv_firstLepton_eerUp.E();
+	  theSmallTree.m_dau1_e_eerDown    = tlv_firstLepton_eerDown.E();
+	  
 	  theSmallTree.m_dau1_eta = tlv_firstLepton.Eta () ;
 	  theSmallTree.m_dau1_phi = tlv_firstLepton.Phi () ;
 	  theSmallTree.m_dau1_e = theBigTree.daughters_e->at (firstDaughterIndex) ;
@@ -2417,6 +2401,18 @@ int main (int argc, char** argv)
 	  theSmallTree.m_dau2_e_eledown_DM0 = tlv_secondLepton_eledown[0].E();
 	  theSmallTree.m_dau2_e_eledown_DM1 = tlv_secondLepton_eledown[1].E();
 
+	  // electron energy scale in etau channel
+	  theSmallTree.m_dau2_pt_eesUp   = tlv_secondLepton_eesUp.Pt();
+	  theSmallTree.m_dau2_pt_eesDown = tlv_secondLepton_eesDown.Pt();
+	  theSmallTree.m_dau2_e_eesUp    = tlv_secondLepton_eesUp.E();
+	  theSmallTree.m_dau2_e_eesDown  = tlv_secondLepton_eesDown.E();
+
+	  // electron energy resolution in etau channel
+	  theSmallTree.m_dau2_pt_eerUp   = tlv_secondLepton_eerUp.Pt();
+	  theSmallTree.m_dau2_pt_eerDown   = tlv_secondLepton_eerDown.Pt();
+	  theSmallTree.m_dau2_e_eerUp    = tlv_secondLepton_eerUp.E();
+	  theSmallTree.m_dau2_e_eerDown    = tlv_secondLepton_eerDown.E();
+
 	  theSmallTree.m_dau2_eta = tlv_secondLepton.Eta () ;
 	  theSmallTree.m_dau2_phi = tlv_secondLepton.Phi () ;
 	  theSmallTree.m_dau2_e = theBigTree.daughters_e->at (secondDaughterIndex) ;
@@ -2431,66 +2427,76 @@ int main (int argc, char** argv)
 	  // Still preliminary:
 	  // DeepTauVSele: https://indico.cern.ch/event/865792/contributions/3659828/attachments/1954858/3246751/ETauFR-update2Dec.pdf
 	  // DeepTauVSmu : https://indico.cern.ch/event/866243/contributions/3650016/attachments/1950974/3238736/mutauFRRun2_Yiwen_20191121.pdf
-	  float idSF_deep_2d		= 1.0;  // use this for DeepTauV2p1 DM and pT dependent
-	  float idFakeSF_deep_2d	= 1.0;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
-	  float fakeRateSF_deep		= 1.0;  // use this for e/mu->tauh fake SF DeepTau
+	  float idSF_deep_2d = -99.f;  // use this for DeepTauV2p1 DM and pT dependent
+	  float dauSFs = -99.f;	// use this for DeepTauV2p1 pt dependent + e/mu->tauh fake SF
+	  float fakeRateSF_deep = -99.f;  // use this for e/mu->tauh fake SF DeepTau
 
-	  float idFakeSF_tauid_2d_stat0_DM0_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM0_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM0_up				= 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM0_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	= 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= 1.f;
+	  float dauSFs_tauid_2d_stat0_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM0_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM0_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM0_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM0_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM1_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM1_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM1_up				= 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM1_down			= 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_up   = 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= 1.f;	   
+	  float dauSFs_tauid_2d_stat0_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM1_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM1_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM1_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM1_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM10_up				 = 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM10_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM10_up				 = 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM10_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_up   = 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = 1.f;	   
+	  float dauSFs_tauid_2d_stat0_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM10_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM10_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM10_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM10_down = -99.f;
 
-	  float idFakeSF_tauid_2d_stat0_DM11_up				 = 1.f;
-	  float idFakeSF_tauid_2d_stat0_DM11_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_stat1_DM11_up				 = 1.f;					
-	  float idFakeSF_tauid_2d_stat1_DM11_down			 = 1.f;				  
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_up   = 1.f;
-	  float idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = 1.f;	   
+	  float dauSFs_tauid_2d_stat0_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_stat0_DM11_down = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_stat1_DM11_down = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM11_up = -99.f;
+	  float dauSFs_tauid_2d_systuncorrdmeras_DM11_down = -99.f;
 
-	  float idFakeSF_tauid_2d_systcorrdmeras_up			= 1.f;		   
-	  float idFakeSF_tauid_2d_systcorrdmeras_down		= 1.f;		 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_up	= 1.f;	 
-	  float idFakeSF_tauid_2d_systcorrdmuncorreras_down	= 1.f; 
-	  float idFakeSF_tauid_2d_systcorrerasgt140_up      = 1.f;
-	  float idFakeSF_tauid_2d_systcorrerasgt140_down	= 1.f;
-	  float idFakeSF_tauid_2d_stat0gt140_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat0gt140_down			= 1.f;
-	  float idFakeSF_tauid_2d_stat1gt140_up				= 1.f;
-	  float idFakeSF_tauid_2d_stat1gt140_down			= 1.f;
-	  float idFakeSF_tauid_2d_extrapgt140_up     		= 1.f;
-	  float idFakeSF_tauid_2d_extrapgt140_down     		= 1.f;
+	  float dauSFs_tauid_2d_systcorrdmeras_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmeras_down = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmuncorreras_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrdmuncorreras_down = -99.f;
+	  float dauSFs_tauid_2d_systcorrerasgt140_up = -99.f;
+	  float dauSFs_tauid_2d_systcorrerasgt140_down = -99.f;
+	  float dauSFs_tauid_2d_stat0gt140_up = -99.f;
+	  float dauSFs_tauid_2d_stat0gt140_down = -99.f;
+	  float dauSFs_tauid_2d_stat1gt140_up = -99.f;
+	  float dauSFs_tauid_2d_stat1gt140_down = -99.f;
+	  float dauSFs_tauid_2d_extrapgt140_up = -99.f;
+	  float dauSFs_tauid_2d_extrapgt140_down = -99.f;
 	
-	  float idFakeSF_mutauFR_etaLt0p4_up      = 1.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_up   = 1.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_up   = 1.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_up   = 1.0;
-	  float idFakeSF_mutauFR_etaGt1p7_up      = 1.0;
-	  float idFakeSF_mutauFR_etaLt0p4_down    = 1.0;
-	  float idFakeSF_mutauFR_eta0p4to0p8_down = 1.0;
-	  float idFakeSF_mutauFR_eta0p8to1p2_down = 1.0;
-	  float idFakeSF_mutauFR_eta1p2to1p7_down = 1.0;
-	  float idFakeSF_mutauFR_etaGt1p7_down    = 1.0;
+	  float dauSFs_mutauFR_etaLt0p4_up = -99.f;
+	  float dauSFs_mutauFR_eta0p4to0p8_up = -99.f;
+	  float dauSFs_mutauFR_eta0p8to1p2_up = -99.f;
+	  float dauSFs_mutauFR_eta1p2to1p7_up = -99.f;
+	  float dauSFs_mutauFR_etaGt1p7_up = -99.f;
+	  float dauSFs_mutauFR_etaLt0p4_down = -99.f;
+	  float dauSFs_mutauFR_eta0p4to0p8_down = -99.f;
+	  float dauSFs_mutauFR_eta0p8to1p2_down = -99.f;
+	  float dauSFs_mutauFR_eta1p2to1p7_down = -99.f;
+	  float dauSFs_mutauFR_etaGt1p7_down = -99.f;
 
-	  float idFakeSF_etauFR_barrel_up   = 1.0;
-	  float idFakeSF_etauFR_endcap_up   = 1.0;
-	  float idFakeSF_etauFR_barrel_down = 1.0;
-	  float idFakeSF_etauFR_endcap_down = 1.0;
+	  float dauSFs_etauFR_barrel_up = -99.f;
+	  float dauSFs_etauFR_endcap_up = -99.f;
+	  float dauSFs_etauFR_barrel_down = -99.f;
+	  float dauSFs_etauFR_endcap_down = -99.f;
+
+	  float dauSFs_muID_up = -99.f;
+	  float dauSFs_muID_down = -99.f;
+	  float dauSFs_muIso_up = -99.f;
+	  float dauSFs_muIso_down = -99.f;
+
+	  float dauSFs_eleID_up = -99.f;
+	  float dauSFs_eleID_down = -99.f;
+	  float dauSFs_eleReco_up = -99.f;
+	  float dauSFs_eleReco_down = -99.f;
 
 	  // bool helpers for tauID syst bins
 	  vector<bool> isthisPt_IDbin_first = { // 20, 25, 30, 35, 40, infty
@@ -2543,15 +2549,35 @@ int main (int argc, char** argv)
 	  float tau1Genmatch = theBigTree.genmatch->at(firstDaughterIndex);
 	  float tau2Genmatch = theBigTree.genmatch->at(secondDaughterIndex);
 
-	  float idSF_leg1				= 1.f;
-	  float idSF_leg1_deep_vsJet_2d = 1.f;
-	  float idSF_leg1_deep_vsEle    = 1.f;
-	  float idSF_leg1_deep_vsMu     = 1.f;
+	  float idSF_leg1				= -99.f;
+	  float idSF_leg1_deep_vsJet_2d = -99.f;
+	  float idSF_leg1_deep_vsEle    = -99.f;
+	  float idSF_leg1_deep_vsMu     = -99.f;
 
-	  float idSF_leg2				= 1.f;
-	  float idSF_leg2_deep_vsJet_2d = 1.f;
-	  float idSF_leg2_deep_vsEle	= 1.f;
-	  float idSF_leg2_deep_vsMu		= 1.f;
+	  float idSF_leg2				= -99.f;
+	  float idSF_leg2_deep_vsJet_2d = -99.f;
+	  float idSF_leg2_deep_vsEle	= -99.f;
+	  float idSF_leg2_deep_vsMu		= -99.f;
+
+	  float idSF_leg1_muID_up       = -99.f;
+	  float idSF_leg1_muID_down     = -99.f;
+	  float idSF_leg1_muIso_up      = -99.f;
+	  float idSF_leg1_muIso_down    = -99.f;
+
+	  float idSF_leg1_eleID_up      = -99.f;
+	  float idSF_leg1_eleID_down    = -99.f;
+	  float idSF_leg1_eleReco_up	= -99.f;
+	  float idSF_leg1_eleReco_down	= -99.f;
+
+	  float idSF_leg2_muID_up       = -99.f;
+	  float idSF_leg2_muID_down     = -99.f;
+	  float idSF_leg2_muIso_up      = -99.f;
+	  float idSF_leg2_muIso_down    = -99.f;
+
+	  float idSF_leg2_eleID_up      = -99.f;
+	  float idSF_leg2_eleID_down    = -99.f;
+	  float idSF_leg2_eleReco_up	= -99.f;
+	  float idSF_leg2_eleReco_down	= -99.f;
 
 	  bool isFakeJet1 = true;
 	  bool isFakeJet2 = true;
@@ -2562,112 +2588,255 @@ int main (int argc, char** argv)
 		isFakeJet2 = false;
 	  }
 
-	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2)
-		{
-		  idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
-		  idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
-		  idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
+	  if(isMC) {
+		// all channels with one tau in the second leg
+		if (pType<3) {
+			idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
+			idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
+			idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
+
+			// only TauTau has a tau as the first leg
+			if (pType==2) {
+				idSF_leg1_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg1pt, tau1DM, tau1Genmatch);
+				idSF_leg1_deep_vsEle    = Deep_antiEle_vvloose->getSFvsEta(leg1eta, tau1Genmatch);
+				idSF_leg1_deep_vsMu     = Deep_antiMu_tight->getSFvsEta(leg1eta, tau1Genmatch);
+			}
+
+			else if (pType == 0) {
+				// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+				float leg1_muID_SF = lepSFs[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SF = lepSFs[1]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+				float leg1_muIso_SFerr = lepSFs[1]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+
+				idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+				idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+				idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+
+				idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+				idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+
+			}
+
+			else if (pType == 1) {
+				//TODO: should be super cluster eta (not available in bigntuples at the moment)
+				float leg1_eleReco_SF;
+				float leg1_eleReco_SFerr;
+				// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+				if(leg1pt <= 20){
+					leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+					leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				}
+				else{
+					leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+					leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				}
+
+				float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+
+				idSF_leg1 = leg1_eleID_SF * leg1_eleReco_SF;
+				idSF_leg1_eleID_up = (leg1_eleID_SF + leg1_eleID_SFerr) * leg1_eleReco_SF;
+				idSF_leg1_eleID_down = (leg1_eleID_SF - leg1_eleID_SFerr) * leg1_eleReco_SF;
+
+				idSF_leg1_eleReco_up = leg1_eleID_SF * (leg1_eleReco_SF + leg1_eleReco_SFerr);
+				idSF_leg1_eleReco_down = leg1_eleID_SF * (leg1_eleReco_SF - leg1_eleReco_SFerr);
+			}
 		}
+		else if(pType == 3) { //MuMu
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg1_muID_SF = lepSFs[0]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SF = lepSFs[1]->get_ScaleFactor(leg1pt, fabs(leg1eta), pType);
+			float leg1_muIso_SFerr = lepSFs[1]->get_ScaleFactorError(leg1pt, fabs(leg1eta), pType);
 
-	  // all channels with one tau in the second leg
-	  if (isMC and (pType==0 or pType==1 or pType==2))
-		{
-		  idSF_leg2_deep_vsJet_2d = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch);
-		  idSF_leg2_deep_vsEle = Deep_antiEle_vvloose->getSFvsEta(leg2eta, tau2Genmatch);
-		  idSF_leg2_deep_vsMu  = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch);
+			idSF_leg1 = leg1_muID_SF * leg1_muIso_SF;
+			idSF_leg1_muID_up = (leg1_muID_SF + leg1_muID_SFerr) * leg1_muIso_SF;
+			idSF_leg1_muID_down = (leg1_muID_SF - leg1_muID_SFerr) * leg1_muIso_SF;
+
+			idSF_leg1_muIso_up = leg1_muID_SF * (leg1_muIso_SF + leg1_muIso_SFerr);
+			idSF_leg1_muIso_down = leg1_muID_SF * (leg1_muIso_SF - leg1_muIso_SFerr);
+
+			// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+			float leg2_muID_SF = lepSFs[0]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muID_SFerr = lepSFs[0]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SF = lepSFs[1]->get_ScaleFactor(leg2pt, fabs(leg2eta), pType);
+			float leg2_muIso_SFerr = lepSFs[1]->get_ScaleFactorError(leg2pt, fabs(leg2eta), pType);
+
+			idSF_leg2 = leg2_muID_SF * leg2_muIso_SF;
+			idSF_leg2_muID_up = (leg2_muID_SF + leg2_muID_SFerr) * leg2_muIso_SF;
+			idSF_leg2_muID_down = (leg2_muID_SF - leg2_muID_SFerr) * leg2_muIso_SF;
+
+			idSF_leg2_muIso_up = leg2_muID_SF * (leg2_muIso_SF + leg2_muIso_SFerr);
+			idSF_leg2_muIso_down = leg2_muID_SF * (leg2_muIso_SF - leg2_muIso_SFerr);
+
+			idSF_leg1_eleID_up = idSF_leg1;
+			idSF_leg1_eleID_down = idSF_leg1;
+			idSF_leg2_eleID_up = idSF_leg2;
+			idSF_leg2_eleID_down = idSF_leg2;
+
+			idSF_leg1_eleReco_up = idSF_leg1;
+			idSF_leg1_eleReco_down = idSF_leg1;
+			idSF_leg2_eleReco_up = idSF_leg2;
+			idSF_leg2_eleReco_down = idSF_leg2;
+
+			idSF_leg1_deep_vsJet_2d = idSF_leg1;
+			idSF_leg2_deep_vsJet_2d = idSF_leg2;
 		}
-	  
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down	= 1.f;
+		else if(pType == 4) { //EleEle
+			//TODO: should be super cluster eta (not available in bigntuples at the moment)
+			float leg1_eleReco_SF;
+			float leg1_eleReco_SFerr;
+			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+			if(leg1pt <= 20){
+				leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			}
+			else{
+				leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+				leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			}
 
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down	= 1.f;
+			float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
+			float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
 
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down = 1.f;
+			idSF_leg1 = leg1_eleID_SF;
+			idSF_leg1_eleID_up = leg1_eleReco_SF * (leg1_eleID_SF + leg1_eleID_SFerr);
+			idSF_leg1_eleID_down = leg1_eleReco_SF * (leg1_eleID_SF - leg1_eleID_SFerr);
 
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_up				 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_down			 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down = 1.f;
+			idSF_leg1_eleReco_up = (leg1_eleReco_SF + leg1_eleReco_SFerr) * leg1_eleID_SF;
+			idSF_leg1_eleReco_down = (leg1_eleReco_SF - leg1_eleReco_SFerr) * leg1_eleID_SF;
 
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_up				= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_down			= 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = 1.f;
-	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = 1.f;
-		  
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down	= 1.f;
+			//TODO: should be super cluster eta (not available in bigntuples at the moment)
+			float leg2_eleReco_SF;
+			float leg2_eleReco_SFerr;
+			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
+			if(leg2pt <= 20){
+				leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				leg2_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			}
+			else{
+				leg2_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+				leg2_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			}
 
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down	= 1.f;
 
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down = 1.f;
+			float leg2_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
+			float leg2_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
 
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_up				 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_down			 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down = 1.f;
+			idSF_leg2 = leg2_eleID_SF;
 
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_up				= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_down			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= 1.f;
-	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= 1.f;
-	  
+			idSF_leg2_eleID_up = leg2_eleReco_SF * (leg2_eleID_SF + leg2_eleID_SFerr);
+			idSF_leg2_eleID_down = leg2_eleReco_SF * (leg2_eleID_SF - leg2_eleID_SFerr);
+
+			idSF_leg2_eleReco_up = (leg2_eleReco_SF + leg2_eleReco_SFerr) * leg2_eleID_SF;
+			idSF_leg2_eleReco_down = (leg2_eleReco_SF - leg2_eleReco_SFerr) * leg2_eleID_SF;
+
+			idSF_leg1_muID_up = idSF_leg1;
+			idSF_leg1_muID_down = idSF_leg1;
+			idSF_leg2_muID_up = idSF_leg2;
+			idSF_leg2_muID_down = idSF_leg2;
+
+			idSF_leg1_muIso_up = idSF_leg1;
+			idSF_leg1_muIso_down = idSF_leg1;
+			idSF_leg2_muIso_up = idSF_leg2;
+			idSF_leg2_muIso_down = idSF_leg2;
+
+			idSF_leg1_deep_vsJet_2d = idSF_leg1;
+			idSF_leg2_deep_vsJet_2d = idSF_leg2;
+		}
+	  }
+
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM0_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM0_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down	= idSF_leg1_deep_vsJet_2d;
+
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM1_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM1_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down	= idSF_leg1_deep_vsJet_2d;
+
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM10_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM10_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down = idSF_leg1_deep_vsJet_2d;
+
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0_DM11_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_up				 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1_DM11_down			 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down = idSF_leg1_deep_vsJet_2d;
+
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_up			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmeras_down		= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up	    = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down	= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat0gt140_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_up				= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_stat1gt140_down			= idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_up            = idSF_leg1_deep_vsJet_2d;
+	  Float_t idSF_leg1_deep_vsJet_2d_extrapgt140_down          = idSF_leg1_deep_vsJet_2d;
+
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM0_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM0_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down	= idSF_leg2_deep_vsJet_2d;
+
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM1_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM1_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down	= idSF_leg2_deep_vsJet_2d;
+
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM10_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM10_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up	 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down = idSF_leg2_deep_vsJet_2d;
+
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0_DM11_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_up				 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1_DM11_down			 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up	 = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down = idSF_leg2_deep_vsJet_2d;
+
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_up			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up	    = idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down	= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat0gt140_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_up				= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_stat1gt140_down			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_up			= idSF_leg2_deep_vsJet_2d;
+	  Float_t idSF_leg2_deep_vsJet_2d_extrapgt140_down			= idSF_leg2_deep_vsJet_2d;
+
 	  // up and down variations of the ID and isolation of the first leg (only relevant when it is a tau)
 	  vector<float> idSF_leg1_deep_vsEle_up      (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_up       (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 	  vector<float> idSF_leg1_deep_vsEle_down    (2, idSF_leg1_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg1_deep_vsMu_down     (5, idSF_leg1_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
-	  
+
 	  // only TauTau has a tau as the first leg
-	  if (isMC and pType==2) {	
+	  if (isMC and pType==2) {
 		for (int bin = 0; bin < (int) isthisEta_IDbin_first.size(); bin++) {
 		  if (isthisEta_IDbin_first[bin])
 			{
@@ -2744,7 +2913,7 @@ int main (int argc, char** argv)
 	  vector<float> idSF_leg2_deep_vsEle_down    (2, idSF_leg2_deep_vsEle);    // in bins of eta: barrel, endcap
 	  vector<float> idSF_leg2_deep_vsMu_down     (5, idSF_leg2_deep_vsMu);     // in bins of eta, edges at 0, 0.4, 0.8, 1.2, 1.7, infty
 
-	  if (isMC and (pType==0 or pType==1 or pType==2)) {
+	  if (isMC and pType<3) {
 		for (int bin = 0; bin < (int) isthisEta_IDbin_second.size(); bin++) {
 		  if (isthisEta_IDbin_second[bin]) {
 			idSF_leg2_deep_vsMu_up[bin]   = Deep_antiMu_tight->getSFvsEta(leg2eta, tau2Genmatch,	"Up");
@@ -2802,6 +2971,10 @@ int main (int argc, char** argv)
 		  idSF_leg2_deep_vsJet_2d_stat1gt140_up   = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatUp");
 		  idSF_leg2_deep_vsJet_2d_stat1gt140_down = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140StatDown");
 		}
+		else { // set to the nominal values
+		  idSF_leg2_deep_vsJet_2d_stat1gt140_up   = idSF_leg2_deep_vsJet_2d;
+		  idSF_leg2_deep_vsJet_2d_stat1gt140_down = idSF_leg2_deep_vsJet_2d;
+		}
 
 		idSF_leg2_deep_vsJet_2d_systcorrdmeras_up		  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasUp");
 		idSF_leg2_deep_vsJet_2d_systcorrdmeras_down		  = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "SystCorrDMErasDown");
@@ -2812,170 +2985,255 @@ int main (int argc, char** argv)
 		idSF_leg2_deep_vsJet_2d_extrapgt140_up            = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapUp");
 		idSF_leg2_deep_vsJet_2d_extrapgt140_down          = Deep_antiJet_2d->getSFvsDMandPT(leg2pt, tau2DM, tau2Genmatch, "Gt140ExtrapDown");
 	  }
-	
-	  if (isMC) {
-		if (pType == 0 or pType == 3) {
-		  idSF_leg1 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg1pt, leg1eta, pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg1pt, leg1eta, pType);
-		}
-		else if (pType == 1 or pType == 4) {
-		  idSF_leg1 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-		}
-	  }
 
-	  if(isMC and pType == 3) { //MuMu
-		idSF_leg2 = myIDandISOScaleFactor[0]->get_ScaleFactor(leg2pt, leg2eta, pType) * myIDandISOScaleFactor[2]->get_ScaleFactor(leg2pt, leg2eta, pType);
-	  }
-	  else if(isMC and pType == 4) { //EleEle
-		idSF_leg2 = myIDandISOScaleFactor[1]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-	  }
-
-	  float except_VsJet, except_vsMu, except_vsEle;
+	  float except_VsJet, except_vsMu, except_vsEle, except_leg1;
 	  // EleTau and MuTau
 	  if (isMC and (pType == 0 or pType == 1))
 		{
 		  idSF_deep_2d = idSF_leg1 * idSF_leg2_deep_vsJet_2d;
 		  fakeRateSF_deep = idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle    * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1 * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 		  except_vsMu  = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
 		  except_vsEle = idSF_leg1 * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
-		
-		  idFakeSF_deep_2d = except_VsJet * idSF_leg2_deep_vsJet_2d;
+		  except_leg1 = idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_tauid_2d_stat0_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
-		  idFakeSF_tauid_2d_stat0_DM0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
-		  idFakeSF_tauid_2d_stat1_DM0_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
-		  idFakeSF_tauid_2d_stat1_DM0_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
+		  dauSFs = except_VsJet * idSF_leg2_deep_vsJet_2d;
 
-		  idFakeSF_tauid_2d_stat0_DM1_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
-		  idFakeSF_tauid_2d_stat0_DM1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
-		  idFakeSF_tauid_2d_stat1_DM1_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
-		  idFakeSF_tauid_2d_stat1_DM1_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
+		  dauSFs_tauid_2d_stat0_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
+		  dauSFs_tauid_2d_stat0_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
+		  dauSFs_tauid_2d_stat1_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
+		  dauSFs_tauid_2d_stat1_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
 
-		  idFakeSF_tauid_2d_stat0_DM10_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
-		  idFakeSF_tauid_2d_stat0_DM10_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
-		  idFakeSF_tauid_2d_stat1_DM10_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
-		  idFakeSF_tauid_2d_stat1_DM10_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
+		  dauSFs_tauid_2d_stat0_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
+		  dauSFs_tauid_2d_stat0_DM1_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
+		  dauSFs_tauid_2d_stat1_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
+		  dauSFs_tauid_2d_stat1_DM1_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
 
-		  idFakeSF_tauid_2d_stat0_DM11_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
-		  idFakeSF_tauid_2d_stat0_DM11_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
-		  idFakeSF_tauid_2d_stat1_DM11_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
-		  idFakeSF_tauid_2d_stat1_DM11_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+		  dauSFs_tauid_2d_stat0_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
+		  dauSFs_tauid_2d_stat0_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
+		  dauSFs_tauid_2d_stat1_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
+		  dauSFs_tauid_2d_stat1_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
 
-		  idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
-		  idFakeSF_tauid_2d_systcorrdmeras_down			= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
-		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
-		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_stat0gt140_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
-		  idFakeSF_tauid_2d_stat0gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
-		  idFakeSF_tauid_2d_stat1gt140_up				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
-		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
-		  idFakeSF_tauid_2d_extrapgt140_up 		        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
-		  idFakeSF_tauid_2d_extrapgt140_down	        = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
-		
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg2_deep_vsMu_up[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up	    = except_vsMu * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg2_deep_vsMu_down[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg2_deep_vsMu_down[4];
-	
-		  idFakeSF_etauFR_barrel_up		= except_vsEle * idSF_leg2_deep_vsEle_up[0];
-		  idFakeSF_etauFR_endcap_up		= except_vsEle * idSF_leg2_deep_vsEle_up[1];  
-		  idFakeSF_etauFR_barrel_down	= except_vsEle * idSF_leg2_deep_vsEle_down[0];
-		  idFakeSF_etauFR_endcap_down	= except_vsEle * idSF_leg2_deep_vsEle_down[1];
+		  dauSFs_tauid_2d_stat0_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
+		  dauSFs_tauid_2d_stat0_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
+		  dauSFs_tauid_2d_stat1_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
+		  dauSFs_tauid_2d_stat1_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+
+		  dauSFs_tauid_2d_systcorrdmeras_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		  dauSFs_tauid_2d_systcorrdmeras_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		  dauSFs_tauid_2d_stat0gt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
+		  dauSFs_tauid_2d_stat0gt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
+		  dauSFs_tauid_2d_stat1gt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
+		  dauSFs_tauid_2d_stat1gt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
+		  dauSFs_tauid_2d_extrapgt140_up = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  dauSFs_tauid_2d_extrapgt140_down = except_VsJet * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
+
+		  dauSFs_mutauFR_etaLt0p4_up = except_vsMu * idSF_leg2_deep_vsMu_up[0];
+		  dauSFs_mutauFR_eta0p4to0p8_up = except_vsMu * idSF_leg2_deep_vsMu_up[1];
+		  dauSFs_mutauFR_eta0p8to1p2_up = except_vsMu * idSF_leg2_deep_vsMu_up[2];
+		  dauSFs_mutauFR_eta1p2to1p7_up = except_vsMu * idSF_leg2_deep_vsMu_up[3];
+		  dauSFs_mutauFR_etaGt1p7_up = except_vsMu * idSF_leg2_deep_vsMu_up[4];
+		  dauSFs_mutauFR_etaLt0p4_down = except_vsMu * idSF_leg2_deep_vsMu_down[0];
+		  dauSFs_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg2_deep_vsMu_down[1];
+		  dauSFs_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg2_deep_vsMu_down[2];
+		  dauSFs_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[3];
+		  dauSFs_mutauFR_etaGt1p7_down = except_vsMu * idSF_leg2_deep_vsMu_down[4];
+
+		  dauSFs_etauFR_barrel_up = except_vsEle * idSF_leg2_deep_vsEle_up[0];
+		  dauSFs_etauFR_endcap_up = except_vsEle * idSF_leg2_deep_vsEle_up[1];
+		  dauSFs_etauFR_barrel_down = except_vsEle * idSF_leg2_deep_vsEle_down[0];
+		  dauSFs_etauFR_endcap_down = except_vsEle * idSF_leg2_deep_vsEle_down[1];
+
+		  if(pType==0){
+			dauSFs_muID_up = except_leg1 * idSF_leg1_muID_up;
+			dauSFs_muID_down = except_leg1 * idSF_leg1_muID_down;
+			dauSFs_muIso_up = except_leg1 * idSF_leg1_muIso_up;
+			dauSFs_muIso_down = except_leg1 * idSF_leg1_muIso_down;
+
+			dauSFs_eleID_up = except_leg1 * idSF_leg1;
+			dauSFs_eleID_down = except_leg1 * idSF_leg1;
+			dauSFs_eleReco_up = except_leg1 * idSF_leg1;
+			dauSFs_eleReco_down = except_leg1 * idSF_leg1;
+		  }
+		  else{
+			dauSFs_muID_up = except_leg1 * idSF_leg1;
+			dauSFs_muID_down = except_leg1 * idSF_leg1;
+			dauSFs_muIso_up = except_leg1 * idSF_leg1;
+			dauSFs_muIso_down = except_leg1 * idSF_leg1;
+
+			dauSFs_eleID_up = except_leg1 * idSF_leg1_eleID_up;
+			dauSFs_eleID_down = except_leg1 * idSF_leg1_eleID_down;
+			dauSFs_eleReco_up = except_leg1 * idSF_leg1_eleReco_up;
+			dauSFs_eleReco_down = except_leg1 * idSF_leg1_eleReco_down;
+		  }
 		}
 	  else if (isMC and pType == 2) // TauTau
 		{
-		  idSF_deep_2d	= idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
+		  idSF_deep_2d = idSF_leg1_deep_vsJet_2d * idSF_leg2_deep_vsJet_2d;
 
-		  except_VsJet	= idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
-		  except_vsMu	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
-		  except_vsEle	= idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
+		  except_VsJet = idSF_leg1_deep_vsEle * idSF_leg1_deep_vsMu * idSF_leg2_deep_vsEle * idSF_leg2_deep_vsMu;
+		  except_vsMu = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsEle * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsEle;
+		  except_vsEle = idSF_leg1_deep_vsJet_2d * idSF_leg1_deep_vsMu  * idSF_leg2_deep_vsJet_2d * idSF_leg2_deep_vsMu;
 
-		  idFakeSF_deep_2d	= except_VsJet * idSF_deep_2d;
-		  fakeRateSF_deep	= except_VsJet;
+		  dauSFs = except_VsJet * idSF_deep_2d;
+		  fakeRateSF_deep = except_VsJet;
 
-		  idFakeSF_tauid_2d_stat0_DM0_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_up				 * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
-		  idFakeSF_tauid_2d_stat0_DM0_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_down			 * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
-		  idFakeSF_tauid_2d_stat1_DM0_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_up				 * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
-		  idFakeSF_tauid_2d_stat1_DM0_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_down			 * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up	 * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
+		  dauSFs_tauid_2d_stat0_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_up * idSF_leg2_deep_vsJet_2d_stat0_DM0_up;
+		  dauSFs_tauid_2d_stat0_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM0_down * idSF_leg2_deep_vsJet_2d_stat0_DM0_down;
+		  dauSFs_tauid_2d_stat1_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_up * idSF_leg2_deep_vsJet_2d_stat1_DM0_up;
+		  dauSFs_tauid_2d_stat1_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM0_down * idSF_leg2_deep_vsJet_2d_stat1_DM0_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM0_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM0_down;
 
-		  idFakeSF_tauid_2d_stat0_DM1_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_up				 * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
-		  idFakeSF_tauid_2d_stat0_DM1_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_down			 * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
-		  idFakeSF_tauid_2d_stat1_DM1_up			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_up				 * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
-		  idFakeSF_tauid_2d_stat1_DM1_down			  = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_down			 * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	  = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up	 * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
+		  dauSFs_tauid_2d_stat0_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_up * idSF_leg2_deep_vsJet_2d_stat0_DM1_up;
+		  dauSFs_tauid_2d_stat0_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM1_down * idSF_leg2_deep_vsJet_2d_stat0_DM1_down;
+		  dauSFs_tauid_2d_stat1_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_up * idSF_leg2_deep_vsJet_2d_stat1_DM1_up;
+		  dauSFs_tauid_2d_stat1_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM1_down * idSF_leg2_deep_vsJet_2d_stat1_DM1_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM1_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM1_down;
 
-		  idFakeSF_tauid_2d_stat0_DM10_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_up			    * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
-		  idFakeSF_tauid_2d_stat0_DM10_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_down		    * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
-		  idFakeSF_tauid_2d_stat1_DM10_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_up			    * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
-		  idFakeSF_tauid_2d_stat1_DM10_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_down		    * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM10_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
+		  dauSFs_tauid_2d_stat0_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_up * idSF_leg2_deep_vsJet_2d_stat0_DM10_up;
+		  dauSFs_tauid_2d_stat0_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM10_down * idSF_leg2_deep_vsJet_2d_stat0_DM10_down;
+		  dauSFs_tauid_2d_stat1_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_up * idSF_leg2_deep_vsJet_2d_stat1_DM10_up;
+		  dauSFs_tauid_2d_stat1_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM10_down * idSF_leg2_deep_vsJet_2d_stat1_DM10_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM10_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM10_down;
 
-		  idFakeSF_tauid_2d_stat0_DM11_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_up			    * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
-		  idFakeSF_tauid_2d_stat0_DM11_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_down		    * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
-		  idFakeSF_tauid_2d_stat1_DM11_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_up			    * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
-		  idFakeSF_tauid_2d_stat1_DM11_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_down		    * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up   * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
-		  idFakeSF_tauid_2d_systuncorrdmeras_DM11_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
+		  dauSFs_tauid_2d_stat0_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_up * idSF_leg2_deep_vsJet_2d_stat0_DM11_up;
+		  dauSFs_tauid_2d_stat0_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0_DM11_down * idSF_leg2_deep_vsJet_2d_stat0_DM11_down;
+		  dauSFs_tauid_2d_stat1_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_up * idSF_leg2_deep_vsJet_2d_stat1_DM11_up;
+		  dauSFs_tauid_2d_stat1_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1_DM11_down * idSF_leg2_deep_vsJet_2d_stat1_DM11_down;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_up * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_up;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systuncorrdmeras_DM11_down * idSF_leg2_deep_vsJet_2d_systuncorrdmeras_DM11_down;
 
-		  idFakeSF_tauid_2d_systcorrdmeras_up			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up		   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
-		  idFakeSF_tauid_2d_systcorrdmeras_down			= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down	   * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up   * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
-		  idFakeSF_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
-		  idFakeSF_tauid_2d_systcorrerasgt140_up		= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up      * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
-		  idFakeSF_tauid_2d_systcorrerasgt140_down   	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down    * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
-		  idFakeSF_tauid_2d_stat0gt140_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_up		       * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
-		  idFakeSF_tauid_2d_stat0gt140_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_down		   * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
-		  idFakeSF_tauid_2d_stat1gt140_up				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_up		       * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
-		  idFakeSF_tauid_2d_stat1gt140_down				= except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_down		   * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
-		  idFakeSF_tauid_2d_extrapgt140_up            	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up            * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
-		  idFakeSF_tauid_2d_extrapgt140_down          	= except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down          * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
+		  dauSFs_tauid_2d_systcorrdmeras_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_up * idSF_leg2_deep_vsJet_2d_systcorrdmeras_up;
+		  dauSFs_tauid_2d_systcorrdmeras_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmeras_down * idSF_leg2_deep_vsJet_2d_systcorrdmeras_down;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_up * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_up;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrdmuncorreras_down * idSF_leg2_deep_vsJet_2d_systcorrdmuncorreras_down;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_up * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_up;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_systcorrerasgt140_down * idSF_leg2_deep_vsJet_2d_systcorrerasgt140_down;
+		  dauSFs_tauid_2d_stat0gt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_up * idSF_leg2_deep_vsJet_2d_stat0gt140_up;
+		  dauSFs_tauid_2d_stat0gt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat0gt140_down * idSF_leg2_deep_vsJet_2d_stat0gt140_down;
+		  dauSFs_tauid_2d_stat1gt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_up * idSF_leg2_deep_vsJet_2d_stat1gt140_up;
+		  dauSFs_tauid_2d_stat1gt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_stat1gt140_down * idSF_leg2_deep_vsJet_2d_stat1gt140_down;
+		  dauSFs_tauid_2d_extrapgt140_up = except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_up * idSF_leg2_deep_vsJet_2d_extrapgt140_up;
+		  dauSFs_tauid_2d_extrapgt140_down = except_VsJet * idSF_leg1_deep_vsJet_2d_extrapgt140_down * idSF_leg2_deep_vsJet_2d_extrapgt140_down;
 
-		  idFakeSF_mutauFR_etaLt0p4_up      = except_vsMu * idSF_leg1_deep_vsMu_up[0]   * idSF_leg2_deep_vsMu_up[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_up   = except_vsMu * idSF_leg1_deep_vsMu_up[1]   * idSF_leg2_deep_vsMu_up[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_up   = except_vsMu * idSF_leg1_deep_vsMu_up[2]   * idSF_leg2_deep_vsMu_up[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_up   = except_vsMu * idSF_leg1_deep_vsMu_up[3]   * idSF_leg2_deep_vsMu_up[3];
-		  idFakeSF_mutauFR_etaGt1p7_up      = except_vsMu * idSF_leg1_deep_vsMu_up[4]   * idSF_leg2_deep_vsMu_up[4];
-		  idFakeSF_mutauFR_etaLt0p4_down    = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
-		  idFakeSF_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
-		  idFakeSF_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
-		  idFakeSF_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
-		  idFakeSF_mutauFR_etaGt1p7_down    = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
+		  dauSFs_mutauFR_etaLt0p4_up = except_vsMu * idSF_leg1_deep_vsMu_up[0] * idSF_leg2_deep_vsMu_up[0];
+		  dauSFs_mutauFR_eta0p4to0p8_up = except_vsMu * idSF_leg1_deep_vsMu_up[1] * idSF_leg2_deep_vsMu_up[1];
+		  dauSFs_mutauFR_eta0p8to1p2_up = except_vsMu * idSF_leg1_deep_vsMu_up[2] * idSF_leg2_deep_vsMu_up[2];
+		  dauSFs_mutauFR_eta1p2to1p7_up = except_vsMu * idSF_leg1_deep_vsMu_up[3] * idSF_leg2_deep_vsMu_up[3];
+		  dauSFs_mutauFR_etaGt1p7_up = except_vsMu * idSF_leg1_deep_vsMu_up[4] * idSF_leg2_deep_vsMu_up[4];
+		  dauSFs_mutauFR_etaLt0p4_down = except_vsMu * idSF_leg1_deep_vsMu_down[0] * idSF_leg2_deep_vsMu_down[0];
+		  dauSFs_mutauFR_eta0p4to0p8_down = except_vsMu * idSF_leg1_deep_vsMu_down[1] * idSF_leg2_deep_vsMu_down[1];
+		  dauSFs_mutauFR_eta0p8to1p2_down = except_vsMu * idSF_leg1_deep_vsMu_down[2] * idSF_leg2_deep_vsMu_down[2];
+		  dauSFs_mutauFR_eta1p2to1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[3] * idSF_leg2_deep_vsMu_down[3];
+		  dauSFs_mutauFR_etaGt1p7_down = except_vsMu * idSF_leg1_deep_vsMu_down[4] * idSF_leg2_deep_vsMu_down[4];
 
-		  idFakeSF_etauFR_barrel_up   = except_vsEle * idSF_leg1_deep_vsEle_up[0]   * idSF_leg2_deep_vsEle_up[0];
-		  idFakeSF_etauFR_endcap_up   = except_vsEle * idSF_leg1_deep_vsEle_up[1]   * idSF_leg2_deep_vsEle_up[1];
-		  idFakeSF_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
-		  idFakeSF_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+		  dauSFs_etauFR_barrel_up = except_vsEle * idSF_leg1_deep_vsEle_up[0] * idSF_leg2_deep_vsEle_up[0];
+		  dauSFs_etauFR_endcap_up = except_vsEle * idSF_leg1_deep_vsEle_up[1] * idSF_leg2_deep_vsEle_up[1];
+		  dauSFs_etauFR_barrel_down = except_vsEle * idSF_leg1_deep_vsEle_down[0] * idSF_leg2_deep_vsEle_down[0];
+		  dauSFs_etauFR_endcap_down = except_vsEle * idSF_leg1_deep_vsEle_down[1] * idSF_leg2_deep_vsEle_down[1];
+
+		  dauSFs_muID_up = dauSFs;
+		  dauSFs_muID_down = dauSFs;
+		  dauSFs_muIso_up = dauSFs;
+		  dauSFs_muIso_down = dauSFs;
+
+		  dauSFs_eleID_up = dauSFs;
+		  dauSFs_eleID_down = dauSFs;
+		  dauSFs_eleReco_up = dauSFs;
+		  dauSFs_eleReco_down = dauSFs;
 		}
-	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleELe channels
+	  else if(isMC and (pType == 3 or pType == 4))  // MuMu and EleEle channels
 		{
-		  idSF_deep_2d = idFakeSF_deep_2d = idSF_leg1 * idSF_leg2;
+		  idSF_deep_2d = dauSFs = idSF_leg1 * idSF_leg2;
+
+		  dauSFs_tauid_2d_stat0_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM0_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM0_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM0_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM1_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM1_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM1_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM10_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM10_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM10_down = dauSFs;
+
+		  dauSFs_tauid_2d_stat0_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_stat0_DM11_down = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_stat1_DM11_down = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_up = dauSFs;
+		  dauSFs_tauid_2d_systuncorrdmeras_DM11_down = dauSFs;
+
+		  dauSFs_tauid_2d_systcorrdmeras_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmeras_down = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrdmuncorreras_down	= dauSFs;
+		  dauSFs_tauid_2d_systcorrerasgt140_up = dauSFs;
+		  dauSFs_tauid_2d_systcorrerasgt140_down = dauSFs;
+		  dauSFs_tauid_2d_stat0gt140_up = dauSFs;
+		  dauSFs_tauid_2d_stat0gt140_down = dauSFs;
+		  dauSFs_tauid_2d_stat1gt140_up = dauSFs;
+		  dauSFs_tauid_2d_stat1gt140_down = dauSFs;
+		  dauSFs_tauid_2d_extrapgt140_up = dauSFs;
+		  dauSFs_tauid_2d_extrapgt140_down = dauSFs;
+
+		  dauSFs_mutauFR_etaLt0p4_up = dauSFs;
+		  dauSFs_mutauFR_eta0p4to0p8_up = dauSFs;
+		  dauSFs_mutauFR_eta0p8to1p2_up = dauSFs;
+		  dauSFs_mutauFR_eta1p2to1p7_up = dauSFs;
+		  dauSFs_mutauFR_etaGt1p7_up = dauSFs;
+		  dauSFs_mutauFR_etaLt0p4_down = dauSFs;
+		  dauSFs_mutauFR_eta0p4to0p8_down = dauSFs;
+		  dauSFs_mutauFR_eta0p8to1p2_down = dauSFs;
+		  dauSFs_mutauFR_eta1p2to1p7_down = dauSFs;
+		  dauSFs_mutauFR_etaGt1p7_down = dauSFs;
+
+		  dauSFs_etauFR_barrel_up = dauSFs;
+		  dauSFs_etauFR_endcap_up = dauSFs;
+		  dauSFs_etauFR_barrel_down = dauSFs;
+		  dauSFs_etauFR_endcap_down = dauSFs;
+
+		  dauSFs_muID_up = idSF_leg1_muID_up * idSF_leg2_muID_up;
+		  dauSFs_muID_down = idSF_leg1_muID_down * idSF_leg2_muID_down;
+		  dauSFs_muIso_up = idSF_leg1_muIso_up * idSF_leg2_muIso_up;
+		  dauSFs_muIso_down = idSF_leg1_muIso_down * idSF_leg2_muIso_down;
+
+		  dauSFs_eleID_up = idSF_leg1_eleID_up * idSF_leg2_eleID_up;
+		  dauSFs_eleID_down = idSF_leg1_eleID_down * idSF_leg2_eleID_down;
+		  dauSFs_eleReco_up = idSF_leg1_eleReco_up * idSF_leg2_eleReco_up;
+		  dauSFs_eleReco_down = idSF_leg1_eleReco_down * idSF_leg2_eleReco_down;
 		}
 	  
 	  if (DEBUG) {
 		cout << "--- DEBUG idSF ---" << endl;
 		cout << "pairType  : "              << pType                   << endl;
-		cout << "totSF deep_2d: "           << idFakeSF_deep_2d        << endl;
+		cout << "totSF deep_2d: "           << dauSFs                  << endl;
 		cout << "idSF_leg1: "               << idSF_leg1               << endl;
 		cout << "idSF_leg1_deep_vsJet_2d: " << idSF_leg1_deep_vsJet_2d << endl;
 		cout << "idSF_leg1_deep_vsEle: "    << idSF_leg1_deep_vsEle    << endl;
@@ -2986,74 +3244,84 @@ int main (int argc, char** argv)
 	  }
 
 	  // Save the IDandISO SF (event per event)
-	  theSmallTree.m_IdSF_deep_2d				= idSF_deep_2d;
-	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d	= idSF_leg1_deep_vsJet_2d;
-	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d	= idSF_leg2_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_deep_2d = idSF_deep_2d;
+	  theSmallTree.m_IdSF_leg1_deep_vsJet_2d = idSF_leg1_deep_vsJet_2d;
+	  theSmallTree.m_IdSF_leg2_deep_vsJet_2d = idSF_leg2_deep_vsJet_2d;
 	  
-	  theSmallTree.m_IdFakeSF_deep_2d = idFakeSF_deep_2d;
+	  theSmallTree.m_dauSFs = dauSFs;
 	  theSmallTree.m_FakeRateSF_deep  = fakeRateSF_deep;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM0_up				 = idFakeSF_tauid_2d_stat0_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM0_down			 = idFakeSF_tauid_2d_stat0_DM0_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM0_up				 = idFakeSF_tauid_2d_stat1_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM0_down			 = idFakeSF_tauid_2d_stat1_DM0_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_up	 = idFakeSF_tauid_2d_systuncorrdmeras_DM0_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM0_down = idFakeSF_tauid_2d_systuncorrdmeras_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM0_up = dauSFs_tauid_2d_stat0_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM0_down = dauSFs_tauid_2d_stat0_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM0_up = dauSFs_tauid_2d_stat1_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM0_down = dauSFs_tauid_2d_stat1_DM0_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM0_up = dauSFs_tauid_2d_systuncorrdmeras_DM0_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM0_down = dauSFs_tauid_2d_systuncorrdmeras_DM0_down;
 	  
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM1_up				 = idFakeSF_tauid_2d_stat0_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM1_down			 = idFakeSF_tauid_2d_stat0_DM1_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM1_up				 = idFakeSF_tauid_2d_stat1_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM1_down			 = idFakeSF_tauid_2d_stat1_DM1_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_up	 = idFakeSF_tauid_2d_systuncorrdmeras_DM1_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM1_down = idFakeSF_tauid_2d_systuncorrdmeras_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM1_up = dauSFs_tauid_2d_stat0_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM1_down = dauSFs_tauid_2d_stat0_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM1_up = dauSFs_tauid_2d_stat1_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM1_down = dauSFs_tauid_2d_stat1_DM1_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM1_up = dauSFs_tauid_2d_systuncorrdmeras_DM1_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM1_down = dauSFs_tauid_2d_systuncorrdmeras_DM1_down;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM10_up			  = idFakeSF_tauid_2d_stat0_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM10_down			  = idFakeSF_tauid_2d_stat0_DM10_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM10_up			  = idFakeSF_tauid_2d_stat1_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM10_down			  = idFakeSF_tauid_2d_stat1_DM10_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_up	  = idFakeSF_tauid_2d_systuncorrdmeras_DM10_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM10_down = idFakeSF_tauid_2d_systuncorrdmeras_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM10_up = dauSFs_tauid_2d_stat0_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM10_down = dauSFs_tauid_2d_stat0_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM10_up = dauSFs_tauid_2d_stat1_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM10_down = dauSFs_tauid_2d_stat1_DM10_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM10_up = dauSFs_tauid_2d_systuncorrdmeras_DM10_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM10_down = dauSFs_tauid_2d_systuncorrdmeras_DM10_down;
 	  
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM11_up			  = idFakeSF_tauid_2d_stat0_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0_DM11_down			  = idFakeSF_tauid_2d_stat0_DM11_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM11_up			  = idFakeSF_tauid_2d_stat1_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1_DM11_down			  = idFakeSF_tauid_2d_stat1_DM11_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_up	  = idFakeSF_tauid_2d_systuncorrdmeras_DM11_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systuncorrdmeras_DM11_down = idFakeSF_tauid_2d_systuncorrdmeras_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM11_up = dauSFs_tauid_2d_stat0_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0_DM11_down = dauSFs_tauid_2d_stat0_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM11_up = dauSFs_tauid_2d_stat1_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1_DM11_down = dauSFs_tauid_2d_stat1_DM11_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM11_up = dauSFs_tauid_2d_systuncorrdmeras_DM11_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systuncorrdmeras_DM11_down = dauSFs_tauid_2d_systuncorrdmeras_DM11_down;
 
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_up			= idFakeSF_tauid_2d_systcorrdmeras_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmeras_down			= idFakeSF_tauid_2d_systcorrdmeras_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_up		= idFakeSF_tauid_2d_systcorrdmuncorreras_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrdmuncorreras_down	= idFakeSF_tauid_2d_systcorrdmuncorreras_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_up			= idFakeSF_tauid_2d_systcorrerasgt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_systcorrerasgt140_down		= idFakeSF_tauid_2d_systcorrerasgt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0gt140_up				= idFakeSF_tauid_2d_stat0gt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat0gt140_down				= idFakeSF_tauid_2d_stat0gt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1gt140_up				= idFakeSF_tauid_2d_stat1gt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_stat1gt140_down				= idFakeSF_tauid_2d_stat1gt140_down;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_up				= idFakeSF_tauid_2d_extrapgt140_up;
-	  theSmallTree.m_idFakeSF_tauid_2d_extrapgt140_down				= idFakeSF_tauid_2d_extrapgt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmeras_up = dauSFs_tauid_2d_systcorrdmeras_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmeras_down = dauSFs_tauid_2d_systcorrdmeras_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmuncorreras_up = dauSFs_tauid_2d_systcorrdmuncorreras_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrdmuncorreras_down = dauSFs_tauid_2d_systcorrdmuncorreras_down;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrerasgt140_up = dauSFs_tauid_2d_systcorrerasgt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_systcorrerasgt140_down = dauSFs_tauid_2d_systcorrerasgt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0gt140_up = dauSFs_tauid_2d_stat0gt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat0gt140_down = dauSFs_tauid_2d_stat0gt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1gt140_up = dauSFs_tauid_2d_stat1gt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_stat1gt140_down = dauSFs_tauid_2d_stat1gt140_down;
+	  theSmallTree.m_dauSFs_tauid_2d_extrapgt140_up = dauSFs_tauid_2d_extrapgt140_up;
+	  theSmallTree.m_dauSFs_tauid_2d_extrapgt140_down = dauSFs_tauid_2d_extrapgt140_down;
 	
-	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_up		= idFakeSF_mutauFR_etaLt0p4_up;		
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_up	= idFakeSF_mutauFR_eta0p4to0p8_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_up	= idFakeSF_mutauFR_eta0p8to1p2_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_up	= idFakeSF_mutauFR_eta1p2to1p7_up;	
-	  theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_up		= idFakeSF_mutauFR_etaGt1p7_up;		
-	  theSmallTree.m_idFakeSF_mutauFR_etaLt0p4_down		= idFakeSF_mutauFR_etaLt0p4_down;	
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p4to0p8_down	= idFakeSF_mutauFR_eta0p4to0p8_down;
-	  theSmallTree.m_idFakeSF_mutauFR_eta0p8to1p2_down	= idFakeSF_mutauFR_eta0p8to1p2_down;
-	  theSmallTree.m_idFakeSF_mutauFR_eta1p2to1p7_down	= idFakeSF_mutauFR_eta1p2to1p7_down;
-	  theSmallTree.m_idFakeSF_mutauFR_etaGt1p7_down		= idFakeSF_mutauFR_etaGt1p7_down;
-	  theSmallTree.m_idFakeSF_etauFR_barrel_up			= idFakeSF_etauFR_barrel_up;	
-	  theSmallTree.m_idFakeSF_etauFR_endcap_up			= idFakeSF_etauFR_endcap_up;		
-	  theSmallTree.m_idFakeSF_etauFR_barrel_down		= idFakeSF_etauFR_barrel_down;		
-	  theSmallTree.m_idFakeSF_etauFR_endcap_down		= idFakeSF_etauFR_endcap_down;
+	  theSmallTree.m_dauSFs_mutauFR_etaLt0p4_up = dauSFs_mutauFR_etaLt0p4_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p4to0p8_up = dauSFs_mutauFR_eta0p4to0p8_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p8to1p2_up = dauSFs_mutauFR_eta0p8to1p2_up;
+	  theSmallTree.m_dauSFs_mutauFR_eta1p2to1p7_up = dauSFs_mutauFR_eta1p2to1p7_up;
+	  theSmallTree.m_dauSFs_mutauFR_etaGt1p7_up = dauSFs_mutauFR_etaGt1p7_up;
+	  theSmallTree.m_dauSFs_mutauFR_etaLt0p4_down = dauSFs_mutauFR_etaLt0p4_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p4to0p8_down = dauSFs_mutauFR_eta0p4to0p8_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta0p8to1p2_down = dauSFs_mutauFR_eta0p8to1p2_down;
+	  theSmallTree.m_dauSFs_mutauFR_eta1p2to1p7_down = dauSFs_mutauFR_eta1p2to1p7_down;
+	  theSmallTree.m_dauSFs_mutauFR_etaGt1p7_down = dauSFs_mutauFR_etaGt1p7_down;
+	  theSmallTree.m_dauSFs_etauFR_barrel_up = dauSFs_etauFR_barrel_up;
+	  theSmallTree.m_dauSFs_etauFR_endcap_up = dauSFs_etauFR_endcap_up;
+	  theSmallTree.m_dauSFs_etauFR_barrel_down = dauSFs_etauFR_barrel_down;
+	  theSmallTree.m_dauSFs_etauFR_endcap_down = dauSFs_etauFR_endcap_down;
+
+	  theSmallTree.m_dauSFs_muID_up = dauSFs_muID_up;
+	  theSmallTree.m_dauSFs_muID_down = dauSFs_muID_down;
+	  theSmallTree.m_dauSFs_muIso_up = dauSFs_muIso_up;
+	  theSmallTree.m_dauSFs_muIso_down = dauSFs_muIso_down;
+
+	  theSmallTree.m_dauSFs_eleID_up = dauSFs_eleID_up;
+	  theSmallTree.m_dauSFs_eleID_down = dauSFs_eleID_down;
+	  theSmallTree.m_dauSFs_eleReco_up = dauSFs_eleReco_up;
+	  theSmallTree.m_dauSFs_eleReco_down = dauSFs_eleReco_down;
 	  
 	  //Jet faking Tau SF
 	  //derived from WJet sideband: http://camendol.web.cern.ch/camendol/HH2017/plotsHH2017MuTau/31Oct2018_DYNLO_ctrlWJets_SS/antiB_jets30_tau30_SStight/
 	  double jetFakeSF1 = 1.;
 	  double jetFakeSF2 = 1.;
-	  if (isMC and (pType == 0 or pType == 1 or pType == 2)) { // 2nd tau
+	  if (isMC and pType<3) { // 2nd tau
 		if (isFakeJet2)
 		  {
 			if(fabs(tlv_secondLepton.Eta()) < 1.46) jetFakeSF2 = 1.38469;
@@ -3074,25 +3342,33 @@ int main (int argc, char** argv)
 	  // https://github.com/truggles/TauTriggerSFs2017
 
 	  // recommendations for cross triggers:  https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorking2017#Trigger_Information
-	  float trigSF					= 1.0;
-	  float trigSFnoMET				= 1.0;
-	  float trigSFnoTau				= 1.0;
-	  float trigSF_ele_up			= 1.0;
-	  float trigSF_mu_up			= 1.0;
-	  float trigSF_tau_DM0_up		= 1.0;
-	  float trigSF_tau_DM1_up		= 1.0;
-	  float trigSF_tau_DM10_up		= 1.0;
-	  float trigSF_tau_DM11_up		= 1.0;
-	  float trigSF_ele_down			= 1.0;
-	  float trigSF_mu_down			= 1.0;
-	  float trigSF_tau_DM0_down		= 1.0;
-	  float trigSF_tau_DM1_down		= 1.0;
-	  float trigSF_tau_DM10_down	= 1.0;
-	  float trigSF_tau_DM11_down	= 1.0;
-	  float trigSF_met_up			= 1.0;
-	  float trigSF_met_down			= 1.0;
-	  float trigSF_stau_up			= 1.0;
-	  float trigSF_stau_down		= 1.0;
+	  float trigSF                = -1.0;
+	  float trigSFnoMET           = -1.0;
+	  float trigSFnoTau           = -1.0;
+	  float trigSF_met_up         = -1.0;
+	  float trigSF_met_down       = -1.0;
+	  float trigSF_stau_up        = -1.0;
+	  float trigSF_stau_down      = -1.0;
+	  float trigSF_ele_up         = -1.0;
+	  float trigSF_SL_ele_up      = -1.0;
+	  float trigSF_cross_ele_up   = -1.0;
+	  float trigSF_ele_down       = -1.0;
+	  float trigSF_SL_ele_down    = -1.0;
+	  float trigSF_cross_ele_down = -1.0;
+	  float trigSF_mu_up          = -1.0;
+	  float trigSF_SL_mu_up       = -1.0;
+	  float trigSF_cross_mu_up    = -1.0;
+	  float trigSF_mu_down        = -1.0;
+	  float trigSF_SL_mu_down     = -1.0;
+	  float trigSF_cross_mu_down  = -1.0;
+	  float trigSF_tau_DM0_up     = -1.0;
+	  float trigSF_tau_DM1_up     = -1.0;
+	  float trigSF_tau_DM10_up    = -1.0;
+	  float trigSF_tau_DM11_up    = -1.0;
+	  float trigSF_tau_DM0_down   = -1.0;
+	  float trigSF_tau_DM1_down   = -1.0;
+	  float trigSF_tau_DM10_down  = -1.0;
+	  float trigSF_tau_DM11_down  = -1.0;
 	  
 	  if(applyTriggers)
 		{
@@ -3101,20 +3377,64 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod());
-				  trigSFnoMET     = 1.;
-				  trigSFnoTau     = trigSF;
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF                = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET           = 1.;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down       = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 
 			  else if (trgRegions["tau"])
 				{
-				  trigSF           = singleTauSF[PERIOD].first;
-				  trigSFnoMET      = trigSF;
-				  trigSFnoTau      = 1.;
-				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
-				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				  trigSF                = singleTauSF[PERIOD].first;
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = 1.;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down      = trigSF - singleTauSF[PERIOD].second;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
@@ -3128,96 +3448,109 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross  = 0;
 
 				  // lepton trigger
-				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
+				  double Eff_SL_mu_Data = 1., Eff_SL_mu_MC = 1., Eff_SL_mu_Data_Err = 0., Eff_SL_mu_MC_Err = 0.;
 				  if (passSingle) {
-					SFL_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFL_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFL_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFL_MC_Err   = muTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+					Eff_SL_mu_Data = muTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_MC   = muTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_Data_Err = muTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_SL_mu_MC_Err   = muTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
-				  
-				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
-				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
-				  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
-				  double SFL_MC_down   = SFL_MC   - 1. * SFL_MC_Err;
 
 				  //cross-trigger
 				  //mu leg
-				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
+				  double Eff_cross_mu_Data = 1., Eff_cross_mu_MC = 1., Eff_cross_mu_Data_Err = 0., Eff_cross_mu_MC_Err = 0.;
 				  if (passCross) {
-					SFl_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFl_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFl_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
-					SFl_MC_Err   = muTauTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+					Eff_cross_mu_Data = muTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_MC   = muTauTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_Data_Err = muTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+					Eff_cross_mu_MC_Err   = muTauTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
-				  
-				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
-				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
-				  double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
-				  double SFl_MC_down   = SFl_MC   - 1. * SFl_MC_Err;
 
 				  //tau leg
-				  double SFtau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-				  double SFtau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_Data = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_MC   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
 				  // Compute efficiencies
-				  double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
-				  double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+				  double Eff_Data = passSingle * Eff_SL_mu_Data - passCross * passSingle * std::min(Eff_cross_mu_Data, Eff_SL_mu_Data) * Eff_cross_tau_Data + passCross * Eff_cross_mu_Data * Eff_cross_tau_Data;
+				  double Eff_MC   = passSingle * Eff_SL_mu_MC   - passCross * passSingle * std::min(Eff_cross_mu_MC  , Eff_SL_mu_MC)   * Eff_cross_tau_MC   + passCross * Eff_cross_mu_MC   * Eff_cross_tau_MC;
 
-				  double Eff_Data_mu_up   = passSingle * SFL_Data_up   - passCross * passSingle * std::min(SFl_Data_up  , SFL_Data_up)   * SFtau_Data + passCross * SFl_Data_up   * SFtau_Data;
-				  double Eff_MC_mu_up     = passSingle * SFL_MC_up     - passCross * passSingle * std::min(SFl_MC_up    , SFL_MC_up)     * SFtau_MC   + passCross * SFl_MC_up     * SFtau_MC;
-				  double Eff_Data_mu_down = passSingle * SFL_Data_down - passCross * passSingle * std::min(SFl_Data_down, SFL_Data_down) * SFtau_Data + passCross * SFl_Data_down * SFtau_Data;
-				  double Eff_MC_mu_down   = passSingle * SFL_MC_down   - passCross * passSingle * std::min(SFl_MC_down  , SFL_MC_down)   * SFtau_MC   + passCross * SFl_MC_down   * SFtau_MC;
+				  // Compute uncertainties (separate for SingleMuon and mu leg of cross trigger)
+				  double Err_Data_SL_mu = passSingle * Eff_SL_mu_Data_Err - passCross * passSingle * (Eff_cross_mu_Data > Eff_SL_mu_Data) * Eff_SL_mu_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_SL_mu   = passSingle * Eff_SL_mu_MC_Err   - passCross * passSingle * (Eff_cross_mu_MC   > Eff_SL_mu_MC)   * Eff_SL_mu_MC_Err   * Eff_cross_tau_MC;
 
-				  // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
-				  vector <double> SFtau_Data_up   (N_tauhDM, SFtau_Data);
-				  vector <double> SFtau_Data_down (N_tauhDM, SFtau_Data);
-				  vector <double> SFtau_MC_up     (N_tauhDM, SFtau_MC);
-				  vector <double> SFtau_MC_down   (N_tauhDM, SFtau_MC);
-				  vector <double> Eff_Data_up     (N_tauhDM, Eff_Data);
-				  vector <double> Eff_Data_down   (N_tauhDM, Eff_Data);
-				  vector <double> Eff_MC_up       (N_tauhDM, Eff_MC);
-				  vector <double> Eff_MC_down     (N_tauhDM, Eff_MC);
+				  double trigSF_SL_mu_err = 0.;
+				  if(passSingle) {
+					trigSF_SL_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_mu, Err_MC_SL_mu);
+				  }
 
-				  for (int idm  = 0; idm < N_tauhDM; idm ++)
-					{
-					  if (isthisDM_second[idm])
-						{
-						  SFtau_Data_up[idm]   = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
-						  SFtau_Data_down[idm] = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, -1);
-						  SFtau_MC_up[idm]     = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
-						  SFtau_MC_down[idm]   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, -1);
+				  double Err_Data_cross_mu = - passCross * passSingle * (Eff_cross_mu_Data <= Eff_SL_mu_Data) * Eff_cross_mu_Data_Err * Eff_cross_tau_Data + passCross * Eff_cross_mu_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_cross_mu   = - passCross * passSingle * (Eff_cross_mu_MC   <= Eff_SL_mu_MC)   * Eff_cross_mu_MC_Err   * Eff_cross_tau_MC   + passCross * Eff_cross_mu_MC_Err   * Eff_cross_tau_MC;
+
+				  double trigSF_cross_mu_err = 0.;
+				  vector <double> trigSF_err    (N_tauhDM, 0.);
+				  // if single lepton trigger and cross trigger are passed and the lepton leg of the cross trigger is
+				  // less efficient than the single lepton trigger, the "combined" efficiency reduces to the single
+				  // lepton trigger efficiency and the uncertainties on the cross trigger legs are 0, if this is the
+				  // case in both Data and MC also the uncertainties on the trigger scale factors are 0. (ff statement
+				  // to avoid unnecessary get_ScaleFactorError calls and warnings)
+				  if(passCross and !(passSingle and (Eff_cross_mu_Data <= Eff_SL_mu_Data and Eff_cross_mu_MC <= Eff_SL_mu_MC))) {
+					trigSF_cross_mu_err = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_mu, Err_MC_cross_mu);
+					// for each DM, get the trigSF error if the tauh has the corresponding DM (and the cross trigger thresholds are passed), otherwise 0
+					for (int idm  = 0; idm < N_tauhDM; idm ++){
+						if (isthisDM_second[idm]){
+							double Eff_cross_tau_Data_Up = tauTrgSF_mutau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_cross_tau_MC_Up   = tauTrgSF_mutau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_Data_Up = passSingle * Eff_SL_mu_Data - passCross * passSingle * std::min(Eff_cross_mu_Data, Eff_SL_mu_Data) * Eff_cross_tau_Data_Up   + passCross * Eff_cross_mu_Data * Eff_cross_tau_Data_Up;
+							double Eff_MC_Up   = passSingle * Eff_SL_mu_MC   - passCross * passSingle * std::min(Eff_cross_mu_MC  , Eff_SL_mu_MC)   * Eff_cross_tau_MC_Up     + passCross * Eff_cross_mu_MC   * Eff_cross_tau_MC_Up;
+							trigSF_err[idm] = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Eff_Data_Up - Eff_Data, Eff_MC_Up - Eff_MC);
 						}
-					  Eff_Data_up[idm]   = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data_up[idm]   + passCross * SFl_Data * SFtau_Data_up[idm];
-					  Eff_Data_down[idm] = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data_down[idm] + passCross * SFl_Data * SFtau_Data_down[idm];
-					  Eff_MC_up[idm]     = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC_up[idm]     + passCross * SFl_MC   * SFtau_MC_up[idm];
-					  Eff_MC_down[idm]   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC_down[idm]   + passCross * SFl_MC   * SFtau_MC_down[idm];
 					}
+				  }
+
+				  double Err_Data_mu = Err_Data_SL_mu + Err_Data_cross_mu;
+				  double Err_MC_mu   = Err_MC_SL_mu   + Err_MC_cross_mu;
+				  double trigSF_mu_err   = muTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_mu, Err_MC_mu);
 
 				  if(DEBUG)
 					{
 					  cout << "--- DEBUG Trigger weights --- " << endl;
-					  cout << "SFL_Data: "   << SFL_Data   << endl;
-					  cout << "SFL_MC: "     << SFL_MC     << endl;
-					  cout << "SFl_Data: "   << SFl_Data   << endl;
-					  cout << "SFl_MC: "     << SFl_MC     << endl;
-					  cout << "SFtau_Data: " << SFtau_Data << endl;
-					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
+					  cout << "Eff_SL_mu_Data: "   << Eff_SL_mu_Data   << endl;
+					  cout << "Eff_SL_mu_MC: "     << Eff_SL_mu_MC     << endl;
+					  cout << "Eff_cross_mu_Data: "   << Eff_cross_mu_Data   << endl;
+					  cout << "Eff_cross_mu_MC: "     << Eff_cross_mu_MC     << endl;
+					  cout << "Eff_cross_tau_Data: " << Eff_cross_tau_Data << endl;
+					  cout << "Eff_cross_tau_MC: "   << Eff_cross_tau_MC   << endl;
 					}
 
-				  trigSF				= Eff_Data			/ Eff_MC;
-				  trigSFnoMET			= trigSF;
-				  trigSFnoTau			= trigSF;
-				  trigSF_mu_up			= Eff_Data_mu_up	/ Eff_MC_mu_up;
-				  trigSF_mu_down		= Eff_Data_mu_down	/ Eff_MC_mu_down;
-				  trigSF_tau_DM0_up		= Eff_Data_up[0]	/ Eff_MC_up[0];
-				  trigSF_tau_DM1_up		= Eff_Data_up[1]	/ Eff_MC_up[1];
-				  trigSF_tau_DM10_up	= Eff_Data_up[2]	/ Eff_MC_up[2];
-				  trigSF_tau_DM11_up	= Eff_Data_up[3]	/ Eff_MC_up[3];
-				  trigSF_tau_DM0_down	= Eff_Data_down[0]	/ Eff_MC_down[0];
-				  trigSF_tau_DM1_down	= Eff_Data_down[1]	/ Eff_MC_down[1];
-				  trigSF_tau_DM10_down	= Eff_Data_down[2]	/ Eff_MC_down[2];
-				  trigSF_tau_DM11_down	= Eff_Data_down[3]	/ Eff_MC_down[3];
+				  trigSF                = muTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF + trigSF_mu_err;
+				  trigSF_SL_mu_up       = trigSF + trigSF_SL_mu_err;
+				  trigSF_cross_mu_up    = trigSF + trigSF_cross_mu_err;
+				  trigSF_mu_down        = trigSF - trigSF_mu_err;
+				  trigSF_SL_mu_down     = trigSF - trigSF_SL_mu_err;
+				  trigSF_cross_mu_down  = trigSF - trigSF_cross_mu_err;
+				  trigSF_tau_DM0_up     = trigSF + trigSF_err[0];
+				  trigSF_tau_DM1_up     = trigSF + trigSF_err[1];
+				  trigSF_tau_DM10_up    = trigSF + trigSF_err[2];
+				  trigSF_tau_DM11_up    = trigSF + trigSF_err[3];
+				  trigSF_tau_DM0_down   = trigSF - trigSF_err[0];
+				  trigSF_tau_DM1_down   = trigSF - trigSF_err[1];
+				  trigSF_tau_DM10_down  = trigSF - trigSF_err[2];
+				  trigSF_tau_DM11_down  = trigSF - trigSF_err[3];
 				}
 			  else // eta region covered only by single lepton trigger
 				{
@@ -3231,15 +3564,38 @@ int main (int argc, char** argv)
 						 << " The weight will be set to one." << endl;
 				  }
 				  else {
-					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      tlv_firstLepton.Eta(), pType);
-					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					// use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+					SF     = muTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(),      fabs(tlv_firstLepton.Eta()), pType);
+					SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  }
 				  
-				  trigSF         = SF;
-				  trigSFnoMET    = trigSF;
-				  trigSFnoTau    = trigSF;
-				  trigSF_mu_up   = SF + 1. * SF_Err;
-				  trigSF_mu_down = SF - 1. * SF_Err;
+				  trigSF                = SF;
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = SF + 1. * SF_Err;
+				  trigSF_SL_mu_up       = trigSF_mu_up;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = SF - 1. * SF_Err;
+				  trigSF_SL_mu_down     = trigSF_mu_down;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 			}
 
@@ -3248,20 +3604,64 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod());
-				  trigSFnoMET     = 1.;
-				  trigSFnoTau     = trigSF;
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF                = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET           = 1.;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down       = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 
 			  else if (trgRegions["tau"])
 				{
-				  trigSF           = singleTauSF[PERIOD].first;
-				  trigSFnoMET      = trigSF;
-				  trigSFnoTau      = 1.;
-				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
-				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				  trigSF                = singleTauSF[PERIOD].first;
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = 1.;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down      = trigSF - singleTauSF[PERIOD].second;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 
 			  // eta region covered both by cross-trigger and single lepton trigger
@@ -3275,96 +3675,107 @@ int main (int argc, char** argv)
 				  if (tlv_secondLepton.Pt() < lep2_thresh) passCross = 0;
 
 				  //lepton trigger
-				  double SFL_Data = 1., SFL_MC = 1., SFL_Data_Err = 0., SFL_MC_Err = 0.;
+				  double Eff_SL_ele_Data = 1., Eff_SL_ele_MC = 1., Eff_SL_ele_Data_Err = 0., Eff_SL_ele_MC_Err = 0.;
 				  if (passSingle) {
-					SFL_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFL_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFL_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFL_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				  }
-				  
-				  double SFL_Data_up   = SFL_Data + 1. * SFL_Data_Err;
-				  double SFL_Data_down = SFL_Data - 1. * SFL_Data_Err;
-				  double SFL_MC_up     = SFL_MC   + 1. * SFL_MC_Err;
-				  double SFL_MC_down   = SFL_MC   - 1. * SFL_MC_Err;
 
 				  //cross-trigger
 				  //e leg
-				  double SFl_Data = 1., SFl_MC = 1., SFl_Data_Err = 0., SFl_MC_Err = 0.;
+				  double Eff_cross_ele_Data = 1., Eff_cross_ele_MC = 1., Eff_cross_ele_Data_Err = 0., Eff_cross_ele_MC_Err = 0.;
 				  if (passCross) {
-					SFl_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFl_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-					SFl_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					SFl_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
 				  }
 
-				  double SFl_Data_up   = SFl_Data + 1. * SFl_Data_Err;
-				  double SFl_Data_down = SFl_Data - 1. * SFl_Data_Err;
-				  double SFl_MC_up     = SFl_MC   + 1. * SFl_MC_Err;
-				  double SFl_MC_down   = SFl_MC   - 1. * SFl_MC_Err;
-
 				  //tau leg
-				  double SFtau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
-				  double SFtau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_Data = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
+				  double Eff_cross_tau_MC   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 0); // last entry is uncertainty: 0 central, +1 up, -1 down
 
 				  // Compute efficiencies
-				  double Eff_Data = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data + passCross * SFl_Data * SFtau_Data;
-				  double Eff_MC   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC   + passCross * SFl_MC   * SFtau_MC;
+				  double Eff_Data = passSingle * Eff_SL_ele_Data - passCross * passSingle * std::min(Eff_cross_ele_Data, Eff_SL_ele_Data) * Eff_cross_tau_Data + passCross * Eff_cross_ele_Data * Eff_cross_tau_Data;
+				  double Eff_MC   = passSingle * Eff_SL_ele_MC   - passCross * passSingle * std::min(Eff_cross_ele_MC  , Eff_SL_ele_MC)   * Eff_cross_tau_MC   + passCross * Eff_cross_ele_MC   * Eff_cross_tau_MC;
 
-				  double Eff_Data_ele_up   = passSingle * SFL_Data_up   - passCross * passSingle * std::min(SFl_Data_up  , SFL_Data_up)   * SFtau_Data + passCross * SFl_Data_up   * SFtau_Data;
-				  double Eff_MC_ele_up     = passSingle * SFL_MC_up     - passCross * passSingle * std::min(SFl_MC_up    , SFL_MC_up)     * SFtau_MC   + passCross * SFl_MC_up     * SFtau_MC;
-				  double Eff_Data_ele_down = passSingle * SFL_Data_down - passCross * passSingle * std::min(SFl_Data_down, SFL_Data_down) * SFtau_Data + passCross * SFl_Data_down * SFtau_Data;
-				  double Eff_MC_ele_down   = passSingle * SFL_MC_down   - passCross * passSingle * std::min(SFl_MC_down  , SFL_MC_down)   * SFtau_MC   + passCross * SFl_MC_down   * SFtau_MC;
+				  // Compute uncertainties (separate for SingleElectron and ele leg of cross trigger)
+				  double Err_Data_SL_ele = passSingle * Eff_SL_ele_Data_Err - passCross * passSingle * (Eff_cross_ele_Data > Eff_SL_ele_Data) * Eff_SL_ele_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_SL_ele   = passSingle * Eff_SL_ele_MC_Err   - passCross * passSingle * (Eff_cross_ele_MC   > Eff_SL_ele_MC)   * Eff_SL_ele_MC_Err   * Eff_cross_tau_MC;
 
-				  // for each DM, fill a trigSF branch with the up/down values if the tauh has the corresponding DM, otherwise fill with nominal trigSF value
-				  vector <double> SFtau_Data_up   (N_tauhDM, SFtau_Data);
-				  vector <double> SFtau_Data_down (N_tauhDM, SFtau_Data);
-				  vector <double> SFtau_MC_up     (N_tauhDM, SFtau_MC);
-				  vector <double> SFtau_MC_down   (N_tauhDM, SFtau_MC);
-				  vector <double> Eff_Data_up     (N_tauhDM, Eff_Data);
-				  vector <double> Eff_Data_down   (N_tauhDM, Eff_Data);
-				  vector <double> Eff_MC_up       (N_tauhDM, Eff_MC);
-				  vector <double> Eff_MC_down     (N_tauhDM, Eff_MC);
+				  double trigSF_SL_ele_err = 0.;
+				  if(passSingle) {
+					trigSF_SL_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_SL_ele, Err_MC_SL_ele);
+				  }
 
-				  for (int idm  = 0; idm < N_tauhDM; idm ++)
-					{
-					  if (isthisDM_second[idm])
-						{
-						  SFtau_Data_up[idm]   = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
-						  SFtau_Data_down[idm] = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, -1);
-						  SFtau_MC_up[idm]     = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
-						  SFtau_MC_down[idm]   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, -1);
+				  double Err_Data_cross_ele = - passCross * passSingle * (Eff_cross_ele_Data <= Eff_SL_ele_Data) * Eff_cross_ele_Data_Err * Eff_cross_tau_Data + passCross * Eff_cross_ele_Data_Err * Eff_cross_tau_Data;
+				  double Err_MC_cross_ele   = - passCross * passSingle * (Eff_cross_ele_MC   <= Eff_SL_ele_MC)   * Eff_cross_ele_MC_Err   * Eff_cross_tau_MC   + passCross * Eff_cross_ele_MC_Err   * Eff_cross_tau_MC;
+
+				  double trigSF_cross_ele_err = 0.;
+				  vector <double> trigSF_err    (N_tauhDM, 0.);
+				  // if single lepton trigger and cross trigger are passed and the lepton leg of the cross trigger is
+				  // less efficient than the single lepton trigger, the "combined" efficiency reduces to the single
+				  // lepton trigger efficiency and the uncertainties on the cross trigger legs are 0, if this is the
+				  // case in both Data and MC also the uncertainties on the trigger scale factors are 0. (If statement
+				  // to avoid unnecessary get_ScaleFactorError calls and warnings)
+				  if(passCross and !(passSingle and (Eff_cross_ele_Data <= Eff_SL_ele_Data and Eff_cross_ele_MC <= Eff_SL_ele_MC))) {
+					trigSF_cross_ele_err = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_cross_ele, Err_MC_cross_ele);
+					// for each DM, get the trigSF error if the tauh has the corresponding DM, otherwise 0
+					for (int idm  = 0; idm < N_tauhDM; idm ++){
+						if (isthisDM_second[idm]){
+							double Eff_cross_tau_Data_Up = tauTrgSF_etau->getEfficiencyData(tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_cross_tau_MC_Up   = tauTrgSF_etau->getEfficiencyMC  (tlv_secondLepton.Pt(), DM2, 1);
+							double Eff_Data_Up = passSingle * Eff_SL_ele_Data - passCross * passSingle * std::min(Eff_cross_ele_Data, Eff_SL_ele_Data) * Eff_cross_tau_Data_Up   + passCross * Eff_cross_ele_Data * Eff_cross_tau_Data_Up;
+							double Eff_MC_Up   = passSingle * Eff_SL_ele_MC   - passCross * passSingle * std::min(Eff_cross_ele_MC  , Eff_SL_ele_MC)   * Eff_cross_tau_MC_Up     + passCross * Eff_cross_ele_MC   * Eff_cross_tau_MC_Up;
+							trigSF_err[idm] = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Eff_Data_Up - Eff_Data, Eff_MC_Up - Eff_MC);
 						}
-					  Eff_Data_up[idm]   = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data_up[idm]   + passCross * SFl_Data * SFtau_Data_up[idm];
-					  Eff_Data_down[idm] = passSingle * SFL_Data - passCross * passSingle * std::min(SFl_Data, SFL_Data) * SFtau_Data_down[idm] + passCross * SFl_Data * SFtau_Data_down[idm];
-					  Eff_MC_up[idm]     = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC_up[idm]     + passCross * SFl_MC   * SFtau_MC_up[idm];
-					  Eff_MC_down[idm]   = passSingle * SFL_MC   - passCross * passSingle * std::min(SFl_MC  , SFL_MC)   * SFtau_MC_down[idm]   + passCross * SFl_MC   * SFtau_MC_down[idm];
 					}
+				  }
+
+				  double Err_Data_ele = Err_Data_SL_ele + Err_Data_cross_ele;
+				  double Err_MC_ele   = Err_MC_SL_ele   + Err_MC_cross_ele;
+				  double trigSF_ele_err   = eTrgSF->get_ScaleFactorError(Eff_Data, Eff_MC, Err_Data_ele, Err_MC_ele);
 
 				  if(DEBUG)
 					{
 					  cout << "--- DEBUG Trigger weights --- " << endl;
-					  cout << "SFL_Data: "   << SFL_Data   << endl;
-					  cout << "SFL_MC: "     << SFL_MC     << endl;
-					  cout << "SFl_Data: "   << SFl_Data   << endl;
-					  cout << "SFl_MC: "     << SFl_MC     << endl;
-					  cout << "SFtau_Data: " << SFtau_Data << endl;
-					  cout << "SFtau_MC: "   << SFtau_MC   << endl;
+					  cout << "Eff_SL_ele_Data: "   << Eff_SL_ele_Data   << endl;
+					  cout << "Eff_SL_ele_MC: "     << Eff_SL_ele_MC     << endl;
+					  cout << "Eff_cross_ele_Data: "   << Eff_cross_ele_Data   << endl;
+					  cout << "Eff_cross_ele_MC: "     << Eff_cross_ele_MC     << endl;
+					  cout << "Eff_cross_tau_Data: " << Eff_cross_tau_Data << endl;
+					  cout << "Eff_cross_tau_MC: "   << Eff_cross_tau_MC   << endl;
 					}
 
-				  trigSF				= Eff_Data		   / Eff_MC;
-				  trigSFnoMET			= trigSF;
-				  trigSFnoTau			= trigSF;
-				  trigSF_ele_up			= Eff_Data_ele_up   / Eff_MC_ele_up;
-				  trigSF_ele_down		= Eff_Data_ele_down / Eff_MC_ele_down;
-				  trigSF_tau_DM0_up		= Eff_Data_up[0]	   / Eff_MC_up[0];
-				  trigSF_tau_DM1_up		= Eff_Data_up[1]	   / Eff_MC_up[1];
-				  trigSF_tau_DM10_up	= Eff_Data_up[2]	   / Eff_MC_up[2];
-				  trigSF_tau_DM11_up	= Eff_Data_up[3]	   / Eff_MC_up[3];
-				  trigSF_tau_DM0_down	= Eff_Data_down[0]  / Eff_MC_down[0];
-				  trigSF_tau_DM1_down	= Eff_Data_down[1]  / Eff_MC_down[1];
-				  trigSF_tau_DM10_down	= Eff_Data_down[2]  / Eff_MC_down[2];
-				  trigSF_tau_DM11_down	= Eff_Data_down[3]  / Eff_MC_down[3];
+				  trigSF                = eTrgSF->get_ScaleFactor(Eff_Data, Eff_MC);
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF + trigSF_ele_err;
+				  trigSF_SL_ele_up      = trigSF + trigSF_SL_ele_err;
+				  trigSF_cross_ele_up   = trigSF + trigSF_cross_ele_err;
+				  trigSF_ele_down       = trigSF - trigSF_ele_err;
+				  trigSF_SL_ele_down    = trigSF - trigSF_SL_ele_err;
+				  trigSF_cross_ele_down = trigSF - trigSF_cross_ele_err;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF + trigSF_err[0];
+				  trigSF_tau_DM1_up     = trigSF + trigSF_err[1];
+				  trigSF_tau_DM10_up    = trigSF + trigSF_err[2];
+				  trigSF_tau_DM11_up    = trigSF + trigSF_err[3];
+				  trigSF_tau_DM0_down   = trigSF - trigSF_err[0];
+				  trigSF_tau_DM1_down   = trigSF - trigSF_err[1];
+				  trigSF_tau_DM10_down  = trigSF - trigSF_err[2];
+				  trigSF_tau_DM11_down  = trigSF - trigSF_err[3];
 				}
 
 			  else //eta region covered only by single lepton trigger (including all 2016)
@@ -3392,11 +3803,33 @@ int main (int argc, char** argv)
 					}
 				  }
 
-				  trigSF          = SF;
-				  trigSFnoMET     = trigSF;
-				  trigSFnoTau     = trigSF;
-				  trigSF_ele_up   = SF + 1. * SF_Err;
-				  trigSF_ele_down = SF - 1. * SF_Err;
+				  trigSF                = SF;
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = SF + 1. * SF_Err;
+				  trigSF_SL_ele_up      = trigSF_ele_up;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = SF - 1. * SF_Err;
+				  trigSF_SL_ele_down    = trigSF_ele_down;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 			}
 
@@ -3405,20 +3838,64 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod());
-				  trigSFnoMET     = 1.;
-				  trigSFnoTau     = trigSF;
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF                = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET           = 1.;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down       = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 
 			  else if (trgRegions["tau"])
 				{
-				  trigSF           = singleTauSF[PERIOD].first;
-				  trigSFnoMET      = trigSF;
-				  trigSFnoTau      = 1.;
-				  trigSF_stau_up   = trigSF + singleTauSF[PERIOD].second;
-				  trigSF_stau_down = trigSF - singleTauSF[PERIOD].second;
+				  trigSF                = singleTauSF[PERIOD].first;
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = 1.;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF + singleTauSF[PERIOD].second;
+				  trigSF_stau_down      = trigSF - singleTauSF[PERIOD].second;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 
 			  // DiTau region
@@ -3428,7 +3905,7 @@ int main (int argc, char** argv)
 				// last entry is uncertainty: 0 central, +1 up, -1 down
 				double SF1 = tauTrgSF_ditau->getSF(tlv_firstLepton.Pt() , DM1, 0);
 				double SF2 = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, 0);
-			  
+
 				// for each DM, fill a trigSF branch with the up/down values if taus have
 				// the corresponding DM, otherwise fill with nominal trigSF value
 				vector <double> SF1_up(N_tauhDM, SF1), SF1_down (N_tauhDM, SF1);
@@ -3447,18 +3924,33 @@ int main (int argc, char** argv)
 						SF2_down[idm] = tauTrgSF_ditau->getSF(tlv_secondLepton.Pt(), DM2, -1);
 					  }
 				  }
-				
-				trigSF					= SF1         * SF2;
-				trigSFnoMET				= trigSF;
-				trigSFnoTau				= trigSF;
-				trigSF_tau_DM0_up		= SF1_up[0]   * SF2_up[0];
-				trigSF_tau_DM1_up		= SF1_up[1]   * SF2_up[1];
-				trigSF_tau_DM10_up		= SF1_up[2]   * SF2_up[2];
-				trigSF_tau_DM11_up		= SF1_up[3]   * SF2_up[3];
-				trigSF_tau_DM0_down		= SF1_down[0] * SF2_down[0];
-				trigSF_tau_DM1_down		= SF1_down[1] * SF2_down[1];
-				trigSF_tau_DM10_down	= SF1_down[2] * SF2_down[2];
-				trigSF_tau_DM11_down	= SF1_down[3] * SF2_down[3];
+				trigSF                = SF1 * SF2;
+				trigSFnoMET           = trigSF;
+				trigSFnoTau           = trigSF;
+				trigSF_met_up         = trigSF;
+				trigSF_met_down       = trigSF;
+				trigSF_stau_up        = trigSF;
+				trigSF_stau_down      = trigSF;
+				trigSF_ele_up         = trigSF;
+				trigSF_SL_ele_up      = trigSF;
+				trigSF_cross_ele_up   = trigSF;
+				trigSF_ele_down       = trigSF;
+				trigSF_SL_ele_down    = trigSF;
+				trigSF_cross_ele_down = trigSF;
+				trigSF_mu_up          = trigSF;
+				trigSF_SL_mu_up       = trigSF;
+				trigSF_cross_mu_up    = trigSF;
+				trigSF_mu_down        = trigSF;
+				trigSF_SL_mu_down     = trigSF;
+				trigSF_cross_mu_down  = trigSF;
+				trigSF_tau_DM0_up     = SF1_up[0] * SF2_up[0];
+				trigSF_tau_DM1_up     = SF1_up[1] * SF2_up[1];
+				trigSF_tau_DM10_up    = SF1_up[2] * SF2_up[2];
+				trigSF_tau_DM11_up    = SF1_up[3] * SF2_up[3];
+				trigSF_tau_DM0_down   = SF1_down[0] * SF2_down[0];
+				trigSF_tau_DM1_down   = SF1_down[1] * SF2_down[1];
+				trigSF_tau_DM10_down  = SF1_down[2] * SF2_down[2];
+				trigSF_tau_DM11_down  = SF1_down[3] * SF2_down[3];
 			  }
 			}
 		  
@@ -3467,21 +3959,66 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod());
-				  trigSFnoMET     = 1.;
-				  trigSFnoTau     = trigSF;
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF                = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET           = 1.;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down       = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 			  else if (trgRegions["legacy"])
 				{
-				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				  // use absolute value of eta for muons, because the SFs are given from 0 to 2.4
+				  double SF     = muTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
+				  double SF_Err = muTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), fabs(tlv_firstLepton.Eta()), pType);
 				  trigSF = SF;
-				  trigSFnoMET    = trigSF;
-				  trigSFnoTau	 = trigSF;
-				  trigSF_mu_up   = SF + 1. * SF_Err;
-				  trigSF_mu_down = SF - 1. * SF_Err;
+				  trigSFnoMET           = trigSF;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF;
+				  trigSF_met_down       = trigSF;
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = SF + 1. * SF_Err;
+				  trigSF_SL_mu_up       = trigSF_mu_up;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = SF - 1. * SF_Err;
+				  trigSF_SL_mu_down     = trigSF_mu_down;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 			}
 
@@ -3490,53 +4027,105 @@ int main (int argc, char** argv)
 			{
 			  if (trgRegions["met"])
 				{
-				  trigSF          = metSF.getSF(vMETnoMu.Mod());
-				  trigSFnoMET     = 1.;
-				  trigSFnoTau     = trigSF;
-				  trigSF_met_up   = trigSF + metSF.getSFError(vMETnoMu.Mod());
-				  trigSF_met_down = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF                = metSF.getSF(vMETnoMu.Mod());
+				  trigSFnoMET           = 1.;
+				  trigSFnoTau           = trigSF;
+				  trigSF_met_up         = trigSF + metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_met_down       = trigSF - metSF.getSFError(vMETnoMu.Mod());
+				  trigSF_stau_up        = trigSF;
+				  trigSF_stau_down      = trigSF;
+				  trigSF_ele_up         = trigSF;
+				  trigSF_SL_ele_up      = trigSF;
+				  trigSF_cross_ele_up   = trigSF;
+				  trigSF_ele_down       = trigSF;
+				  trigSF_SL_ele_down    = trigSF;
+				  trigSF_cross_ele_down = trigSF;
+				  trigSF_mu_up          = trigSF;
+				  trigSF_SL_mu_up       = trigSF;
+				  trigSF_cross_mu_up    = trigSF;
+				  trigSF_mu_down        = trigSF;
+				  trigSF_SL_mu_down     = trigSF;
+				  trigSF_cross_mu_down  = trigSF;
+				  trigSF_tau_DM0_up     = trigSF;
+				  trigSF_tau_DM1_up     = trigSF;
+				  trigSF_tau_DM10_up    = trigSF;
+				  trigSF_tau_DM11_up    = trigSF;
+				  trigSF_tau_DM0_down   = trigSF;
+				  trigSF_tau_DM1_down   = trigSF;
+				  trigSF_tau_DM10_down  = trigSF;
+				  trigSF_tau_DM11_down  = trigSF;
 				}
 			  else if (trgRegions["legacy"]) {
 				double SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
 				trigSF = SF;
-				trigSFnoMET     = trigSF;
-				trigSFnoTau     = trigSF;
-				trigSF_ele_up   = SF + 1. * SF_Err;
-				trigSF_ele_down = SF - 1. * SF_Err;
+				trigSFnoMET           = trigSF;
+				trigSFnoTau           = trigSF;
+				trigSF_met_up         = trigSF;
+				trigSF_met_down       = trigSF;
+				trigSF_stau_up        = trigSF;
+				trigSF_stau_down      = trigSF;
+				trigSF_ele_up         = SF + 1. * SF_Err;
+				trigSF_SL_ele_up      = trigSF_ele_up;
+				trigSF_cross_ele_up   = trigSF;
+				trigSF_ele_down       = SF - 1. * SF_Err;
+				trigSF_SL_ele_down    = trigSF_ele_down;
+				trigSF_cross_ele_down = trigSF;
+				trigSF_mu_up          = trigSF;
+				trigSF_SL_mu_up       = trigSF;
+				trigSF_cross_mu_up    = trigSF;
+				trigSF_mu_down        = trigSF;
+				trigSF_SL_mu_down     = trigSF;
+				trigSF_cross_mu_down  = trigSF;
+				trigSF_tau_DM0_up     = trigSF;
+				trigSF_tau_DM1_up     = trigSF;
+				trigSF_tau_DM10_up    = trigSF;
+				trigSF_tau_DM11_up    = trigSF;
+				trigSF_tau_DM0_down   = trigSF;
+				trigSF_tau_DM1_down   = trigSF;
+				trigSF_tau_DM10_down  = trigSF;
+				trigSF_tau_DM11_down  = trigSF;
 			  }
 			}
 		} // end if(applytriggers)
 
-	  theSmallTree.m_trigSF					= isMC ? trigSF           : 1.0;
-	  theSmallTree.m_trigSFnoMET			= isMC ? trigSFnoMET      : 1.0;
-	  theSmallTree.m_trigSFnoTau			= isMC ? trigSFnoTau      : 1.0;
-	  theSmallTree.m_trigSF_ele_up			= isMC ? trigSF_ele_up    : 1.0;
-	  theSmallTree.m_trigSF_mu_up			= isMC ? trigSF_mu_up     : 1.0;
-	  theSmallTree.m_trigSF_tau_DM0_up		= isMC ? trigSF_tau_DM0_up    : 1.0;
-	  theSmallTree.m_trigSF_tau_DM1_up		= isMC ? trigSF_tau_DM1_up    : 1.0;
-	  theSmallTree.m_trigSF_tau_DM10_up		= isMC ? trigSF_tau_DM10_up   : 1.0;
-	  theSmallTree.m_trigSF_tau_DM11_up		= isMC ? trigSF_tau_DM11_up   : 1.0;
-	  theSmallTree.m_trigSF_ele_down		= isMC ? trigSF_ele_down  : 1.0;
-	  theSmallTree.m_trigSF_mu_down			= isMC ? trigSF_mu_down   : 1.0;
-	  theSmallTree.m_trigSF_tau_DM0_down	= isMC ? trigSF_tau_DM0_down  : 1.0;
-	  theSmallTree.m_trigSF_tau_DM1_down	= isMC ? trigSF_tau_DM1_down  : 1.0;
-	  theSmallTree.m_trigSF_tau_DM10_down	= isMC ? trigSF_tau_DM10_down : 1.0;
-	  theSmallTree.m_trigSF_tau_DM11_down	= isMC ? trigSF_tau_DM11_down : 1.0;
-	  theSmallTree.m_trigSF_met_up			= isMC ? trigSF_met_up    : 1.0;
-	  theSmallTree.m_trigSF_met_down		= isMC ? trigSF_met_down  : 1.0;
-	  theSmallTree.m_trigSF_stau_up			= isMC ? trigSF_stau_up   : 1.0;
-	  theSmallTree.m_trigSF_stau_down		= isMC ? trigSF_stau_down : 1.0;
+	  theSmallTree.m_trigSF                = isMC ? trigSF                : 1.0;
+	  theSmallTree.m_trigSFnoMET           = isMC ? trigSFnoMET           : 1.0;
+	  theSmallTree.m_trigSFnoTau           = isMC ? trigSFnoTau           : 1.0;
+	  theSmallTree.m_trigSF_ele_up         = isMC ? trigSF_ele_up         : 1.0;
+	  theSmallTree.m_trigSF_SL_ele_up      = isMC ? trigSF_SL_ele_up      : 1.0;
+	  theSmallTree.m_trigSF_cross_ele_up   = isMC ? trigSF_cross_ele_up   : 1.0;
+	  theSmallTree.m_trigSF_mu_up          = isMC ? trigSF_mu_up          : 1.0;
+	  theSmallTree.m_trigSF_SL_mu_up       = isMC ? trigSF_SL_mu_up       : 1.0;
+	  theSmallTree.m_trigSF_cross_mu_up    = isMC ? trigSF_cross_mu_up    : 1.0;
+	  theSmallTree.m_trigSF_tau_DM0_up     = isMC ? trigSF_tau_DM0_up     : 1.0;
+	  theSmallTree.m_trigSF_tau_DM1_up     = isMC ? trigSF_tau_DM1_up     : 1.0;
+	  theSmallTree.m_trigSF_tau_DM10_up    = isMC ? trigSF_tau_DM10_up    : 1.0;
+	  theSmallTree.m_trigSF_tau_DM11_up    = isMC ? trigSF_tau_DM11_up    : 1.0;
+	  theSmallTree.m_trigSF_ele_down       = isMC ? trigSF_ele_down       : 1.0;
+	  theSmallTree.m_trigSF_SL_ele_down    = isMC ? trigSF_SL_ele_down    : 1.0;
+	  theSmallTree.m_trigSF_cross_ele_down = isMC ? trigSF_cross_ele_down : 1.0;
+	  theSmallTree.m_trigSF_mu_down        = isMC ? trigSF_mu_down        : 1.0;
+	  theSmallTree.m_trigSF_SL_mu_down     = isMC ? trigSF_SL_mu_down     : 1.0;
+	  theSmallTree.m_trigSF_cross_mu_down  = isMC ? trigSF_cross_mu_down  : 1.0;
+	  theSmallTree.m_trigSF_tau_DM0_down   = isMC ? trigSF_tau_DM0_down   : 1.0;
+	  theSmallTree.m_trigSF_tau_DM1_down   = isMC ? trigSF_tau_DM1_down   : 1.0;
+	  theSmallTree.m_trigSF_tau_DM10_down  = isMC ? trigSF_tau_DM10_down  : 1.0;
+	  theSmallTree.m_trigSF_tau_DM11_down  = isMC ? trigSF_tau_DM11_down  : 1.0;
+	  theSmallTree.m_trigSF_met_up         = isMC ? trigSF_met_up         : 1.0;
+	  theSmallTree.m_trigSF_met_down       = isMC ? trigSF_met_down       : 1.0;
+	  theSmallTree.m_trigSF_stau_up        = isMC ? trigSF_stau_up        : 1.0;
+	  theSmallTree.m_trigSF_stau_down      = isMC ? trigSF_stau_down      : 1.0;
 
 	  theSmallTree.m_totalWeight = (isMC? (59970./7.20811e+10) * theSmallTree.m_MC_weight * theSmallTree.m_PUReweight *
-									trigSF * theSmallTree.m_IdFakeSF_deep_2d: 1.0);
+									trigSF * theSmallTree.m_dauSFs: 1.0);
 
 	  //total weight used for sync: the denominator must be changed for each sample as h_eff->GetBinContent(1), the numerator is the luminosity
 
 	  // Third lepton veto
 	  // loop over leptons
 	  vector<pair<float, int> > thirdLeptons ; // pt, idx
-	  for (unsigned int iLep = 0 ; (iLep < theBigTree.daughters_px->size ()) ; ++iLep)
+	  for (unsigned iLep = 0; iLep < ndaughters; ++iLep)
 		{
 		  // skip the H decay candidates
 		  if (int (iLep) == firstDaughterIndex || int (iLep) == secondDaughterIndex)
@@ -3547,34 +4136,32 @@ int main (int argc, char** argv)
 			continue;
 		  else if (theBigTree.particleType->at (iLep) == 0) // muons
 			{
-			  // Fra Mar2020: for muon, Tight does not imply Medium so we check both
-			  bool passMed = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
-											 0.3, OfflineProducerHelper::MuMedium,
-											 0.3, OfflineProducerHelper::MuHighPt);
-			  bool passTig = oph.muBaseline (&theBigTree, iLep, 10., muEtaMax,
-											 0.3, OfflineProducerHelper::MuTight,
-											 0.3, OfflineProducerHelper::MuHighPt);
-			  if (!passMed && !passTig) continue; // if it passes one of the two --> the "if" is false and the lepton is saved as an extra lepton
+			  // For muon, Tight does not imply Medium. However, the difference is minimal.
+			  // https://cms-talk.web.cern.ch/t/medium-vs-tight-muon-identification/42605/2
+			  bool passMedium = oph.muBaseline (&theBigTree, &corrLeptons, iLep, 10., muEtaMax,
+												0.3, OfflineProducerHelper::MuMedium);
+			  bool passTight = oph.muBaseline (&theBigTree, &corrLeptons, iLep, 10., muEtaMax,
+											   0.3, OfflineProducerHelper::MuTight);
+			  if (!passMedium and !passTight) {
+				// if it passes one of the two: the "if" is false and the lepton is saved as an extra lepton
+				continue;
+			  }
 			}
 		  else if (theBigTree.particleType->at (iLep) == 1) // electrons
 			{
 			  // Fra Mar2020: for electron, we check (mvaEleID-Fall17-iso-V2-wp90 OR (mvaEleID-Fall17-noIso-V2-wp90 AND pfRelIso < 0.3))
 			  if (DEBUG) std::cout << "--- Debug for extra electrons:" << std::endl;
-			  bool passIsoMVA = oph.eleBaseline(&theBigTree, iLep, 10., eleEtaMax, 0.3,
-												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax"), (DEBUG ? true : false));
+			  bool passIsoMVA = oph.eleBaseline(&theBigTree, &corrLeptons, iLep, 10., eleEtaMax, 0.3,
+												OfflineProducerHelper::EMVAMedium, string("Vertex-LepID-pTMin-etaMax-etaGapVeto"), (DEBUG ? true : false));
 			  //bool passNonIsoMVA = oph.eleBaseline (&theBigTree, iLep, 10., eleEtaMax, 0.3,
 			  //                     OfflineProducerHelper::EMVAMedium, string("Vertex-pTMin-etaMax-thirdLep"), (DEBUG ? true : false));
 			  if (!passIsoMVA) // if it passes --> the "if" is false and the lepton is saved as an extra lepton
 				continue; 
 			}
 
-		  TLorentzVector tlv_dummyLepton(
-										 theBigTree.daughters_px->at (iLep),
-										 theBigTree.daughters_py->at (iLep),
-										 theBigTree.daughters_pz->at (iLep),
-										 theBigTree.daughters_e->at (iLep)
-										 );
-		  thirdLeptons.push_back (make_pair(tlv_dummyLepton.Pt(), iLep)) ;
+		  TLorentzVector tlv_dummyLepton(corrLeptons.px(iLep), corrLeptons.py(iLep),
+										 corrLeptons.pz(iLep), corrLeptons.en(iLep));
+		  thirdLeptons.push_back(make_pair(tlv_dummyLepton.Pt(), iLep)) ;
 
 		  if(DEBUG)
 			{
@@ -3593,20 +4180,15 @@ int main (int argc, char** argv)
 
 	  sort (thirdLeptons.begin(), thirdLeptons.end()) ;
 	  // reverse loop to start from last one == highest pT
-	  for (int iLep = thirdLeptons.size() -1; (iLep >=0) && (theSmallTree.m_nleps < 2) ; iLep--)
+	  for (int iLep = thirdLeptons.size()-1; (iLep >=0) and (theSmallTree.m_nleps < 2); iLep--)
 		{
-		  TLorentzVector tlv_dummyLepton(
-										 theBigTree.daughters_px->at (iLep),
-										 theBigTree.daughters_py->at (iLep),
-										 theBigTree.daughters_pz->at (iLep),
-										 theBigTree.daughters_e->at (iLep)
-										 );
-
+		  TLorentzVector tlv_dummyLepton(corrLeptons.px(iLep), corrLeptons.py(iLep),
+										 corrLeptons.pz(iLep), corrLeptons.en(iLep));
 		  theSmallTree.m_leps_pt.push_back   (tlv_dummyLepton.Pt ()) ;
 		  theSmallTree.m_leps_eta.push_back  (tlv_dummyLepton.Eta ()) ;
 		  theSmallTree.m_leps_phi.push_back  (tlv_dummyLepton.Phi ()) ;
 		  theSmallTree.m_leps_e.push_back    (tlv_dummyLepton.E ()) ;
-		  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at (iLep)) ;
+		  theSmallTree.m_leps_flav.push_back (theBigTree.particleType->at(iLep)) ;
 		  ++theSmallTree.m_nleps ;
 		}
 
@@ -4388,9 +4970,42 @@ int main (int argc, char** argv)
 		  theSmallTree.m_btau_deltaRmax = *std::max_element(dRBTau.begin(), dRBTau.end());
 
 		  // loop over jets
-		  int genjets = 0;
-		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()) && (theSmallTree.m_njets < maxNjetsSaved); ++iJet)
+
+		  int HEM1516veto = 0;
+
+		  for (unsigned int iJet = 0; (iJet < theBigTree.jets_px->size ()); ++iJet)
 			{
+
+
+			  // before anything check jets for HEM15/16 veto
+			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
+			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
+
+			  bool noMuonOverlap = true;
+			  for (unsigned idau = 0; idau < ndaughters; ++idau)
+			  {
+			    int dauType = theBigTree.particleType->at(idau);
+			    if (oph.isMuon(dauType)){
+			      TLorentzVector tlv_mu(theBigTree.daughters_px->at(idau), theBigTree.daughters_py->at(idau), theBigTree.daughters_pz->at(idau), theBigTree.daughters_e->at(idau));
+			      if(tlv_mu.DeltaR(tlv_dummyJet) < 0.2) noMuonOverlap = false; // all muons?
+			    }
+			  }
+
+			  if( tlv_dummyJet.Pt() > 15. and
+			      tlv_dummyJet.Eta() < -1.3  and tlv_dummyJet.Eta() > -2.5  and
+			      tlv_dummyJet.Phi() < -0.87 and tlv_dummyJet.Phi() > -1.57 and
+			      (tlv_dummyJet.Pt() >= 50. or CheckBit(theBigTree.jets_PUJetIDupdated_WP->at(iJet), PUjetID_WP)) and
+			      (theBigTree.PFjetID->at(iJet) >= 2 or (theBigTree.PFjetID->at(iJet) >= 1 and noMuonOverlap and (theBigTree.jets_chEmEF->at(iJet) + theBigTree.jets_nEmEF->at(iJet) < 0.9)))
+			    )
+			    HEM1516veto = 1;
+
+
+
+
+
+
+			  if (theSmallTree.m_njets > maxNjetsSaved) continue;
+
 			  // PG filter jets at will
 			  if (theBigTree.PFjetID->at (iJet) < PFjetID_WP) continue; // 0 ; don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 
@@ -4403,8 +5018,6 @@ int main (int argc, char** argv)
 				{
 				  continue;
 				}
-			  TLorentzVector tlv_dummyJet(theBigTree.jets_px->at(iJet), theBigTree.jets_py->at(iJet), theBigTree.jets_pz->at(iJet), theBigTree.jets_e->at(iJet));
-			  if (doSmearing) tlv_dummyJet = tlv_dummyJet * smears_AK4[iJet];
 
 			  // Apply PUjetID only to jets with pt < 50 GeV ( https://twiki.cern.ch/twiki/bin/view/CMS/HiggsToTauTauWorkingLegacyRun2#Jets )
 			  // PU jet ID WP = 2: loose
@@ -4436,7 +5049,6 @@ int main (int argc, char** argv)
 						{
 						  hasgj = true;
 						}
-					  genjets ++;
 					}
 				}
 
@@ -4460,6 +5072,13 @@ int main (int argc, char** argv)
 			  theSmallTree.m_jets_pnet_undef.push_back(theBigTree.bParticleNetAK4JetTags_probundef->at(iJet));
 			  ++theSmallTree.m_njets ;
 			} // loop over jets
+
+		  // only apply HEM1516 veto to specific runs in data + corresponding fraction of MC
+		  if((!isMC and theBigTree.RunNumber < 319077) or
+		     PERIOD!="2018" or
+		     (isMC and rand->Rndm(1234) > 0.6347)) HEM1516veto = 0; // randomly selecting 63.47% of MC events (fraction of total lumi affected by HEM issue
+
+		  theSmallTree.m_HEM1516veto = HEM1516veto;
 
 		  if (DEBUG)
 			{
@@ -4575,8 +5194,7 @@ int main (int argc, char** argv)
 			  std::cout << "----------------------" << std::endl;
 			}
 		} // end if (jets_and_sortPar.size () >= 2)
-	  
-
+  
 	  // Boosted section
 	  theSmallTree.m_isBoosted = 0;
 	  vector<pair<float, int>> fatjets_pT, fatjets_bTag;
@@ -4854,11 +5472,11 @@ int main (int argc, char** argv)
 
 	  if (isMC)
 		{
-		  // Shifted MET for TES/EES (and unpacK: first is tes, second is ees)
-		  auto vMET_shifts_tes_ees = getShiftedMET_tes_ees(N_tauhDM, N_tauhDM_EES, vMET, theBigTree, DEBUG);
-		  auto vMET_shift_tes = vMET_shifts_tes_ees.first;
-		  auto vMET_shift_ees = vMET_shifts_tes_ees.second;
-
+		  // Shifted MET for TES/FES (and unpacK: first is tes, second is ees)
+		  auto vMET_shifts_tes_fes = getShiftedMET_tes_fes(N_tauhDM, N_tauhDM_FES, vMET, theBigTree);
+		  auto vMET_shift_tes = vMET_shifts_tes_fes.first;
+		  auto vMET_shift_fes = vMET_shifts_tes_fes.second;
+		  
 		  // Shifted MET for TES
 		  theSmallTree.m_METx_tauup_DM0  = vMET_shift_tes.first.at(0).X();
 		  theSmallTree.m_METx_tauup_DM1  = vMET_shift_tes.first.at(1).X();
@@ -4880,28 +5498,41 @@ int main (int argc, char** argv)
 		  theSmallTree.m_METy_taudown_DM10 = vMET_shift_tes.second.at(2).Y();
 		  theSmallTree.m_METy_taudown_DM11 = vMET_shift_tes.second.at(3).Y();
 
-		  // Shifted MET for EES
-		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_ees.first.at(0).X();
-		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_ees.first.at(1).X();
+		  // Shifted MET for FES (electrons reconstructed as fake taus)
+		  theSmallTree.m_METx_eleup_DM0 = vMET_shift_fes.first.at(0).X();
+		  theSmallTree.m_METx_eleup_DM1 = vMET_shift_fes.first.at(1).X();
 
-		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_ees.first.at(0).Y();
-		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_ees.first.at(1).Y();
+		  theSmallTree.m_METy_eleup_DM0 = vMET_shift_fes.first.at(0).Y();
+		  theSmallTree.m_METy_eleup_DM1 = vMET_shift_fes.first.at(1).Y();
 
-		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_ees.second.at(0).X();
-		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_ees.second.at(1).X();
+		  theSmallTree.m_METx_eledown_DM0 = vMET_shift_fes.second.at(0).X();
+		  theSmallTree.m_METx_eledown_DM1 = vMET_shift_fes.second.at(1).X();
 
-		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_ees.second.at(0).Y();
-		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_ees.second.at(1).Y();
-		  
+		  theSmallTree.m_METy_eledown_DM0 = vMET_shift_fes.second.at(0).Y();
+		  theSmallTree.m_METy_eledown_DM1 = vMET_shift_fes.second.at(1).Y();
+
+		  // Shifted MET for EES (real electrons)
+		  auto vMET_shift_electrons_scale = getShiftedMET_electrons(vMET, theBigTree, pairType, true);
+		  theSmallTree.m_METx_eesUp   = vMET_shift_electrons_scale.first.X();
+		  theSmallTree.m_METy_eesUp   = vMET_shift_electrons_scale.first.Y();
+		  theSmallTree.m_METx_eesDown = vMET_shift_electrons_scale.second.X();
+		  theSmallTree.m_METy_eesDown = vMET_shift_electrons_scale.second.Y();
+
+		  auto vMET_shift_electrons_smear = getShiftedMET_electrons(vMET, theBigTree, pairType, false);
+		  theSmallTree.m_METx_eerUp   = vMET_shift_electrons_smear.first.X();
+		  theSmallTree.m_METy_eerUp   = vMET_shift_electrons_smear.first.Y();
+		  theSmallTree.m_METx_eerDown = vMET_shift_electrons_smear.second.X();
+		  theSmallTree.m_METy_eerDown = vMET_shift_electrons_smear.second.Y();
+
 		  // Shifted MET for MES
-		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree, DEBUG);
+		  auto vMET_shift_mes = getShiftedMET_mes(vMET, theBigTree);
 		  theSmallTree.m_METx_muup   = vMET_shift_mes.first.X();
 		  theSmallTree.m_METy_muup   = vMET_shift_mes.first.Y();
 		  theSmallTree.m_METx_mudown = vMET_shift_mes.second.X();
 		  theSmallTree.m_METy_mudown = vMET_shift_mes.second.Y();
 
 		  // Shifted MET for JES total
-		  auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider, DEBUG);
+		  auto vMET_shift_jetTot = getShiftedMET_jetTot(N_jecSources, vMET, theBigTree, JECprovider);
 		  theSmallTree.m_METx_jetupTot   = vMET_shift_jetTot.first.X();
 		  theSmallTree.m_METy_jetupTot   = vMET_shift_jetTot.first.Y();
 		  theSmallTree.m_METx_jetdownTot = vMET_shift_jetTot.second.X();
@@ -4918,7 +5549,7 @@ int main (int argc, char** argv)
 		  cout << " - Debug SFs -"			 << endl;
 		  cout << "	PU		   : "			 << theSmallTree.m_PUReweight		<< endl;
 		  cout << "	 IDandISO deep (2D): "	 << theSmallTree.m_IdSF_deep_2d		<< endl;
-		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_IdFakeSF_deep_2d << endl;
+		  cout << "	   w/ FakeRate: "		 << theSmallTree.m_dauSFs << endl;
 		  cout << "	trig		   : "		 << theSmallTree.m_trigSF			<< endl;
 		  cout << "	bTag		   : "		 << theSmallTree.m_bTagweightM		<< endl;
 		  cout << "	prescale	   : "		 << theSmallTree.m_prescaleWeight	<< endl;
@@ -4930,7 +5561,7 @@ int main (int argc, char** argv)
 		  cout << "stitchWeight	 : "		 << stitchWeight << endl;
 		  cout << "HHweight		 : "		 << HHweight << endl;
 		  cout << "MC_weight	 : "		 << theSmallTree.m_MC_weight << endl;
-		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_IdFakeSF_deep_2d * theSmallTree.m_trigSF << endl;
+		  cout << "Yield weight deep (2D): " << theSmallTree.m_MC_weight * theSmallTree.m_PUReweight * theSmallTree.m_dauSFs * theSmallTree.m_trigSF << endl;
 		  cout << "------------------------" << endl;
 		  cout << "--- FINAL DEBUG ---"      << endl;
 		  cout << "nbjetscand: "             << theSmallTree.m_nbjetscand << endl;
@@ -4946,11 +5577,13 @@ int main (int argc, char** argv)
 
   if (totalEvents != 0) cout << "efficiency = " << selectedEvents / totalEvents << endl ;
   else                  cout << "NO events found\n" ;
-  TH1F h_eff ("h_eff", "h_eff", 4 , 0, 4) ;
+  TH1F h_eff ("h_eff", "h_eff", 6 , 0, 6) ;
   h_eff.SetBinContent (1, totalEvents) ;
   h_eff.SetBinContent (2, selectedEvents) ;
   h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
+  h_eff.SetBinContent (5, totalEvents_PUReweight_up) ;
+  h_eff.SetBinContent (6, totalEvents_PUReweight_down) ;
 
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
@@ -4973,10 +5606,10 @@ int main (int argc, char** argv)
   TH1F h_syst ("h_syst", "h_syst", 3 , 0, 3) ; //systematics
   h_syst.SetBinContent (1, N_jecSources) ;
   h_syst.SetBinContent (2, N_tauhDM) ;
-  h_syst.SetBinContent (3, N_tauhDM_EES) ;
+  h_syst.SetBinContent (3, N_tauhDM_FES) ;
   h_syst.GetXaxis()->SetBinLabel(1, "jec unc sources");
   h_syst.GetXaxis()->SetBinLabel(2, "tauh decay modes for TES");
-  h_syst.GetXaxis()->SetBinLabel(3, "tauh decay modes for EES");
+  h_syst.GetXaxis()->SetBinLabel(3, "tauh decay modes for FES");
 
   TH1F* hEffHHSigsSummary [6];
   if (isHHsignal)

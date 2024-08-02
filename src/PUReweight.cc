@@ -8,10 +8,12 @@
 // open input txt file and return a vector with PU weights
 std::vector<float> PUReweight::LoadExternalWeights (TString filename)
 {
-  std::vector<float> externalPUweights;
-
   //cout << "=== begin parser ===" << endl;
   std::ifstream infile(filename.Data());
+  if(!infile.good()){
+    throw std::runtime_error("ERROR: PUReweight - Cannot open external file: " + filename);
+  }
+  std::vector<float> externalPUweights;
   std::string line;
   while (std::getline(infile, line))
   {

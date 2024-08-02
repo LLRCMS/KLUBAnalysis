@@ -16,6 +16,7 @@
 #include <TString.h>
 #include "TMath.h"
 #include "bigTree.h"
+#include "correctedLeptons.h"
 #include "TLorentzVector.h"
 #include <iostream>
 #include <vector>
@@ -115,12 +116,13 @@ public:
   // whatApply: use "All", "Iso", "pTMin", "etaMax", "againstEle", "againstMu", "Vertex"; separate various arguments with a semicolon
   // is contains "All" it will override all the other settings; additional parameters are not considered (have no effect)
   // a selection is applied by default if no parameter is specified
-  bool checkPassBaseline (bigTree* tree, int iPair, TString whatApply = "All"){return pairPassBaseline(tree,iPair,whatApply,true);}
-  bool pairPassBaseline (bigTree* tree, int iPair, TString whatApply = "All", bool debug=false);
-  bool eleBaseline (bigTree* tree, int iDau, float ptMin, float relIso,  int MVAIDflag = 0, TString whatApply = "All", bool debug=false); // return true if leptons passes the baseline selections
-  bool eleBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIso,  int MVAIDflag = 0, TString whatApply = "All", bool debug=false); // version with eta cut
-  bool muBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, float relIsopf, int muIDWPpf, float relIsotk, int muIDWPtk, TString whatApply = "All", bool debug=false);
-  bool tauBaseline (bigTree* tree, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All",bool debug=false);
+  bool checkPassBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iPair, TString whatApply = "All") {
+	return pairPassBaseline(tree, corrLeptons, iPair, whatApply, true);
+  }
+  bool pairPassBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iPair, TString whatApply = "All", bool debug=false);
+  bool eleBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iDau, float ptMin, float etaMax, float relIso,  int MVAIDflag = 0, TString whatApply = "All", bool debug=false); // version with eta cut
+  bool muBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iDau, float ptMin, float etaMax, float relIsopf, int muIDWPpf, TString whatApply = "All", bool debug=false);
+  bool tauBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iDau, float ptMin, float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits, TString whatApply = "All",bool debug=false);
   bool tightEleMVAID (float BDT, float fSCeta); // compute tight ele MVA id WP, but isBDT in ntuples has been fixed --> this will be soon deprecated
 
   int getMothPairType (bigTree* tree, int iMoth); // return the pair type of a given pair in the tree
@@ -129,7 +131,7 @@ public:
   bool EleMVAID (float BDT, float eta, float pT, int strength) ;
   // bool jetPassPuID (bigTree* tree, int ijet);
 
-  TLorentzVector buildDauP4 (bigTree* tree, int iDau); // build daughter 4 vector
+  TLorentzVector buildDauP4 (correctedLeptons* corrLeptons, int iDau); // build daughter 4 vector
   TLorentzVector buildMothP4 (bigTree* tree, int iMoth); // build pair 4 vector
   TLorentzVector buildGenP4 (bigTree* tree, int iGen); // build pair 4 vector
   bool getBestJets (bigTree* tree, int& jet1, int& jet2, int strategy); // select jets, possibly two b jets, returns true if found, else false
@@ -138,11 +140,11 @@ public:
   int getPairByIndexes (bigTree* tree, int dau1, int dau2); // knowing the sons, get the pair formed
 
   typedef std::tuple <float, float, int, float, float, int, int> tauPair_t; // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
-  int getBestPairHTauTau (bigTree* tree, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, using HTauTau strategy - for studies
-  int getBestPairPtAndRawIsoOrd (bigTree* tree, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, sorting them by pt in each pair, then by raw iso
+  int getBestPairHTauTau (bigTree* tree, correctedLeptons* corrLeptons, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, using HTauTau strategy - for studies
+  int getBestPairPtAndRawIsoOrd (bigTree* tree, correctedLeptons* corrLeptons, TString whatApply = "All", bool debug = false); // returns best pair formed by idx1, idx2, sorting them by pt in each pair, then by raw iso
   static bool pairSort (const tauPair_t& pA, const tauPair_t& pB);
   static bool pairSortRawIso (const tauPair_t& pA, const tauPair_t& pB);
-  float DeltaRDau(bigTree* tree, int dau1idx, int dau2idx);
+  float DeltaRDau(correctedLeptons* corrLeptons, int dau1idx, int dau2idx);
   const float getEtaCut(std::string);
 
   // --------------------------------
@@ -150,8 +152,8 @@ public:
   // --------------------------------
   int MCHiggsTauTauDecayMode (bigTree* tree); // find the MC decay of the Higgs to tau in the event
   bool getHardTauFinalVisGenProducts (bigTree* tree, int& ind1, int& ind2); // find hard scatter tau decay products and store their indices; return false if problems, else true
-  bool drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone = 0.5);
-  int getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId = true, bool checkCharge = false, float dRcone = 0.5);
+  bool drMatchGenReco (bigTree* tree, correctedLeptons* corrLeptons, int iGen, int iReco, float dRcone = 0.5);
+  int getRecoMatchedToGen (bigTree* tree, correctedLeptons* corrLeptons, int iGen, bool checkId = true, bool checkCharge = false, float dRcone = 0.5);
 
   ~OfflineProducerHelper(){}
 

@@ -155,7 +155,7 @@ int OfflineProducerHelper::getPairType (int type1, int type2)
 
 }
 
-bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString whatApply, bool debug)
+bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iPair, TString whatApply, bool debug)
 {
   int dau1index = tree->indexDau1->at(iPair);
   int dau2index = tree->indexDau2->at(iPair);
@@ -165,7 +165,7 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
 
   if (debug) cout << ".. checking baseline of pair " << iPair << " idx=(" << dau1index << "," << dau2index << ")" << endl;
 
-  float dR = DeltaRDau(tree, dau1index, dau2index);
+  float dR = DeltaRDau(corrLeptons, dau1index, dau2index);
   bool drMin = (dR > 0.4);
   if (!drMin && debug)
     cout << "failed dR min as dR=" << dR << endl;
@@ -188,41 +188,41 @@ bool OfflineProducerHelper::pairPassBaseline (bigTree* tree, int iPair, TString 
   if (pairType == MuHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = muBaseline  (tree, dau1index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
-    leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
+    leg1 = muBaseline  (tree, corrLeptons, dau1index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
+    leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
   }
 
   if (pairType == EHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 3.0 ;
-    leg1 = eleBaseline (tree, dau1index, 10., eleEtaMax, 0.1, EMVATight, whatApply, debug);
-    leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
+    leg1 = eleBaseline (tree, corrLeptons, dau1index, 10., eleEtaMax, 0.1, EMVATight, whatApply, debug);
+    leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
   }
 
   // ordered by pT and not by most isolated, but baseline asked in sync is the same...
   if (pairType == HadHad)
   {
     float tauIso = whatApply.Contains("TauRlxIzo") ? 7.0 : 2.0 ;
-    leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
-    leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
+    leg1 = tauBaseline (tree, corrLeptons, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
+    leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, tauIso, whatApply, debug);
   }
 
   if (pairType == EMu)
   {
-    leg1 = eleBaseline (tree, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = muBaseline  (tree, dau2index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = eleBaseline (tree, corrLeptons, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
+    leg2 = muBaseline  (tree, corrLeptons, dau2index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
   }
 
   if (pairType == EE)
   {
-    leg1 = eleBaseline (tree, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
-    leg2 = eleBaseline (tree, dau2index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
+    leg1 = eleBaseline (tree, corrLeptons, dau1index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
+    leg2 = eleBaseline (tree, corrLeptons, dau2index, 10., eleEtaMax, 0.15, EMVAMedium, whatApply, debug);
   }
 
   if (pairType == MuMu)
   {
-    leg1 = muBaseline (tree, dau1index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
-    leg2 = muBaseline (tree, dau2index, 15., muEtaMax, 0.15, MuTight, 0.15, MuHighPt, whatApply, debug);
+    leg1 = muBaseline (tree, corrLeptons, dau1index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
+    leg2 = muBaseline (tree, corrLeptons, dau2index, 15., muEtaMax, 0.15, MuTight, whatApply, debug);
   }
 
   bool result = (leg1 && leg2);
@@ -256,16 +256,12 @@ const float OfflineProducerHelper::getEtaCut(std::string lepton)
 }
 
 bool
-OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
+OfflineProducerHelper::eleBaseline (bigTree* tree, correctedLeptons* corrLeptons, int iDau,
                                     float ptMin, float etaMax, float relIso, int MVAIDflag,
                                     TString whatApply, bool debug)
 {
-  float px = tree->daughters_px->at(iDau);
-  float py = tree->daughters_py->at(iDau);
-  float pz = tree->daughters_pz->at(iDau);
-  float e =  tree->daughters_e->at(iDau);
-
-  TLorentzVector p4 (px, py, pz, e);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
 
   // bypasser(s) and taker according to the string content
   bool byp_vertexS  = false;
@@ -298,6 +294,10 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
   bool isoS = (tree->combreliso->at(iDau) < relIso) || byp_isoS;
   bool idS = false;
   bool nISOidS = false;
+
+  // veto events with electrons in ECAL barrel-endcap transition region
+  //TODO: should be super cluster eta (not available in bigntuples at the moment)
+  bool isInEtaGap = fabs(p4.Eta()) > 1.44 && fabs(p4.Eta()) < 1.57 && whatApply.Contains("etaGapVeto");
   if (MVAIDflag == 0) // Tight = 80%
   {
     idS = tree->daughters_iseleWP80->at(iDau) || byp_idS ;
@@ -314,7 +314,7 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
     nISOidS = tree->daughters_iseleNoIsoWPLoose->at(iDau) || byp_noISOidS;
   }
 
-  bool totalS = (vertexS && idS && ptS && etaS && isoS && nISOidS);
+  bool totalS = (vertexS && idS && ptS && etaS && isoS && nISOidS && !isInEtaGap);
 
   if (debug)
   {
@@ -331,15 +331,11 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, int iDau,
 }
 
 bool OfflineProducerHelper::muBaseline (
-  bigTree* tree, int iDau, float ptMin,
-  float etaMax, float relIsopf, int muIDWPpf, float relIsotk, int muIDWPtk, TString whatApply, bool debug)
+  bigTree* tree, correctedLeptons* corrLeptons, int iDau, float ptMin,
+  float etaMax, float relIsopf, int muIDWPpf, TString whatApply, bool debug)
 {
-  float px = tree->daughters_px->at(iDau);
-  float py = tree->daughters_py->at(iDau);
-  float pz = tree->daughters_pz->at(iDau);
-  float e =  tree->daughters_e->at(iDau);
-
-  TLorentzVector p4 (px, py, pz, e);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
   int discr = tree->daughters_muonID->at(iDau);
 
   // bypasser(s) according to the string content
@@ -364,20 +360,17 @@ bool OfflineProducerHelper::muBaseline (
     if (whatApply.Contains("etaMax")) byp_etaS = false;
   }
 
-  if (muIDWPpf < 0 || muIDWPpf > 3 || muIDWPtk < 0 || muIDWPtk > 4)
+  if (muIDWPpf < 0 || muIDWPpf > 3)
   {
-	std::string mes = " ** OfflineProducerHelper::muBaseline: muIDWPpf=" + std::to_string(muIDWPpf) + " must be between 0 and 3 and muIDWPtk=" + std::to_string(muIDWPtk) + " must be between 0 and 4.";
+	std::string mes = " ** OfflineProducerHelper::muBaseline: muIDWPpf=" + std::to_string(muIDWPpf) + " must be between 0 and 3.";
 	throw std::invalid_argument(mes);
   }
 
   bool vertexS = (fabs(tree->dxy->at(iDau)) < 0.045 && fabs(tree->dz->at(iDau)) < 0.2) || byp_vertexS;
 
   bool idpfS = checkBit (discr, muIDWPpf) || byp_idS;
-  bool idtkS = checkBit (discr, muIDWPtk) || byp_idS;
   bool isopfS = (tree->combreliso->at(iDau) < relIsopf) || byp_isoS;
-  bool isotkS = (tree->tkRelIso->at(iDau) < relIsotk) || byp_isoS;
-  bool idS = (idpfS && isopfS) || (idtkS && isotkS);
-			  
+  bool idS = (idpfS && isopfS);
   bool ptS = (p4.Pt() > ptMin) || byp_ptS;
   bool etaS = (fabs(p4.Eta()) < etaMax) || byp_etaS;
 
@@ -399,9 +392,9 @@ bool OfflineProducerHelper::muBaseline (
 // deepTauVsEle: 0 = VVVLoose, 1 = VVLoose, 2 = VLoose, 3 = Loose, 4 = Medium, 5 = Tight, 6 = VTight, 7 = VVTight
 // deepTauVsMu:  0 = VLoose  , 1 = Loose  , 2 = Medium, 3 = Tight
 
-bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
-					 float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits,
-					 TString whatApply, bool debug)
+bool OfflineProducerHelper::tauBaseline(bigTree* tree, correctedLeptons* corrLeptons, int iDau, float ptMin,
+										float etaMax, int againstEleWP, int againstMuWP, float isoRaw3Hits,
+										TString whatApply, bool debug)
 {
   if (tree->decayMode->at(iDau) == 5 || tree->decayMode->at(iDau) == 6)
   {
@@ -409,12 +402,8 @@ bool OfflineProducerHelper::tauBaseline (bigTree* tree, int iDau, float ptMin,
     return false;
   }
 
-  float px = tree->daughters_px->at(iDau);
-  float py = tree->daughters_py->at(iDau);
-  float pz = tree->daughters_pz->at(iDau);
-  float e =  tree->daughters_e->at(iDau);
-
-  TLorentzVector p4 (px, py, pz, e);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
 
   // bypasser(s) according to the string content
   bool byp_vertexS = false;
@@ -565,14 +554,10 @@ bool OfflineProducerHelper::EleMVAID (float BDT, float eta, float pT, int streng
 }
 
 
-TLorentzVector OfflineProducerHelper::buildDauP4 (bigTree* tree, int iDau)
+TLorentzVector OfflineProducerHelper::buildDauP4 (correctedLeptons* corrLeptons, int iDau)
 {
-  float px = tree->daughters_px->at(iDau);
-  float py = tree->daughters_py->at(iDau);
-  float pz = tree->daughters_pz->at(iDau);
-  float e =  tree->daughters_e->at(iDau);
-
-  TLorentzVector p4 (px, py, pz, e);
+  TLorentzVector p4(corrLeptons->px(iDau), corrLeptons->py(iDau),
+					corrLeptons->pz(iDau), corrLeptons->en(iDau));
   return p4;
 }
 
@@ -689,7 +674,7 @@ int OfflineProducerHelper::getPairByIndexes (bigTree* tree, int dau1, int dau2)
   return pair;
 }
 
-int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply, bool debug)
+int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, correctedLeptons* corrLeptons, TString whatApply, bool debug)
 {
   // prepare a tuple with all the needed sorting info
   vector<tauPair_t> vPairs;
@@ -701,17 +686,14 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     int t_type2 = tree->particleType->at (t_secondDaughterIndex) ;
     if ( getPairType (t_type1, t_type2) != 2 ) continue ; // tau tau only
 
-    float px1 = tree->daughters_px->at(t_firstDaughterIndex);
-    float py1 = tree->daughters_py->at(t_firstDaughterIndex);
-    float pz1 = tree->daughters_pz->at(t_firstDaughterIndex);
-    float e1 =  tree->daughters_e->at(t_firstDaughterIndex);
-    TLorentzVector p4_1 (px1, py1, pz1, e1);
-
-    float px2 = tree->daughters_px->at(t_secondDaughterIndex);
-    float py2 = tree->daughters_py->at(t_secondDaughterIndex);
-    float pz2 = tree->daughters_pz->at(t_secondDaughterIndex);
-    float e2 =  tree->daughters_e->at(t_secondDaughterIndex);
-    TLorentzVector p4_2 (px2, py2, pz2, e2);
+	TLorentzVector p4_1(corrLeptons->px(t_firstDaughterIndex),
+						corrLeptons->py(t_firstDaughterIndex),
+						corrLeptons->pz(t_firstDaughterIndex),
+						corrLeptons->en(t_firstDaughterIndex));
+	TLorentzVector p4_2(corrLeptons->px(t_secondDaughterIndex),
+						corrLeptons->py(t_secondDaughterIndex),
+						corrLeptons->pz(t_secondDaughterIndex),
+						corrLeptons->en(t_secondDaughterIndex));
 
     //float iso1 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_firstDaughterIndex);  // MVA2017v2
     //float iso2 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_secondDaughterIndex); // MVA2017v2
@@ -747,11 +729,11 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
       int dau1index = get<2> (vPairs.at(ipair));
       int dau2index = get<5> (vPairs.at(ipair));
       int ipair_orig = get<6> (vPairs.at(ipair));
-      bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
-      bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
+      bool leg1 = tauBaseline (tree, corrLeptons, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
+      bool leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
       cout << "  > " << ipair << " tau_idx1=" << dau1index << " tau_idx2=" << dau2index << " orig_pair_idx=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
-           << " base1=" << leg1 << " base2=" << leg2 << " dR="<< DeltaRDau(tree, dau1index, dau2index) <<endl;
+           << " base1=" << leg1 << " base2=" << leg2 << " dR="<< DeltaRDau(corrLeptons, dau1index, dau2index) <<endl;
     }
   }
 
@@ -762,8 +744,8 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
     int ipair_orig = get<6> (vPairs.at(ipair));
     //bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
     //bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
-    bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
+    bool leg1 = tauBaseline (tree, corrLeptons, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
+    bool leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
 
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
@@ -775,7 +757,7 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
       continue; // for the same sign selection at the moment full selection over SS pairs
     }
 
-    float dR = DeltaRDau(tree, dau1index, dau2index);
+    float dR = DeltaRDau(corrLeptons, dau1index, dau2index);
     //bool drMin = (dR > 0.1);
     bool drMin = (dR > 0.4);
 
@@ -799,7 +781,7 @@ int OfflineProducerHelper::getBestPairHTauTau (bigTree* tree, TString whatApply,
 }
 
 
-int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString whatApply, bool debug)
+int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, correctedLeptons* corrLeptons, TString whatApply, bool debug)
 {
   // prepare a tuple with all the needed sorting info
   // pt1 - iso1 - idx1 - pt2 - iso2 - idx2 - idxoriginalPair
@@ -812,17 +794,15 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
     int t_type2 = tree->particleType->at (t_secondDaughterIndex) ;
     if ( getPairType (t_type1, t_type2) != 2 ) continue ; // tau tau only
 
-    float px1 = tree->daughters_px->at(t_firstDaughterIndex);
-    float py1 = tree->daughters_py->at(t_firstDaughterIndex);
-    float pz1 = tree->daughters_pz->at(t_firstDaughterIndex);
-    float e1 =  tree->daughters_e->at(t_firstDaughterIndex);
-    TLorentzVector p4_1 (px1, py1, pz1, e1);
+	TLorentzVector p4_1(corrLeptons->px(t_firstDaughterIndex),
+						corrLeptons->py(t_firstDaughterIndex),
+						corrLeptons->pz(t_firstDaughterIndex),
+						corrLeptons->en(t_firstDaughterIndex));
 
-    float px2 = tree->daughters_px->at(t_secondDaughterIndex);
-    float py2 = tree->daughters_py->at(t_secondDaughterIndex);
-    float pz2 = tree->daughters_pz->at(t_secondDaughterIndex);
-    float e2 =  tree->daughters_e->at(t_secondDaughterIndex);
-    TLorentzVector p4_2 (px2, py2, pz2, e2);
+	TLorentzVector p4_2(corrLeptons->px(t_secondDaughterIndex),
+						corrLeptons->py(t_secondDaughterIndex),
+						corrLeptons->pz(t_secondDaughterIndex),
+						corrLeptons->en(t_secondDaughterIndex));
 
     //float iso1 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_firstDaughterIndex);   // MVA2017v2
     //float iso2 = tree->daughters_byIsolationMVArun2017v2DBoldDMwLTraw2017->at(t_secondDaughterIndex);  // MVA2017v2
@@ -854,10 +834,8 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
       int dau1index = get<2> (vPairs.at(ipair));
       int dau2index = get<5> (vPairs.at(ipair));
       int ipair_orig = get<6> (vPairs.at(ipair));
-      //bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
-      //bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVLoose, amuLoose, 99999., whatApply);  // MVA2017v2
-      bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
-      bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
+      bool leg1 = tauBaseline (tree, corrLeptons, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
+      bool leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply); // DeepTauV2p1
 
       cout << "  > " << ipair << " idx1=" << dau1index << " idx2=" << dau2index << " ipair=" << ipair_orig
            << " | iso1=" << get<1> (pp) << " pt1=" << get<0> (pp) << " iso2=" << get<4> (pp) << " pt2=" << get<3> (pp)
@@ -870,10 +848,8 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
     int dau1index = get<2> (vPairs.at(ipair));
     int dau2index = get<5> (vPairs.at(ipair));
     int ipair_orig = get<6> (vPairs.at(ipair));
-    //bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    //bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVLoose, amuLoose, 99999., whatApply, debug);  // MVA2017v2
-    bool leg1 = tauBaseline (tree, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
-    bool leg2 = tauBaseline (tree, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
+    bool leg1 = tauBaseline (tree, corrLeptons, dau1index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
+    bool leg2 = tauBaseline (tree, corrLeptons, dau2index, 20., tauEtaMax, aeleVVLoose, amuTight, 99999., whatApply, debug); // DeepTauV2p1
 
     bool isOS = tree->isOSCand->at(ipair_orig);
     if (whatApply.Contains("OScharge") && !isOS) {
@@ -885,7 +861,7 @@ int OfflineProducerHelper::getBestPairPtAndRawIsoOrd (bigTree* tree, TString wha
       continue; // for the same sign selection at the moment full selection over SS pairs
     }
 
-    float dR = DeltaRDau(tree, dau1index, dau2index);
+    float dR = DeltaRDau(corrLeptons, dau1index, dau2index);
     //bool drMin = (dR > 0.1);
     bool drMin = (dR > 0.4);
 
@@ -1007,16 +983,16 @@ bool OfflineProducerHelper::getHardTauFinalVisGenProducts (bigTree* tree, int& i
 }
 
 
-bool OfflineProducerHelper::drMatchGenReco (bigTree* tree, int iGen, int iReco, float dRcone)
+bool OfflineProducerHelper::drMatchGenReco (bigTree* tree, correctedLeptons* corrLeptons, int iGen, int iReco, float dRcone)
 {
-  TLorentzVector genP4  (tree->genpart_px->at(iGen), tree->genpart_py->at(iGen), tree->genpart_pz->at(iGen), tree->genpart_e->at(iGen));
-  TLorentzVector recoP4 (tree->daughters_px->at(iReco), tree->daughters_py->at(iReco), tree->daughters_pz->at(iReco), tree->daughters_e->at(iReco));
+  TLorentzVector genP4 (tree->genpart_px->at(iGen), tree->genpart_py->at(iGen), tree->genpart_pz->at(iGen), tree->genpart_e->at(iGen));
+  TLorentzVector recoP4(corrLeptons->px(iReco), corrLeptons->py(iReco), corrLeptons->pz(iReco), corrLeptons->en(iReco));
 
   if (genP4.DeltaR(recoP4) < dRcone) return true;
   else return false;
 }
 
-int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool checkId, bool checkCharge, float dRcone)
+int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, correctedLeptons* corrLeptons, int iGen, bool checkId, bool checkCharge, float dRcone)
 {
   TLorentzVector genP4  (tree->genpart_px->at(iGen), tree->genpart_py->at(iGen), tree->genpart_pz->at(iGen), tree->genpart_e->at(iGen));
   int genID = tree->genpart_pdg->at(iGen);
@@ -1035,9 +1011,9 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
     if (!checkId) IDCheck = true; // bypass this requirement if I don't want ID to be checked
     if (IDCheck)
     {
-      TLorentzVector recoP4 (tree->daughters_px->at(iReco), tree->daughters_py->at(iReco), tree->daughters_pz->at(iReco), tree->daughters_e->at(iReco));
+	  TLorentzVector recoP4(corrLeptons->px(iReco), corrLeptons->py(iReco), corrLeptons->pz(iReco), corrLeptons->en(iReco));
       float dR = genP4.DeltaR(recoP4);
-      if (dR < dRcone)   matchedReco.push_back (std::make_pair(dR, iReco));
+      if (dR < dRcone) matchedReco.push_back (std::make_pair(dR, iReco));
     }
   }
 
@@ -1048,10 +1024,11 @@ int OfflineProducerHelper::getRecoMatchedToGen (bigTree* tree, int iGen, bool ch
 }
 
 
-float OfflineProducerHelper::DeltaRDau(bigTree* tree, int dau1idx, int dau2idx)
+float OfflineProducerHelper::DeltaRDau(correctedLeptons* corrLeptons, int dau1idx, int dau2idx)
 {
-  TLorentzVector v1, v2;
-  v1.SetPxPyPzE (tree->daughters_px->at(dau1idx), tree->daughters_py->at(dau1idx), tree->daughters_pz->at(dau1idx), tree->daughters_e->at(dau1idx));
-  v2.SetPxPyPzE (tree->daughters_px->at(dau2idx), tree->daughters_py->at(dau2idx), tree->daughters_pz->at(dau2idx), tree->daughters_e->at(dau2idx));
+  TLorentzVector v1(corrLeptons->px(dau1idx), corrLeptons->py(dau1idx),
+					corrLeptons->pz(dau1idx), corrLeptons->en(dau1idx));
+  TLorentzVector v2(corrLeptons->px(dau2idx), corrLeptons->py(dau2idx),
+					corrLeptons->pz(dau2idx), corrLeptons->en(dau2idx));
   return v1.DeltaR(v2);
 }

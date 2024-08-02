@@ -11,9 +11,9 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TLorentzVector.h>
 #include <iostream>
 // Header file for the classes stored in the TTree if any.
-#include <vector>
 
 class bigTree {
  public :
@@ -67,13 +67,18 @@ class bigTree {
   std::vector<float>   *daughters_py_TauDown;
   std::vector<float>   *daughters_pz_TauDown;
   std::vector<float>   *daughters_e_TauDown;
-  std::vector<bool>    *daughters_hasEES;
-  std::vector<float>    *daughters_EESshiftDM0up;
-  std::vector<float>    *daughters_EESshiftDM1up;
-  std::vector<float>    *daughters_EESshiftDM0dw;
-  std::vector<float>    *daughters_EESshiftDM1dw;
+  std::vector<bool>    *daughters_hasFES;
+  std::vector<float>    *daughters_FESshiftDM0up;
+  std::vector<float>    *daughters_FESshiftDM1up;
+  std::vector<float>    *daughters_FESshiftDM0dw;
+  std::vector<float>    *daughters_FESshiftDM1dw;
   std::vector<float>   *daughters_MESshiftup;
   std::vector<float>   *daughters_MESshiftdw;
+  std::vector<float>   *daughters_ecalTrkEnergyPostCorr;
+  std::vector<float>   *daughters_energyScaleUp;
+  std::vector<float>   *daughters_energyScaleDown;
+  std::vector<float>   *daughters_energySigmaUp;
+  std::vector<float>   *daughters_energySigmaDown;
   std::vector<float>   *daughters_px_EleUp;
   std::vector<float>   *daughters_py_EleUp;
   std::vector<float>   *daughters_pz_EleUp;
@@ -143,10 +148,10 @@ class bigTree {
   std::vector<float>   *METy_UP_TES;
   std::vector<float>   *METx_DOWN_TES;
   std::vector<float>   *METy_DOWN_TES;
-  std::vector<float>   *METx_UP_EES;
-  std::vector<float>   *METy_UP_EES;
-  std::vector<float>   *METx_DOWN_EES;
-  std::vector<float>   *METy_DOWN_EES;
+  std::vector<float>   *METx_UP_FES;
+  std::vector<float>   *METy_UP_FES;
+  std::vector<float>   *METx_DOWN_FES;
+  std::vector<float>   *METy_DOWN_FES;
   std::vector<float>   *MET_cov00;
   std::vector<float>   *MET_cov01;
   std::vector<float>   *MET_cov10;
@@ -343,13 +348,18 @@ class bigTree {
   TBranch        *b_daughters_py_TauDown;   //!
   TBranch        *b_daughters_pz_TauDown;   //!
   TBranch        *b_daughters_e_TauDown;   //!
-  TBranch        *b_daughters_hasEES;
-  TBranch        *b_daughters_EESshiftDM0up; //!
-  TBranch        *b_daughters_EESshiftDM1up; //!
-  TBranch        *b_daughters_EESshiftDM0dw; //!
-  TBranch        *b_daughters_EESshiftDM1dw; //!
+  TBranch        *b_daughters_hasFES;
+  TBranch        *b_daughters_FESshiftDM0up; //!
+  TBranch        *b_daughters_FESshiftDM1up; //!
+  TBranch        *b_daughters_FESshiftDM0dw; //!
+  TBranch        *b_daughters_FESshiftDM1dw; //!
   TBranch        *b_daughters_MESshiftup;   //!
   TBranch        *b_daughters_MESshiftdw;   //!
+  TBranch        *b_daughters_ecalTrkEnergyPostCorr;   //!
+  TBranch        *b_daughters_energyScaleUp;   //!
+  TBranch        *b_daughters_energyScaleDown;   //!
+  TBranch        *b_daughters_energySigmaUp;   //!
+  TBranch        *b_daughters_energySigmaDown;   //!  
   TBranch        *b_daughters_px_EleUp;   //!
   TBranch        *b_daughters_py_EleUp;   //!
   TBranch        *b_daughters_pz_EleUp;   //!
@@ -416,10 +426,10 @@ class bigTree {
   TBranch        *b_METy_UP_TES;   //!
   TBranch        *b_METx_DOWN_TES;   //!
   TBranch        *b_METy_DOWN_TES;   //!
-  TBranch        *b_METx_UP_EES;   //!
-  TBranch        *b_METy_UP_EES;   //!
-  TBranch        *b_METx_DOWN_EES;   //!
-  TBranch        *b_METy_DOWN_EES;   //!
+  TBranch        *b_METx_UP_FES;   //!
+  TBranch        *b_METy_UP_FES;   //!
+  TBranch        *b_METx_DOWN_FES;   //!
+  TBranch        *b_METy_DOWN_FES;   //!
   TBranch        *b_MET_cov00;   //!
   TBranch        *b_MET_cov01;   //!
   TBranch        *b_MET_cov10;   //!
@@ -614,13 +624,18 @@ class bigTree {
     daughters_py_TauDown = 0;
     daughters_pz_TauDown = 0;
     daughters_e_TauDown = 0;
-    daughters_hasEES = 0;
-    daughters_EESshiftDM0up = 0;
-    daughters_EESshiftDM0dw = 0;
-    daughters_EESshiftDM1up = 0;
-    daughters_EESshiftDM1dw = 0;
+    daughters_hasFES = 0;
+    daughters_FESshiftDM0up = 0;
+    daughters_FESshiftDM0dw = 0;
+    daughters_FESshiftDM1up = 0;
+    daughters_FESshiftDM1dw = 0;
     daughters_MESshiftup = 0;
     daughters_MESshiftdw = 0;
+	daughters_ecalTrkEnergyPostCorr = 0;
+	daughters_energyScaleUp = 0;
+	daughters_energyScaleDown = 0;
+	daughters_energySigmaUp = 0;
+	daughters_energySigmaDown = 0;
     daughters_px_EleUp = 0;
     daughters_py_EleUp = 0;
     daughters_pz_EleUp = 0;
@@ -679,10 +694,10 @@ class bigTree {
     METy_UP_TES = 0;
     METx_DOWN_TES = 0;
     METy_DOWN_TES = 0;
-    METx_UP_EES = 0;
-    METy_UP_EES = 0;
-    METx_DOWN_EES = 0;
-    METy_DOWN_EES = 0;
+    METx_UP_FES = 0;
+    METy_UP_FES = 0;
+    METx_DOWN_FES = 0;
+    METy_DOWN_FES = 0;
     MET_cov00 = 0;
     MET_cov01 = 0;
     MET_cov10 = 0;
@@ -886,10 +901,10 @@ class bigTree {
     fChain->SetBranchAddress("METy_UP_TES", &METy_UP_TES, &b_METy_UP_TES);
     fChain->SetBranchAddress("METx_DOWN_TES", &METx_DOWN_TES, &b_METx_DOWN_TES);
     fChain->SetBranchAddress("METy_DOWN_TES", &METy_DOWN_TES, &b_METy_DOWN_TES);
-    fChain->SetBranchAddress("METx_UP_EES", &METx_UP_EES, &b_METx_UP_EES);
-    fChain->SetBranchAddress("METy_UP_EES", &METy_UP_EES, &b_METy_UP_EES);
-    fChain->SetBranchAddress("METx_DOWN_EES", &METx_DOWN_EES, &b_METx_DOWN_EES);
-    fChain->SetBranchAddress("METy_DOWN_EES", &METy_DOWN_EES, &b_METy_DOWN_EES);
+    fChain->SetBranchAddress("METx_UP_EES", &METx_UP_FES, &b_METx_UP_FES);
+    fChain->SetBranchAddress("METy_UP_EES", &METy_UP_FES, &b_METy_UP_FES);
+    fChain->SetBranchAddress("METx_DOWN_EES", &METx_DOWN_FES, &b_METx_DOWN_FES);
+    fChain->SetBranchAddress("METy_DOWN_EES", &METy_DOWN_FES, &b_METy_DOWN_FES);
     fChain->SetBranchAddress("MET_cov00", &MET_cov00, &b_MET_cov00);
     fChain->SetBranchAddress("MET_cov01", &MET_cov01, &b_MET_cov01);
     fChain->SetBranchAddress("MET_cov10", &MET_cov10, &b_MET_cov10);
@@ -952,6 +967,11 @@ class bigTree {
     fChain->SetBranchAddress("daughters_L3FilterFired", &daughters_L3FilterFired, &b_daughters_L3FilterFired);
     fChain->SetBranchAddress("daughters_L3FilterFiredLast", &daughters_L3FilterFiredLast, &b_daughters_L3FilterFiredLast);
     fChain->SetBranchAddress("daughters_HLTpt", &daughters_HLTpt, &b_daughters_HLTpt);
+    fChain->SetBranchAddress("daughters_ecalTrkEnergyPostCorr", &daughters_ecalTrkEnergyPostCorr, &b_daughters_ecalTrkEnergyPostCorr);
+    fChain->SetBranchAddress("daughters_energyScaleUp", &daughters_energyScaleUp, &b_daughters_energyScaleUp);
+    fChain->SetBranchAddress("daughters_energyScaleDown", &daughters_energyScaleDown, &b_daughters_energyScaleDown);
+    fChain->SetBranchAddress("daughters_energySigmaUp", &daughters_energySigmaUp, &b_daughters_energySigmaUp);
+    fChain->SetBranchAddress("daughters_energySigmaDown", &daughters_energySigmaDown, &b_daughters_energySigmaDown);
     fChain->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
     fChain->SetBranchAddress("jets_VBFleadFilterMatch", &jets_VBFleadFilterMatch, &b_jets_VBFleadFilterMatch);
     fChain->SetBranchAddress("jets_VBFsubleadFilterMatch", &jets_VBFsubleadFilterMatch, &b_jets_VBFsubleadFilterMatch);
@@ -1091,11 +1111,11 @@ class bigTree {
       fChain->SetBranchAddress("daughters_py_TauDown", &daughters_py_TauDown, &b_daughters_py_TauDown);
       fChain->SetBranchAddress("daughters_pz_TauDown", &daughters_pz_TauDown, &b_daughters_pz_TauDown);
       fChain->SetBranchAddress("daughters_e_TauDown", &daughters_e_TauDown, &b_daughters_e_TauDown);
-      fChain->SetBranchAddress("daughters_hasEES", &daughters_hasEES, &b_daughters_hasEES);
-      fChain->SetBranchAddress("daughters_EESshiftDM0up", &daughters_EESshiftDM0up, &b_daughters_EESshiftDM0up);
-      fChain->SetBranchAddress("daughters_EESshiftDM1up", &daughters_EESshiftDM1up, &b_daughters_EESshiftDM1up);
-      fChain->SetBranchAddress("daughters_EESshiftDM0dw", &daughters_EESshiftDM0dw, &b_daughters_EESshiftDM0dw);
-      fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_EESshiftDM1dw, &b_daughters_EESshiftDM1dw);
+      fChain->SetBranchAddress("daughters_hasEES", &daughters_hasFES, &b_daughters_hasFES);
+      fChain->SetBranchAddress("daughters_EESshiftDM0up", &daughters_FESshiftDM0up, &b_daughters_FESshiftDM0up);
+      fChain->SetBranchAddress("daughters_EESshiftDM1up", &daughters_FESshiftDM1up, &b_daughters_FESshiftDM1up);
+      fChain->SetBranchAddress("daughters_EESshiftDM0dw", &daughters_FESshiftDM0dw, &b_daughters_FESshiftDM0dw);
+      fChain->SetBranchAddress("daughters_EESshiftDM1dw", &daughters_FESshiftDM1dw, &b_daughters_FESshiftDM1dw);
       fChain->SetBranchAddress("daughters_MESshiftup", &daughters_MESshiftup, &b_daughters_MESshiftup);
       fChain->SetBranchAddress("daughters_MESshiftdw", &daughters_MESshiftdw, &b_daughters_MESshiftdw);
       fChain->SetBranchAddress("daughters_px_EleUp", &daughters_px_EleUp, &b_daughters_px_EleUp);
