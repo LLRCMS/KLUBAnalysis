@@ -76,9 +76,11 @@ if __name__ == "__main__":
     parser.add_option ('--DY',               dest='DY'        , help='if it is a DY sample'                 , default=False)
     parser.add_option ('--ttHToNonBB',       dest='ttHToNonBB', help='if it is a ttHToNonBB sample'         , default=False)
     parser.add_option ('--hhNLO',            dest='hhNLO'     , help='if it is an HH NLO sample'            , default=False,  action = 'store_true')
-    parser.add_option ('--period',           dest='period'     , help='2018 or 2017 or 2016preVFP or 2016postVFP'             , default='2018')
+    parser.add_option ('--period',           dest='period'    , help='2018 or 2017 or 2016preVFP or 2016postVFP'             , default='2018')
     parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False,  action = 'store_true')
-    parser.add_option ('--datasetType',      dest='datasetType', help='Type of dataset being considered, used for avoiding duplicated events. 0: default, 1: MET dataset 2: SingleTau dataset.', default='0', type=int)
+    parser.add_option ('--datasetType',      dest='datasetType',help='Type of dataset being considered, used for avoiding duplicated events. 0: default, 1: MET dataset 2: SingleTau dataset.', default='0', type=int)
+    parser.add_option ('--isDYlike',                            help="Boosted corrections : if the process is of the kind V+jets", default=False) 
+    parser.add_option ('--isTTlike',                            help="Boosted corrections : if the process is top-enriched", default=False) 
 
     (opt, args) = parser.parse_args()
 
@@ -233,38 +235,44 @@ if __name__ == "__main__":
         scriptFile.write ('cd %s\n'%currFolder)
         scriptFile.write ('eval `scram r -sh`\n')
         scriptFile.write ('source scripts/setup.sh\n')
-        command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs
-        if opt.isdata :  command += ' 1 '
-        else          :  command += ' 0 '
-        command += ' ' + opt.config + ' '
-        if opt.dokinfit=="True" : command += " 1 "
+
+        # arguments for the skimNtuple.cpp   ---> argv[] :
+        command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs  # [1] : files list     [2] : output file      [3] : XS  
+        if opt.isdata :  command += ' 1 '    # [4] : isData
+        else          :  command += ' 0 '    
+        command += ' ' + opt.config + ' '    # [5] : config file
+        if opt.dokinfit=="True" : command += " 1 "   # [6] : doKinFit
         else                    : command += " 0 "
-        command += " " + opt.xsscale
-        command += " " + opt.htcut
-        command += " " + opt.htcutlow
-        if opt.toprew=="True" : command += " 1 "
+        command += " " + opt.xsscale    # [7] : XS scale
+        command += " " + opt.htcut      # [8] : HT cut max
+        command += " " + opt.htcutlow   # [9] : HT cut min
+        if opt.toprew=="True" : command += " 1 "  # [10] : top reweight
+        else                  : command += " 0 " 
+        if opt.genjets=="True": command += " 1 "  # [11] : DY_tostitch
+        else                  : command += " 0 " 
+        command += " " + opt.topstitch            # [12] : TT_stitchType
+        if opt.domt2          : command += " 1 "  # [13] : deprecated
+        else                  : command += " 0 " 
+        if opt.ishhsignal     : command += " 1 "  # [14] : isHHsignal
         else                  : command += " 0 "
-        if opt.genjets=="True": command += " 1 "
+        command += (" " + opt.njets)              # [15] : njets
+        command += (" " + opt.EFTrew + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake + " " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)  # argv[16] to argv[24]
+        command += (" " + opt.susyModel)          # [25] : susy model
+        command += (" " + opt.PUweights)          # [26] : PU weights
+        command += (" " + opt.DY_nJets)           # [27] : DY n jets
+        command += (" " + opt.DY_nBJets)          # [28] : DY b jets
+        if opt.DY             : command += " 1 "  # [29] : isDY  - deprecated
         else                  : command += " 0 "
-        command += " " + opt.topstitch
-        if opt.domt2          : command += " 1 " ## inspiegabilmente questo e' un bool
+        if opt.ttHToNonBB     : command += " 1 "  # [30] : ttH to non bb 
         else                  : command += " 0 "
-        if opt.ishhsignal     : command += " 1 "
-        else                  : command += " 0 "
-        command += (" " + opt.njets)
-        command += (" " + opt.EFTrew + " " + opt.order + " " + opt.uncert + " " + opt.cms_fake + " " + opt.klreweight + " " + opt.ktreweight + " " + opt.c2reweight + " " + opt.cgreweight + " " + opt.c2greweight)
-        command += (" " + opt.susyModel)
-        command += (" " + opt.PUweights)
-        command += (" " + opt.DY_nJets)
-        command += (" " + opt.DY_nBJets)
-        if opt.DY             : command += " 1 "
-        else                  : command += " 0 "
-        if opt.ttHToNonBB     : command += " 1 "
-        else                  : command += " 0 "
-        if opt.hhNLO          : command += " 1 "
-        else                  : command += " 0 "
-        command += (" " + str(opt.period))
-        command += (" " + str(opt.datasetType))
+        if opt.hhNLO          : command += " 1 "  # [31] : hhNLO
+        else                  : command += " 0 " 
+        command += (" " + str(opt.period))        # [32] : period
+        command += (" " + str(opt.datasetType))   # [33] : dataset type
+        if opt.isDYlike : command += " 1 "        # [34] : is DY like for boosted corrections
+        else:             command += " 0 "
+        if opt.isTTlike : command += " 1 "        # [35] : is DY like for boosted corrections   
+        else:             command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
         scriptFile.write (command)
         scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
