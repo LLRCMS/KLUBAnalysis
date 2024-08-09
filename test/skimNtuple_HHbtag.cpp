@@ -40,7 +40,7 @@
 #include "SmearedJetProducer.h"
 #include "met_phi_corr.h"
 
-#include "pnetSF.h"
+#include "PNetSFInterface.h"
 
 #include "ScaleFactor.h"
 #include "ScaleFactorMET.h"
@@ -224,6 +224,14 @@ int main (int argc, char** argv)
   if (isMC) {
 	assert (datasetType==0);
   }
+  
+  // for boosted corrections
+  bool isDYlike = argv[34];
+  bool isTTlike = argv[35];
+  cout << "** INFO: boosted corrections - is DY like process : "<< isDYlike <<endl;
+  cout << "                             - is ttbar like process : "<<isTTlike <<endl;
+  
+
 
   // MET scale Factors
   ScaleFactorMET metSF(PERIOD);
@@ -1038,172 +1046,211 @@ int main (int argc, char** argv)
 	  int idx2hs_b = -1;     // bjet-2 index
 	  TLorentzVector vGenB1; // bjet-1 tlv
 	  TLorentzVector vGenB2; // bjet-2 tlv
+
 	  if (isHHsignal || HHrewType != kNone) // isHHsignal: only to do loop on genparts, but no rew
+	    {
+	      // cout << "DEBUG: reweight!!!" << endl;
+	      TLorentzVector vH1, vH2, vBoost, vSum;
+	      float mHH = -1;
+	      float ct1 = -999;
+	      // loop on gen to find Higgs
+	      int idx1 = -1;
+	      int idx2 = -1;
+	      int idx1last = -1;
+	      int idx2last = -1;
+	      // cout << " ------------------------ " << endl;
+	      for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
 		{
-		  // cout << "DEBUG: reweight!!!" << endl;
-		  TLorentzVector vH1, vH2, vBoost, vSum;
-		  float mHH = -1;
-		  float ct1 = -999;
-		  // loop on gen to find Higgs
-		  int idx1 = -1;
-		  int idx2 = -1;
-		  int idx1last = -1;
-		  int idx2last = -1;
-		  // cout << " ------------------------ " << endl;
-		  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++)
+		  bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
+		  bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
+		  bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
+		  bool isHardProcess = CheckBit (theBigTree.genpart_flags->at(igen), 7) ; //  7 = isHardProcess, for b coming from H
+		  // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
+		  int pdg = theBigTree.genpart_pdg->at(igen);
+		  int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
+		  
+		  bool mothIsHardScatt = false;
+		  if (mothIdx > -1)
+		    {
+		      bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13);
+		      // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
+		      mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
+		    }
+		  
+		  
+		  if (abs(pdg) == 25)
+		    {
+		      // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
+		      if (isFirst)
 			{
-			  bool isFirst     = CheckBit (theBigTree.genpart_flags->at(igen), 12) ; // 12 = isFirstCopy
-			  bool isLast      = CheckBit (theBigTree.genpart_flags->at(igen), 13) ; // 13 = isLastCopy
-			  bool isHardScatt = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; //   3 = isPromptTauDecayProduct
-			  bool isHardProcess = CheckBit (theBigTree.genpart_flags->at(igen), 7) ; //  7 = isHardProcess, for b coming from H
-			  // bool isDirectPromptTauDecayProduct = CheckBit (theBigTree.genpart_flags->at(igen), 5) ; // 5 = isDirectPromptTauDecayProduct
-			  int pdg = theBigTree.genpart_pdg->at(igen);
-			  int mothIdx = theBigTree.genpart_TauMothInd->at(igen);
-
-			  bool mothIsHardScatt = false;
-			  if (mothIdx > -1)
-				{
-				  bool mothIsLast =  CheckBit(theBigTree.genpart_flags->at(mothIdx), 13);
-				  // NB: I need t ask that the mother is last idx, otherwise I get a nonphysics "tauh" by the tauh builder function from the tau->tau "decay" in pythia
-				  mothIsHardScatt = (mothIsLast && CheckBit (theBigTree.genpart_flags->at(mothIdx), 8)); // 0 = isPrompt(), 7: hardProcess , 8: fromHardProcess
-				}
-
-
-			  if (abs(pdg) == 25)
-				{
-				  // cout << igen << " H boson: Px " << theBigTree.genpart_px->at(igen) << " first? " << isFirst << " decMode : " << theBigTree.genpart_HZDecayMode->at(igen) << endl;
-				  if (isFirst)
-					{
-					  if (idx1 >= 0 && idx2 >= 0) {
-						cout << "** WARNING: more than 2 H identified (first)" << endl;
-						continue;
-					  }
-					  (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
-					}
-				  if (isLast)
-					{
-					  if (idx1last >= 0 && idx2last >= 0) {
-						cout << "** WARNING: more than 2 H identified (last)" << endl;
-						// continue; // no need to skip the event in this case -- dec mode just for studies
-					  }
-					  (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
-					}
-				}
-
-			  if ((abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
-				{
-				  if (idx1hs == -1) idx1hs = igen;
-				  else if (idx2hs == -1) idx2hs = igen;
-				  else {
-					cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-				  }
-				}
-			  
-			  if (abs(pdg) == 66615 && mothIsHardScatt)
-				{
-				  if (idx1hs == -1) idx1hs = igen;
-				  else if (idx2hs == -1) idx2hs = igen;
-				  else {
-					cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
-				  }
-				}
-
-			  // FRA DEBUG - find the bjets from the Higgs decay
-			  if ( abs(pdg) == 5 && isHardProcess)
-				{
-				  if (idx1hs_b == -1) idx1hs_b = igen;
-				  else if (idx2hs_b == -1) idx2hs_b = igen;
-				  else {
-					cout << "** WARNING: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
-				  }
-				}
-
-			}
-		
-		  if (idx1 == -1 || idx2 == -1) {
-			cout << "** WARNING: couldn't find 2 H (first)" << endl;
-			continue;
-		  }
-
-		  if (idx1last != -1 && idx2last != -1) // this is not critical if not found
-			{
-			  // store gen decay mode of the two H identified
-			  theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
-			  theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
-
-			  // cout << "THIS H decay mode: " << theSmallTree.m_genDecMode1 << " " << theSmallTree.m_genDecMode2 << endl;
-
-			  // // get tau decaying one
-			  // int idxTauDecayed = (theBigTree.genpart_HZDecayMode->at(idx1last) != 8 ? idx1last : idx2last);
-
-			  // // find hard scatter daughters and check if they match this decay type
-			  // pair<int, int> hsProds = oph.getHardScatterSons()
-			  // int hsIdx1 = hsProds.first;
-			  // int hsIdx2 = hsProds.second;
-			}
-		  else {
-			cout << "** WARNING: couldn't find 2 H (last)" << endl;
-		  }
-
-		  if (idx1hs != -1 && idx2hs != -1)
-			{
-			  pdg1hs = theBigTree.genpart_pdg->at(idx1hs);
-			  pdg2hs = theBigTree.genpart_pdg->at(idx2hs);
-
-			  if      (abs(pdg1hs) == 11) t1hs = 1;
-			  else if (abs(pdg1hs) == 13) t1hs = 0;
-			  else                        t1hs = 2;
-
-			  if      (abs(pdg2hs) == 11) t2hs = 1;
-			  else if (abs(pdg2hs) == 13) t2hs = 0;
-			  else                        t2hs = 2;
-
-			  if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8)) {
-				cout << "** WARNING: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
-					 << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
+			  if (idx1 >= 0 && idx2 >= 0) {
+			    cout << "** WARNING: more than 2 H identified (first)" << endl;
+			    continue;
 			  }
-			  vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
-			  vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
+			  (idx1 == -1) ? (idx1 = igen) : (idx2 = igen) ;
 			}
-		  else {
-			cout << "** WARNING: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
-		  }
-
-		  vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
-		  vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
-		  theSmallTree.m_genH1_pt = vH1.Pt();
-		  theSmallTree.m_genH1_eta = vH1.Eta();
-		  theSmallTree.m_genH1_phi = vH1.Phi();
-		  theSmallTree.m_genH1_e = vH1.E();
-		  theSmallTree.m_genH2_pt = vH2.Pt();
-		  theSmallTree.m_genH2_eta = vH2.Eta();
-		  theSmallTree.m_genH2_phi = vH2.Phi();
-		  theSmallTree.m_genH2_e = vH2.E();
-		  vSum = vH1+vH2;
-		  mHH = vSum.M();
-		  vH1.Boost(-vSum.BoostVector());
-		  ct1 = vH1.CosTheta();
-
-		
-		  // FRA DEBUG - build gen b jets
-		  if (idx1hs_b != -1 && idx2hs_b != -1)
+		      if (isLast)
 			{
-			  vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
-			  vGenB2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs_b), theBigTree.genpart_py->at(idx2hs_b), theBigTree.genpart_pz->at(idx2hs_b), theBigTree.genpart_e->at(idx2hs_b) );
+			  if (idx1last >= 0 && idx2last >= 0) {
+			    cout << "** WARNING: more than 2 H identified (last)" << endl;
+			    // continue; // no need to skip the event in this case -- dec mode just for studies
+			  }
+			  (idx1last == -1) ? (idx1last = igen) : (idx2last = igen) ;
 			}
-		  else {
-			cout << "** WARNING: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
-		  }
-
-		  if (HHrewType == kDiffRew)      HHweight = hhreweighter->getWeight(mHH, ct1);
-		  else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
-		  else if (HHrewType == kOverRew) HHweight = hhreweighter->getWeight(mHH, ct1, kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew);
-
-		  theSmallTree.m_genMHH = mHH;
-		  theSmallTree.m_genCosth = ct1;
-
-		  // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+		    }// if isHiggs
+		  
+		  if ((abs(pdg) == 11 || abs(pdg) == 13 ) && isHardScatt && isLast && mothIsHardScatt)
+		    {
+		      if (idx1hs == -1) idx1hs = igen;
+		      else if (idx2hs == -1) idx2hs = igen;
+		      else {
+			cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+		      }
+		    }
+		  
+		  if (abs(pdg) == 66615 && mothIsHardScatt)
+		    {
+		      if (idx1hs == -1) idx1hs = igen;
+		      else if (idx2hs == -1) idx2hs = igen;
+		      else {
+			cout << "** WARNING: there are more than 2 hard scatter tau dec prod: evt = " << theBigTree.EventNumber << endl;
+		      }
+		    }
+		  
+		  // FRA DEBUG - find the bjets from the Higgs decay
+		  if ( abs(pdg) == 5 && isHardProcess)
+		    {
+		      if (idx1hs_b == -1) idx1hs_b = igen;
+		      else if (idx2hs_b == -1) idx2hs_b = igen;
+		      else {
+			cout << "** WARNING: there are more than 2 hard scatter b quarks: evt = " << theBigTree.EventNumber << endl;
+		      }
+		    }
+		  
+		} // if isb
+	      
+	      if (idx1 == -1 || idx2 == -1) {
+		cout << "** WARNING: couldn't find 2 H (first)" << endl;
+		continue;
+	      }
+	      
+	      if (idx1last != -1 && idx2last != -1) // this is not critical if not found
+		{
+		  // store gen decay mode of the two H identified
+		  theSmallTree.m_genDecMode1 = theBigTree.genpart_HZDecayMode->at(idx1last);
+		  theSmallTree.m_genDecMode2 = theBigTree.genpart_HZDecayMode->at(idx2last);
+		  
+		  // cout << "THIS H decay mode: " << theSmallTree.m_genDecMode1 << " " << theSmallTree.m_genDecMode2 << endl;
+		  
+		  // // get tau decaying one
+		  // int idxTauDecayed = (theBigTree.genpart_HZDecayMode->at(idx1last) != 8 ? idx1last : idx2last);
+		  
+		  // // find hard scatter daughters and check if they match this decay type
+		  // pair<int, int> hsProds = oph.getHardScatterSons()
+		  // int hsIdx1 = hsProds.first;
+		  // int hsIdx2 = hsProds.second;
 		}
+	      else {
+		cout << "** WARNING: couldn't find 2 H (last)" << endl;
+	      }
+	      
+	      if (idx1hs != -1 && idx2hs != -1)
+		{
+		  pdg1hs = theBigTree.genpart_pdg->at(idx1hs);
+		  pdg2hs = theBigTree.genpart_pdg->at(idx2hs);
+		  
+		  if      (abs(pdg1hs) == 11) t1hs = 1;
+		  else if (abs(pdg1hs) == 13) t1hs = 0;
+		  else                        t1hs = 2;
+		  
+		  if      (abs(pdg2hs) == 11) t2hs = 1;
+		  else if (abs(pdg2hs) == 13) t2hs = 0;
+		  else                        t2hs = 2;
+		  
+		  if (oph.getPairType(t1hs, t2hs) != (theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8)) {
+		    cout << "** WARNING: decay modes do not match! " << theBigTree.genpart_pdg->at(idx1hs) << " " << theBigTree.genpart_pdg->at(idx2hs) << " != "
+			 << ( theSmallTree.m_genDecMode1 + theSmallTree.m_genDecMode2 - 8) << endl;
+		  }
+		  vHardScatter1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs), theBigTree.genpart_py->at(idx1hs), theBigTree.genpart_pz->at(idx1hs), theBigTree.genpart_e->at(idx1hs));
+		  vHardScatter2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs), theBigTree.genpart_py->at(idx2hs), theBigTree.genpart_pz->at(idx2hs), theBigTree.genpart_e->at(idx2hs));
+		}
+	      else {
+		cout << "** WARNING: couldn't find 2 H->tautau gen dec prod " << idx1hs << " " << idx2hs << endl;
+	      }
+	      
+	      vH1.SetPxPyPzE (theBigTree.genpart_px->at(idx1), theBigTree.genpart_py->at(idx1), theBigTree.genpart_pz->at(idx1), theBigTree.genpart_e->at(idx1) );
+	      vH2.SetPxPyPzE (theBigTree.genpart_px->at(idx2), theBigTree.genpart_py->at(idx2), theBigTree.genpart_pz->at(idx2), theBigTree.genpart_e->at(idx2) );
+	      theSmallTree.m_genH1_pt = vH1.Pt();
+	      theSmallTree.m_genH1_eta = vH1.Eta();
+	      theSmallTree.m_genH1_phi = vH1.Phi();
+	      theSmallTree.m_genH1_e = vH1.E();
+	      theSmallTree.m_genH2_pt = vH2.Pt();
+	      theSmallTree.m_genH2_eta = vH2.Eta();
+	      theSmallTree.m_genH2_phi = vH2.Phi();
+	      theSmallTree.m_genH2_e = vH2.E();
+	      vSum = vH1+vH2;
+	      mHH = vSum.M();
+	      vH1.Boost(-vSum.BoostVector());
+	      ct1 = vH1.CosTheta();
+	      
+	      
+	      // FRA DEBUG - build gen b jets
+	      if (idx1hs_b != -1 && idx2hs_b != -1)
+		{
+		  vGenB1.SetPxPyPzE (theBigTree.genpart_px->at(idx1hs_b), theBigTree.genpart_py->at(idx1hs_b), theBigTree.genpart_pz->at(idx1hs_b), theBigTree.genpart_e->at(idx1hs_b) );
+		  vGenB2.SetPxPyPzE (theBigTree.genpart_px->at(idx2hs_b), theBigTree.genpart_py->at(idx2hs_b), theBigTree.genpart_pz->at(idx2hs_b), theBigTree.genpart_e->at(idx2hs_b) );
+		}
+	      else {
+		cout << "** WARNING: couldn't find 2 H->bb gen dec prod " << idx1hs_b << " " << idx2hs_b << endl;
+	      }
+	      
+	      if (HHrewType == kDiffRew)      HHweight = hhreweighter->getWeight(mHH, ct1);
+	      else if (HHrewType == kC2scan)  HHweight = hhreweighter->getWeight(mHH, ct1, c2_rew);
+	      else if (HHrewType == kOverRew) HHweight = hhreweighter->getWeight(mHH, ct1, kl_rew, kt_rew, c2_rew, cg_rew, c2g_rew);
+	      
+	      theSmallTree.m_genMHH = mHH;
+	      theSmallTree.m_genCosth = ct1;
+	      
+	      // cout << " ........... GEN FINISHED ........... " << " evt=" << theBigTree.EventNumber << " run=" << theBigTree.RunNumber << " lumi=" << theBigTree.lumi << endl;
+	    } // if isHHsignal
+
+
+	  // storing H or Z decaying into bb in dedicated vectors
+	  std::vector<TLorentzVector> higgsVectors;
+	  std::vector<TLorentzVector> bQuarksFromHiggs;
+	  
+	  std::vector<TLorentzVector> zBosonVectors;  
+	  std::vector<TLorentzVector> bQuarksFromZ;
+
+	  
+	  for (unsigned int igen = 0; igen < theBigTree.genpart_px->size(); igen++) {
+	    int pdg = theBigTree.genpart_pdg->at(igen);
+	    bool isQuarkb = (pdg == 5);
+	    TLorentzVector vBoson, vB1;
+	    int idx_H = -1.;
+	    int idx_Z = -1.;
+
+	    if(isQuarkb){ //focusing only on b (not anti-b), assuming that a b from a Z or a Higgs is paired with an anti-b
+	      idx_H = theBigTree.genpart_HMothInd->at(igen);
+	      idx_Z = theBigTree.genpart_ZMothInd->at(igen);
+	      if (idx_H != -1.) { // b from H
+		vBoson.SetPxPyPzE(theBigTree.genpart_px->at(idx_H), theBigTree.genpart_py->at(idx_H), theBigTree.genpart_pz->at(idx_H), theBigTree.genpart_e->at(idx_H));
+		vB1.SetPxPyPzE(theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
+		higgsVectors.push_back(vBoson);  
+		bQuarksFromHiggs.push_back(vB1);
+	      } 
+	      else if (idx_Z != - 1.) { // b from Z
+		vBoson.SetPxPyPzE(theBigTree.genpart_px->at(idx_Z), theBigTree.genpart_py->at(idx_Z), theBigTree.genpart_pz->at(idx_Z), theBigTree.genpart_e->at(idx_Z));
+		vB1.SetPxPyPzE(theBigTree.genpart_px->at(igen), theBigTree.genpart_py->at(igen), theBigTree.genpart_pz->at(igen), theBigTree.genpart_e->at(igen));
+		zBosonVectors.push_back(vBoson);  
+		bQuarksFromZ.push_back(vB1);	       
+	      }
+	    } // if isQuarkb
+	  } // loop on gen particles
+	  
+	  theSmallTree.m_nHiggs = higgsVectors.size();
+	  theSmallTree.m_nZBosons = zBosonVectors.size();
+	  
 
 	  ///////////////////////////////////////////////////////////
 	  // END of gen related stuff -- compute tot number of events
@@ -5271,29 +5318,52 @@ int main (int argc, char** argv)
 		  theSmallTree.m_HHbregrsvfit_phi = tlv_HHbregrsvfit.Phi();
 		  theSmallTree.m_HHbregrsvfit_m	  = tlv_HHbregrsvfit.M();
 
-		  // Getting ParticleNet scale factors from the pnetSF.cc
-		  pnetSF pnetSF_helper;
-		  std::map<std::string, std::vector<float>> pnetSF_map = pnetSF_helper.getSFmap(tlv_fj.Pt(), PERIOD);
-
-		  if (isHHsignal){
-		    // saving each working point
-		    std::tuple<float, float, float> SF_HP = pnetSF_helper.getSF(pnetSF_map, "HP");
-		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF      = std::get<0>(SF_HP);
-		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up   = std::get<1>(SF_HP);
-		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down = std::get<2>(SF_HP);
-
-		    std::tuple<float, float, float> SF_MP = pnetSF_helper.getSF(pnetSF_map, "MP");
-		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF      = std::get<0>(SF_MP);
-		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up   = std::get<1>(SF_MP);
-		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down = std::get<2>(SF_MP);
-
-		    std::tuple<float, float, float> SF_LP = pnetSF_helper.getSF(pnetSF_map, "LP");
-		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = std::get<0>(SF_LP);
-		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = std::get<1>(SF_LP);
-		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = std::get<2>(SF_LP);
+		  // verify if the fatjet matches any previously found Higgs or Z decaying into bb
+		  bool matchedToHiggs = false;
+		  bool matchedToZ = false;
+		  for (const auto& higgs : higgsVectors) {
+		    if (tlv_fj.DeltaR(higgs) < 0.8) {
+		      matchedToHiggs = true;
+		      break;
+		    }
 		  }
-		  //else 
-		  //     --> handle bkg samples differently . For now, their values remain set to 1
+		  for (const auto& zboson : zBosonVectors) {
+		    if (tlv_fj.DeltaR(zboson) < 0.8) {
+		      matchedToZ = true;
+		      break;
+		    }
+		  }
+
+		  theSmallTree.m_fatjet_isMatchedToHiggs = matchedToHiggs;
+		  theSmallTree.m_fatjet_isMatchedToZ = matchedToZ;
+
+		  // determine sample type
+		  std::string sample_type = "";
+		  if (matchedToHiggs || matchedToZ){
+		    sample_type = "HHlike";
+		  }
+		  else if  (isDYlike){
+		    sample_type = "DYlike";
+		  }
+		  else if (isTTlike){
+		    sample_type = "TTlike";
+		  }
+		  
+		  // Getting ParticleNet scale factors from the class
+		  if (sample_type != ""){
+		    auto PNetAK8SF = PNetSFInterface(PERIOD);
+		    std::vector<float> PNetSFmap = PNetAK8SF.getSFvec(tlv_fj.Pt(), sample_type);
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF      = PNetSFmap[0];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_up   = PNetSFmap[1];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_HP_SF_down = PNetSFmap[2];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF      = PNetSFmap[3];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_up   = PNetSFmap[4];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_MP_SF_down = PNetSFmap[5];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF      = PNetSFmap[6];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_up   = PNetSFmap[7];
+		    theSmallTree.m_fatjet_particleNetMDJetTags_LP_SF_down = PNetSFmap[8];
+		  }
+		  
 
 
 		  // saving infos for subjets

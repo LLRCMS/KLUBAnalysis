@@ -5,7 +5,6 @@ import glob
 
 #--------------------------
 date           = '09Aug2024_newProduction_systFix'
-
 execute_bkg    = False
 execute_sig    = True
 execute_data   = False
@@ -228,6 +227,7 @@ bkg_map = {
     "TTTo2L2Nu"                       : "-n 100 -x 84.01    -t True    -b 4  ",
     "TTToSemiLeptonic"                : "-n 100 -x 347.55   -t True    -b 5  ",
 
+    
     # --- single Higgs ---
     # -y: scale to apply on XS for stitching
     "ZHToTauTau_M125"                     : "-n 50    -x 0.880    -y 0.0632",
@@ -266,7 +266,6 @@ bkg_map = {
     "ST_tW_top_5f_inclusiveDecays"            : "-n 50  -x 35.85  ",
     "ST_t-channel_antitop_5f_InclusiveDecays" : "-n 50  -x 80.95  ",
     "ST_t-channel_top_5f_InclusiveDecays"     : "-n 50  -x 136.02 ",
-
 
     # --- Multiboson ---
     "WW"                              : "-n 20  -x 118.7",
@@ -326,10 +325,9 @@ if execute_bkg:
      if len(check_bkg[f])>1:
          sys.exit('\nERROR: many bkg keys assigned to the same file --- exit()   %s'%check_bkg[f] )
      elif len(check_bkg[f])<1:
-         print 'File not in the bkg_map:   ', f
+         print('File not in the bkg_map:   ', f)
 
- print '\nBackground Files found' 
-
+ print('\nBackground Files found')
 
 
 
@@ -347,61 +345,60 @@ if execute_bkg:
 sig_map = {}
 sig_map = {
     # --- GluGlu -> Graviton -> HH -> bb tautau ---
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-250"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-260"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-270"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-280"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-300"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-320"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-350"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-400"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-450"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-500"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-550"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-600"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-650"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-700"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-750"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-800"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-850"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-900"     :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-1000"    :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-1250"    :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-1500"    :  "-n 20     -x 1.     -a True",
-    "GluGluToBulkGravitonToHHTo2B2Tau_M-1750"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-250"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-260"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-270"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-280"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-300"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-320"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-350"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-400"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-450"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-500"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-550"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-600"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-650"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-700"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-750"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-800"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-850"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-900"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-1000"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-1250"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-1500"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToBulkGravitonToHHTo2B2Tau_M-1750"    :  "-n 20     -x 1.     -a True",
     "GluGluToBulkGravitonToHHTo2B2Tau_M-2000"    :  "-n 20     -x 1.     -a True",
     "GluGluToBulkGravitonToHHTo2B2Tau_M-2500"    :  "-n 20     -x 1.     -a True",
     "GluGluToBulkGravitonToHHTo2B2Tau_M-3000"    :  "-n 20     -x 1.     -a True",
 
 
 
-    # --- GluGlu -> Radion -> HH -> bb tautau ---
-    "GluGluToRadionToHHTo2B2Tau_M-250"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-260"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-270"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-280"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-300"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-320"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-350"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-400"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-450"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-500"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-550"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-600"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-650"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-700"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-750"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-800"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-850"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-900"     :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-1000"    :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-1250"    :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-1500"    :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-1750"    :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-2000"    :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-2500"    :  "-n 20     -x 1.     -a True",
-    "GluGluToRadionToHHTo2B2Tau_M-3000"    :  "-n 20     -x 1.     -a True"
-
+    # # --- GluGlu -> Radion -> HH -> bb tautau ---
+    # "GluGluToRadionToHHTo2B2Tau_M-250"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-260"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-270"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-280"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-300"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-320"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-350"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-400"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-450"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-500"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-550"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-600"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-650"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-700"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-750"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-800"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-850"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-900"     :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-1000"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-1250"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-1500"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-1750"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-2000"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-2500"    :  "-n 20     -x 1.     -a True",
+    # "GluGluToRadionToHHTo2B2Tau_M-3000"    :  "-n 20     -x 1.     -a True"
 
     # # --- signals with cross sections ---
     # # --- GluGlu -> Graviton -> HH -> bb tautau ---
@@ -552,10 +549,9 @@ if execute_sig:
      if len(check_sig[f])>1:
          sys.exit('\nERROR: many sig keys assigned to the same file --- exit()   %s'%check_sig[f] )
      elif len(check_sig[f])<1:
-         print 'File not in the sig_map:   ', f
+         print('File not in the sig_map:   ', f)
 
- print '\nSignal Files found' 
-
+ print('\nSignal Files found' )
 
 
 
@@ -632,11 +628,9 @@ if execute_data:
      if len(check_data[f])>1:
          sys.exit('\nERROR: many data keys assigned to the same file --- exit()   %s'%check_data[f] )
      elif len(check_data[f])<1:
-         print 'File not in the data_map:   ', f
+         print('File not in the data_map:   ', f)
 
- print '\nData Files found' 
-
-
+ print('\nData Files found' )
 
 
 
@@ -674,15 +668,15 @@ if not os.path.exists(skimDir):
 # SUBMIT BACKGROUNDS
 
 if execute_bkg:
- print '\nSubmitting - backgrounds - '
- print 'OUTDIR = ', outDir
+ print('\nSubmitting - backgrounds - ')
+ print('OUTDIR = ', outDir)
  with open('%s'%logFile, 'w') as logF:
     logF.write("Submitting - backgrounds - \nOUTDIR = %s"%outDir)
 
  for label in bkg_map:
      command = ''
      command = '%s %s --pu %s '%(baseCommand, bkg_map[label], puDir)
-     print 'bkg command:  ', command
+     print('bkg command:  ', command)
      os.system(command)
 
 
@@ -690,15 +684,15 @@ if execute_bkg:
 # SUBMIT SIGNALS
 
 if execute_sig:
- print '\nSubmitting - signals - '
- print 'OUTDIR = ', outDir
+ print('\nSubmitting - signals - ')
+ print('OUTDIR = ', outDir)
  with open('%s'%logFile, 'w') as logF:
      logF.write("Submitting - signals - \nOUTDIR = %s"%outDir)
 
  for label in sig_map:
      command = ''
      command = '%s %s --pu %s '%(baseCommand, sig_map[label], puDir)
-     print 'sig command:  ', command
+     print('sig command:  ', command)
      os.system(command)
 
 
@@ -706,15 +700,15 @@ if execute_sig:
 # SUBMIT DATA
 
 if execute_data:
- print '\nSubmitting - data - '
- print 'OUTDIR = ', outDir
+ print('\nSubmitting - data - ')
+ print('OUTDIR = ', outDir)
  with open('%s'%logFile, 'w') as logF:
      logF.write("Submitting - data - \nOUTDIR = %s"%outDir)
 
  for label in data_map:
      command = ''
      command = '%s %s'%(baseCommand, data_map[label])
-     print 'data command:  ', command
+     print('data command:  ', command)
      os.system(command)
 
 
