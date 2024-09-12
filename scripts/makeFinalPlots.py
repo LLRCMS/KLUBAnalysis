@@ -104,14 +104,14 @@ class PlotterFactory:
 
         # name, sigscale per channel
         self.variables = {
-            "dau1_pt"              : (r"$pT^{\,\text{lepton \#1}}\;[GeV]$",              (90, 50, 20, 5000)),
-			"dau2_pt"			   : (r"$pT^{\,\text{lepton \#2}}\;[GeV]$",			  (90, 50, 9, 5000)),
-			"bjet1_pt"			   : (r"$pT^{\,\text{jet \#1}}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"bjet2_pt"			   : (r"$pT^{\,\text{jet \#2}}\;[GeV]$",			  (90, 90, 9, 10000)),
-			"dau1_eta"			   : (r"$\eta^{\,\text{lepton \#1}}$",					  (40, 40, 2, 4000)),
-			"dau2_eta"			   : (r"$\eta^{\,\text{lepton \#2}}$",					  (40, 40, 2, 4000)),
-			"bjet1_eta"			   : (r"$\eta^{\,\text{jet \#1}}$",				  (40, 40, 4, 4000)),
-			"bjet2_eta"			   : (r"$\eta^{\,\text{jet \#2}}$",				  (40, 40, 4, 4000)),
+            "dau1_pt"              : (r"$pT^{\,\mathrm{lepton \#1}}\;[GeV]$",              (90, 50, 20, 5000)),
+			"dau2_pt"			   : (r"$pT^{\,\mathrm{lepton \#2}}\;[GeV]$",			  (90, 50, 9, 5000)),
+			"bjet1_pt"			   : (r"$pT^{\,\mathrm{jet \#1}}\;[GeV]$",			  (90, 90, 9, 10000)),
+			"bjet2_pt"			   : (r"$pT^{\,\mathrm{jet \#2}}\;[GeV]$",			  (90, 90, 9, 10000)),
+			"dau1_eta"			   : (r"$\eta^{\,\mathrm{lepton \#1}}$",					  (40, 40, 2, 4000)),
+			"dau2_eta"			   : (r"$\eta^{\,\mathrm{lepton \#2}}$",					  (40, 40, 2, 4000)),
+			"bjet1_eta"			   : (r"$\eta^{\,\mathrm{jet \#1}}$",				  (40, 40, 4, 4000)),
+			"bjet2_eta"			   : (r"$\eta^{\,\mathrm{jet \#2}}$",				  (40, 40, 4, 4000)),
 			"tauH_mass"			   : (r"$m_{H\rightarrow\tau\tau}\;[GeV]$",			  (30, 30, 2, 10000)),
 			"tauH_pt"			   : (r"$pT_{H\rightarrow\tau\tau}\;[GeV]$",		  (30, 30, 2, 10000)),
 			"tauH_eta"			   : (r"$\eta_{H\rightarrow\tau\tau} [GeV]$",		  (30, 30, 9, 10000)),
@@ -125,23 +125,23 @@ class PlotterFactory:
 			"met_phi"			   : (r"$MET-\phi$",				  (10, 10, 1, 1000)),
 			"metnomu_et"		   : (r"$MET_{no\mu}\;[GeV]$",			  (20, 20, 2, 2000)),
 			"metnomu_phi"		   : (r"$MET_{no\mu}-\phi$",			  (10, 10, 1, 5000)),
-			"dau1_dxy"			   : (r"$d^{\,\text{lepton \#1}}_{xy}$",					  (10, 10, 1, 5000)),
-			"dau1_dz"			   : (r"$d^{\,\text{lepton \#1}}_{z}$",					  (10, 10, 1, 5000)),
-			"dau2_dxy"			   : (r"$d^{\,\text{lepton \#2}}_{xy}$",					  (10, 10, 1, 4000)),
-			"dau2_dz"			   : (r"$d^{\,\text{lepton \#2}}_{z}$",					  (10, 10, 1, 4000)),
+			"dau1_dxy"			   : (r"$d^{\,\mathrm{lepton \#1}}_{xy}$",					  (10, 10, 1, 5000)),
+			"dau1_dz"			   : (r"$d^{\,\mathrm{lepton \#1}}_{z}$",					  (10, 10, 1, 5000)),
+			"dau2_dxy"			   : (r"$d^{\,\mathrm{lepton \#2}}_{xy}$",					  (10, 10, 1, 4000)),
+			"dau2_dz"			   : (r"$d^{\,\mathrm{lepton \#2}}_{z}$",					  (10, 10, 1, 4000)),
 			"METx"				   : (r"$MET_{x} [GeV]$",			  (10, 10, 1, 4000)),
 			"METy"				   : (r"$MET_{y} [GeV]$",			  (10, 10, 1, 4000)),
 			# "met_cov00"			   : (r"$Cov(MET)_{00}$",			  (10, 10, 1, 4000)),
 			# "met_cov01"			   : (r"$Cov(MET)_{01}$",			  (10, 10, 1, 4000)),
 			# "met_cov11"			   : (r"$Cov(MET)_{11}$",			  (10, 10, 1, 4000)),
-			"bjet1_bID_deepFlavor" : (r"$Deep\:Flavour^{\,\text{jet \#1}}$",		  (10, 10, 1, 4000)),
-			"bjet2_bID_deepFlavor" : (r"$Deep\:Flavour^{\,\text{jet \#2}}$",		  (10, 10, 1, 4000)),
-			"bjet1_CvsB"		   : (r"$CvsB^{\,\text{jet \#1}}$",				  (10, 10, 1, 4000)),
-			"bjet1_CvsL"		   : (r"$CvsL^{\,\text{jet \#1}}$",				  (10, 10, 1, 4000)),
-			"bjet2_CvsB"		   : (r"$CvsB^{\,\text{jet \#2}}$",				  (10, 10, 1, 4000)),
-			"bjet2_CvsL"		   : (r"$CvsL^{\,\text{jet \#2}}$",				  (10, 10, 1, 4000)),
-			"bjet1_HHbtag"		   : (r"$HH-BTag^{\,\text{jet \#1}}$",				  (10, 10, 1, 4000)),
-			"bjet2_HHbtag"		   : (r"$HH-BTag^{\,\text{jet \#2}}$",				  (10, 10, 1, 4000)),
+			"bjet1_bID_deepFlavor" : (r"$Deep\:Flavour^{\,\mathrm{jet \#1}}$",		  (10, 10, 1, 4000)),
+			"bjet2_bID_deepFlavor" : (r"$Deep\:Flavour^{\,\mathrm{jet \#2}}$",		  (10, 10, 1, 4000)),
+			"bjet1_CvsB"		   : (r"$CvsB^{\,\mathrm{jet \#1}}$",				  (10, 10, 1, 4000)),
+			"bjet1_CvsL"		   : (r"$CvsL^{\,\mathrm{jet \#1}}$",				  (10, 10, 1, 4000)),
+			"bjet2_CvsB"		   : (r"$CvsB^{\,\mathrm{jet \#2}}$",				  (10, 10, 1, 4000)),
+			"bjet2_CvsL"		   : (r"$CvsL^{\,\mathrm{jet \#2}}$",				  (10, 10, 1, 4000)),
+			"bjet1_HHbtag"		   : (r"$HH-BTag^{\,\mathrm{jet \#1}}$",				  (10, 10, 1, 4000)),
+			"bjet2_HHbtag"		   : (r"$HH-BTag^{\,\mathrm{jet \#2}}$",				  (10, 10, 1, 4000)),
 			"tauH_SVFIT_mass"	   : (r"$m_{H\tau}^{SVFit}\;[GeV]$",	  (30, 30, 2, 10000)),
 			"tauH_SVFIT_pt"		   : (r"$pT_{H\tau}^{SVFit}\;[GeV]$",  (10, 10, 2, 10000)),
 			# "tauH_SVFIT_eta"	   : (r"$eta_{H\tau}^{SVFit} [GeV]$", (10, 10, 2, 10000)),
@@ -288,15 +288,15 @@ def dnn_parallel(mass, spin, tag, chn, cat, pars):
     factory.produce(factory.data_mc_signal_worker, pars=pars, pdnn=pdnn_params)
 
 def makeFinalPlots(tag, year, pdnn, singlethreaded=False):
-    basepath_in = "/data_CMS/cms/alves/HHresonant_hist/"
+    basepath_in = "/data_CMS/cms/portales/HHresonant_hist/" # "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
 
     # channels = ("TauTau", "MuTau", "ETau")
     # categories = ("boostedL_pnet", "res1b", "res2b")
     # channels = ("MuMu",)
     # categories = ("baseline", "res2b", "dyCR", "dyCR_res1b", "dyCR_res2b")
-    channels = ("MuTau",)
-    categories = ("baseline", "ttbarCR",)
+    channels = ("MuTau", "ETau", "TauTau")
+    categories = ("baseline", "ttbarCR", "res1b", "res2b", "boostedL_pnet")
 
     for chn in channels:
         for cat in categories:

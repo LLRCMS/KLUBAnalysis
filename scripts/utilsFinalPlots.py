@@ -214,7 +214,7 @@ class Plotter:
         chn_map = {"ETau": r"$bb\;e\tau$", "TauTau":r"$bb\;\tau\tau$",
                    "MuMu": r"$bb\;\mu\mu$", "MuTau": r"$bb\;\mu\tau$"}
         cat_map = {"baseline": "baseline",
-                   "res1b": "res1b", "res2b": "res2b", "boosted": "boosted",
+                   "res1b": "res1b", "res2b": "res2b", "boosted": "boosted", "boostedL_pnet": "boosted",
                    "dyCR": "DY CR", "dyCR_res1b": "res1b DY CR", "dyCR_res2b": "res2b DY CR",
                    "ttbarCR": r"$t\bar{t}$ CR"}
         hep.cms.lumitext(r"{} $fb^{{-1}}$ (13 TeV)".format(lumi),
