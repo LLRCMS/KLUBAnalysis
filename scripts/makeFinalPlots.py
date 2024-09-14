@@ -164,8 +164,8 @@ class PlotterFactory:
         suffix = '_' + pars.histo_name + '_' + variable
         hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
 
-        stackmc = self.hists.stack_mc(keys=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix],
-                                      order=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix ])
+        stackmc = self.hists.stack_mc(keys=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix, 'QCD'+suffix],
+                                      order=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix, 'QCD'+suffix ])
 
         
         hsignals = []
@@ -296,7 +296,7 @@ def makeFinalPlots(tag, year, pdnn, singlethreaded=False):
     # channels = ("MuMu",)
     # categories = ("baseline", "res2b", "dyCR", "dyCR_res1b", "dyCR_res2b")
     channels = ("MuTau", "ETau", "TauTau")
-    categories = ("baseline", "ttbarCR", "res1b", "res2b", "boostedL_pnet")
+    categories = ("res1b", "res2b", "boostedL_pnet")
 
     for chn in channels:
         for cat in categories:
