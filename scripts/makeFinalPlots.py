@@ -287,16 +287,9 @@ def dnn_parallel(mass, spin, tag, chn, cat, pars):
     # factory.produce(factory.data_mc_signal_with_ratoi_worker, pars=pars, pdnn=pdnn_params)
     factory.produce(factory.data_mc_signal_worker, pars=pars, pdnn=pdnn_params)
 
-def makeFinalPlots(tag, year, pdnn, singlethreaded=False):
+def makeFinalPlots(tag, year, channels, categories, pdnn, singlethreaded=False):
     basepath_in = "/data_CMS/cms/portales/HHresonant_hist/" # "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
-
-    # channels = ("TauTau", "MuTau", "ETau")
-    # categories = ("boostedL_pnet", "res1b", "res2b")
-    # channels = ("MuMu",)
-    # categories = ("baseline", "res2b", "dyCR", "dyCR_res1b", "dyCR_res2b")
-    channels = ("MuTau", "ETau", "TauTau")
-    categories = ("res1b", "res2b", "boostedL_pnet")
 
     for chn in channels:
         for cat in categories:
@@ -343,8 +336,14 @@ if __name__ == '__main__':
     parser.add_argument('--tag', type=str, required=True, help='Tag')
     parser.add_argument('--year', type=str, required=True,
                         choices=['2016', '2016APV', '2017', '2018'], help='Year')
+    parser.add_argument('--channels', type=str, required=True, nargs='+',
+                        default=("MuTau", "ETau", "TauTau"),
+                        choices=['ETau', 'MuTau', 'TauTau', 'MuMu'], help='Channels')
+    parser.add_argument('--categories', type=str, required=True, nargs='+', help='Categories',
+                        default=("res1b", "res2b", "boostedL_pnet"),
+                        choices=["baseline", "res1b", "res2b", "boostedL_pnet", "dyCR", "ttbarCR",])
     parser.add_argument('--singlethreaded', action='store_true', help='Enable multithreading')
     parser.add_argument('--pdnn', action='store_true', help='Plot DNN variables')
     args = parser.parse_args()
 
-    makeFinalPlots(args.tag, args.year, args.pdnn, args.singlethreaded)
+    makeFinalPlots(args.tag, args.year, args.channels, args.categories, args.pdnn, args.singlethreaded)
