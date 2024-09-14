@@ -436,7 +436,9 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
         selections = pars.base_selections + pars.selections[channel]
 
     if channel == "MuMu":
-        pars.qcd = ""
+        qcd_str = ""
+    else:
+        qcd_str = pars.qcd
         
     content = '\n'.join((
         "[general]",
@@ -462,7 +464,7 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
         "data_obs = " + ', '.join(pars.data[channel]),
         '\n'.join(bckg_limits),
         '\n',
-        pars.qcd        
+        qcd_str,        
     ))
 
     content += '\n'
