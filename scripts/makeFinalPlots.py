@@ -24,7 +24,7 @@ class DNNParams:
         return "pdnn_m" + self.mass + "_s" + self.spin + "_hh"
     
 class Params:
-    def __init__(self, channel="TauTau", category="boostedL_pnet", region="SR", year="2018"):
+    def __init__(self, channel="TauTau", category="boostedL_pnet", region="SR", year="2018", rebin=1):
         self.years     = {"2016", "2016APV", "2017", "2018"}
         self.cat_res   = {"baseline", "res1b", "res2b", "ttbarCR", "dyCR", "dyCR_res1b", "dyCR_res2b"}
         self.cat_boost = {"baseline_boosted", "boostedL_pnet"}
@@ -34,7 +34,8 @@ class Params:
         self.channel  = channel
         self.category = category
         self.region   = region
-        self.year     = year        
+        self.year     = year
+        self.rebin    = rebin
 
         self._sanity_checks()
         
@@ -162,12 +163,13 @@ class PlotterFactory:
         Worker function for producing the data/mc plots with ratio for the given channel and category.
         """
         suffix = '_' + pars.histo_name + '_' + variable
-        hdata = self.hists.hists(keys='data_obs'+suffix)['data_obs'+suffix]
-
-        stackmc = self.hists.stack_mc(keys=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix, 'QCD'+suffix],
-                                      order=['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix, 'QCD'+suffix ])
-
+        hdata = self.hists.hists(keys='data_obs'+suffix, rebin=pars.rebin)['data_obs'+suffix]
         
+        backgrounds = ['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix]
+        if pars.channel != "MuMu":
+            backgrounds += ['QCD'+suffix]
+        stackmc = self.hists.stack_mc(keys=backgrounds, order=backgrounds, rebin=pars.rebin)
+
         hsignals = []
         # for m in {"550", "800", "1500"}:
         #     hsignals.append(self.hists.hists(keys='GGF_Radion'+m+suffix,
@@ -287,8 +289,8 @@ def dnn_parallel(mass, spin, tag, chn, cat, pars):
     # factory.produce(factory.data_mc_signal_with_ratoi_worker, pars=pars, pdnn=pdnn_params)
     factory.produce(factory.data_mc_signal_worker, pars=pars, pdnn=pdnn_params)
 
-def makeFinalPlots(tag, year, channels, categories, pdnn, singlethreaded=False):
-    basepath_in = "/data_CMS/cms/portales/HHresonant_hist/" # "/data_CMS/cms/alves/HHresonant_hist/"
+def makeFinalPlots(tag, year, channels, categories, rebin, pdnn, singlethreaded=False):
+    basepath_in = "/data_CMS/cms/alves/HHresonant_hist/" # "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
 
     for chn in channels:
@@ -298,7 +300,7 @@ def makeFinalPlots(tag, year, channels, categories, pdnn, singlethreaded=False):
                 os.makedirs(outdir)
                 
             print("Running for channel: {}, category: {}".format(chn, cat))
-            pars = Params(channel=chn, category=cat, region="SR", year=year)
+            pars = Params(channel=chn, category=cat, region="SR", year=year, rebin=rebin)
             
             if pdnn:
                 masses = {"320",}#"400", "500", "700", "800", "1000", "1500", "2000"}
@@ -341,9 +343,10 @@ if __name__ == '__main__':
                         choices=['ETau', 'MuTau', 'TauTau', 'MuMu'], help='Channels')
     parser.add_argument('--categories', type=str, required=True, nargs='+', help='Categories',
                         default=("res1b", "res2b", "boostedL_pnet"),
-                        choices=["baseline", "res1b", "res2b", "boostedL_pnet", "dyCR", "ttbarCR",])
-    parser.add_argument('--singlethreaded', action='store_true', help='Enable multithreading')
+                        choices=["baseline", "res1b", "res2b", "boostedL_pnet", "dyCR_res1b", "dyCR_res2b", "ttbarCR",])
+    parser.add_argument('--rebin', type=int, required=False, help="Rebin factor, leading to less bins.", default=1)
+    parser.add_argument('--singlethreaded', action='store_true', help='Disable multithreading; useful for debugging.')
     parser.add_argument('--pdnn', action='store_true', help='Plot DNN variables')
     args = parser.parse_args()
 
-    makeFinalPlots(args.tag, args.year, args.channels, args.categories, args.pdnn, args.singlethreaded)
+    makeFinalPlots(args.tag, args.year, args.channels, args.categories, args.rebin, args.pdnn, args.singlethreaded)

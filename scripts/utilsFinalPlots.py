@@ -92,7 +92,7 @@ class Histograms:
         pass
     
     @_read_histograms()
-    def hists(self, keys, scale=1., *args, **kwargs):
+    def hists(self, keys, scale=1., rebin=1., *args, **kwargs):
         """Return the histograms specified by the keys."""
         keys = self.mod_keys(keys)
 
@@ -104,7 +104,11 @@ class Histograms:
             for key in keys:
                 self._hists[key] *= scale
                 self._hists[key].label += r" ($\times$" + str(round(scale,3)) +")"
-        
+
+        if rebin != 1.:
+            for key in keys:
+                self._hists[key] = self._hists[key][::hist.rebin(rebin)]
+                
         return {k:self._hists[k] for k in keys}
 
     def _remove_neg_bins(self, h):
@@ -177,6 +181,8 @@ class Histograms:
             index_order = [names.index(o) for o in order]
             hsplit = [hsplit[i] for i in index_order]
 
+        if 'rebin' in kwargs:
+            hsplit = [k[::hist.rebin(kwargs['rebin'])] for k in hsplit]
         return hist.Stack(*hsplit)
 
     @_read_histograms("mc")
@@ -508,7 +514,7 @@ class Plotter:
         self.ax.set_ylabel(bin_label, fontsize=self.fontscales[1]*self.fontsize)
         if 'equalwidth' in kwargs and kwargs['equalwidth']:
             stack = self._stack_equalwidth(stack)
-
+            
         plot_opt = dict(linewidth=0., edgecolor=None)
 
         weights = {k.name:k.values() for k in stack.__dict__['_stack']}
