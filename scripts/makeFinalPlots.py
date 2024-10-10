@@ -291,7 +291,7 @@ def dnn_parallel(mass, spin, tag, chn, cat, pars):
 
 def makeFinalPlots(tag, year, channels, categories, rebin, pdnn, singlethreaded=False):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/" # "/data_CMS/cms/alves/HHresonant_hist/"
-    basepath_out = "/eos/home-b/bfontana/www/HH_Plots/"
+    basepath_out = "./Temp/" # "/eos/home-b/bfontana/www/HH_Plots/"
 
     for chn in channels:
         for cat in categories:
