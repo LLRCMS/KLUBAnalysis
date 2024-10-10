@@ -8,25 +8,22 @@ import json
 
 class Params:
     """Convenience class for parameter storing and manipulation."""
-    def __init__(self, year, detailed=False):
+    def __init__(self, year, onlymet=False, detailed=False):
         self.year = year
         
         self.spin_for_plots = '0'
-        self._define_parameters(detailed)
+        self._define_parameters(detailed, onlymet)
         self._reduce_to_year()
 
     def _add_met_to_data(self):
         """Add MET datasets to all years. Common to every channel per year."""
-        for year in self.data.keys():
-            for channel in self.data[year].keys():
-                if year == "UL16":
-                    self.data[year][channel].extend(["DMETF", "DMETG", "DMETH"])
-                elif year == "UL16APV":
-                    self.data[year][channel].extend(["DMETB", "DMETC", "DMETD", "DMETE", "DMETF"])
-                elif year == "UL17":
-                    self.data[year][channel].extend(["MET_Run2017B", "MET_Run2017C", "MET_Run2017D", "MET_Run2017E", "MET_Run2017F"])
-                elif year == "UL18":
-                    self.data[year][channel].extend(["DMETA", "DMETB", "DMETC", "DMETD"])
+        channels = ("ETau", "MuTau", "TauTau", "MuMu")
+        return {
+            "UL16": {k: ["DMETF", "DMETG", "DMETH"] for k in channels},
+            "UL16APV": {k: ["DMETB", "DMETC", "DMETD", "DMETE", "DMETF"] for k in channels},
+            "UL17": {k: ["MET_Run2017B", "MET_Run2017C", "MET_Run2017D", "MET_Run2017E", "MET_Run2017F"] for k in channels},
+            "UL18": {k: ["DMETA", "DMETB", "DMETC", "DMETD"] for k in channels},
+        }
 
     def _add_non_met_data(self):
         """Add non-MET datasets to all years."""
@@ -74,12 +71,18 @@ class Params:
                   "trigSF_stau_up:trigSF_stau_up", "trigSF_stau_down:trigSF_stau_down"]
         return ', '.join((systs))
         
-    def _define_parameters(self, detailed):
+    def _define_parameters(self, detailed, onlymet):
         """Defines the values of all parameters."""
         self.lumi = {"UL16": "16800", "UL16APV": "19500", "UL17": "41529", "UL18": "59741"}
 
-        self.data = self._add_non_met_data()
-        self._add_met_to_data()
+        if onlymet:
+            self.data = self._add_met_to_data()
+        else:
+            self.data = self._add_non_met_data()
+            met_datasets = self._add_met_to_data()
+            for year in self.data.keys():
+                for channel in self.data[year].keys():
+                    self.data[year][channel].extend(met_datasets[year][channel])
 
         self.masses = ("250", "260", "270", "280", "300", "320", "350", "400", "450", "500", "550", "600", "650",
                        "700", "750", "800", "850", "900", "1000", "1250", "1500", "1750", "2000", "2500", "3000")
@@ -479,7 +482,7 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
     with open(outfile('main'), 'w') as afile:
         afile.write(content)
 
-def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='', mass=''):
+def write_limit_selection_config(outfile, channel, year, pars, vars_mode, metsf, spin='', mass=''):
     """Write single limit selection configuration file."""
     for_limits = pars.is_for_limits(spin, mass)
 
@@ -526,7 +529,10 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         category_definitions += '\n' + "dyCR_res1b = baseline, btagM, isBoosted != 1, massCutDY"
         category_definitions += '\n' + "dyCR_res2b = baseline, btagMM, isBoosted != 1, massCutDY"
 
-    baseline = "(isLeptrigger || isMETtrigger || isSingleTautrigger) && pairType == {} && nleps == 0".format(chn_idx)
+    if metsf:
+        baseline = "!isLeptrigger && isMETtrigger && !isSingleTautrigger && pairType == {} && nleps == 0".format(chn_idx)
+    else:
+        baseline = "(isLeptrigger || isMETtrigger || isSingleTautrigger) && pairType == {} && nleps == 0".format(chn_idx)
     content = '\n'.join((
         "[selections]",
         "baseline = " + baseline + " && nbjetscand > 1",
@@ -555,8 +561,18 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, spin='
         category_definitions,
         "",
         "[selectionWeights]",
-        "baseline = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
-        "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF",
+        ""))
+
+    if metsf == "NoSF":
+        content += '\n'.join(("baseline = MC_weight, PUReweight, L1pref_weight, trigSFnoMET, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
+                              "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSFnoMET, IdFakeSF_deep_2d, PUjetID_SF",
+                              ""))
+    else:
+        content += '\n'.join(("baseline = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
+                              "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF",
+                              ""))
+
+    content += '\n'.join((
         "",
         "[systematics]",
         pars.event_systematics(channel) if for_limits else '',
@@ -606,7 +622,7 @@ def create_dir(d):
 
 def create_configs(args):
     """Create all configuration files for limit extraction."""
-    params = Params(args.year, args.detailed_plots)
+    params = Params(args.year, onlymet=args.met_sfs is not None, detailed=args.detailed_plots)
 
     if args.for_limits:
         outdir = os.path.join("config", "limits")
@@ -618,13 +634,17 @@ def create_configs(args):
             for mass in params.masses:
                 for channel in params.data.keys():
                     write_limit_main_config(outfile, channel, args.year, params, args.vars_mode, spin, mass)
-                    write_limit_selection_config(outfile, channel, args.year, params, args.vars_mode, spin, mass)
+                    write_limit_selection_config(outfile, channel, args.year, params, args.vars_mode, args.met_sfs, spin, mass)
 
     else:
-        outfile = lambda name : os.path.join("config", "_".join((name + "Cfg", channel, args.year)) + ".cfg")
+        if args.met_sfs:
+            outfile = lambda name : os.path.join("config", "_".join((name + "Cfg", channel, args.year, args.met_sfs)) + ".cfg")
+        else:
+            outfile = lambda name : os.path.join("config", "_".join((name + "Cfg", channel, args.year)) + ".cfg")
+
         for channel in params.data.keys():
             write_limit_main_config(outfile, channel, args.year, params, args.vars_mode)
-            write_limit_selection_config(outfile, channel, args.year, params, args.vars_mode)
+            write_limit_selection_config(outfile, channel, args.year, params, args.vars_mode, args.met_sfs)
 
             
 if __name__ == "__main__":
@@ -637,5 +657,7 @@ if __name__ == "__main__":
                         help="Use DNN variables or not.")
     parser.add_argument('--detailed_plots', action="store_true",
                         help="Show individual background contributions in the plots.")
+    parser.add_argument('--met_sfs', default=None, choices=("WithSF", "NoSF", None),
+                        help="Produce configuration files to test the MET SFs. New files have extensions.")
     
     create_configs(parser.parse_args())
