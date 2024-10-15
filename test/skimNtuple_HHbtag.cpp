@@ -2116,8 +2116,16 @@ int main (int argc, char** argv)
 			theSmallTree.m_hasgenmatch2 = true;
 		}
 
-	  theSmallTree.m_pairType    = pType ;
-	  theSmallTree.m_MC_weight   = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
+	  theSmallTree.m_pairType  = pType ;
+	  theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
+
+	  theSmallTree.m_MC_QCDscale_up	  = (isMC ? 1 + theBigTree.MC_QCDscale : 1);
+	  theSmallTree.m_MC_pdf_up		  = (isMC ? 1 + theBigTree.MC_pdf : 1);
+	  theSmallTree.m_MC_astrong_up	  = (isMC ? 1 + theBigTree.MC_astrong : 1);
+	  theSmallTree.m_MC_QCDscale_down = (isMC ? 1 - theBigTree.MC_QCDscale : 1);
+	  theSmallTree.m_MC_pdf_down	  = (isMC ? 1 - theBigTree.MC_pdf : 1);
+	  theSmallTree.m_MC_astrong_down  = (isMC ? 1 - theBigTree.MC_astrong : 1);
+
 	  theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
 	  theSmallTree.m_EventNumber = theBigTree.EventNumber ;
 	  theSmallTree.m_RunNumber   = theBigTree.RunNumber ;
@@ -5584,7 +5592,7 @@ int main (int argc, char** argv)
   h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
   h_eff.SetBinContent (5, totalEvents_PUReweight_up) ;
   h_eff.SetBinContent (6, totalEvents_PUReweight_down) ;
-
+  
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
   TH1F* h_effSummary = new TH1F ("h_effSummary", "h_effSummary", vEffSumm.size(), 0, vEffSumm.size());
