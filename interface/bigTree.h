@@ -91,6 +91,9 @@ class bigTree {
   std::vector<float>   *daughters_highestEt_L1IsoTauMatched;
   std::vector<int>     *daughters_genindex;
   Float_t         MC_weight;
+  Float_t         MC_QCDscale;
+  Float_t         MC_pdf;
+  Float_t         MC_astrong;
   Float_t         lheVPt;
   Float_t         lheHt;
   Int_t           lheNOutPartons;
@@ -372,6 +375,9 @@ class bigTree {
   TBranch        *b_daughters_highestEt_L1IsoTauMatched;   //!
   TBranch        *b_daughters_genindex;   //!
   TBranch        *b_MC_weight;   //!
+  TBranch        *b_MC_pdf;   //!
+  TBranch        *b_MC_QCDscale;   //!
+  TBranch        *b_MC_astrong;   //!
   TBranch        *b_lheVPt;   //!
   TBranch        *b_lheHt;   //!
   TBranch        *b_lheNOutPartons; //!
@@ -1070,6 +1076,9 @@ class bigTree {
       fChain->SetBranchAddress("aMCatNLOweight", &aMCatNLOweight, &b_aMCatNLOweight);
       //fChain->SetBranchAddress("susyModel", &susyModel, &b_susyModel);
       fChain->SetBranchAddress("MC_weight", &MC_weight, &b_MC_weight);
+	  fChain->SetBranchAddress("MC_QCDscale", &MC_QCDscale, &b_MC_QCDscale);
+	  fChain->SetBranchAddress("MC_pdf", &MC_pdf, &b_MC_pdf);
+	  fChain->SetBranchAddress("MC_astrong", &MC_astrong, &b_MC_astrong);
       fChain->SetBranchAddress("daughters_isTauMatched", &daughters_isTauMatched, &b_daughters_isTauMatched);
       fChain->SetBranchAddress("daughters_genindex", &daughters_genindex, &b_daughters_genindex);
       fChain->SetBranchAddress("genpart_px", &genpart_px, &b_genpart_px);
