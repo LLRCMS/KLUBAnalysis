@@ -19,15 +19,16 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
   std::string resolutionFile, scaleFactorFile;
   std::string filedir = "weights/JERfiles_UL/";
   std::string ak = isAK8 ? "AK8" : "AK4";
+  std::string pftype = isAK8 ? "Puppi" : "chs";
   if (year == "2016")
 	{
-	  resolutionFile  = filedir + "Summer20UL16_JRV3_MC_PtResolution_" + ak + "PFchs.txt";
-	  scaleFactorFile = filedir + "Summer20UL16_JRV3_MC_SF_" + ak + "PFchs.txt";
+	  resolutionFile  = filedir + "Summer20UL16_JRV3_MC_PtResolution_" + ak + "PF" + pftype + ".txt";
+	  scaleFactorFile = filedir + "Summer20UL16_JRV3_MC_SF_" + ak + "PF" + pftype + ".txt";
 	}
   else if (year == "2016APV")
 	{
-	  resolutionFile  = filedir + "Summer20UL16APV_JRV3_MC_PtResolution_" + ak + "PFchs.txt";
-	  scaleFactorFile = filedir + "Summer20UL16APV_JRV3_MC_SF_" + ak + "PFchs.txt";
+	  resolutionFile  = filedir + "Summer20UL16APV_JRV3_MC_PtResolution_" + ak + "PF" + pftype + ".txt";
+	  scaleFactorFile = filedir + "Summer20UL16APV_JRV3_MC_SF_" + ak + "PF" + pftype + ".txt";
 	}
   else if (year == "2017")
 	{
@@ -38,8 +39,8 @@ SmearedJetProducer::SmearedJetProducer (std::string year, bool doSmearing, int v
 	}
   else if (year == "2018")
 	{
-	  resolutionFile  = filedir + "Summer19UL18_JRV2_MC_PtResolution_" + ak + "PFchs.txt";
-	  scaleFactorFile = filedir + "Summer19UL18_JRV2_MC_SF_" + ak + "PFchs.txt";
+	  resolutionFile  = filedir + "Summer19UL18_JRV2_MC_PtResolution_" + ak + "PF" + pftype + ".txt";
+	  scaleFactorFile = filedir + "Summer19UL18_JRV2_MC_SF_" + ak + "PF" + pftype + ".txt";
 	}
 
   std::cout << "** INFO - SmearedJetProducer - resolutionFile : " << resolutionFile << std::endl;
