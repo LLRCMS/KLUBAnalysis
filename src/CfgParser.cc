@@ -53,7 +53,7 @@ bool CfgParser::init(string filename)
       string secname = line.substr(lblock+1, rblock-lblock-1);
       if (config_.find(secname) != config_.end())
       {
-	cerr << "** CfgParser:: fatal: section " << secname << " multiply defined, cannot parse file" << endl;
+	cerr << "** CfgParser:: fatal: section " << secname << " defined multiple times." << endl;
 	return false;
       }
       currsect = secname;
@@ -65,16 +65,16 @@ bool CfgParser::init(string filename)
     {
       if (currsect.empty())
       {
-	cerr << "** CfgParser:: section not defined for option on line " << linenum << endl;
-	return false;
+		cerr << "** CfgParser:: section not defined for option on line " << linenum << endl;
+		return false;
       }
       pair <string, string> p = splitOptionLine (line);
       string optName = getTrimmedLine(p.first);
       string optVal  = getTrimmedLine(p.second);
       if (config_[currsect].find(optName) != config_[currsect].end())
       {
-	cerr << "** CfgParser:: fatal: option " << optName << " multiply defined in section " << currsect << " cannot parse file" << endl;
-	return false;
+		cerr << "** CfgParser:: fatal: option " << optName << " defined multiple times in section " << currsect << "." << endl;
+		return false;
       }
       config_[currsect][optName] = optVal;
     }

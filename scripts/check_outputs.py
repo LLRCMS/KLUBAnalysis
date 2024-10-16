@@ -35,6 +35,7 @@ def find_error_messages(afile, verb):
         problems = [w for w in f.readlines()
                     if ((('Error' in w or 'ERROR' in w) and
                          'WARNING' not in w and 'Warning' not in w and 'TCling' not in w) or
+                        ('bus error' in w) or
                         ('R__unzip: error' in w) or
                         ('SysError in <TFile::WriteBuffer>: error writing to file' in w) or
                         ('The system macro SYSTEM_PERIODIC_REMOVE expression') in w)]

@@ -4,8 +4,8 @@ declare -a MASSES;
 declare -a SELECTION_PREFIXES;
 
 # Defaults
-VAR="DNNoutSM_kl_1"
-SIGNAL="ggFRadion"
+VAR="pdnn_m{1}_s0_hh"
+SIGNAL="GGF_Radion"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 HELP_STR="Prints this help message."
@@ -88,15 +88,13 @@ fi
 LIMIT_DIR="${BASEDIR}/resonantLimits"
 
 declare -A TAGS=(
-	#["2016"]="25Oct2023_newBigNtuples_forLimits_UL2016_legacyCategories"
-	["2016"]="25Oct2023_newBigNtuples_forLimits_HHMass_UL2016_legacyCategories"
-	#["2016APV"]="24Oct2023_newBigNtuples_bTagReshapeSF_forLimits_UL2016APV_legacyCategories"
-	["2016APV"]="18Oct2023_newBigNtuples_forLimits_HHMass_UL2016APV_legacyCategories"
-	["2017"]="Upstream_UL17_Copy_UL17_uhh"
-	["2018"]="Upstream_UL18"
+	["2016"]="Final_Shapes_UL16"
+	["2016APV"]="Final_Shapes_UL16APV"
+	["2017"]="Final_Shapes_UL17"
+	["2018"]="Final_Shapes_UL18"
 )
 
-NEWDIR="${LIMIT_DIR}/cards_Years_${VAR}_CombChn"
+NEWDIR="${LIMIT_DIR}/cards_Run2_${VAR}_CombChn"
 mkdir -p ${NEWDIR}
 for selp in ${SELECTION_PREFIXES[@]}; do
     mkdir -p ${NEWDIR}/"${selp}_${VAR}"

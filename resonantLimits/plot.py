@@ -1,52 +1,90 @@
 # coding: utf-8                                                                                                                             
-_all_ = [ ]
+
+_all_ = [ 'plot' ]
 
 import os
 import argparse
-from math import *
-import ROOT
+import re
+import numpy as np
+from scipy.interpolate import make_interp_spline
 
-def redrawBorder():
-    # this little macro redraws the axis tick marks and the pad border lines.
-    ROOT.gPad.Update();
-    ROOT.gPad.RedrawAxis();
-    l = ROOT.TLine()
-    l.SetLineWidth(3)
-    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax(),
-               ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
-    l.DrawLine(ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin(),
-               ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymax())
-    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(),
-               ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymax())
-    l.DrawLine(ROOT.gPad.GetUxmin(), ROOT.gPad.GetUymin(),
-               ROOT.gPad.GetUxmax(), ROOT.gPad.GetUymin())
+import matplotlib; import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+from matplotlib.ticker import ScalarFormatter
+import mplhep as hep
+plt.style.use(hep.style.ROOT)
+from matplotlib.legend import Legend
 
-def getExpValue(kl, yt):
-    BR = 1
-    return (2.09*yt*yt*yt*yt + 0.28*yt*yt*kl*kl -1.37*yt*yt*yt*kl)*2.44477/BR;
+import matplotlib as mpl
+mpl.rcParams['axes.linewidth'] = 3 # frame thickness
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42  
 
-def parseFile(filename, CL='50.0', exp=True):
-    f = open(filename)
-    matches = []
-    for line in f:
-        search = 'Expected {}%: r <'.format(CL)
-        if not exp:
-            search = 'Observed Limit: r <'
+#format: [nominal, +1sigma, -1sigma]
+atlas_limits = {
+    251: [338.343632385, 132.532814377, -94.548310224],
+    260: [723.674375997, 283.470982053, -202.226916229],
+    280: [840.891247788, 329.386082632, -234.98254127],
+    300: [660.054656501, 258.550458455, -184.44872743],
+    325: [471.95744985, 184.870773698, -131.885973636],
+    350: [351.081800662, 137.522490937, -98.107922909],
+    375: [216.738874272, 84.898931863, -60.566513925],
+    400: [142.983566918, 56.008190252, -39.955989556],
+    450: [67.6539757559, 26.5007848604, -18.905540035],
+    500: [42.7054554468, 16.7281830005, -11.9338100776],
+    550: [32.8902484269, 12.8834615826, -9.1910032108],
+    600: [26.1798429167, 10.2549240759, -7.3158164445],
+    700: [18.6692663031, 7.3129510021, -5.2170261625],
+    800: [15.2306662884, 5.9660146515, -4.2561278632],
+    900: [13.4018922009, 5.2496643098, -3.7450867701],
+    1000: [12.193545018, 4.7763418128, -3.40742064207],
+    1100: [13.41388346, 5.2543614139, -3.74843766307],
+    1200: [13.7506650269, 5.3862823506, -3.84254946247],
+    1400: [19.841377896, 7.7720796314, -5.5445664496],
+    1600: [31.0459855988, 12.1610441358, -8.6756338723]
+}
 
-        if not search in line:
-            continue
-        val = line.replace(search, '')
-        val = float(val)
-        matches.append(val)
-    if len(matches) == 0:
-        mes = 'Did not find any expected in file: {}, CL={}, exp?={}'
-        print(mes.format(filename, CL, exp))
-        return -1.0
-    else:
-        return matches[-1]
+def parse_file(filename):
+    ret = []
+    cls = ('2.5', '16.0', '50.0', '84.0', '97.5')
+    with open(filename) as f:
+        for cl in cls:
+            regexp = re.compile('.*Expected.+{}%: r < (.*)\n$'.format(cl))
+            for line in f:
+                mat = regexp.match(line)
+                if mat is None:
+                    continue
+                ret.append(float(mat.group(1)))
+                break
+
+        if len(ret) != len(cls):
+            mes = 'Did not find any expected in file {}.'
+            raise RuntimeError(mes.format(filename))
+
+        mat = re.match('.*Observed.+{}%: r < (.*)$', line)
+        if mat is None:
+            ret.append('<empty>')
+        else:
+            ret.append(float(mat.group(1)))
+
+    return ret
+
+def replace_some_ylabels(ax):
+    ylabels = [item.get_text() for item in ax.get_yticklabels()]
+    entered = False
+    for i, ylab in enumerate(ylabels):
+        if ylab == "$\\mathdefault{10^{0}}$":
+            ylabels[i] = "$\\mathdefault{1}$"
+            entered = True
+        if ylab == "$\\mathdefault{10^{1}}$":
+            ylabels[i] = "$\\mathdefault{10}$"
+            entered = True
+    if entered:
+        ax.set_yticks(ax.get_yticks()) # avoids warning
+        ax.set_yticklabels(ylabels)
 
 def create_limits_plot(indirs, outfile, masses, labels, signal, period,
-                       varfit, canvas, plot_atlas):
+                       varfit, atlas, interp, nobands, legends=['Observed']):
 
     # covers situations without channel or selection overlays
     # when overlays are shown, sigma intervals are not displayed
@@ -57,271 +95,145 @@ def create_limits_plot(indirs, outfile, masses, labels, signal, period,
 
     ndirs = len(indirs)
 
-    # Legend definition
-    legend = ROOT.TLegend(0.7,0.7,0.9,0.89)
-    legend.SetBorderSize(0)
-    # if ndirs == 1:
-    #    legend.SetHeader('95% CL upper limits')
+    lumi = {'UL16'    : '16.8',
+            'UL16APV' : '19.5',
+            'UL17'    : '41.6',
+            'UL18'    : '59.7',
+            'All'     :  '137.1',
+            'Empty'   : ''}[period]
 
-    # Canvas text
-    ptext = ROOT.TPaveText(0.1663218-0.02, 0.886316, 0.3045977-0.02, 0.978947, 'brNDC')
-    ptext.SetBorderSize(0)
-    ptext.SetTextAlign(12)
-    ptext.SetTextFont(62)
-    ptext.SetTextSize(0.05)
-    ptext.SetFillColor(0)
-    ptext.SetFillStyle(0)
-    ptext.AddText('CMS #font[52]{Internal}')
+    sig = {"GGF_Radion":   'Radion',
+           "GGF_Graviton": 'Graviton',
+           }[signal]
 
-    ptext2 = ROOT.TPaveText(0.74, 0.91, 0.85, 0.95, 'brNDC')
-    ptext2.SetBorderSize(0)
-    ptext2.SetFillColor(0)
-    ptext2.SetTextSize(0.040)
-    ptext2.SetTextFont(42)
-    ptext2.SetFillStyle(0)
-    if period == 'UL16':
-       ptext2.AddText('2016 - 36.3 fb^{-1} (13 TeV)')
-    elif period == 'UL17':
-       ptext2.AddText('2017 - 41.6 fb^{-1} (13 TeV)')
-    elif period == 'UL18':
-       ptext2.AddText('2018 - 59.7 fb^{-1} (13 TeV)')
-    elif period == "All":
-       ptext2.AddText('Run2 - 137.1 fb^{-1} (13 TeV)')
 
-    ptexts = []
-    vshift = 0.033
-    for ipt in range(3):
-       ptexts.append(ROOT.TPaveText(0.17, 0.86-ipt*vshift, 0.37, 0.88-ipt*vshift, 'brNDC'))
-       ptexts[-1].SetFillColor(ROOT.kWhite)
-       ptexts[-1].SetFillStyle(1001)
-       ptexts[-1].SetTextFont(42)
-       ptexts[-1].SetTextSize(0.03)
-       ptexts[-1].SetBorderSize(0)
-       ptexts[-1].SetTextAlign(12) # https://root.cern/doc/master/classTAttText.html#ATTTEXT1
-       if ipt == 2:
-          ptexts[-1].AddText('ML fit: {}'.format(varfit))
-       else:
-          ptexts[-1].AddText(labels[ipt])
+    fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(20, 14))
+    plt.margins(x=0.04, y=0.16)
+    ax.title.set_size(100)
 
-    # Outside frame
-    frame_bounds = 220, 2030
-    hframe = ROOT.TH1F('hframe_'+outfile, '',
-                       100, frame_bounds[0], frame_bounds[1])
-    hframe.SetMinimum(0.1)
-    if period == 'UL16':
-        hframe.SetMaximum(1e5)
-        hframe.SetMinimum(5e-1)
-    elif period == 'UL17':
-        hframe.SetMaximum(1e5)
-        hframe.SetMinimum(5e-1)
-    elif period == 'UL18':
-        hframe.SetMaximum(5e3)
-        hframe.SetMinimum(1e-1)
-    elif period == "All": # years combined
-       hframe.SetMaximum(5e3)
-       hframe.SetMinimum(1e-1)
+    ax.set_xlabel(r"$m_{X}\;[GeV]$", fontsize=26)
+    ax.set_ylabel(r"95% CL on $\sigma \times \mathcal{B}(pp\rightarrow X\rightarrow HH)$ [fb]", fontsize=26)
+    ax.set_yscale('log')
 
-    hframe.GetYaxis().SetTitleSize(0.047)
-    hframe.GetXaxis().SetTitleSize(0.055)
-    hframe.GetYaxis().SetLabelSize(0.045)
-    hframe.GetXaxis().SetLabelSize(0.045)
-    hframe.GetXaxis().SetLabelOffset(0.012)
-    hframe.GetYaxis().SetTitleOffset(1.2)
-    hframe.GetXaxis().SetTitleOffset(1.1)
-    hframe.GetYaxis().SetTitle("95% CL on #sigma #times #bf{#it{#Beta}}(X#rightarrowHH#rightarrow bb#tau#tau) [fb]")
-    hframe.GetXaxis().SetTitle("m_{X} [GeV]")
-    hframe.SetStats(0)
-    ROOT.gPad.SetTicky()
-    hframe.Draw()
+    for label in ax.xaxis.get_ticklabels()+ax.yaxis.get_ticklabels():
+        label.set_color('black')
+        label.set_rotation(0)
+        label.set_fontsize(26)
+        
+    # replace some y labels by custom strings
+    replace_some_ylabels(ax)
 
-    # Theory lines
-    xmin=200
-    xmax=3100
-    
-    yt = 1
-    BR = 1
-    myFunc = ROOT.TF1('myFunc', '(62.5339 -44.323*x + 9.6340*x*x)*1.115', xmin, xmax)
-    graph = ROOT.TGraph(myFunc)
-    ci = ROOT.TColor.GetColor('#ff0000')
-    graph.SetLineColor(ci)
-    graph.SetLineWidth(2)
-    nP = int((xmax-xmin)*10.0)
-    Graph_syst_Scale = ROOT.TGraphAsymmErrors(nP)
-    for i in range(nP):
-        Graph_syst_Scale_x=(xmin+(i*1.)/10.)
-        Graph_syst_Scale_y=(getExpValue(xmin+(i*1.)/10.,yt)) 
-        Graph_syst_Scale_x_err=(0)
-        Graph_syst_Scale_y_errup = ((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.) *
-                                    (xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.053/BR)
-        Graph_syst_Scale_y_errdown = ((2.09*yt*yt*yt*yt+0.28*yt*yt*(xmin+(i*1.)/10.) *
-                                       (xmin+(i*1.)/10.)-1.37*yt*yt*yt*(xmin+(i*1.)/10.))*2.44185*0.067/BR)
-        Graph_syst_Scale.SetPoint(i,Graph_syst_Scale_x,Graph_syst_Scale_y)
-        Graph_syst_Scale.SetPointError(i, Graph_syst_Scale_x_err, Graph_syst_Scale_x_err,
-                                       Graph_syst_Scale_y_errup, Graph_syst_Scale_y_errdown)
-    Graph_syst_Scale.SetLineColor(ROOT.kRed)
-    Graph_syst_Scale.SetFillColor(ROOT.kRed)
-    Graph_syst_Scale.SetFillStyle(3001)
-
-    if plot_atlas: #format: [nominal, +1sigma, -1sigma]
-        atlas_limits = {
-            251: [338.343632385, 132.532814377, -94.548310224],
-            260: [723.674375997, 283.470982053, -202.226916229],
-            280: [840.891247788, 329.386082632, -234.98254127],
-            300: [660.054656501, 258.550458455, -184.44872743],
-            325: [471.95744985, 184.870773698, -131.885973636],
-            350: [351.081800662, 137.522490937, -98.107922909],
-            375: [216.738874272, 84.898931863, -60.566513925],
-            400: [142.983566918, 56.008190252, -39.955989556],
-            450: [67.6539757559, 26.5007848604, -18.905540035],
-            500: [42.7054554468, 16.7281830005, -11.9338100776],
-            550: [32.8902484269, 12.8834615826, -9.1910032108],
-            600: [26.1798429167, 10.2549240759, -7.3158164445],
-            700: [18.6692663031, 7.3129510021, -5.2170261625],
-            800: [15.2306662884, 5.9660146515, -4.2561278632],
-            900: [13.4018922009, 5.2496643098, -3.7450867701],
-            1000: [12.193545018, 4.7763418128, -3.40742064207],
-            1100: [13.41388346, 5.2543614139, -3.74843766307],
-            1200: [13.7506650269, 5.3862823506, -3.84254946247],
-            1400: [19.841377896, 7.7720796314, -5.5445664496],
-            1600: [31.0459855988, 12.1610441358, -8.6756338723]
-        }
+    hep_opt = dict(ax=ax)
+    hep.cms.text(' Preliminary', fontsize=32, **hep_opt)
+    if period == "Empty":
+        hep.cms.lumitext(r"{} (13 TeV)".format(sig, lumi), fontsize=30, **hep_opt)
+    else:
+        hep.cms.lumitext(r"{} | {} $fb^{{-1}}$ (13 TeV)".format(sig, lumi), fontsize=30, **hep_opt)
+        
+    xtext = 0.025
+    for ilab, lab in enumerate(labels):
+        fig.text(xtext, 0.95-0.04*ilab, lab, horizontalalignment='left',
+                 verticalalignment='center', transform=ax.transAxes)
             
     # Create graph objects
-    agraph = {"exp": [], "obs": [], "sig1": [], "sig2": [],
-              "atlas_nom": [], "atlas_sig1": [], "atlas_sig2": []}
-    for idx,indir in enumerate(indirs):
-        agraph["exp"].append(ROOT.TGraph())
-        agraph["obs"].append(ROOT.TGraph())
-        agraph["sig1"].append(ROOT.TGraphAsymmErrors())
-        agraph["sig2"].append(ROOT.TGraphAsymmErrors())
-        ptsList = [] # (x, obs, exp, p2s, p1s, m1s, m2s)
+    vals = {k: [] for k in ("exp", "obs", "m1s", "m2s", "p1s", "p2s")}
+    if atlas:
+        atlas_masses = list(atlas_limits.keys())
+        vals.update({k: [] for k in ("atlas_nom", "atlas_p1s", "atlas_m1s")})
 
-        if plot_atlas:
-            agraph["atlas_nom"].append(ROOT.TGraph())
-            agraph["atlas_sig1"].append(ROOT.TGraphAsymmErrors())
-            atlas_masses = sorted(list(atlas_limits.keys()))
-            for ipt, mass in enumerate(atlas_masses):
-                exp, ps1, ms1 = [x*0.073 for x in atlas_limits[mass]] #bbtt BR
-                # ps1 = ps1 - exp
-                ms1 = abs(ms1)
-                agraph["atlas_nom"][-1].SetPoint(ipt, mass, exp)
-                agraph["atlas_sig1"][-1].SetPoint(ipt, mass, exp)
-                agraph["atlas_sig1"][-1].SetPointError(ipt, 0, 0, ms1, ps1)
-                
+    for mass in atlas_masses:
+        exp, ps1, ms1 = [x for x in atlas_limits[mass]]
+        vals['atlas_nom'].append(exp)
+        vals['atlas_p1s'].append(exp+ps1)
+        vals['atlas_m1s'].append(exp+ms1)
+
+    linecolors = ('red', 'green', 'blue', 'brown', 'orange', 'purple')
+    for idx, indir in enumerate(indirs):
+        vals['exp'] = []
+        vals['obs'] = []
+        vals['m1s'] = []
+        vals['m2s'] = []
+        vals['p1s'] = []
+        vals['p2s'] = []
+        
         for mass in masses[idx]:
-            if mass < frame_bounds[0] or mass > frame_bounds[1]:
-                continue
-            
-            fName = os.path.join(indir, 'comb.{}_{}_{}.log'.format(signal, varfit, mass))
-         
-            exp   = 10.*parseFile(fName)            
-            obs   = exp #parseFile(fName, exp=False)
-            m1s_t = 10.*parseFile(fName, CL='16.0') 
-            p1s_t = 10.*parseFile(fName, CL='84.0') 
-            m2s_t = 10.*parseFile(fName, CL=' 2.5') 
-            p2s_t = 10.*parseFile(fName, CL='97.5') 
+            if '{}' in indir:
+                fName = os.path.join(indir.format(mass), 'comb.{}_{}.log'.format(signal, varfit.format(mass)))
+            else:
+                fName = os.path.join(indir, 'comb.{}_{}.log'.format(signal, varfit.format(mass)))
+                
+            m2s, m1s, exp, p1s, p2s, _ = parse_file(fName)
+            scale_ss = 10.
+            br_bbtt = 0.073
+            vals['exp'].append(scale_ss * exp / br_bbtt)
+            vals['obs'].append(scale_ss * exp / br_bbtt)
+            vals['m1s'].append(scale_ss * m1s / br_bbtt)
+            vals['m2s'].append(scale_ss * m2s / br_bbtt)
+            vals['p1s'].append(scale_ss * p1s / br_bbtt)
+            vals['p2s'].append(scale_ss * p2s / br_bbtt)            
 
-            # because the other code wants +/ sigma vars as deviations,
-            # without sign, from the centeal exp value...
-            p2s = p2s_t - exp
-            p1s = p1s_t - exp
-            m2s = exp - m2s_t
-            m1s = exp - m1s_t
-            xval = mass
-            ptsList.append((xval, obs, exp, p2s, p1s, m1s, m2s))
-            
-        ptsList.sort()
-        for ipt, pt in enumerate(ptsList):
-            xval, obs, exp, p2s, p1s, m1s, m2s = pt
-            if exp > 0:
-                agraph["exp"][-1].SetPoint(ipt, xval, exp)
-                agraph["obs"][-1].SetPoint(ipt, xval, obs)
-                agraph["sig1"][-1].SetPoint(ipt, xval, exp)
-                agraph["sig1"][-1].SetPointError(ipt, 0, 0, m1s, p1s)
-                agraph["sig2"][-1].SetPoint(ipt, xval, exp)
-                agraph["sig2"][-1].SetPointError(ipt, 0, 0, m2s, p2s)
-         
-        # set styles
-        agraph["exp"][-1].SetMarkerStyle(24)
-        agraph["exp"][-1].SetMarkerColor(4)
-        agraph["exp"][-1].SetMarkerSize(0.8)
-        agraph["exp"][-1].SetLineColor(idx+1)
-        agraph["exp"][-1].SetLineWidth(3)
-        agraph["exp"][-1].SetLineStyle(2)
-        agraph["exp"][-1].SetFillColor(0)
-         
-        agraph["obs"][-1].SetLineColor(1)
-        agraph["obs"][-1].SetLineWidth(3)
-        agraph["obs"][-1].SetMarkerColor(1)
-        agraph["obs"][-1].SetMarkerStyle(20)
-        agraph["obs"][-1].SetFillStyle(0)
-
-        if ndirs==1:
-            agraph["sig1"][-1].SetMarkerStyle(0)
-            agraph["sig1"][-1].SetMarkerColor(3)
-            agraph["sig1"][-1].SetFillColor(ROOT.kGreen+1)
-            agraph["sig1"][-1].SetLineColor(ROOT.kGreen+1)
-            agraph["sig1"][-1].SetFillStyle(1001)
-         
-            agraph["sig2"][-1].SetMarkerStyle(0)
-            agraph["sig2"][-1].SetMarkerColor(5)
-            agraph["sig2"][-1].SetFillColor(ROOT.kOrange)
-            agraph["sig2"][-1].SetLineColor(ROOT.kOrange)
-            agraph["sig2"][-1].SetFillStyle(1001)
-            
-            leg_labels = ('Observed', 'Median exp.')
+        alpha = 0.8
+        if "Run2" in legends[idx]:
+            fplot = "--o"
         else:
-            leg_labels = ('Obs. ' + labels[2+idx][:20],
-                          'Exp. ' + labels[2+idx][:20])
+            fplot = "--o"
+ 
+        if not nobands or "Run2" in indir:
+            if interp:
+                spline_degree = 2
+                spline_m1s = make_interp_spline(masses[idx], vals['m1s'], k=spline_degree)
+                spline_m2s = make_interp_spline(masses[idx], vals['m2s'], k=spline_degree)
+                spline_p1s = make_interp_spline(masses[idx], vals['p1s'], k=spline_degree)
+                spline_p2s = make_interp_spline(masses[idx], vals['p2s'], k=spline_degree)
+                masses_interp = np.linspace(masses[idx][0], masses[idx][-1], 500)
+                m1s_interp = spline_m1s(masses_interp)
+                m2s_interp = spline_m2s(masses_interp)
+                p1s_interp = spline_p1s(masses_interp)
+                p2s_interp = spline_p2s(masses_interp)
+                ax.fill_between(masses_interp, m1s_interp, p1s_interp, alpha=alpha,
+                                color='#FFDF7Fff', label="68% exp.")
+                ax.fill_between(masses_interp, m2s_interp, m1s_interp, alpha=alpha,
+                                color='#85D1FBff', label="95% exp.")
+                ax.fill_between(masses_interp, p1s_interp, p2s_interp, alpha=alpha, color='#85D1FBff')
+     
+            else:
+                ax.fill_between(masses[idx], vals['m1s'], vals['p1s'], alpha=alpha,
+                                color='#FFDF7Fff', label="68% exp.")
+                ax.fill_between(masses[idx], vals['m2s'], vals['m1s'], alpha=alpha,
+                                color='#85D1FBff', label="95% exp.")
+                ax.fill_between(masses[idx], vals['p1s'], vals['p2s'], alpha=alpha,
+                                color='#85D1FBff')
 
-        if plot_atlas and idx == 0:
-            agraph["atlas_nom"][-1].SetLineColor(39)
-            agraph["atlas_nom"][-1].SetLineWidth(3)
-            agraph["atlas_nom"][-1].SetLineStyle(2)
-            
-            agraph["atlas_sig1"][-1].SetMarkerStyle(0)
-            agraph["atlas_sig1"][-1].SetMarkerColor(3)
-            agraph["atlas_sig1"][-1].SetFillColor(18)
-            agraph["atlas_sig1"][-1].SetLineColor(18)
-            agraph["atlas_sig1"][-1].SetFillStyle(1001)
+        black_lines = ('Observed', 'Run2')
+        ax.plot(masses[idx], vals['exp'], fplot,
+                color='black' if legends[idx] in black_lines else linecolors[idx],
+                label=legends[idx], linewidth=2)
 
-        if plot_atlas and idx == 0:
-            legend.AddEntry(agraph["atlas_nom"][-1], "ATLAS Full Run2 exp.", 'l')
-            legend.AddEntry(agraph["atlas_sig1"][-1], 'ATLAS 68% exp.', 'f')
-        legend.AddEntry(agraph["exp"][-1], leg_labels[1], 'l')
-        if ndirs==1:
-            legend.AddEntry(agraph["sig1"][-1], '68% exp.', 'f')
-            legend.AddEntry(agraph["sig2"][-1], '95% exp.', 'f')
-            agraph["sig2"][-1].Draw('3same')
-            agraph["sig1"][-1].Draw('3same')
-        if plot_atlas and idx == 0:
-            agraph["atlas_sig1"][-1].Draw('3same')
-            agraph["atlas_nom"][-1].Draw('Lsame')
-        agraph["exp"][-1].Draw('Lsame')
+    legend_opt = dict(facecolor="black", edgecolor="white", framealpha=1, prop={'size': 26}, ncols=1)
+    if atlas:
+        column1 = {"atlas_bands": "ATLAS exp."}
+        atlas_line, = ax.plot(atlas_masses, vals['atlas_nom'], '-o', color='gray', linewidth=2)
+        lines = [atlas_line]
+        if not nobands:
+            atlas_bands = ax.fill_between(atlas_masses, vals['atlas_m1s'], vals['atlas_p1s'], alpha=alpha, color='gray')
+            lines.append(atlas_bands)
+            column1.update({"atlas_exp": "ATLAS 68% exp."})
+        legend1 = Legend(ax, lines, column1.values(), bbox_to_anchor=(0.995, .995), **legend_opt)
 
-    ptext.Draw()
-    ptext2.Draw()
-
-    canvas.Update()
-    canvas.RedrawAxis('g')
-    canvas.SetLogy()
-
-    legend.Draw()
-    for i in range(len(ptexts)):
-       ptexts[i].Draw()
-    canvas.Update()
-
-    for e in ('png', 'pdf'):
-        canvas.SaveAs(os.path.join(outdir, outfile + '.' + e))
+    handles, labels = plt.gca().get_legend_handles_labels()
+    ax.add_artist(legend1)
+    plt.legend(loc="upper right", bbox_to_anchor=(0.8, .995), **legend_opt)
+ 
+    for ext in ('.png', '.pdf'):
+        plt.savefig(outfile + ext, dpi=600)
 
 def channel_label(chn):
-    if chn == 'ETau':
-        label = 'bb e#tau_{h}'
-    elif chn == 'MuTau':
-        label = 'bb #mu_{}#tau_{h}'
-    elif chn == 'TauTau':
-        label = 'bb #tau_{h}#tau_{h}'
-    return label
+    label = {"ETau":   r'$bb\: e\tau$',
+             "MuTau":  r'$bb\: \mu\tau$',
+             "TauTau": r'$bb\: \tau\tau$',
+             "MuMu":   r'$bb\: \mu\mu$',
+             "All":    r'$bb\: \tau_{e}\tau_{h} + bb\: \tau_{\mu}\tau_{h} + bb\: \tau_{h}\tau_{h}$'}
+    return label[chn]
 
 def sel_masses(sel, masses):
     if 'boosted' in sel:
@@ -333,63 +245,53 @@ def sel_masses(sel, masses):
 def plot(args, outdir):
     """main function"""
     base = os.path.join(args.basedir, 'resonantLimits')
-    
-    ROOT.gROOT.SetBatch(ROOT.kTRUE)
-    canvas = ROOT.TCanvas('canvas', 'canvas', 650, 500)
-    canvas.SetFrameLineWidth(3)
-    canvas.SetBottomMargin(0.15)
-    canvas.SetRightMargin(0.05)
-    canvas.SetLeftMargin(0.15)
-    canvas.SetGridx()
-    canvas.SetGridy()
 
-    opt = dict(signal=args.signal, period=args.period, canvas=canvas, varfit=args.var,
-               plot_atlas=args.atlas)
-    comb_chn = 'bb #tau_{e}#tau_{h} + bb #tau_{#mu}#tau_{h} + bb #tau_{h}#tau_{h}'
+    opt = dict(signal=args.signal, varfit=args.var, atlas=args.atlas,
+               interp=args.interpolate, nobands=args.nobands)
+    comb_chn = channel_label('All')
     comb_cat = 'Combined categories'
+
     if args.mode == 'separate':
 
         for chn in args.channels:
             label = channel_label(chn)
             for sel in args.selections:
-                indir = os.path.join(base, 'cards_' + args.tag + '_' + chn,
-                                     sel + '_' + args.var, 'combined_out')
+                indir = os.path.join(base, 'cards_' + args.tag, chn, sel + '_' + args.var, 'combined_out')
                 masses_sel = sel_masses(sel, args.masses)
-                outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn, sel))
-                create_limits_plot(indir, outfile, masses=masses_sel, labels=(label, sel), **opt)
+                outfile = os.path.join(outdir, '_'.join(('limit_pDNN', args.mode, chn, sel)))
+                create_limits_plot(indir, outfile, masses=masses_sel, labels=(label, sel), period=args.period, **opt)
 
     elif args.mode == 'sel_group':
 
         for chn in args.channels:
             label = channel_label(chn)
-            indir = os.path.join(base, 'cards_' + args.tag + '_' + chn,
+            indir = os.path.join(base, 'cards_' + args.tag, chn,
                                  'comb_cat', 'AllCategories/', 'combined_out')
-            outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn, 'AllCategories'))
-            create_limits_plot(indir, outfile, masses=args.masses, labels=(label, comb_cat), **opt)
+            outfile = os.path.join(outdir,'_'.join(('limit_pDNN', args.mode, chn, 'AllCategories')))
+            create_limits_plot(indir, outfile, masses=args.masses, labels=(label, comb_cat), period=args.period, **opt)
 
-            for sel in args.selections:
-                masses_sel = sel_masses(sel, args.masses)
-                indir = os.path.join(base, 'cards_' + args.tag + '_' + chn,
-                                    'comb_cat', '{}_{}'.format(sel, args.var), 'combined_out')
-                outfile = '_'.join(('limit', args.tag, args.mode, args.var, chn, sel))
-                create_limits_plot(indir, outfile, masses=masses_sel, labels=(label, sel), **opt)
+            # for sel in args.selections:
+            #     masses_sel = sel_masses(sel, args.masses)
+            #     indir = os.path.join(base, 'cards_' + args.tag, chn,
+            #                         'comb_cat', '{}_{}'.format(sel, args.var, 'combined_out')
+            #     outfile = os.path.join(outdir, '_'.join(('limit_pDNN', args.mode, chn, sel)))
+            #     create_limits_plot(indir, outfile, masses=masses_sel, labels=(label, sel), period=args.period, **opt)
 
     elif args.mode == 'sel_years':
 
         for chn in args.channels:
             label = channel_label(chn)
             indir = os.path.join(base, 'cards_Years_' + args.var + '_CombCat', chn, 'combined_out')
-            outfile = '_'.join(('limit', args.mode, args.var, chn))
-            create_limits_plot(indir, outfile, masses=args.masses, labels=(label, comb_cat), **opt)
+            outfile = os.path.join(outdir,'_'.join(('limit', args.mode, args.var, chn)))
+            create_limits_plot(indir, outfile, masses=args.masses, labels=(label, comb_cat), period=args.period, **opt)
 
     elif args.mode == 'chn_group':
 
         for sel in args.selections:
-            indir = os.path.join(base, 'cards_' + args.tag + '_CombChn',
-                                 sel + '_' + args.var, 'combined_out')
+            indir = os.path.join(base, 'cards_' + args.tag + '_CombChn', sel + '_' + args.var, 'combined_out')
             masses_sel = sel_masses(sel, args.masses)
-            outfile = '_'.join(('limit', args.tag, args.mode, args.var, sel))
-            create_limits_plot(indir, outfile, masses=masses_sel, labels=(comb_chn, sel), **opt)
+            outfile = os.path.join(outdir,'_'.join(('limit_pDNN', args.mode, sel)))
+            create_limits_plot(indir, outfile, masses=masses_sel, labels=(comb_chn, sel), period=args.period, **opt)
 
     elif args.mode == 'chn_years':
 
@@ -397,20 +299,20 @@ def plot(args, outdir):
             indir = os.path.join(base, 'cards_Years_' + args.var + '_CombChn',
                                  sel + '_' + args.var, 'combined_out')
             masses_sel = sel_masses(sel, args.masses)
-            outfile = '_'.join(('limit', args.tag, args.mode, args.var, sel))
-            create_limits_plot(indir, outfile, masses=masses_sel, labels=(comb_chn, sel), **opt)
+            outfile = os.path.join(outdir,'_'.join(('limit', args.tag, args.mode, args.var, sel)))
+            create_limits_plot(indir, outfile, masses=masses_sel, labels=(comb_chn, sel), period=args.period, **opt)
 
     elif args.mode == 'all_group':
 
        indir = os.path.join(base, 'cards_' + args.tag + '_All', 'combined_out')
-       outfile = '_'.join(('limit', args.tag, args.mode, args.var))
-       create_limits_plot(indir, outfile, masses=args.masses, labels=(comb_chn, comb_cat), **opt)
+       outfile = os.path.join(outdir, '_'.join(('limit_pDNN', args.mode)))
+       create_limits_plot(indir, outfile, masses=args.masses, labels=(comb_chn, comb_cat), period=args.period, **opt)
 
     elif args.mode == 'all_years':
 
        indir = os.path.join(base, 'cards_Years_' + args.var + '_All', 'combined_out')
-       outfile = '_'.join(('limit', args.mode, args.var))
-       create_limits_plot(indir, outfile, masses=args.masses, labels=(comb_chn, comb_cat), **opt)
+       outfile = os.path.join(outdir,'_'.join(('limit', args.mode, args.var)))
+       create_limits_plot(indir, outfile, masses=args.masses, labels=(comb_chn, comb_cat), period=args.period, **opt)
 
     elif args.mode == 'overlay_channels':
 
@@ -419,12 +321,12 @@ def plot(args, outdir):
             indirs.append(os.path.join(base, 'cards_' + args.tag + '_' + chn,
                                        'comb_cat', 'AllCategories', 'combined_out'))
         label = channel_label(chn)
-        outfile = '_'.join(('limit', args.tag, args.mode, args.var))
+        outfile = os.path.join(outdir,'_'.join(('limit', args.tag, args.mode, args.var)))
         chn_labels = tuple([channel_label(x) for x in args.channels])
         create_limits_plot(indirs, outfile,
                            masses=len(args.channels)*[args.masses],
                            labels=('Overlay channels', comb_cat)+chn_labels,
-                           **opt)
+                           period=args.period, **opt)
 
     elif args.mode == 'overlay_selections':
 
@@ -434,10 +336,10 @@ def plot(args, outdir):
             indirs.append(os.path.join(base, 'cards_' + args.tag + '_CombChn',
                                        sel + '_' + args.var, 'combined_out'))
             list_masses.append(sel_masses(sel, args.masses))
-        outfile = '_'.join(('limit', args.tag, args.mode, args.var))
+        outfile = os.path.join(outdir,'_'.join(('limit', args.tag, args.mode, args.var)))
         create_limits_plot(indirs, outfile, masses=list_masses,
                            labels=(comb_chn,'Overlay categories')+tuple(args.selections),
-                           **opt)
+                           period=args.period, **opt)
 
     elif args.mode == 'overlay_channels_years':
 
@@ -446,12 +348,12 @@ def plot(args, outdir):
             indirs.append(os.path.join(base, 'cards_Years_' + args.var + '_CombCat',
                                        chn, 'combined_out'))
         label = channel_label(chn)
-        outfile = '_'.join(('limit', args.mode, args.var))
+        outfile = os.path.join(outdir,'_'.join(('limit', args.mode, args.var)))
         chn_labels = tuple([channel_label(x) for x in args.channels])
         create_limits_plot(indirs, outfile,
                            masses=len(args.channels)*[args.masses],
                            labels=('Overlay channels', comb_cat)+chn_labels,
-                           **opt)
+                           period=args.period, **opt)
 
     elif args.mode == 'overlay_selections_years':
 
@@ -461,11 +363,25 @@ def plot(args, outdir):
             indirs.append(os.path.join(base, 'cards_Years_' + args.var + '_CombChn',
                                        sel + '_' + args.var, 'combined_out'))
             list_masses.append(sel_masses(sel, args.masses))
-        outfile = '_'.join(('limit', args.mode, args.var))
+        outfile = os.path.join(outdir,'_'.join(('limit', args.mode, args.var)))
         create_limits_plot(indirs, outfile, masses=list_masses,
-                           labels=(comb_chn, 'Overlay categories')+tuple(args.selections),
-                           **opt)
+                           labels=(comb_chn, comb_cat), **opt)
         
+    elif args.mode == 'overlay_years':
+
+        indirs = []
+        list_masses = []
+        periods = ("UL16", "UL16APV", "UL17", "UL18", "Run2")
+        for period in periods:
+            indirs.append(os.path.join(base, 'cards_' + args.tag + '_' + period + '_All', 'combined_out'))
+            list_masses.append(args.masses)
+
+        outfile = os.path.join(outdir, '_'.join(('limit', args.mode, args.var)))
+        create_limits_plot(indirs, outfile, masses=list_masses,
+                           labels=(comb_chn, ''),
+                           legends=periods,
+                           period="Empty", **opt)
+
 if __name__ == "__main__":
     usage = ('usage: %prog [options] datasetList\n %prog -h for help')
     parser = argparse.ArgumentParser(description=usage)
@@ -473,25 +389,31 @@ if __name__ == "__main__":
     parser.add_argument('-c', '--channels', nargs='+', help='channels')
     parser.add_argument('-l', '--selections', nargs='+', help='selections')
     parser.add_argument('-m', '--masses', type=int, nargs='+', help='masses')
-    parser.add_argument('-p', '--period', choices=('UL16','UL17','UL18','All'),
+    parser.add_argument('-p', '--period', choices=('UL16', 'UL16APV', 'UL17', 'UL18', 'All'),
                         help='data period')
     parser.add_argument('-s', '--signal', type=str, help='signal type')
     parser.add_argument('-t', '--tag', help='tag')
     parser.add_argument('-b', '--basedir', help='Base directory')
     parser.add_argument('--mode', choices=('separate', 'sel_group', 'chn_group', 'all_group', 'all_years',
                                            'overlay_channels', 'overlay_selections',
-                                           'overlay_channels_years', 'overlay_selections_years',), help='mode')
+                                           'overlay_channels_years', 'overlay_selections_years',
+                                           'overlay_years'), help='mode')
     parser.add_argument('-u', '--user', default='', help='EOS username to store the plots.')
     parser.add_argument('-v', '--var', help='variable to perform the maximum likelihood fit')
     parser.add_argument('--atlas', action='store_true', help='overlay ATLAS full Run2 result')
+    parser.add_argument('--interpolate', action='store_true', help='Interpolate uncertainty bands.')
+    parser.add_argument('--nobands', action='store_true', help='Plot only the nominal value.')
     FLAGS = parser.parse_args()
 
+    FLAGS.var = FLAGS.var.replace('{1}', '{}')
+    
     user = os.environ['USER'] if FLAGS.user=='' else FLAGS.user
     outdir = os.path.join('/eos/home-' + user[0] + '/',  user, 'www/HH_Limits/')
     if 'years' not in FLAGS.mode:
         outdir = os.path.join(outdir, FLAGS.tag)
     else:
-        outdir = os.path.join(outdir, FLAGS.var + '_' + FLAGS.period + '_Years')
+        outdir = os.path.join(outdir, FLAGS.tag + '_Run2_All')
+
     if not os.path.exists(outdir):
         os.makedirs(outdir)
         

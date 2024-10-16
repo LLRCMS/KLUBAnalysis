@@ -47,12 +47,12 @@ public:
   CfgParser& mainCfg() {return *mainCfg_;}
   bool readMainInfo(); // all analysis info read here
 
-  bool sanityChecks();
+  bool sanityChecks(std::string);
   
-  std::shared_ptr<Sample> openSample(std::string sampleName);
+  std::shared_ptr<Sample> openSample(std::string sampleName, bool use_tree_friend);
   void prepareHistos();
 
-  void readSamples(); // inits the samles
+  void readSamples(bool); // inits the samles
   void readSelections();
   void readVariables();
 
@@ -62,7 +62,7 @@ public:
 
   void fillHistos();
 
-  void mergeSamples();
+  void mergeSamples(bool use_tree_friend);
 
   void printSelections(bool printWeights=false, bool printSysts=false);
   void printSamples(bool printWeights=false, bool printSysts=false);
@@ -84,6 +84,7 @@ private:
   void prepareSamplesHistos();
   void prepareSamples2DHistos();
   void setSplitting (int idxsplit, int nsplit);
+  bool areVariablesShifted(std::string var1, std::string var2="None");
   
   std::unique_ptr<CfgParser> mainCfg_;
   std::unique_ptr<CfgParser> cutCfg_;
@@ -110,6 +111,14 @@ private:
   std::string nominal_name_;
   std::string merge_section_;
   int verbosity_;
+  std::vector<std::string> shift_var_names_ = {"tes", "ees", "mes", "jes", "up", "down", "Up", "Down"};
+
+  // these are needed because the code changes objects in place during execution
+  // in particular, mergeSamples() modifies "data/sig/bkg_samples_" variables
+  // the entire class should be fully rewritten, but there's no point doing it at this stage
+  std::map<std::string, std::string> frozen_data_branches_;
+  std::map<std::string, std::string> frozen_bkg_branches_;
+  std::map<std::string, std::string> frozen_sig_branches_;
 };
 
 // used to access the variant that stores weights and variables

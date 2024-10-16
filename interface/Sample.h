@@ -21,6 +21,7 @@
 #include "TChain.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TTreeIndex.h"
 
 class Sample
 {
@@ -64,8 +65,8 @@ public:
   double getEffDenom(){return evt_den_;}
 
   // plot handling
-  selColl& plots (){return plots_;}
-  selColl2D& plots2D (){return plots2D_;}
+  selColl& plots() {return plots_;}
+  selColl2D& plots2D() {return plots2D_;}
   void scaleAll(double scale);
 
   // specific weights for a certain sample
@@ -75,8 +76,8 @@ public:
   void clearExtWeights() {weights_ext_.clear();}
 
   TChain* getTree() {return skim_;}
-  std::map<std::string, std::string> getBranches();
-  unsigned getNBranches();
+  std::map<std::string, std::string> getBranches(bool force=false);
+  unsigned getNBranches(bool force=false);
 
   const std::vector<Weight>& getWeights() const {return weights_;}
   std::vector<Weight>& getWeights() {return weights_;}
@@ -89,9 +90,9 @@ private:
   long long int nentries_;
   std::vector<std::string> filelistname_;
   int bin_eff_den_;
-  std::string skimname_, evalname_;
-  std::string skimpath_ = "", evalpath_ = "";
-  std::string histoname_;
+  std::string skimname_ = "", evalname_ = "NOT_SET";
+  std::string skimpath_ = "", evalpath_ = "NOT_SET";
+  std::string histoname_ = "";
   TChain *skim_ = nullptr, *eval_ = nullptr;
 
   sType  sampleType_; // used in general to label the type of sample

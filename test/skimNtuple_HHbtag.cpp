@@ -475,7 +475,6 @@ int main (int argc, char** argv)
   }
   bTagSF bTagSFHelper(bTag_SFFile, bTag_effFile, "", wpyear, wpset, isMC);
 
-
   // ------------------------------
   std::string PUjetID_SF_directory = home + gConfigParser->readStringOption("PUjetIDScaleFactors::files");
   cout << "** INFO: PU jet ID SF directory: " << PUjetID_SF_directory << std::endl;
@@ -1924,6 +1923,14 @@ int main (int argc, char** argv)
 		  bool legacyAccept    = passTrg       and trgRegions["legacy"];
 		  bool metAccept       = passMETTrg    and trgRegions["met"]; 
 		  bool singletauAccept = passSingleTau and trgRegions["tau"];
+
+		  if (passSingleTau) {
+			std::cout << "===== PASSES1" << std::endl;
+		  }
+		  if (trgRegions["tau"]) {
+			std::cout << "===== PASSES2" << std::endl;
+		  }
+
 		  if (!isMC) {
 			legacyAccept    = legacyAccept    and !isMETDataset and (!isTauDataset or pType==2);
 			metAccept       = metAccept       and isMETDataset;
