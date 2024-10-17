@@ -5337,6 +5337,8 @@ int main (int argc, char** argv)
 		  }
 
 		  // determine sample type
+		  // for each sample, it is first checked whether there is an event where POG SF can be applied, meaning an H or Z decaying into two b-quarks. 
+		  //   if this is not the case, the sample is assigned a hypothesis about the most likely topology
 		  std::string sample_type = "";
 		  if (matchedToHiggs || matchedToZ){
 		    sample_type = "HHlike";
