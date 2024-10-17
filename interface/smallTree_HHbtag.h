@@ -1011,12 +1011,6 @@ struct smallTree
       m_isTau2real = -1; // -1 if data
       m_nRealTaus = -1; // -1 if data
 
-      // for matching fatjet with X->bb  
-      m_nHiggs = -1.;
-      m_nZBosons = -1.;
-      m_fatjet_isMatchedToHiggs = -1.;
-      m_fatjet_isMatchedToZ = -1.;
-	
       return 0 ;
     }
 
@@ -2051,12 +2045,6 @@ struct smallTree
       m_smallT->Branch ("isTau2real",     &m_isTau2real     , "isTau2real/I");
       m_smallT->Branch ("nRealTaus",      &m_nRealTaus     , "nRealTaus/I");
 
-      // for matching fatjet with X->bb
-      m_smallT->Branch ("nHiggs", &m_nHiggs, "nHiggs/I");
-      m_smallT->Branch ("nZBosons", &m_nZBosons, "nZBosons/I");
-      m_smallT->Branch ("fatjet_isMatchedToHiggs", &m_fatjet_isMatchedToHiggs, "fatjet_isMatchedToHiggs/I");
-      m_smallT->Branch ("fatjet_isMatchedToZ", &m_fatjet_isMatchedToZ, "fatjet_isMatchedToZ/I");
-
       return 0 ;
     }
 
@@ -2975,12 +2963,6 @@ struct smallTree
   Int_t m_isTau1real;
   Int_t m_isTau2real;
   Int_t m_nRealTaus;
-
-  // for matching fatjet with X->bb  
-  Int_t m_nHiggs;
-  Int_t m_nZBosons;
-  Int_t m_fatjet_isMatchedToHiggs;
-  Int_t m_fatjet_isMatchedToZ;
 
 } ;
 

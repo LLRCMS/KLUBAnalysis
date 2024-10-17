@@ -1,7 +1,9 @@
 #include "PNetSFInterface.h"
-#include <iostream> // FIXME: remove
 
 // Constructor
+// 3 pT bins have been chosen to maintain sufficient statistics in the bins, and the choice of bins is based on the distribution of events in the variable.
+// e.g. https://indico.cern.ch/event/1360981/#173-ak8-particlenet-correction
+
 PNetSFInterface::PNetSFInterface(const std::string period) :
     // First initialize all SF vectors to 1...
     scaleFactorsHH_lowPt_ (9, 1.),
@@ -14,10 +16,20 @@ PNetSFInterface::PNetSFInterface(const std::string period) :
     scaleFactorsDY_medPt_ (9, 1.),
     scaleFactorsDY_highPt_(9, 1.)
 {
-    // ...then fill them with actual values depending on Period
-    FillHHlikeSFs(period);
-    FillTTlikeSFs(period);
-    FillDYlikeSFs(period);
+  if (period == "2016preVFP" || period == "2016postVFP" || period == "2017" || period == "2018")
+    {
+      // ...then fill them with actual values depending on Period
+      FillHHlikeSFs(period);
+      FillTTlikeSFs(period);
+      FillDYlikeSFs(period);
+    }
+  else
+    {
+      std::string errorMessage = "PNseSFInterface - Invalid period: "
+	+ period
+	+ " [options are: 2016preVFP/2016postVFP/2017/2018]";
+      throw std::logic_error(errorMessage);
+    }
 }
 
 // Destructor
@@ -132,7 +144,7 @@ void PNetSFInterface::FillHHlikeSFs(const std::string period)
         scaleFactorsHH_highPt_[7] = (0.979 + ( 0.035)); // LP up
         scaleFactorsHH_highPt_[8] = (0.979 + (-0.038)); // LP down
     }
-    else if (period == "2018" || period == "2022" || period == "2023")
+    else if (period == "2018")
     {
         // pT < 500
         scaleFactorsHH_lowPt_[0] = (0.994);            // HP central
@@ -171,7 +183,7 @@ void PNetSFInterface::FillHHlikeSFs(const std::string period)
     {
         std::string errorMessage = "PNseSFInterface - Invalid period: "
                                  + period
-                                 + " [options are: 2016preVFP/2016postVFP/2017/2018/2022/2023]";
+                                 + " [options are: 2016preVFP/2016postVFP/2017/2018]";
         throw std::logic_error(errorMessage);
     }
 }
@@ -240,7 +252,7 @@ void PNetSFInterface::FillTTlikeSFs(const std::string period)
         scaleFactorsTT_highPt_[7] = (0.21924106 + ( 0.13346345)); // LP up
         scaleFactorsTT_highPt_[8] = (0.21924106 + (-0.13346345)); // LP down
     }
-    else if (period == "2018" || period == "2022" || period == "2023")
+    else if (period == "2018")
     {
         // pT < 300
         // HP and MP SFs not yet available - default to 1
@@ -264,7 +276,7 @@ void PNetSFInterface::FillTTlikeSFs(const std::string period)
     {
         std::string errorMessage = "PNseSFInterface - Invalid period: "
                                  + period
-                                 + " [options are: 2016preVFP/2016postVFP/2017/2018/2022/2023]";
+                                 + " [options are: 2016preVFP/2016postVFP/2017/2018]";
         throw std::logic_error(errorMessage);
     }
 }
@@ -330,7 +342,7 @@ void PNetSFInterface::FillDYlikeSFs(const std::string period)
         scaleFactorsDY_highPt_[7] = (1.08742263 + ( 0.27418802)); // LP up
         scaleFactorsDY_highPt_[8] = (1.08742263 + (-0.27418802)); // LP down
     }
-    else if (period == "2018" || period == "2022" || period == "2023")
+    else if (period == "2018")
     {
         // pT < 300
         // HP and MP SFs not yet available - default to 1
@@ -353,7 +365,7 @@ void PNetSFInterface::FillDYlikeSFs(const std::string period)
     {
         std::string errorMessage = "PNseSFInterface - Invalid period: "
                                  + period
-                                 + " [options are: 2016preVFP/2016postVFP/2017/2018/2022/2023]";
+                                 + " [options are: 2016preVFP/2016postVFP/2017/2018]";
         throw std::logic_error(errorMessage);
     }
 }

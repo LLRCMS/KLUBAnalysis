@@ -78,8 +78,8 @@ if __name__ == "__main__":
     parser.add_option ('--period',           dest='period'    , help='2018 or 2017 or 2016preVFP or 2016postVFP'             , default='2018')
     parser.add_option ('--doSyst',           dest='doSyst'    , help='compute up/down values of outputs'    , default=False,  action = 'store_true')
     parser.add_option ('--datasetType',      dest='datasetType',help='Type of dataset being considered, used for avoiding duplicated events. 0: default, 1: MET dataset 2: SingleTau dataset.', default='0', type=int)
-    parser.add_option ('--isDYlike',                            help="Boosted corrections : if the process is of the kind V+jets", default=False) 
-    parser.add_option ('--isTTlike',                            help="Boosted corrections : if the process is top-enriched", default=False) 
+    parser.add_option ('--isDYlike',                            help="Boosted corrections : if the process is of the kind V+jets", default=False, action='store_true') 
+    parser.add_option ('--isTTlike',                            help="Boosted corrections : if the process is top-enriched", default=False, action='store_true') 
 
     (opt, args) = parser.parse_args()
 
