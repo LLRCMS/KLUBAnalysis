@@ -611,10 +611,10 @@ MC_MAP=(
     ["ST_t-channel_antitop"]="-n 100 -x 80.95 -q short --isTTlike"
     ["ST_t-channel_top"]="-n 400 -x 136.02 -q short --isTTlike"
 
-    ["GluGluHToTauTau"]="-n 60 -x 48.68 -y 0.06272 -q short"
-    ["VBFHToTauTau"]="-n 40 -x 3.766 -y 0.06272 -q short"
-    ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.06272 -q short"
-    ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.06272 -q short"
+    ["GluGluHToTauTau"]="-n 60 -x 48.68 -y 0.06272 -q short --isDYlike"
+    ["VBFHToTauTau"]="-n 40 -x 3.766 -y 0.06272 -q short --isDYlike"
+    ["WplusHToTauTau"]="-n 30 -x 0.831 -y 0.06272 -q short --isDYlike"
+    ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.06272 -q short --isDYlike"
     ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.06272 -q short  --isDYlike"
 
     ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
@@ -646,12 +646,12 @@ MC_MAP=(
 )
 if [ ${DATA_PERIOD} == "UL18" ] || [ ${DATA_PERIOD} == "UL17" ] || [ ${DATA_PERIOD} == "UL16APV" ]; then
     MC_MAP+=(
-		["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
+		["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short --isTTlike"
 		["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
 	)
 elif [ ${DATA_PERIOD} == "UL16" ]; then
     MC_MAP+=(
-		["ttHJetToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short"
+		["ttHJetToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short --isTTlike"
 		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
 	)
 fi
