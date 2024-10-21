@@ -23,12 +23,12 @@ struct smallTree
   int clearVars ()
     {
       m_MC_weight = -1. ;
-	  m_MC_pdf_up = -1. ;
-	  m_MC_QCDscale_up = -1. ;
-	  m_MC_astrong_up = -1. ;
-	  m_MC_pdf_down = -1. ;
-	  m_MC_QCDscale_down = -1. ;
-	  m_MC_astrong_down = -1. ;
+	  m_MC_pdf_perevent_up = -1. ;
+	  m_MC_QCDscale_perevent_up = -1. ;
+	  m_MC_astrong_perevent_up = -1. ;
+	  m_MC_pdf_perevent_down = -1. ;
+	  m_MC_QCDscale_perevent_down = -1. ;
+	  m_MC_astrong_perevent_down = -1. ;
       m_totalWeight = -1. ;
       m_prescaleWeight = 1. ;
       m_L1pref_weight = 1.;
@@ -1023,12 +1023,12 @@ struct smallTree
   int init ()
     {
       m_smallT->Branch ("MC_weight", &m_MC_weight, "MC_weight/F") ;
-	  m_smallT->Branch ("MC_pdf_up", &m_MC_pdf_up, "MC_pdf_up/F") ;
-	  m_smallT->Branch ("MC_QCDscale_up", &m_MC_QCDscale_up, "MC_QCDscale_up/F") ;
-	  m_smallT->Branch ("MC_astrong_up", &m_MC_astrong_up, "MC_astrong_up/F") ;
-	  m_smallT->Branch ("MC_pdf_down", &m_MC_pdf_down, "MC_pdf_down/F") ;
-	  m_smallT->Branch ("MC_QCDscale_down", &m_MC_QCDscale_down, "MC_QCDscale_down/F") ;
-	  m_smallT->Branch ("MC_astrong_down", &m_MC_astrong_down, "MC_astrong_down/F") ;
+	  m_smallT->Branch ("MC_pdf_perevent_up", &m_MC_pdf_perevent_up, "MC_pdf_perevent_up/F") ;
+	  m_smallT->Branch ("MC_QCDscale_perevent_up", &m_MC_QCDscale_perevent_up, "MC_QCDscale_perevent_up/F") ;
+	  m_smallT->Branch ("MC_astrong_perevent_up", &m_MC_astrong_perevent_up, "MC_astrong_perevent_up/F") ;
+	  m_smallT->Branch ("MC_pdf_perevent_down", &m_MC_pdf_perevent_down, "MC_pdf_perevent_down/F") ;
+	  m_smallT->Branch ("MC_QCDscale_perevent_down", &m_MC_QCDscale_perevent_down, "MC_QCDscale_perevent_down/F") ;
+	  m_smallT->Branch ("MC_astrong_perevent_down", &m_MC_astrong_perevent_down, "MC_astrong_perevent_down/F") ;
       m_smallT->Branch ("totalWeight", &m_totalWeight, "totalWeight/F") ;
       m_smallT->Branch ("prescaleWeight", &m_prescaleWeight, "prescaleWeight/F");
       m_smallT->Branch ("L1pref_weight", &m_L1pref_weight, "L1pref_weight/F");
@@ -2065,12 +2065,12 @@ struct smallTree
 
   // general variables
   Float_t m_MC_weight ;
-  Float_t m_MC_pdf_up ;
-  Float_t m_MC_QCDscale_up ;
-  Float_t m_MC_astrong_up ;
-  Float_t m_MC_pdf_down ;
-  Float_t m_MC_QCDscale_down ;
-  Float_t m_MC_astrong_down ;
+  Float_t m_MC_pdf_perevent_up ;
+  Float_t m_MC_QCDscale_perevent_up ;
+  Float_t m_MC_astrong_perevent_up ;
+  Float_t m_MC_pdf_perevent_down ;
+  Float_t m_MC_QCDscale_perevent_down ;
+  Float_t m_MC_astrong_perevent_down ;
   Float_t m_totalWeight ;
   Float_t m_prescaleWeight ;
   Float_t m_L1pref_weight ;

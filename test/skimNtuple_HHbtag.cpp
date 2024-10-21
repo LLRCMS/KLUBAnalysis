@@ -2119,12 +2119,12 @@ int main (int argc, char** argv)
 	  theSmallTree.m_pairType  = pType ;
 	  theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * XS * stitchWeight * HHweight : 1) ;
 
-	  theSmallTree.m_MC_QCDscale_up	  = (isMC ? 1 + theBigTree.MC_QCDscale : 1);
-	  theSmallTree.m_MC_pdf_up		  = (isMC ? 1 + theBigTree.MC_pdf : 1);
-	  theSmallTree.m_MC_astrong_up	  = (isMC ? 1 + theBigTree.MC_astrong : 1);
-	  theSmallTree.m_MC_QCDscale_down = (isMC ? 1 - theBigTree.MC_QCDscale : 1);
-	  theSmallTree.m_MC_pdf_down	  = (isMC ? 1 - theBigTree.MC_pdf : 1);
-	  theSmallTree.m_MC_astrong_down  = (isMC ? 1 - theBigTree.MC_astrong : 1);
+	  theSmallTree.m_MC_QCDscale_perevent_up   = (isMC ? 1 + theBigTree.MC_QCDscale_perevent : 1);
+	  theSmallTree.m_MC_pdf_perevent_up		   = (isMC ? 1 + theBigTree.MC_pdf_perevent : 1);
+	  theSmallTree.m_MC_astrong_perevent_up	   = (isMC ? 1 + theBigTree.MC_astrong_perevent : 1);
+	  theSmallTree.m_MC_QCDscale_perevent_down = (isMC ? 1 - theBigTree.MC_QCDscale_perevent : 1);
+	  theSmallTree.m_MC_pdf_perevent_down	   = (isMC ? 1 - theBigTree.MC_pdf_perevent : 1);
+	  theSmallTree.m_MC_astrong_perevent_down  = (isMC ? 1 - theBigTree.MC_astrong_perevent : 1);
 
 	  theSmallTree.m_lheht       = (isMC ? theBigTree.lheHt : 0) ;
 	  theSmallTree.m_EventNumber = theBigTree.EventNumber ;
