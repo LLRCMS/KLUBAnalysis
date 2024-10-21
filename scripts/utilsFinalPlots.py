@@ -103,7 +103,7 @@ class Histograms:
         if scale != 1.:
             for key in keys:
                 self._hists[key] *= scale
-                self._hists[key].label += r" ($\times$" + str(round(scale,3)) +")"
+                self._hists[key].label += r"GeV (" + str(round(scale,3)) + " pb)"
 
         if rebin != 1.:
             for key in keys:
@@ -192,7 +192,7 @@ class Histograms:
         return self.stack(keys, groups, order, *args, **kwargs)
 
 class Plotter:
-    def __init__(self, output, channel="ETau", cat="baseline", year="2018", npads=1):
+    def __init__(self, output, channel="ETau", cat="baseline", region="SR", year="2018", npads=1):
         self.output = output
         self.npads = npads
         assert self.npads <= 2, "Only 1 or 2 pads are supported."
@@ -223,10 +223,15 @@ class Plotter:
                    "res1b": "res1b", "res2b": "res2b", "boosted": "boosted", "boostedL_pnet": "boosted",
                    "dyCR": "DY CR", "dyCR_res1b": "res1b DY CR", "dyCR_res2b": "res2b DY CR",
                    "ttbarCR": r"$t\bar{t}$ CR"}
+        reg_map = {"SR": "SR",
+                   "SStight": "SS, iso",
+                   "OSinviso": "OS, anti-iso",
+                   "SSinviso": "SS, anti-iso"}
         hep.cms.lumitext(r"{} $fb^{{-1}}$ (13 TeV)".format(lumi),
                          fontsize=self.fontscales[1]*self.fontsize, ax=self.axes[0][0])
         self.axes[0][0].text(0.03, 0.95, chn_map[channel], transform=self.axes[0][0].transAxes)
         self.axes[0][0].text(0.03, 0.91, cat_map[cat], transform=self.axes[0][0].transAxes)
+        self.axes[0][0].text(0.03, 0.87, reg_map[region], transform=self.axes[0][0].transAxes)
         
         self.colors = plt.cm.tab20.colors
         self.iter_colors = iter(self.colors)

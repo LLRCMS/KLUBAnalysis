@@ -57,7 +57,6 @@ class Params:
         assert self.region in self.regions, f"Invalid region: {self.region}"
         assert self.year in self.years, f"Invalid year: {self.year}"
 
-
 class PlotterFactory:
     def __init__(self, infile, outdir, multithreading=True):
         self.outdir = outdir
@@ -166,18 +165,18 @@ class PlotterFactory:
         hdata = self.hists.hists(keys='data_obs'+suffix, rebin=pars.rebin)['data_obs'+suffix]
         
         backgrounds = ['DY'+suffix, 'TT'+suffix, 'other'+suffix, 'W'+suffix, 'H'+suffix]
-        if pars.channel != "MuMu":
+        if pars.channel != "MuMu" and pars.region == "SR":
             backgrounds += ['QCD'+suffix]
         stackmc = self.hists.stack_mc(keys=backgrounds, order=backgrounds, rebin=pars.rebin)
 
         hsignals = []
-        # for m in {"550", "800", "1500"}:
-        #     hsignals.append(self.hists.hists(keys='GGF_Radion'+m+suffix,
-        #                                      scale=self.dnn_scale[m][pars.channel][pars.category],
-        #                                      label="Sig "+m)['GGF_Radion'+m+suffix])
+        for m in {"550", "800", "1500"}:
+            hsignals.append(self.hists.hists(keys='GGF_Radion'+m+suffix,
+                                             scale=self.dnn_scale[m][pars.channel][pars.category],
+                                             label="Sig "+m)['GGF_Radion'+m+suffix])
 
-        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=2)
-        p.data_mc_signal_with_ratio(stackmc=stackmc, hsignals=hsignals, hdata=hdata, 
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, region=pars.region, year=pars.year, npads=2)
+        p.data_mc_with_ratio(stackmc=stackmc, hdata=hdata, 
                                     linewidth=5,
 					                yscale='log' if variable in self.logvariables or 'pdnn' in variable else 'linear',
 					                xlabel=self.variables[variable][0],
@@ -201,7 +200,7 @@ class PlotterFactory:
                                    scale=self.dnn_scale[pdnn.mass][pars.channel][pars.category],
                                    label="Sig "+pdnn.mass)['GGF_Radion'+pdnn.mass+suffix]
 
-        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, region=pars.region, year=pars.year, npads=1)
         p.mc_signal(stackmc=stackmc, hsignals=hsignal, #hdata=hdata,
                     linewidth=3,
                     edgecolor="black",
@@ -232,7 +231,7 @@ class PlotterFactory:
                                    scale=self.dnn_scale[pdnn.mass][pars.channel][pars.category],
                                    label="Sig "+pdnn.mass)['GGF_Radion'+pdnn.mass+suffix]
 
-        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, year=pars.year, npads=1)
+        p = Plotter(self.outdir, channel=pars.channel, cat=pars.category, region=region, year=pars.year, npads=1)
         p.mc_signal(stackmc=stackmc, hsignals=hsignal, hdata=hdata,
                     linewidth=3,
                     edgecolor="black",
@@ -289,7 +288,7 @@ def dnn_parallel(mass, spin, tag, chn, cat, pars):
     # factory.produce(factory.data_mc_signal_with_ratoi_worker, pars=pars, pdnn=pdnn_params)
     factory.produce(factory.data_mc_signal_worker, pars=pars, pdnn=pdnn_params)
 
-def makeFinalPlots(tag, year, channels, categories, rebin, pdnn, singlethreaded=False):
+def makeFinalPlots(tag, year, channels, categories, region, rebin, pdnn, singlethreaded=False):
     basepath_in = "/data_CMS/cms/alves/HHresonant_hist/" # "/data_CMS/cms/alves/HHresonant_hist/"
     basepath_out = "./Temp/" # "/eos/home-b/bfontana/www/HH_Plots/"
 
@@ -300,7 +299,7 @@ def makeFinalPlots(tag, year, channels, categories, rebin, pdnn, singlethreaded=
                 os.makedirs(outdir)
                 
             print("Running for channel: {}, category: {}".format(chn, cat))
-            pars = Params(channel=chn, category=cat, region="SR", year=year, rebin=rebin)
+            pars = Params(channel=chn, category=cat, region=region, year=year, rebin=rebin)
             
             if pdnn:
                 masses = {"320",}#"400", "500", "700", "800", "1000", "1500", "2000"}
@@ -338,6 +337,8 @@ if __name__ == '__main__':
     parser.add_argument('--tag', type=str, required=True, help='Tag')
     parser.add_argument('--year', type=str, required=True,
                         choices=['2016', '2016APV', '2017', '2018'], help='Year')
+    parser.add_argument('--region', type=str, required=False, default="SR",
+                        choices=['SR', 'SSinviso', 'OSinviso', 'SStight'], help='Region')
     parser.add_argument('--channels', type=str, required=True, nargs='+',
                         default=("MuTau", "ETau", "TauTau"),
                         choices=['ETau', 'MuTau', 'TauTau', 'MuMu'], help='Channels')
@@ -349,4 +350,4 @@ if __name__ == '__main__':
     parser.add_argument('--pdnn', action='store_true', help='Plot DNN variables')
     args = parser.parse_args()
 
-    makeFinalPlots(args.tag, args.year, args.channels, args.categories, args.rebin, args.pdnn, args.singlethreaded)
+    makeFinalPlots(args.tag, args.year, args.channels, args.categories, args.region, args.rebin, args.pdnn, args.singlethreaded)
