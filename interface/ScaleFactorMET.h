@@ -32,10 +32,10 @@ private:
   std::string mPeriod;
   std::array<std::string, 4> mPeriods = {{"2016preVFP", "2016postVFP", "2017", "2018"}};
   const uMap<std::pair<double, double>> mRange = {
-	{"2016preVFP",  {150., 350.}},
-	{"2016postVFP", {150., 350.}},
-	{"2017",        {150., 350.}},
-	{"2018",        {150., 350.}}
+	{"2016preVFP",  {180., 350.}},
+	{"2016postVFP", {180., 350.}},
+	{"2017",        {180., 350.}},
+	{"2018",        {180., 350.}}
   };
 
   void mCheckFile(std::unique_ptr<TFile>&, std::string);
