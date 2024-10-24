@@ -2118,6 +2118,7 @@ int main (int argc, char** argv)
 
 	  theSmallTree.m_pairType  = pType ;
 
+	  theSmallTree.m_aMCatNLOweight = (isMC ? theBigTree.aMCatNLOweight : 1);
 	  float MC_weight_fixed = XS * stitchWeight * HHweight;
 	  theSmallTree.m_MC_weight = (isMC ? theBigTree.aMCatNLOweight * MC_weight_fixed : 1);
 	  theSmallTree.m_MC_weight_fixed = (isMC ? MC_weight_fixed : 1);

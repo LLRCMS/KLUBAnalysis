@@ -24,6 +24,7 @@ struct smallTree
     {
       m_MC_weight = -1. ;
 	  m_MC_weight_fixed = -1. ;
+	  m_aMCatNLOweight = -1. ;
 	  m_MC_QCDscale0 = -1. ;
 	  m_MC_QCDscale1 = -1. ;
 	  m_MC_QCDscale2 = -1. ;
@@ -1129,6 +1130,7 @@ struct smallTree
     {
       m_smallT->Branch ("MC_weight", &m_MC_weight, "MC_weight/F") ;
 	  m_smallT->Branch ("MC_weight_fixed", &m_MC_weight_fixed, "MC_weight_fixed/F") ;
+	  m_smallT->Branch ("aMCatNLOweight", &m_aMCatNLOweight, "aMCatNLOweight/F") ;
 	  m_smallT->Branch ("MC_QCDscale0", &m_MC_QCDscale0, "MC_QCDscale0/F") ;
 	  m_smallT->Branch ("MC_QCDscale1", &m_MC_QCDscale1, "MC_QCDscale1/F") ;
 	  m_smallT->Branch ("MC_QCDscale2", &m_MC_QCDscale2, "MC_QCDscale2/F") ;
@@ -2276,6 +2278,7 @@ struct smallTree
   // general variables
   Float_t m_MC_weight ;
   Float_t m_MC_weight_fixed ;
+  Float_t m_aMCatNLOweight ;
   Float_t m_MC_QCDscale0 ;
   Float_t m_MC_QCDscale1 ;
   Float_t m_MC_QCDscale2 ;
