@@ -209,7 +209,7 @@ void PNetSFInterface::FillTTlikeSFs(const std::string period)
         scaleFactorsTT_highPt_[7] = (0.3795 + (1.5452));             // LP up
         scaleFactorsTT_highPt_[8] = (0.3795 + (-1.5452));            // LP down
     }
-    else if (period == "2016")
+    else if (period == "2016postVFP")
     {
         // pT < 300
         scaleFactorsTT_lowPt_[6] = (0.8377);                         // LP central
@@ -264,7 +264,7 @@ void PNetSFInterface::FillTTlikeSFs(const std::string period)
     {
         std::string errorMessage = "PNseSFInterface - Invalid period: "
                                  + period
-                                 + " [options are: 2016preVFP/2016/2017/2018]";
+                                 + " [options are: 2016preVFP/2016postVFP/2017/2018]";
         throw std::logic_error(errorMessage);
     }
 }
