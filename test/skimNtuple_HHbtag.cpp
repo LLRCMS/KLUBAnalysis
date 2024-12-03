@@ -226,8 +226,8 @@ int main (int argc, char** argv)
   }
   
   // for boosted corrections
-  bool isDYlike = argv[34];
-  bool isTTlike = argv[35];
+  int isDYlike = atoi(argv[34]);
+  int isTTlike = atoi(argv[35]);
   cout << "** INFO: boosted corrections - is DY like process : "<< isDYlike <<endl;
   cout << "                             - is ttbar like process : "<<isTTlike <<endl;
   
@@ -5461,10 +5461,10 @@ int main (int argc, char** argv)
 		  if (matchedToHiggs || matchedToZ){
 		    sample_type = "HHlike";
 		  }
-		  else if  (isDYlike){
+		  else if  (isDYlike==1){
 		    sample_type = "DYlike";
 		  }
-		  else if (isTTlike){
+		  else if (isTTlike==1){
 		    sample_type = "TTlike";
 		  }
 		  
