@@ -7,15 +7,6 @@ import time
 import glob
 import subprocess
 from os.path import basename
-import ROOT
-
-
-def isGoodFile (fileName) :
-    ff = ROOT.TFile (fname)
-    if ff.IsZombie() : return False
-    if ff.TestBit(ROOT.TFile.kRecovered) : return False
-    return True
-    
 
 # ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -85,90 +76,8 @@ if __name__ == "__main__":
 
     currFolder = os.getcwd ()
 
-    # verify the result of the process
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-    if (opt.hadd != 'none') :
-
-        scriptFile = open (opt.output + '/hadder.sh', 'w')
-        scriptFile.write ('#!/bin/bash\n')
-        scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('cd /data_CMS/cms/govoni/CMSSW_7_4_5/src\n')
-        scriptFile.write ('export SCRAM_ARCH=slc6_amd64_gcc472\n')
-        scriptFile.write ('eval `scram r -sh`\n')
-        scriptFile.write ('cd %s\n'%currFolder)
-        scriptFile.write ('source scripts/setup.sh\n')
-        scriptFile.write ('mkdir ' + opt.output + '/singleFiles\n')
-        scriptFile.write ('mv ' + opt.output + '/* ' + opt.output + '/singleFiles\n')
-        scriptFile.write ('hadd ' + opt.output + '/total.root ' + opt.output + '/singleFiles/*.root\n')
-        scriptFile.write ('touch ' + opt.output + '/done\n')
-        scriptFile.write ('echo "Hadding finished" \n')
-        scriptFile.close ()
-
-        subprocess.run(['chmod', 'u+rwx', opt.output + '/hadder.sh'])
-        command = '/opt/exp_soft/cms/t3/t3submit -q cms \'' +  opt.output + '/hadder.sh\''
-        subprocess.run(command, shell=True)
-        sys.exit(0)
         
-    # verify the result of the process
-    # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-    if (opt.resub != 'none') :
-        if (opt.input == 'none') :
-            print('input folder to be checked missing\n')
-            print('(this is the folder that contains the jobs to be submitted)')
-            sys.exit (1)
-
-        if opt.input[-1] == '/' : opt.input = opt.input[:-1]
-        tagname = opt.tag + "/" if opt.tag else ''
-        opt.input = tagname + 'SKIM_' + basename (opt.input)
-        jobs = [word.replace ('_', '.').split ('.')[1] for word in os.listdir (opt.input) if 'skim' in word]
-        missing = []
-        
-        # check the existence of the done file
-        for num in jobs :
-            if not os.path.exists (opt.input + '/done_' + num) :
-                if opt.verb : print(num, ' : missing done file')
-                missing.append (num)
-
-        # check the log file
-        for num in jobs :
-            # get the log file name
-            filename = opt.input + '/skimJob_' + num + '.sh'
-#            print( os.path.exists (filename) )
-            with open (filename, 'r') as myfile :
-                data = [word for word in myfile.readlines () if 'log' in word]
-            rootfile = data[0].split ()[2]
-            if not os.path.exists (rootfile) :
-                if opt.verb : print(num, 'missing root file', rootfile)
-                missing.append (num)
-                continue
-            if not isGoodFile (rootfile) :
-                if opt.verb : print(num, 'root file corrupted', rootfile)
-                missing.append (num)
-                continue
-            logfile = data[0].split ()[-1]
-            if not os.path.exists (logfile) :
-                if opt.verb : print(num, 'missing log file')
-                missing.append (num)
-                continue
-            with open (logfile, 'r') as logfile :
-                problems = [word for word in logfile.readlines () if 'Error' in word and 'TCling' not in word]
-                if len (problems) != 0 :
-                    if opt.verb : print(num, 'found error ', problems[0])
-                    missing.append (num)
-        print('the following jobs did not end successfully:')
-        print(missing   )
-        for num in missing :
-            command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
-            if opt.verb : print(command)
-        if (opt.resub == 'run') :
-            for num in missing :
-                command = '`cat ' + opt.input + '/submit.sh | grep skimJob_' + num + '.sh | tr "\'" " "`'
-                time.sleep (int (num) % 5)
-                subprocess.run(command, shell=True)
-        sys.exit (0)
-
     # submit the jobs
     # ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -213,11 +122,6 @@ if __name__ == "__main__":
     if os.path.exists (jobsDir) : os.system ('rm -f ' + jobsDir + '/*')
     else                        : os.system ('mkdir ' + jobsDir)
 
-    # proc = subprocess.Popen ('voms-proxy-info', stdout=subprocess.PIPE)
-    # tmp = [word for word in proc.stdout.read ().split ('\n') if 'timeleft' in word]
-    # if len (tmp) == 0 or int (tmp[0].split (':')[1]) < 10 : # hours
-    #     os.system ('source /opt/exp_soft/cms/t3/t3setup')
-
     n = int (0)
     commandFile = open (jobsDir + '/submit.sh', 'w')
     for listname in inputlists : 
@@ -229,13 +133,30 @@ if __name__ == "__main__":
         thisinputlistFile.close()
         scriptFile = open ('%s/skimJob_%d.sh'% (jobsDir,n), 'w')
         scriptFile.write ('#!/bin/bash\n')
-        scriptFile.write ('echo $HOSTNAME\n')
-        scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
-        scriptFile.write ('eval `scram r -sh`\n')
+        scriptFile.write ('export KRB5CCNAME=/gwpool/users/spalluotto/krb5cc_`id -u spalluotto`\n')
+        scriptFile.write ('/usr/bin/eosfusebind -g; cd /eos/cms/;\n')
         scriptFile.write ('cd %s\n'%currFolder)
-        scriptFile.write ('eval `scram r -sh`\n')
-        scriptFile.write ('source scripts/setup.sh\n')
+        scriptFile.write (f'/cvmfs/cms.cern.ch/common/cmssw-cc7 -B /gwdata:/gwdata -B /gwteras:/gwteras \
+    --command-to-run {jobsDir}/insingularity_{n}.sh\n')
+        # scriptFile.write ('echo $HOSTNAME\n')
+        # scriptFile.write ('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+        # scriptFile.write ('eval `scram r -sh`\n')
+        # scriptFile.write ('cd %s\n'%currFolder)
+        # scriptFile.write ('eval `scram r -sh`\n')
+        # scriptFile.write ('source scripts/setup.sh\n')
 
+        inSing = open('%s/insingularity_%d.sh'% (jobsDir,n), 'w')
+        inSing.write('#!/bin/bash\n')
+        inSing.write('echo $HOSTNAME\n')
+        inSing.write('source /cvmfs/cms.cern.ch/cmsset_default.sh\n')
+        inSing.write('eval `scram r -sh`\n')
+        inSing.write('cd %s\n'%currFolder)
+        inSing.write('cd ..\n')
+        inSing.write('cmsenv\n')
+        inSing.write('cd %s\n'%currFolder)
+        inSing.write('source scripts/setup.sh\n')
+        
+        
         # arguments for the skimNtuple.cpp   ---> argv[] :
         command = skimmer + ' ' + jobsDir+"/"+listFileName + ' ' + opt.output + '/' + "output_"+str(n)+".root" + ' ' + opt.xs  # [1] : files list     [2] : output file      [3] : XS  
         if opt.isdata :  command += ' 1 '    # [4] : isData
@@ -274,8 +195,8 @@ if __name__ == "__main__":
         if opt.isTTlike : command += " 1 "        # [35] : is DY like for boosted corrections   
         else:             command += " 0 "
         command += ' >& ' + opt.output + '/' + "output_" + str(n) + '.log\n'
-        scriptFile.write (command)
-        scriptFile.write ('touch ' + jobsDir + '/done_%d\n'%n)
+        inSing.write (command)
+        inSing.write ('touch ' + jobsDir + '/done_%d\n'%n)
 
         if opt.doSyst:
             sys_command = "skimOutputter.exe"
@@ -287,20 +208,27 @@ if __name__ == "__main__":
             sys_command += (" " + ">& " + opt.output + "/syst_output_"+str(n)+".log\n")
             scriptFile.write(sys_command)
 
-        scriptFile.write ('echo "All done for job %d" \n'%n)
+        inSing.write ('echo "All done for job %d" \n'%n)
+        inSing.close ()
         scriptFile.close ()
         os.system ('chmod u+rwx %s/skimJob_%d.sh'% (jobsDir,n))
+        os.system ('chmod u+rwx %s/insingularity_%d.sh'% (jobsDir,n))
 
+        print("file %s/skimJob_%d.sh% (jobsDir,n)")
+
+        
         condorFile = open ('%s/condorLauncher_%d.sh'% (jobsDir,n), 'w')
         condorFile.write ('Universe = vanilla\n')
         condorFile.write ('Executable  = '+jobsDir + '/skimJob_' + str (n) + '.sh\n')
-        condorFile.write ('Log         = condor_job_$(ProcId).log\n')
-        condorFile.write ('Output      = condor_job_$(ProcId).out\n')
-        condorFile.write ('Error       = condor_job_$(ProcId).error\n')
-        condorFile.write ('Requirements = ((machine == "clipper.hcms.it")||(machine == "pccms12.hcms.it"))\n')
+        condorFile.write ('Log         = '+jobsDir + '/condor_job_$(ProcId).log\n')
+        condorFile.write ('Output      = '+jobsDir + '/condor_job_$(ProcId).out\n')
+        condorFile.write ('Error       = '+jobsDir + '/condor_job_$(ProcId).error\n')
+        condorFile.write ('Requirements = ((machine == "pccms11.hcms.it") || (machine == "pccms12.hcms.it") || (machine == "pccms13.hcms.it") || (machine == "pccms14.hcms.it") )\n')
         condorFile.write ('queue 1\n')
         condorFile.close ()
 
+        print(command)
+        
         command = 'condor_submit '+ jobsDir + '/condorLauncher_' + str (n) + '.sh'
         if opt.sleep : time.sleep (0.1)
         os.system (command)

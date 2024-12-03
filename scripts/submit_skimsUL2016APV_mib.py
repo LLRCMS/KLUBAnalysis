@@ -4,7 +4,7 @@ import glob
 
 
 #--------------------------
-date           = '09Aug2024_newProduction_systFix'
+date           = '29Nov2024_bkgCor'
 execute_bkg    = False
 execute_sig    = True
 execute_data   = False
@@ -16,14 +16,10 @@ configFile     = '%s/config/skim_UL16APV.cfg'%klubDir
 year           = '2016preVFP'
 
 
-
 # LOG ---  
 tag            = 'SKIMS_UL2016APV_%s'%date
 outDir         = '%s/%s'%(klubDir, tag)
-
 logFile        = '%s/log_%s.txt'%(outDir,date)
-#with open('%s'%logFile, 'w') as logF:
-#    logF.write("\n")
 
 
 # INPUT ---
@@ -237,11 +233,11 @@ bkg_map = {
     "VBFHToTauTau_M125"                   : "-n 50    -x 3.766    -y 0.0632 --isDYlike",
 
     "ttHToNonbb_M125"                 : "-n 50  -x 0.5071   -y 0.423    --ttHToNonBB True  --isTTlike",
-    "ttHTobb_M125"                    : "-n 50  -x 0.5071   -y 0.577  ",
+    "ttHTobb_M125"                    : "-n 50  -x 0.5071   -y 0.577   --isTTlike", # but this will be most likely signal like, still fine to put hyp here
     "ttHToTauTau_M125"                : "-n 50  -x 0.5071   -y 0.0632  --isTTlike",
 
-    "ZH_HToBB_ZToLL_M-125"             : "-n 50    -x 0.880    -y 0.058816576 ",
-    "ZH_HToBB_ZToQQ_M-125"             : "-n 50    -x 0.880    -y 0.407161664",
+    "ZH_HToBB_ZToLL_M-125"             : "-n 50    -x 0.880    -y 0.058816576 --isDYlike",
+    "ZH_HToBB_ZToQQ_M-125"             : "-n 50    -x 0.880    -y 0.407161664 --isDYlike",
 
 
     # --- Wjets ---
@@ -291,7 +287,7 @@ bkg_map = {
 
 
     # non resonant signal 
-    "GluGluToHHTo2B2Tau_TuneCP5_PSWeights_node_SM" : "-n 10   -x 0.01618"
+    "GluGluToHHTo2B2Tau_TuneCP5_PSWeights_node_SM" : "-n 10   -x 0.01618 --isDYlike"
 }
 
 
@@ -646,96 +642,66 @@ if execute_data:
 
 
 
-
-
-
-        
-
-
-# Environment
-os.system('cd %s'%klubDir)
-os.system('source /cvmfs/cms.cern.ch/cmsset_default.sh')
-os.system('source %s/scripts/setup.sh'%klubDir)
+# write commands to a shell script that we will run in singularity        
+shell_script_file = os.path.join(f"{klubDir}/scripts", "submit_mib_tmp.sh")
 
 if not os.path.exists(outDir):
-    os.system('mkdir %s'%outDir)
+    os.makedirs(outDir)
 if not os.path.exists(skimDir):
-    os.system('mkdir %s'%skimDir)
+    os.makedirs(skimDir)
 
+with open(shell_script_file, 'w') as script_file:
+    script_file.write("#!/bin/bash\n\n")
+    script_file.write(f"cd {klubDir}\n")
+    script_file.write("source /cvmfs/cms.cern.ch/cmsset_default.sh\n")
+    script_file.write(f"source {klubDir}/scripts/setup.sh\n\n")
 
 
 #---------------
 # SUBMIT BACKGROUNDS
 
 if execute_bkg:
- print('\nSubmitting - backgrounds - ')
- print('OUTDIR = ', outDir)
- with open('%s'%logFile, 'w') as logF:
-    logF.write("Submitting - backgrounds - \nOUTDIR = %s"%outDir)
-
- for label in bkg_map:
-     command = ''
-     command = '%s %s --pu %s '%(baseCommand, bkg_map[label], puDir)
-     print('bkg command:  ', command)
-     os.system(command)
-
+    print('\nSubmitting - backgrounds - ')
+    print('OUTDIR = ', outDir)
+    with open('%s'%logFile, 'w') as logF:
+        logF.write("Submitting - backgrounds - \nOUTDIR = %s"%outDir)
+    
+    with open(shell_script_file, 'w') as script_file:
+        for label in bkg_map:
+            command = f"{baseCommand} {bkg_map[label]} --pu {puDir}\n"
+            print('bkg command:  ', command)
+            script_file.write(command)
+        os.chmod(shell_script_file, 0o755)
 
 #---------------
 # SUBMIT SIGNALS
 
 if execute_sig:
- print('\nSubmitting - signals - ')
- print('OUTDIR = ', outDir)
- with open('%s'%logFile, 'w') as logF:
-     logF.write("Submitting - signals - \nOUTDIR = %s"%outDir)
-
- for label in sig_map:
-     command = ''
-     command = '%s %s --pu %s '%(baseCommand, sig_map[label], puDir)
-     print('sig command:  ', command)
-     os.system(command)
-
+    print('\nSubmitting - signals - ')
+    print('OUTDIR = ', outDir)
+    with open('%s'%logFile, 'w') as logF:
+        logF.write("Submitting - signals - \nOUTDIR = %s"%outDir)
+    with open(shell_script_file, 'w') as script_file:
+        for label in sig_map:
+            command = f"{baseCommand} {sig_map[label]} --pu {puDir}\n"
+            print('sig command:  ', command)
+            script_file.write(command)
+        os.chmod(shell_script_file, 0o755)
 
 #---------------
 # SUBMIT DATA
 
 if execute_data:
- print('\nSubmitting - data - ')
- print('OUTDIR = ', outDir)
- with open('%s'%logFile, 'w') as logF:
-     logF.write("Submitting - data - \nOUTDIR = %s"%outDir)
-
- for label in data_map:
-     command = ''
-     command = '%s %s'%(baseCommand, data_map[label])
-     print('data command:  ', command)
-     os.system(command)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print('\nSubmitting - data - ')
+    print('OUTDIR = ', outDir)
+    with open('%s'%logFile, 'w') as logF:
+        logF.write("Submitting - data - \nOUTDIR = %s"%outDir)
+    with open(shell_script_file, 'w') as script_file:
+        for label in data_map:
+            command = f"{baseCommand} {data_map[label]}"
+            print('data command:  ', command)
+            script_file.write(command)
+        os.chmod(shell_script_file, 0o755)
 
 ###################
 
