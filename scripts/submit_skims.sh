@@ -617,8 +617,8 @@ MC_MAP=(
     ["WminusHToTauTau"]="-n 30 -x 0.527 -y 0.06272 -q short --isDYlike"
     ["ZHToTauTau"]="-n 30 -x 0.880 -y 0.06272 -q short  --isDYlike"
 
-    ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short"
-    ["ZH_HToBB_ZToQQ"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR} -q short"
+    ["ZH_HToBB_ZToLL"]="-n 100 -x 0.880 -y ${ZH_HToBB_ZToLL_BR} -q short --isDYlike"
+    ["ZH_HToBB_ZToQQ"]="-n 30 -x 0.880 -y ${ZH_HToBB_ZToQQ_BR} -q short --isDYlike"
     
     ["_WW_TuneCP5"]="-n 30 -x 118.7 -q short --isDYlike"
     ["_WZ_TuneCP5"]="-n 30 -x 47.13 -q short --isDYlike"
@@ -642,17 +642,17 @@ MC_MAP=(
     ["TTWH"]="-n 6 -x 0.001143 -q short --isTTlike"
     ["TTZH"]="-n 15 -x 0.001136 -q short --isTTlike"
 
-    ["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short"
+    ["GluGluToHHTo2B2Tau"]="-n 10 -x 0.01618 -q short --isDYlike"
 )
 if [ ${DATA_PERIOD} == "UL18" ] || [ ${DATA_PERIOD} == "UL17" ] || [ ${DATA_PERIOD} == "UL16APV" ]; then
     MC_MAP+=(
 		["ttHToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short --isTTlike"
-		["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+		["ttHTobb"]="-n 120 -x 0.5071 -y 0.577 -q short --isTTlike"
 	)
 elif [ ${DATA_PERIOD} == "UL16" ]; then
     MC_MAP+=(
 		["ttHJetToNonbb"]="-n 100 -x 0.5071 -y 0.3598 -q short --isTTlike"
-		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short"
+		["ttHJetTobb"]="-n 120 -x 0.5071 -y 0.577 -q short --isTTlike"
 	)
 fi
 
