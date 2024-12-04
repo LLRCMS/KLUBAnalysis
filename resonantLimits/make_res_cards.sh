@@ -3,20 +3,18 @@
 export PYTHONPATH=$PWD/physicsModels:$PYTHONPATH
 
 ### Defaults
-ISRESONANT="1"
 TAG=""
 NOPREP=0
-VAR="DNNoutSM_kl_1"
-SIGNAL="ggFRadion"
+VAR="pdnn_m{1}_s0_hh"
+SPIN="0"
 DRYRUN="0"
-PERIOD=""
+PERIOD="";
+AUTOMCSTATS="0";
 NOSHAPEUNC="0"
 PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
 EOS_USER="bfontana"
 PREPOUT="prepared_outLimits.root"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
-
-declare -a MASSES;
 declare -a CHANNELS;
 declare -a SELECTIONS;
 declare -a IN_TAGS;
@@ -27,10 +25,11 @@ HELP_STR="Prints this help message."
 TAG_STR="(String) Defines tag for the output. Defaults to '${TAG}'."
 VAR_STR="(String) Variable to use for the likelihood fit."
 DRYRUN_STR="(Boolean) Whether to run in dry-run mode. Defaults to '${DRYRUN}'."
-SIGNAL_STR="(String) Signal sample type."
+SPIN_STR="(String) Spin hypothesis."
 DATAPERIOD_STR="(String) Which data period to consider: Legacy18, UL18, ... Defaults to '${PERIOD}'."
+AUTOMCSTATS_STR="(String) Run the autoMCStats combine option, which adds nuisances for MC statistics."
 NORES_STR="(Boolean) Whether to run on non-resonant analysis. Defaults to resonant analysis."
-NOSHAPEUNC="(Boolean) Whether to consider shape uncertainties. Defaults to considering the uncertainties."
+NOSHAPEUNC_STR="(Boolean) Whether to consider shape uncertainties. Defaults to considering the uncertainties."
 MASSES_STR="(Array of ints) Resonant masses."
 CHANNELS_STR="(Array of strings) Channels."
 SELECTIONS_STR="(Array of strings) Selections."
@@ -47,17 +46,17 @@ function print_usage_submit_skims {
     -c / --channels     [${CHANNELS_STR}]
     -l / --selections   [${SELECTIONS_STR}]
     -i / --in_tags      [${INTAGS_STR}]
-    -s / --signal       [${SIGNAL_STR}]
+    -s / --spin         [${SPIN_STR}]
     -t / --tag          [${TAG_STR}]
     -f / --cfg          [${CFGFILE_STR}]
     -m / --masses       [${MASSES_STR}]
     -b / --base         [${BASEDIR_STR}]
     -v / --var          [${VAR_STR}]
     -d / --data_period  [${DATAPERIOD_STR}]
-	-p / --prepout      [${PREP_STR}]
-    -r / --nonresonant  [${NORES_STR}]
-	-u / --noshapeunc   [${NOSHAPEUNC}]
-	--noprep            [${NOPREP}]
+    -p / --prepout      [${PREP_STR}]
+    --autoMCStats       [${AUTOMCSTATS_STR}]
+    -u / --noshapeunc   [${NOSHAPEUNC_STR}]
+    --noprep            [${NOPREP}]
     --dryrun            [${DRYRUN_STR}]
 
 "
@@ -96,29 +95,29 @@ while [[ $# -gt 0 ]]; do
             shift;
             ;;
 	-i|--in_tags)
-            t_flag=0
-            while [ ${t_flag} -eq 0 ]; do
-                if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
-                    t_flag=1
-                else
-                    IN_TAGS+=(${2});
-                    shift;
-                fi
-            done
-            shift;
-            ;;
+        t_flag=0
+        while [ ${t_flag} -eq 0 ]; do
+            if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+                t_flag=1
+            else
+                IN_TAGS+=(${2});
+                shift;
+            fi
+        done
+        shift;
+        ;;
 	-f|--cfg)
-            cfg_flag=0
-            while [ ${cfg_flag} -eq 0 ]; do
-                if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
-                    cfg_flag=1
-                else
-                    CFG_FILES+=(${2});
-                    shift;
-                fi
-            done
-            shift;
-            ;;
+        cfg_flag=0
+        while [ ${cfg_flag} -eq 0 ]; do
+            if [[ "${2}" =~ ^[-].*$ ]] || [[ "${2}" =~ ^$ ]]; then
+                cfg_flag=1
+            else
+                CFG_FILES+=(${2});
+                shift;
+            fi
+        done
+        shift;
+        ;;
 	-t|--tag)
 	    TAG=${2}
 	    shift; shift;
@@ -131,18 +130,22 @@ while [[ $# -gt 0 ]]; do
 	    NOPREP=1
 	    shift;
 	    ;;
+	--autoMCStats)
+	    AUTOMCSTATS=1
+	    shift;
+	    ;;
 	-b|--base)
 	    BASEDIR=${2}
 	    shift; shift;
 	    ;;
 	-v|--var)
-            VAR=${2}
-            shift; shift;
-            ;;
-	-s|--signal)
-            SIGNAL=${2}
-            shift; shift;
-            ;;
+        VAR=${2}
+        shift; shift;
+        ;;
+	-s|--spin)
+        SPIN=${2}
+        shift; shift;
+        ;;
 	-m|--masses)
 	    mass_flag=0
 	    while [ ${mass_flag} -eq 0 ]; do
@@ -153,23 +156,19 @@ while [[ $# -gt 0 ]]; do
 		    shift;
 		fi
 	    done
-            shift;
-            ;;
+        shift;
+        ;;
 	-d|--data_period)
 	    PERIOD=${2}
 	    if [[ ! " ${PERIOD_CHOICES[*]} " =~ " ${PERIOD} " ]]; then
-		echo "Currently the following data periods are supported:"
-		for dp in ${PERIOD_CHOICES[@]}; do
-		    echo "- ${dp}" # bash string substitution
-		done
-		exit 1;
+			echo "Currently the following data periods are supported:"
+			for dp in ${PERIOD_CHOICES[@]}; do
+				echo "- ${dp}" # bash string substitution
+			done
+			exit 1;
 	    fi
 	    shift; shift;
 	    ;;
-    -r|--nonresonant)
-        ISRESONANT="0"
-        shift;
-        ;;
     -u|--noshapeunc)
         NOSHAPEUNC="1"
         shift;
@@ -186,7 +185,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 HIST_DIR="HHresonant_hist"
-MAIN_DIR="/data_CMS/cms/${USER}/${HIST_DIR}/"
+MAIN_DIR="/data_CMS/cms/${USER}/${HIST_DIR}"
 
 ### Argument parsing sanity checks
 if [[ -z ${TAG} ]]; then
@@ -234,7 +233,10 @@ if [[ ${NOPREP} -eq 0 ]]; then
 	declare -a COMMS_PREP;
 	for ichn in "${!CHANNELS[@]}"; do
 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
-		comm_tmp="python prepare_histos.py -f ${HISTDIR}/combined_outLimits.root -o ${PREPOUT} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -q 0 -B 1"
+		comm_tmp="python prepare_histos.py --indir ${HISTDIR} --outname ${PREPOUT} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -q 0 -B 1 --masses ${MASSES[@]} --spin ${SPIN} --pDNN"
+		if [ ${NOSHAPEUNC} -eq 1 ]; then
+			comm_tmp="${comm_tmp} -u"
+		fi
 		COMMS_PREP+=("${comm_tmp}")
 	done
 
@@ -248,12 +250,12 @@ declare -a COMMS_WRITE;
 for ichn in "${!CHANNELS[@]}"; do
 	for jsel in "${!SELECTIONS[@]}"; do
 		HISTDIR="${MAIN_DIR}/${IN_TAGS[${ichn}]}"
-		comm_tmp="python ${LIMIT_DIR}/write_res_card.py -f ${HISTDIR}/prepared_outLimits.root --indir ${LIMIT_DIR} -o ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} -i ${CFG_DIR}/${CFG_FILES[${ichn}]} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --signal ${SIGNAL}"
-		if [ ${ISRESONANT} -eq 1 ]; then
-			comm_tmp="${comm_tmp} -r"
-		fi
+		comm_tmp="python ${LIMIT_DIR}/write_res_card.py --indir ${HISTDIR} --outdir ${LIMIT_DIR} --tag ${TAG} -c ${CHANNELS[${ichn}]} -y ${PERIOD} -v ${VAR} --cfg_dir ${CFG_DIR} --selections ${SELECTIONS[${jsel}]} --masses ${MASSES[@]} --spin ${SPIN} --theory "
 		if [ ${NOSHAPEUNC} -eq 1 ]; then
 			comm_tmp="${comm_tmp} -u"
+		fi
+		if [ ${AUTOMCSTATS} -eq 1 ]; then
+			comm_tmp="${comm_tmp} --binbybin"
 		fi
 		COMMS_WRITE+=("${comm_tmp}")
 	done
