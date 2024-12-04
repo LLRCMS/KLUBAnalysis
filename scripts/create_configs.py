@@ -519,7 +519,7 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, metsf,
 
     category_definitions = '\n'.join((
         "res1b = baseline, btagM , isBoosted != 1, massCut",
-        "res2b = baseline, btagMM, isBoosted != 1, massCut",
+        "res2b = baseline, btagMM, massCut",
         "boostedL_pnet = baseline_boosted, pNetBTagL, massCutTau",
         ))
     if channel == "MuTau" or channel == "TauTau":
@@ -536,7 +536,7 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, metsf,
     content = '\n'.join((
         "[selections]",
         "baseline = " + baseline + " && nbjetscand > 1",
-        "baseline_boosted = " + baseline + " && isBoosted == 1",
+        "baseline_boosted = !(( ("+ baseline + ") && nbjetscand > 1 ) && (bjet1_bID_deepFlavor > {wpm} && bjet2_bID_deepFlavor > {wpm}) && (tauH_mass > 20 && bH_mass > 40) ) && (".format(wpm=deepjet["medium"]) + baseline + ") && isBoosted == 1 ",
         "",
         ("btagM  = (bjet1_bID_deepFlavor > {wpm} && bjet2_bID_deepFlavor < {wpm}) || ".format(wpm=deepjet["medium"]) +
          "(bjet1_bID_deepFlavor < {wpm} && bjet2_bID_deepFlavor > {wpm})".format(wpm=deepjet["medium"])),
