@@ -4,8 +4,8 @@ declare -a MASSES;
 
 ### Defaults
 TAG=""
-VAR="DNNoutSM_kl_1"
-SIGNAL="ggFRadion"
+VAR="pdnn_m{1}_s0_hh"
+SIGNAL="GGF_Radion"
 BASEDIR="${HOME}/CMSSW_11_1_9/src/KLUBAnalysis"
 
 ### Argument parsing
@@ -80,13 +80,13 @@ comb_dir="${LIMIT_DIR}/cards_${TAG}_All"
 mkdir -p ${comb_dir}
 rm -f -- ${comb_dir}/comb.*.txt
 
-proc="${SIGNAL}_${VAR}_{}"
+proc="${SIGNAL}_${VAR}"
 comb_="${comb_dir}/comb.${proc}"
 comb_txt="${comb_}.txt"
 comb_root="${comb_}.root"
 
 #parallelize over the mass
-parallel combineCards.py -S ${LIMIT_DIR}/cards_${TAG}_*Tau/*${VAR}/hhres*.${SIGNAL}{}.txt ">" ${comb_txt} ::: ${MASSES[@]}
-parallel echo "SignalScale rateParam \* ${SIGNAL}{} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
+parallel combineCards.py -S ${LIMIT_DIR}/cards_${TAG}/*Tau/*${VAR}/hhres*.${SIGNAL}{1}.txt ">" ${comb_txt} ::: ${MASSES[@]}
+parallel echo "SignalScale rateParam \* ${SIGNAL}{1} 0.01" ">>" ${comb_txt} ::: ${MASSES[@]}
 parallel text2workspace.py ${comb_txt} -o ${comb_root} ::: ${MASSES[@]}
 

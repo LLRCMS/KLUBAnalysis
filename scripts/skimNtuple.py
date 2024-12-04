@@ -61,7 +61,7 @@ def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec,
                                 'error = ' + paths['err'].format(qvars[0],qvars[1]),
                                 'log = ' + paths['log'].format(qvars[0],qvars[1]),
                                 'getenv = true',
-                                '+JobBatchName="{}"'.format(FLAGS.sample),
+                                '+JobBatchName="{}-{}"'.format(FLAGS.sample, FLAGS.year),
                                 'should_transfer_files = YES',
                                 'transfer_input_files = {}'.format(py_exec),
                                 '',
@@ -72,6 +72,7 @@ def write_condor_file(d, condor_name, shell_exec, c_exec, py_exec,
                                 'request_cpus   = 1',
                                 'request_memory = 4GB',
                                 'request_disk   = 2000',
+                                'max_retries    = 2',
                                 '',
                                 'include : /opt/exp_soft/cms/t3/t3queue |',
                                 '',
@@ -352,9 +353,10 @@ if __name__ == "__main__":
     FLAGS = parser.parse_args()
     if not FLAGS.isdata:
         assert FLAGS.datasetType == 0
-    print("-----------  Configuration Arguments -----------")
-    for arg, value in sorted(vars(FLAGS).items()):
-        print("%s: %s" % (arg, value))
-    print("------------------------------------------------") 
+    if FLAGS.verb:
+        print("-----------  Configuration Arguments -----------")
+        for arg, value in sorted(vars(FLAGS).items()):
+            print("%s: %s" % (arg, value))
+        print("------------------------------------------------") 
     curr_folder = os.getcwd()
     skim_ntuple(FLAGS, curr_folder)

@@ -491,9 +491,9 @@ elif [ ${DATA_PERIOD} == "UL16" ]; then
 		["Tau__Run2016G"]="-n 10 -q long --datasetType 2"
 		["Tau__Run2016H"]="-n 10 -q long --datasetType 2"
 		
-		["SingleMuon__Run2016F"]="-n 20 -q long"
-		["SingleMuon__Run2016G"]="-n 20 -q long"
-		["SingleMuon__Run2016H"]="-n 20 -q long"
+		["SingleMuon__Run2016F"]="-n 30 -q long"
+		["SingleMuon__Run2016G"]="-n 30 -q long"
+		["SingleMuon__Run2016H"]="-n 30 -q long"
 		
 		["MET__Run2016F"]="-n 10 -q long --datasetType 1"
 		["MET__Run2016G"]="-n 10 -q long --datasetType 1"
@@ -528,21 +528,21 @@ elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 fi
 	
 # Skimming submission
-for ds in ${!DATA_MAP[@]}; do
-	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
-		echo "WARNING: No files found in "${LIST_DATA_DIR}"."
-	fi
-    sample=$(find_sample ${ds} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
-    if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
-		ERRORS+=( ${sample} )
-    else
-		eval `scram unsetenv -sh` # unset CMSSW environment
-		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
-		cmsenv # set CMSSW environment
-		run_skim --isdata 1 -i ${DATA_DIR} --sample ${REGEX_MAP[${sample}]} ${DATA_MAP[${ds}]}
-		cmsenv # set CMSSW environment
-    fi
-done
+# for ds in ${!DATA_MAP[@]}; do
+# 	if [ ${#LISTS_DATA[@]} -eq 0 ]; then
+# 		echo "WARNING: No files found in "${LIST_DATA_DIR}"."
+# 	fi
+#     sample=$(find_sample ${ds} ${LIST_DATA_DIR} ${#LISTS_DATA[@]} ${LISTS_DATA[@]})
+#     if [[ ${sample} =~ ${SEARCH_SPACE} ]]; then
+# 		ERRORS+=( ${sample} )
+#     else
+# 		eval `scram unsetenv -sh` # unset CMSSW environment
+# 		[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Data --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
+# 		cmsenv # set CMSSW environment
+# 		run_skim --isdata 1 -i ${DATA_DIR} --sample ${REGEX_MAP[${sample}]} ${DATA_MAP[${ds}]}
+# 		cmsenv # set CMSSW environment
+#     fi
+# done
 
 ### Run on HH resonant signal samples
 LIST_SIG_DIR=${LIST_DIR}"Sig_"${IN_TAG}
@@ -550,8 +550,10 @@ eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
 
-DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
-MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
+# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
+DATA_LIST=( "GluGluToRad" )
+MASSES=("1000")
 for ds in ${DATA_LIST[@]}; do
 	for mass in ${MASSES[@]}; do
 		pattern="${ds}.+_M-${mass}_";
@@ -560,7 +562,6 @@ for ds in ${DATA_LIST[@]}; do
 			ERRORS+=( ${sample} )
 		else
 			[[ ${NO_LISTS} -eq 0 ]] && produce_list --kind Sig --sample ${sample} --outtxt ${REGEX_MAP[${sample}]}
-			echo ${sample}
 			run_skim -n 5 -i ${SIG_DIR} --sample ${REGEX_MAP[${sample}]} -x 1. -q long --ishhsignal 1
 		fi
 	done
