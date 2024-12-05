@@ -195,82 +195,70 @@ void PNetSFInterface::FillTTlikeSFs(const std::string period)
     if (period == "2016preVFP")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_lowPt_[6] = (0.7092995);                 // LP central
-        scaleFactorsTT_lowPt_[7] = (0.7092995 + ( 0.24862634)); // LP up
-        scaleFactorsTT_lowPt_[8] = (0.7092995 + (-0.24862634)); // LP down
+        scaleFactorsTT_lowPt_[6] = (0.4927);                         // LP central
+        scaleFactorsTT_lowPt_[7] = (0.4927 + (0.3802));              // LP up
+        scaleFactorsTT_lowPt_[8] = (0.4927 + (-0.3802));             // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_medPt_[6] = (0.85037322);                 // LP central
-        scaleFactorsTT_medPt_[7] = (0.85037322 + ( 0.34022010)); // LP up
-        scaleFactorsTT_medPt_[8] = (0.85037322 + (-0.34022010)); // LP down
+        scaleFactorsTT_medPt_[6] = (1.0216);                         // LP central
+        scaleFactorsTT_medPt_[7] = (1.0216 + (0.6653));              // LP up
+        scaleFactorsTT_medPt_[8] = (1.0216 + (-0.6653));             // LP down
 
         // pT >= 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_highPt_[6] = (0.66767709);                 // LP central
-        scaleFactorsTT_highPt_[7] = (0.66767709 + ( 0.36953115)); // LP up
-        scaleFactorsTT_highPt_[8] = (0.66767709 + (-0.36953115)); // LP down
+        scaleFactorsTT_highPt_[6] = (0.3795);                        // LP central
+        scaleFactorsTT_highPt_[7] = (0.3795 + (1.5452));             // LP up
+        scaleFactorsTT_highPt_[8] = (0.3795 + (-1.5452));            // LP down
     }
     else if (period == "2016postVFP")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_lowPt_[6] = (0.8279069);                 // LP central
-        scaleFactorsTT_lowPt_[7] = (0.8279069 + ( 0.28734629)); // LP up
-        scaleFactorsTT_lowPt_[8] = (0.8279069 + (-0.28734629)); // LP down
+        scaleFactorsTT_lowPt_[6] = (0.8377);                         // LP central
+        scaleFactorsTT_lowPt_[7] = (0.8377 + (0.5155));              // LP up
+        scaleFactorsTT_lowPt_[8] = (0.8377 + (-0.5155));             // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_medPt_[6] = (0.84752986);                 // LP central
-        scaleFactorsTT_medPt_[7] = (0.84752986 + ( 0.39659080)); // LP up
-        scaleFactorsTT_medPt_[8] = (0.84752986 + (-0.39659080)); // LP down
+        scaleFactorsTT_medPt_[6] = (0.571);                          // LP central
+        scaleFactorsTT_medPt_[7] = (0.571 + (0.7731));               // LP up
+        scaleFactorsTT_medPt_[8] = (0.571 + (-0.7731));              // LP down
 
         // pT >= 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_highPt_[6] = (0.95545670);                 // LP central
-        scaleFactorsTT_highPt_[7] = (0.95545670 + ( 0.64319324)); // LP up
-        scaleFactorsTT_highPt_[8] = (0.95545670 + (-0.64319324)); // LP down
+        scaleFactorsTT_highPt_[6] = (1.2948);                        // LP central
+        scaleFactorsTT_highPt_[7] = (1.2948 + (3.1934));             // LP up
+        scaleFactorsTT_highPt_[8] = (1.2948 + (-3.1934));            // LP down
     }
     else if (period == "2017")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_lowPt_[6] = (1.1069126);                 // LP central
-        scaleFactorsTT_lowPt_[7] = (1.1069126 + ( 0.24672529)); // LP up
-        scaleFactorsTT_lowPt_[8] = (1.1069126 + (-0.24672529)); // LP down
+        scaleFactorsTT_lowPt_[6] = (1.6759);                         // LP central
+        scaleFactorsTT_lowPt_[7] = (1.6759 + (0.4351));              // LP up
+        scaleFactorsTT_lowPt_[8] = (1.6759 + (-0.4351));             // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_medPt_[6] = (0.66183375);                 // LP central
-        scaleFactorsTT_medPt_[7] = (0.66183375 + ( 0.22188845)); // LP up
-        scaleFactorsTT_medPt_[8] = (0.66183375 + (-0.22188845)); // LP down
+        scaleFactorsTT_medPt_[6] = (0.5925);                         // LP central
+        scaleFactorsTT_medPt_[7] = (0.5925 + (0.3974));              // LP up
+        scaleFactorsTT_medPt_[8] = (0.5925 + (-0.3974));             // LP down
 
         // pT >= 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_highPt_[6] = (0.21924106);                 // LP central
-        scaleFactorsTT_highPt_[7] = (0.21924106 + ( 0.13346345)); // LP up
-        scaleFactorsTT_highPt_[8] = (0.21924106 + (-0.13346345)); // LP down
+        scaleFactorsTT_highPt_[6] = (0.8383);                        // LP central
+        scaleFactorsTT_highPt_[7] = (0.8383 + (1.1402));             // LP up
+        scaleFactorsTT_highPt_[8] = (0.8383 + (-1.1402));            // LP down
     }
     else if (period == "2018")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_lowPt_[6] = (0.9755087);                 // LP central
-        scaleFactorsTT_lowPt_[7] = (0.9755087 + ( 0.20477083)); // LP up
-        scaleFactorsTT_lowPt_[8] = (0.9755087 + (-0.20477083)); // LP down
+        scaleFactorsTT_lowPt_[6] = (0.8782);                         // LP central
+        scaleFactorsTT_lowPt_[7] = (0.8782 + (0.3081));              // LP up
+        scaleFactorsTT_lowPt_[8] = (0.8782 + (-0.3081));             // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_medPt_[6] = (0.80578453);                 // LP central
-        scaleFactorsTT_medPt_[7] = (0.80578453 + ( 0.20842184)); // LP up
-        scaleFactorsTT_medPt_[8] = (0.80578453 + (-0.20842184)); // LP down
+        scaleFactorsTT_medPt_[6] = (0.6941);                         // LP central
+        scaleFactorsTT_medPt_[7] = (0.6941 + (0.3251));              // LP up
+        scaleFactorsTT_medPt_[8] = (0.6941 + (-0.3251));             // LP down
 
         // pT >= 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsTT_highPt_[6] = (0.73371453);                 // LP central
-        scaleFactorsTT_highPt_[7] = (0.73371453 + ( 0.27071888)); // LP up
-        scaleFactorsTT_highPt_[8] = (0.73371453 + (-0.27071888)); // LP down
+        scaleFactorsTT_highPt_[6] = (0.8692);                        // LP central
+        scaleFactorsTT_highPt_[7] = (0.8692 + (0.6044));             // LP up
+        scaleFactorsTT_highPt_[8] = (0.8692 + (-0.6044));            // LP down
     }
     else
     {
@@ -288,87 +276,80 @@ void PNetSFInterface::FillDYlikeSFs(const std::string period)
     if (period == "2016preVFP")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_lowPt_[6] = (0.99217367);                // LP central
-        scaleFactorsDY_lowPt_[7] = (0.99217367 + ( 0.1945583)); // LP up
-        scaleFactorsDY_lowPt_[8] = (0.99217367 + (-0.1945583)); // LP down
+        scaleFactorsDY_lowPt_[6] = (1.0743);                // LP central
+        scaleFactorsDY_lowPt_[7] = (1.0743 + ( 0.2764));   // LP up
+        scaleFactorsDY_lowPt_[8] = (1.0743 + (-0.2764));   // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_medPt_[6] = (1.34811143);                 // LP central
-        scaleFactorsDY_medPt_[7] = (1.34811143 + ( 0.31670744)); // LP up
-        scaleFactorsDY_medPt_[8] = (1.34811143 + (-0.31670744)); // LP down
+        scaleFactorsDY_medPt_[6] = (1.2709);                // LP central
+        scaleFactorsDY_medPt_[7] = (1.2709 + ( 0.3487));   // LP up
+        scaleFactorsDY_medPt_[8] = (1.2709 + (-0.3487));   // LP down
 
         // pT >= 400
-        scaleFactorsDY_highPt_[6] = (1.35099449);                 // LP central
-        scaleFactorsDY_highPt_[7] = (1.35099449 + ( 0.42826490)); // LP up
-        scaleFactorsDY_highPt_[8] = (1.35099449 + (-0.42826490)); // LP down
+        scaleFactorsDY_highPt_[6] = (1.5753);                // LP central
+        scaleFactorsDY_highPt_[7] = (1.5753 + ( 0.6695));   // LP up
+        scaleFactorsDY_highPt_[8] = (1.5753 + (-0.6695));   // LP down
     }
     else if (period == "2016postVFP")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_lowPt_[6] = (1.46031728);                // LP central
-        scaleFactorsDY_lowPt_[7] = (1.46031728 + ( 0.2959850)); // LP up
-        scaleFactorsDY_lowPt_[8] = (1.46031728 + (-0.2959850)); // LP down
+        scaleFactorsDY_lowPt_[6] = (1.6456);                // LP central
+        scaleFactorsDY_lowPt_[7] = (1.6456 + ( 0.4316));   // LP up
+        scaleFactorsDY_lowPt_[8] = (1.6456 + (-0.4316));   // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_medPt_[6] = (1.10929824);                 // LP central
-        scaleFactorsDY_medPt_[7] = (1.10929824 + ( 0.31057888)); // LP up
-        scaleFactorsDY_medPt_[8] = (1.10929824 + (-0.31057888)); // LP down
+        scaleFactorsDY_medPt_[6] = (0.8931);                // LP central
+        scaleFactorsDY_medPt_[7] = (0.8931 + ( 0.4125));   // LP up
+        scaleFactorsDY_medPt_[8] = (0.8931 + (-0.4125));   // LP down
 
         // pT >= 400
-        scaleFactorsDY_highPt_[6] = (0.65913237);                 // LP central
-        scaleFactorsDY_highPt_[7] = (0.65913237 + ( 0.27456928)); // LP up
-        scaleFactorsDY_highPt_[8] = (0.65913237 + (-0.27456928)); // LP down
+        scaleFactorsDY_highPt_[6] = (0.6539);                // LP central
+        scaleFactorsDY_highPt_[7] = (0.6539 + ( 0.763));    // LP up
+        scaleFactorsDY_highPt_[8] = (0.6539 + (-0.763));    // LP down
     }
     else if (period == "2017")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_lowPt_[6] = (1.00916880);                // LP central
-        scaleFactorsDY_lowPt_[7] = (1.00916880 + ( 0.1431627)); // LP up
-        scaleFactorsDY_lowPt_[8] = (1.00916880 + (-0.1431627)); // LP down
+        scaleFactorsDY_lowPt_[6] = (1.0085);                // LP central
+        scaleFactorsDY_lowPt_[7] = (1.0085 + ( 0.1877));   // LP up
+        scaleFactorsDY_lowPt_[8] = (1.0085 + (-0.1877));   // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_medPt_[6] = (1.38009424);                 // LP central
-        scaleFactorsDY_medPt_[7] = (1.38009424 + ( 0.24822319)); // LP up
-        scaleFactorsDY_medPt_[8] = (1.38009424 + (-0.24822319)); // LP down
+        scaleFactorsDY_medPt_[6] = (1.4333);                // LP central
+        scaleFactorsDY_medPt_[7] = (1.4333 + ( 0.3412));   // LP up
+        scaleFactorsDY_medPt_[8] = (1.4333 + (-0.3412));   // LP down
 
         // pT >= 400
-        scaleFactorsDY_highPt_[6] = (1.08742263);                 // LP central
-        scaleFactorsDY_highPt_[7] = (1.08742263 + ( 0.27418802)); // LP up
-        scaleFactorsDY_highPt_[8] = (1.08742263 + (-0.27418802)); // LP down
+        scaleFactorsDY_highPt_[6] = (1.4411);                // LP central
+        scaleFactorsDY_highPt_[7] = (1.4411 + ( 0.5479));   // LP up
+        scaleFactorsDY_highPt_[8] = (1.4411 + (-0.5479));   // LP down
     }
     else if (period == "2018")
     {
         // pT < 300
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_lowPt_[6] = (1.17889197);                // LP central
-        scaleFactorsDY_lowPt_[7] = (1.17889197 + ( 0.1441964)); // LP up
-        scaleFactorsDY_lowPt_[8] = (1.17889197 + (-0.1441964)); // LP down
+        scaleFactorsDY_lowPt_[6] = (1.1462);                // LP central
+        scaleFactorsDY_lowPt_[7] = (1.1462 + ( 0.2));      // LP up
+        scaleFactorsDY_lowPt_[8] = (1.1462 + (-0.2));      // LP down
 
         // 300 <= pT < 400
-        // HP and MP SFs not yet available - default to 1
-        scaleFactorsDY_medPt_[6] = (1.09308159);                 // LP central
-        scaleFactorsDY_medPt_[7] = (1.09308159 + ( 0.18257319)); // LP up
-        scaleFactorsDY_medPt_[8] = (1.09308159 + (-0.18257319)); // LP down
+        scaleFactorsDY_medPt_[6] = (1.2728);                // LP central
+        scaleFactorsDY_medPt_[7] = (1.2728 + ( 0.2966));   // LP up
+        scaleFactorsDY_medPt_[8] = (1.2728 + (-0.2966));   // LP down
 
         // pT >= 400
-        scaleFactorsDY_highPt_[6] = (1.24201816);                 // LP central
-        scaleFactorsDY_highPt_[7] = (1.24201816 + ( 0.27224163)); // LP up
-        scaleFactorsDY_highPt_[8] = (1.24201816 + (-0.27224163)); // LP down
+        scaleFactorsDY_highPt_[6] = (0.952);                 // LP central
+        scaleFactorsDY_highPt_[7] = (0.952 + ( 0.3111));    // LP up
+        scaleFactorsDY_highPt_[8] = (0.952 + (-0.3111));    // LP down
     }
     else
     {
-        std::string errorMessage = "PNseSFInterface - Invalid period: "
+        std::string errorMessage = "PNetSFInterface - Invalid period: "
                                  + period
                                  + " [options are: 2016preVFP/2016postVFP/2017/2018]";
         throw std::logic_error(errorMessage);
     }
 }
+
 
 // Get the SF vector based on jet pT and sampleType
 std::vector<float> PNetSFInterface::getSFvec(const float pT, const std::string sampleType)
