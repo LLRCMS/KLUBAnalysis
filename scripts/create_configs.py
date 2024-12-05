@@ -200,39 +200,41 @@ class Params:
 
         self.event_systematics = lambda channel : (
             '\n'.join((
-                "IdFakeSF_deep_2d = " + ', '.join((
-                    # "tauid_2d_stat0_up:idFakeSF_tauid_2d_stat0_up",
-                    # "tauid_2d_stat0_down:idFakeSF_tauid_2d_stat0_down",
-                    # "tauid_2d_stat1_up:idFakeSF_tauid_2d_stat1_up",
-                    # "tauid_2d_stat1_down:idFakeSF_tauid_2d_stat1_down",
-                    "tauid_2d_systcorrdmeras_up:idFakeSF_tauid_2d_systcorrdmeras_up",
-                    "tauid_2d_systcorrdmeras_down:idFakeSF_tauid_2d_systcorrdmeras_down",
-                    "tauid_2d_systcorrdmuncorreras_up:idFakeSF_tauid_2d_systcorrdmuncorreras_up",
-                    "tauid_2d_systcorrdmuncorreras_down:idFakeSF_tauid_2d_systcorrdmuncorreras_down",
-                    # "tauid_2d_systuncorrdmeras_up:idFakeSF_tauid_2d_systuncorrdmeras_up",
-                    # "tauid_2d_systuncorrdmeras_down:idFakeSF_tauid_2d_systuncorrdmeras_down",
-                    "tauid_2d_systcorrerasgt140_up:idFakeSF_tauid_2d_systcorrerasgt140_up",
-                    "tauid_2d_systcorrerasgt140_down:idFakeSF_tauid_2d_systcorrerasgt140_down",
-                    # "tauid_2d_statgt140_up:idFakeSF_tauid_2d_statgt140_up",
-                    # "tauid_2d_statgt140_down:idFakeSF_tauid_2d_statgt140_down",
-                    # "tauid_2d_extrapgt140_up:idFakeSF_tauid_2d_extrapgt140_up",
-                    # "tauid_2d_extrapgt140_down:idFakeSF_tauid_2d_extrapgt140_down",
+                "dauSFs = " + ', '.join((
+                    #"IdFakeSF_deep_2d = " + ', '.join((                        # ------> it does not exist anymore in the TTree
 
-                    "etauFR_barrelUp:idFakeSF_etauFR_barrel_up",
-                    "etauFR_barrelDown:idFakeSF_etauFR_barrel_down",
-                    "etauFR_endcapUp:idFakeSF_etauFR_endcap_up",
-                    "etauFR_endcapDown:idFakeSF_etauFR_endcap_down",
+                    # "tauid_2d_stat0_up:dauSFs_tauid_2d_stat0_up",
+                    # "tauid_2d_stat0_down:dauSFs_tauid_2d_stat0_down",
+                    # "tauid_2d_stat1_up:dauSFs_tauid_2d_stat1_up",
+                    # "tauid_2d_stat1_down:dauSFs_tauid_2d_stat1_down",
+                    "tauid_2d_systcorrdmeras_up:dauSFs_tauid_2d_systcorrdmeras_up",
+                    "tauid_2d_systcorrdmeras_down:dauSFs_tauid_2d_systcorrdmeras_down",
+                    "tauid_2d_systcorrdmuncorreras_up:dauSFs_tauid_2d_systcorrdmuncorreras_up",
+                    "tauid_2d_systcorrdmuncorreras_down:dauSFs_tauid_2d_systcorrdmuncorreras_down",
+                    # "tauid_2d_systuncorrdmeras_up:dauSFs_tauid_2d_systuncorrdmeras_up",
+                    # "tauid_2d_systuncorrdmeras_down:dauSFs_tauid_2d_systuncorrdmeras_down",
+                    "tauid_2d_systcorrerasgt140_up:dauSFs_tauid_2d_systcorrerasgt140_up",
+                    "tauid_2d_systcorrerasgt140_down:dauSFs_tauid_2d_systcorrerasgt140_down",
+                    # "tauid_2d_statgt140_up:dauSFs_tauid_2d_statgt140_up",
+                    # "tauid_2d_statgt140_down:dauSFs_tauid_2d_statgt140_down",
+                    # "tauid_2d_extrapgt140_up:dauSFs_tauid_2d_extrapgt140_up",
+                    # "tauid_2d_extrapgt140_down:dauSFs_tauid_2d_extrapgt140_down",
+
+                    "etauFR_barrelUp:dauSFs_etauFR_barrel_up",
+                    "etauFR_barrelDown:dauSFs_etauFR_barrel_down",
+                    "etauFR_endcapUp:dauSFs_etauFR_endcap_up",
+                    "etauFR_endcapDown:dauSFs_etauFR_endcap_down",
  
-                    "mutauFR_etaLt0p4Up:idFakeSF_mutauFR_etaLt0p4_up",
-                    "mutauFR_etaLt0p4Down:idFakeSF_mutauFR_etaLt0p4_down",
-                    "mutauFR_eta0p4to0p8Up:idFakeSF_mutauFR_eta0p4to0p8_up",
-                    "mutauFR_eta0p4to0p8Down:idFakeSF_mutauFR_eta0p4to0p8_down",
-                    "mutauFR_eta0p8to1p2Up:idFakeSF_mutauFR_eta0p8to1p2_up",
-                    "mutauFR_eta0p8to1p2Down:idFakeSF_mutauFR_eta0p8to1p2_down",
-                    "mutauFR_eta1p2to1p7Up:idFakeSF_mutauFR_eta1p2to1p7_up",
-                    "mutauFR_eta1p2to1p7Down:idFakeSF_mutauFR_eta1p2to1p7_down",
-                    "mutauFR_etaGt1p7Up:idFakeSF_mutauFR_etaGt1p7_up",
-                    "mutauFR_etaGt1p7Down:idFakeSF_mutauFR_etaGt1p7_down",
+                    "mutauFR_etaLt0p4Up:dauSFs_mutauFR_etaLt0p4_up",
+                    "mutauFR_etaLt0p4Down:dauSFs_mutauFR_etaLt0p4_down",
+                    "mutauFR_eta0p4to0p8Up:dauSFs_mutauFR_eta0p4to0p8_up",
+                    "mutauFR_eta0p4to0p8Down:dauSFs_mutauFR_eta0p4to0p8_down",
+                    "mutauFR_eta0p8to1p2Up:dauSFs_mutauFR_eta0p8to1p2_up",
+                    "mutauFR_eta0p8to1p2Down:dauSFs_mutauFR_eta0p8to1p2_down",
+                    "mutauFR_eta1p2to1p7Up:dauSFs_mutauFR_eta1p2to1p7_up",
+                    "mutauFR_eta1p2to1p7Down:dauSFs_mutauFR_eta1p2to1p7_down",
+                    "mutauFR_etaGt1p7Up:dauSFs_mutauFR_etaGt1p7_up",
+                    "mutauFR_etaGt1p7Down:dauSFs_mutauFR_etaGt1p7_down",
                 )),
                 "trigSF = " + self._define_trigger_sf_systematics(channel),
                 "PUjetID_SF = " + ', '.join((
@@ -403,6 +405,39 @@ class Params:
     @staticmethod
     def is_for_limits(spin, mass):
         return False if spin=='' and mass=='' else True
+
+
+def r_factor(y, chan):
+    r_map = {
+        "UL16": {
+            "ETau"  : 1.0068,
+            "MuTau" : 1.0063,
+            "TauTau": 0.9880,
+            "MuMu"  : 1.0,
+        },
+        "UL16APV": {
+            "ETau"  : 0.9611,
+            "MuTau" : 0.9661,
+            "TauTau": 0.9611,
+            "MuMu"  : 1.0,
+        },
+        "UL17": {
+            "ETau"  : 0.9822,
+            "MuTau" : 0.9852,
+            "TauTau": 0.9786,
+            "MuMu"  : 1.0,
+        },
+        "UL18": {
+            "ETau"  : 0.9870,
+            "MuTau" : 0.9898,
+            "TauTau": 0.9774,
+            "MuMu"  : 1.0,
+        }
+    }
+    string = "\n".join(("[bTagRfactor]",
+                        f"central = {str(r_map[y][chan])}",
+                    ))
+    return string
     
 def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', mass=''):
     """Write single limit main configuration file."""
@@ -467,7 +502,9 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
         "data_obs = " + ', '.join(pars.data[channel]),
         '\n'.join(bckg_limits),
         '\n',
-        qcd_str,        
+        qcd_str,
+        '\n',
+        r_factor(year, channel),
     ))
 
     content += '\n'
@@ -564,12 +601,12 @@ def write_limit_selection_config(outfile, channel, year, pars, vars_mode, metsf,
         ""))
 
     if metsf == "NoSF":
-        content += '\n'.join(("baseline = MC_weight, PUReweight, L1pref_weight, trigSFnoMET, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
-                              "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSFnoMET, IdFakeSF_deep_2d, PUjetID_SF",
+        content += '\n'.join(("baseline = MC_weight, PUReweight, L1pref_weight, trigSFnoMET, dauSFs, PUjetID_SF, bTagweightReshape",
+                              "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSFnoMET, dauSFs, PUjetID_SF",
                               ""))
     else:
-        content += '\n'.join(("baseline = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF, bTagweightReshape",
-                              "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSF, IdFakeSF_deep_2d, PUjetID_SF",
+        content += '\n'.join(("baseline = MC_weight, PUReweight, L1pref_weight, trigSF, dauSFs, PUjetID_SF, bTagweightReshape",
+                              "baseline_boosted = MC_weight, PUReweight, L1pref_weight, trigSF, dauSFs, PUjetID_SF",
                               ""))
 
     content += '\n'.join((
