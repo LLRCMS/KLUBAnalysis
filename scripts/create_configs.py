@@ -403,6 +403,37 @@ class Params:
     @staticmethod
     def is_for_limits(spin, mass):
         return False if spin=='' and mass=='' else True
+
+
+def r_factor(y, chan):
+    if chan=="MuMu":
+        return ""
+    r_map = {
+        "UL16": {
+            "ETau"  : 1.0068,
+            "MuTau" : 1.0063,
+            "TauTau": 0.9880,
+        },
+        "UL16APV": {
+            "ETau"  : 0.9611,
+            "MuTau" : 0.9661,
+            "TauTau": 0.9611,
+        },
+        "UL17": {
+            "ETau"  : 0.9822,
+            "MuTau" : 0.9852,
+            "TauTau": 0.9786,
+        },
+        "UL18": {
+            "ETau"  : 0.9870,
+            "MuTau" : 0.9898,
+            "TauTau": 0.9774,
+        }
+    }
+    string = "\n".join(("[bTagRfactor]",
+                        f"central = {str(r_map[y][chan])}",
+                    ))
+    return string
     
 def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', mass=''):
     """Write single limit main configuration file."""
@@ -467,7 +498,9 @@ def write_limit_main_config(outfile, channel, year, pars, vars_mode, spin='', ma
         "data_obs = " + ', '.join(pars.data[channel]),
         '\n'.join(bckg_limits),
         '\n',
-        qcd_str,        
+        qcd_str,
+        '\n',
+        r_factor(year, channel),
     ))
 
     content += '\n'
