@@ -408,28 +408,30 @@ class Params:
 
 
 def r_factor(y, chan):
-    if chan=="MuMu":
-        return ""
     r_map = {
         "UL16": {
             "ETau"  : 1.0068,
             "MuTau" : 1.0063,
             "TauTau": 0.9880,
+            "MuMu"  : 1.0,
         },
         "UL16APV": {
             "ETau"  : 0.9611,
             "MuTau" : 0.9661,
             "TauTau": 0.9611,
+            "MuMu"  : 1.0,
         },
         "UL17": {
             "ETau"  : 0.9822,
             "MuTau" : 0.9852,
             "TauTau": 0.9786,
+            "MuMu"  : 1.0,
         },
         "UL18": {
             "ETau"  : 0.9870,
             "MuTau" : 0.9898,
             "TauTau": 0.9774,
+            "MuMu"  : 1.0,
         }
     }
     string = "\n".join(("[bTagRfactor]",
