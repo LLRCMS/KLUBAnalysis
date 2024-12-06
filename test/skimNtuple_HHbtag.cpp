@@ -1973,13 +1973,6 @@ int main (int argc, char** argv)
 		  bool metAccept       = passMETTrg    and trgRegions["met"]; 
 		  bool singletauAccept = passSingleTau and trgRegions["tau"];
 
-		  if (passSingleTau) {
-			std::cout << "===== PASSES1" << std::endl;
-		  }
-		  if (trgRegions["tau"]) {
-			std::cout << "===== PASSES2" << std::endl;
-		  }
-
 		  if (!isMC) {
 			legacyAccept    = legacyAccept    and !isMETDataset and (!isTauDataset or pType==2);
 			metAccept       = metAccept       and isMETDataset;
