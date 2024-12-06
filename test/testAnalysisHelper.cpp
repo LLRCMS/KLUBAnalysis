@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {
   if (argc != 6) {
-	std::cout << "[ERROR::testAnalysisHelper] Expecting five input arguments, received "
+	std::cout << "[ERROR::testAnalysisHelper] Expecting six input arguments, received "
 			  << argc << "." << std::endl;
     return 1;
   }
