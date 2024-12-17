@@ -346,8 +346,8 @@ if __name__ == "__main__":
     parser.add_argument('--hhNLO', default=False, action='store_true', help='if it is an HH NLO sample')
     parser.add_argument('--doSyst', default=False, action='store_true', help='compute up/down values of outputs')
 
-    parser.add_option ('--isDYlike', help="Boosted corrections : if the process is of the kind V+jets", default=False, action='store_true')
-    parser.add_option ('--isTTlike', help="Boosted corrections : if the process is top-enriched", default=False, action='store_true')
+    parser.add_argument('--isDYlike', help="Boosted corrections : if the process is of the kind V+jets", default=False, action='store_true')
+    parser.add_argument('--isTTlike', help="Boosted corrections : if the process is top-enriched", default=False, action='store_true')
 
 
     FLAGS = parser.parse_args()
