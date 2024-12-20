@@ -11,10 +11,10 @@ ScaleFactorMET::ScaleFactorMET(std::string period): mPeriod(period)
   const std::string name17     = "weights/trigger_SF_UL/2017/";
   const std::string name18     = "weights/trigger_SF_UL/2018/";
   inputs = {
-	{"2016preVFP",  name16pre  + "150_mumu_fit_2016APV.root"},
-	{"2016postVFP", name16post + "150_mumu_fit_2016.root"},
-	{"2017",		name17	   + "150_mumu_fit_2017.root"},
-	{"2018",		name18	   + "150_mumu_fit_2018.root"},
+	{"2016preVFP",  name16pre  + "180_mumu_fit_2016APV.root"},
+	{"2016postVFP", name16post + "180_mumu_fit_2016.root"},
+	{"2017",		name17	   + "180_mumu_fit_2017.root"},
+	{"2018",		name18	   + "180_mumu_fit_2018.root"},
   };
 	
   // open file
