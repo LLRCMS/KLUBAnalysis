@@ -296,8 +296,8 @@ OfflineProducerHelper::eleBaseline (bigTree* tree, correctedLeptons* corrLeptons
   bool nISOidS = false;
 
   // veto events with electrons in ECAL barrel-endcap transition region
-  //TODO: should be super cluster eta (not available in bigntuples at the moment)
-  bool isInEtaGap = fabs(p4.Eta()) > 1.44 && fabs(p4.Eta()) < 1.57 && whatApply.Contains("etaGapVeto");
+  float SCeta = tree->daughters_SCeta->at(iDau);
+  bool isInEtaGap = fabs(SCeta) > 1.44 && fabs(SCeta) < 1.57 && whatApply.Contains("etaGapVeto");
   if (MVAIDflag == 0) // Tight = 80%
   {
     idS = tree->daughters_iseleWP80->at(iDau) || byp_idS ;

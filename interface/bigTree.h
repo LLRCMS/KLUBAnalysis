@@ -90,6 +90,7 @@ class bigTree {
   std::vector<int>     *daughters_charge;
   std::vector<float>   *daughters_highestEt_L1IsoTauMatched;
   std::vector<int>     *daughters_genindex;
+  std::vector<float>   *daughters_SCeta;
   Float_t         MC_weight;
   Float_t         MC_weight_fixed;
   std::vector<float>   MC_QCDscale;
@@ -375,6 +376,7 @@ class bigTree {
   TBranch        *b_daughters_charge;   //!
   TBranch        *b_daughters_highestEt_L1IsoTauMatched;   //!
   TBranch        *b_daughters_genindex;   //!
+  TBranch        *b_daughters_SCeta;
   TBranch        *b_MC_weight;   //!
   TBranch        *b_MC_weight_fixed;   //!
   TBranch        *b_MC_QCDscale0;
@@ -747,11 +749,11 @@ class bigTree {
     daughters_FESshiftDM1dw = 0;
     daughters_MESshiftup = 0;
     daughters_MESshiftdw = 0;
-	daughters_ecalTrkEnergyPostCorr = 0;
-	daughters_energyScaleUp = 0;
-	daughters_energyScaleDown = 0;
-	daughters_energySigmaUp = 0;
-	daughters_energySigmaDown = 0;
+    daughters_ecalTrkEnergyPostCorr = 0;
+    daughters_energyScaleUp = 0;
+    daughters_energyScaleDown = 0;
+    daughters_energySigmaUp = 0;
+    daughters_energySigmaDown = 0;
     daughters_px_EleUp = 0;
     daughters_py_EleUp = 0;
     daughters_pz_EleUp = 0;
@@ -763,9 +765,10 @@ class bigTree {
     daughters_charge = 0;
     daughters_highestEt_L1IsoTauMatched = 0;
     daughters_genindex = 0;
-	MC_QCDscale = std::vector<float>(7, 0.);
-	MC_pdf = std::vector<float>(101, 0.);
-	MC_astrong = std::vector<float>(2, 0.);
+    daughters_SCeta = 0;
+    MC_QCDscale = std::vector<float>(7, 0.);
+    MC_pdf = std::vector<float>(101, 0.);
+    MC_astrong = std::vector<float>(2, 0.);
     genpart_px = 0;
     genpart_py = 0;
     genpart_pz = 0;
@@ -1091,6 +1094,7 @@ class bigTree {
     fChain->SetBranchAddress("daughters_energyScaleDown", &daughters_energyScaleDown, &b_daughters_energyScaleDown);
     fChain->SetBranchAddress("daughters_energySigmaUp", &daughters_energySigmaUp, &b_daughters_energySigmaUp);
     fChain->SetBranchAddress("daughters_energySigmaDown", &daughters_energySigmaDown, &b_daughters_energySigmaDown);
+    fChain->SetBranchAddress("daughters_SCeta", &daughters_SCeta, &b_daughters_SCeta);
     fChain->SetBranchAddress("JetsNumber", &JetsNumber, &b_JetsNumber);
     fChain->SetBranchAddress("jets_VBFleadFilterMatch", &jets_VBFleadFilterMatch, &b_jets_VBFleadFilterMatch);
     fChain->SetBranchAddress("jets_VBFsubleadFilterMatch", &jets_VBFsubleadFilterMatch, &b_jets_VBFsubleadFilterMatch);
