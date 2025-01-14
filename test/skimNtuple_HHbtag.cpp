@@ -410,6 +410,10 @@ int main (int argc, char** argv)
   int selectedNoWeightsEventsNum = 0 ;
   float totalEvents_PUReweight_up = 0 ;
   float totalEvents_PUReweight_down = 0 ;
+  std::vector<float> totalEvents_QCDscale(7, 0);
+  std::vector<float> totalEvents_pdf(101, 0);
+  std::vector<float> totalEvents_alphaS(2, 0);
+
 
   // ------------------------------
   // systematics
@@ -1264,6 +1268,9 @@ int main (int argc, char** argv)
 	  float EvtW = 1.;
 	  float EvtW_PUReweight_up = 1.;
 	  float EvtW_PUReweight_down = 1.;
+	  std::vector<float> EvtW_QCDscale(totalEvents_QCDscale.size(), 1.);
+	  std::vector<float> EvtW_pdf(totalEvents_pdf.size(), 1.);
+	  std::vector<float> EvtW_alphaS(totalEvents_alphaS.size(), 1.);
 	  theSmallTree.m_PUReweight  = 1.;
 	  theSmallTree.m_PUReweight_up = 1.;
 	  theSmallTree.m_PUReweight_down = 1.;
@@ -1275,15 +1282,20 @@ int main (int argc, char** argv)
 		theSmallTree.m_PUReweight = reweight.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile);
 		theSmallTree.m_PUReweight_up = reweight_up.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile_up);
 		theSmallTree.m_PUReweight_down = reweight_down.weight(PUReweight_MC, PUReweight_target, npu, PUreweightFile_down);
-
-		EvtW = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight * topPtReweight * HHweight;
+		float EvtW_fixed = theSmallTree.m_PUReweight * topPtReweight * HHweight;
+		EvtW = theBigTree.aMCatNLOweight * EvtW_fixed;
 		EvtW_PUReweight_up = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight_up * topPtReweight * HHweight;
 		EvtW_PUReweight_down = theBigTree.aMCatNLOweight * theSmallTree.m_PUReweight_down * topPtReweight * HHweight;
+		for(uint i = 0; i < totalEvents_QCDscale.size(); i++) EvtW_QCDscale[i] = theBigTree.MC_QCDscale[i] != 0 ? theBigTree.MC_QCDscale[i] * EvtW_fixed : EvtW;
+		for(uint i = 0; i < totalEvents_pdf.size(); i++) EvtW_pdf[i] = theBigTree.MC_pdf[i] != 0 ? theBigTree.MC_pdf[i] * EvtW_fixed : EvtW;
+		for(uint i = 0; i < totalEvents_alphaS.size(); i++) EvtW_alphaS[i] = theBigTree.MC_astrong[i] != 0 ? theBigTree.MC_astrong[i] * EvtW_fixed : EvtW;
 	  }
 	  totalEvents += EvtW;
 	  totalEvents_PUReweight_up += EvtW_PUReweight_up;
 	  totalEvents_PUReweight_down += EvtW_PUReweight_down;
-
+	  for(uint i = 0; i < totalEvents_QCDscale.size(); i++) totalEvents_QCDscale[i] += EvtW_QCDscale[i];
+	  for(uint i = 0; i < totalEvents_pdf.size(); i++) totalEvents_pdf[i] += EvtW_pdf[i];
+	  for(uint i = 0; i < totalEvents_alphaS.size(); i++) totalEvents_alphaS[i] += EvtW_alphaS[i];
 
 	  ec.Increment("all", EvtW);
 	  if (isHHsignal) {
@@ -5767,14 +5779,17 @@ int main (int argc, char** argv)
 
   if (totalEvents != 0) cout << "efficiency = " << selectedEvents / totalEvents << endl ;
   else                  cout << "NO events found\n" ;
-  TH1F h_eff ("h_eff", "h_eff", 6 , 0, 6) ;
-  h_eff.SetBinContent (1, totalEvents) ;
-  h_eff.SetBinContent (2, selectedEvents) ;
-  h_eff.SetBinContent (3, totalNoWeightsEventsNum) ;
-  h_eff.SetBinContent (4, selectedNoWeightsEventsNum) ;
-  h_eff.SetBinContent (5, totalEvents_PUReweight_up) ;
-  h_eff.SetBinContent (6, totalEvents_PUReweight_down) ;
-  
+  TH1F h_eff ("h_eff", "h_eff", 6 + totalEvents_QCDscale.size() + totalEvents_pdf.size() + totalEvents_alphaS.size(), 0, 6) ;
+  h_eff.SetBinContent (1, totalEvents);
+  h_eff.SetBinContent (2, selectedEvents);
+  h_eff.SetBinContent (3, totalNoWeightsEventsNum);
+  h_eff.SetBinContent (4, selectedNoWeightsEventsNum);
+  h_eff.SetBinContent (5, totalEvents_PUReweight_up);
+  h_eff.SetBinContent (6, totalEvents_PUReweight_down);
+  for(uint i = 0; i < totalEvents_QCDscale.size(); i++) h_eff.SetBinContent(7+i, totalEvents_QCDscale[i]);
+  for(uint i = 0; i < totalEvents_pdf.size(); i++) h_eff.SetBinContent(7+totalEvents_QCDscale.size()+i, totalEvents_pdf[i]);
+  for(uint i = 0; i < totalEvents_alphaS.size(); i++) h_eff.SetBinContent(7+totalEvents_QCDscale.size()+totalEvents_pdf.size()+i, totalEvents_alphaS[i]);
+
   // store more detailed eff counter in output
   vector<pair<string, double> > vEffSumm = ec.GetSummary();
   TH1F* h_effSummary = new TH1F ("h_effSummary", "h_effSummary", vEffSumm.size(), 0, vEffSumm.size());
