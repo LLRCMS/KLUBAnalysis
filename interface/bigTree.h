@@ -250,6 +250,7 @@ class bigTree {
   std::vector<float>   *bParticleNetAK4JetTags_probg;
   std::vector<float>   *pfCombinedMVAV2BJetTags;
   std::vector<int>     *PFjetID;
+  std::vector<int>     *PFjetID_AK8Puppi;
   std::vector<float>   *jetRawf;
   std::vector<float>   *jets_JER;
 
@@ -633,6 +634,7 @@ class bigTree {
   TBranch        *b_bParticleNetAK4JetTags_probg;
   TBranch        *b_pfCombinedMVAV2BJetTags; //!
   TBranch        *b_PFjetID;   //!
+  TBranch        *b_PFjetID_AK8Puppi;   //!
   TBranch        *b_jetRawf;   //!
   TBranch        *b_jets_JER ; //!
   TBranch        *b_ak8jets_px;
@@ -887,6 +889,7 @@ class bigTree {
     bParticleNetAK4JetTags_probg = 0;
     pfCombinedMVAV2BJetTags = 0;
     PFjetID = 0;
+    PFjetID_AK8Puppi = 0;
     jetRawf = 0;
     jets_JER = 0;
     ak8jets_px = 0;
@@ -1093,6 +1096,7 @@ class bigTree {
     fChain->SetBranchAddress("bParticleNetAK4JetTags_probg", &bParticleNetAK4JetTags_probg, &b_bParticleNetAK4JetTags_probg);
     fChain->SetBranchAddress("pfCombinedMVAV2BJetTags", &pfCombinedMVAV2BJetTags, &b_pfCombinedMVAV2BJetTags);
     fChain->SetBranchAddress("PFjetID", &PFjetID, &b_PFjetID);
+    fChain->SetBranchAddress("PFjetID_AK8Puppi", &PFjetID_AK8Puppi, &b_PFjetID_AK8Puppi);
     fChain->SetBranchAddress("jetRawf", &jetRawf, &b_jetRawf);
     fChain->SetBranchAddress("jets_JER", &jets_JER, &b_jets_JER);
     fChain->SetBranchAddress("ak8jets_px",                                 &ak8jets_px, &b_ak8jets_px);

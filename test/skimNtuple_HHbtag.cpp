@@ -5376,8 +5376,9 @@ int main (int argc, char** argv)
 			tlv_fj *= smears_AK8[ifj];
 		  }
 		  
-		  if (tlv_fj.Pt() < 250 or theBigTree.ak8jets_SoftDropMass->at(ifj) < 30 or
-			  tlv_fj.DeltaR(tlv_firstLepton) < 0.8 or tlv_fj.DeltaR(tlv_secondLepton) < 0.8) {
+		  if(tlv_fj.Pt() < 250 or theBigTree.ak8jets_SoftDropMass->at(ifj) < 30 or
+			tlv_fj.DeltaR(tlv_firstLepton) < 0.8 or tlv_fj.DeltaR(tlv_secondLepton) < 0.8 or
+			theBigTree.PFjetID_AK8Puppi->at(ifj) < PFjetID_WP) { // 0: don't pass PF Jet ID; 1: tight, 2: tightLepVeto
 			continue;
 		  }
 			    
