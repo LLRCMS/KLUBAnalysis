@@ -2707,10 +2707,10 @@ int main (int argc, char** argv)
 
 	  float leg1pt  = tlv_firstLepton.Pt();
 	  float leg1eta = TMath::Abs(tlv_firstLepton.Eta());
-	  float leg1eta_SC = theBigTree.daughters_SCeta->at(firstDaughterIndex);
+	  float leg1eta_SC = theBigTree.daughters_SCeta->at(firstDaughterIndex); // needed for electron SFs and eta gap veto
 	  float leg2pt  = tlv_secondLepton.Pt();
 	  float leg2eta = TMath::Abs(tlv_secondLepton.Eta());
-	  float leg2eta_SC = theBigTree.daughters_SCeta->at(secondDaughterIndex);
+	  float leg2eta_SC = theBigTree.daughters_SCeta->at(secondDaughterIndex); // needed for electron SFs and eta gap veto
 
 	  // the first tau only makes sense in the TauTau channel
 	  int tau1DM  = static_cast<int>(theSmallTree.m_dau1_decayMode);
