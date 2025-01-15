@@ -410,9 +410,9 @@ int main (int argc, char** argv)
   int selectedNoWeightsEventsNum = 0 ;
   float totalEvents_PUReweight_up = 0 ;
   float totalEvents_PUReweight_down = 0 ;
-  std::vector<float> totalEvents_QCDscale(7, 0);
-  std::vector<float> totalEvents_pdf(101, 0);
-  std::vector<float> totalEvents_alphaS(2, 0);
+  std::vector<float> totalEvents_QCDscale(theBigTree.MC_QCDscale.size(), 0);
+  std::vector<float> totalEvents_pdf(theBigTree.MC_pdf.size(), 0);
+  std::vector<float> totalEvents_alphaS(theBigTree.MC_astrong.size(), 0);
 
 
   // ------------------------------
