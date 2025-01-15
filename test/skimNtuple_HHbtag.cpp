@@ -2707,8 +2707,10 @@ int main (int argc, char** argv)
 
 	  float leg1pt  = tlv_firstLepton.Pt();
 	  float leg1eta = TMath::Abs(tlv_firstLepton.Eta());
+	  float leg1eta_SC = theBigTree.daughters_SCeta->at(firstDaughterIndex); // needed for electron SFs and eta gap veto
 	  float leg2pt  = tlv_secondLepton.Pt();
 	  float leg2eta = TMath::Abs(tlv_secondLepton.Eta());
+	  float leg2eta_SC = theBigTree.daughters_SCeta->at(secondDaughterIndex); // needed for electron SFs and eta gap veto
 
 	  // the first tau only makes sense in the TauTau channel
 	  int tau1DM  = static_cast<int>(theSmallTree.m_dau1_decayMode);
@@ -2786,21 +2788,20 @@ int main (int argc, char** argv)
 			}
 
 			else if (pType == 1) {
-				//TODO: should be super cluster eta (not available in bigntuples at the moment)
 				float leg1_eleReco_SF;
 				float leg1_eleReco_SFerr;
 				// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
 				if(leg1pt <= 20){
-					leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-					leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+					leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta_SC, pType);
+					leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta_SC, pType);
 				}
 				else{
-					leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-					leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+					leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta_SC, pType);
+					leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta_SC, pType);
 				}
 
-				float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta_SC, pType);
+				float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta_SC, pType);
 
 				idSF_leg1 = leg1_eleID_SF * leg1_eleReco_SF;
 				idSF_leg1_eleID_up = (leg1_eleID_SF + leg1_eleID_SFerr) * leg1_eleReco_SF;
@@ -2851,21 +2852,20 @@ int main (int argc, char** argv)
 			idSF_leg2_deep_vsJet_2d = idSF_leg2;
 		}
 		else if(pType == 4) { //EleEle
-			//TODO: should be super cluster eta (not available in bigntuples at the moment)
 			float leg1_eleReco_SF;
 			float leg1_eleReco_SFerr;
 			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
 			if(leg1pt <= 20){
-				leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				leg1_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg1pt, leg1eta_SC, pType);
+				leg1_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg1pt, leg1eta_SC, pType);
 			}
 			else{
-				leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-				leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+				leg1_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg1pt, leg1eta_SC, pType);
+				leg1_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg1pt, leg1eta_SC, pType);
 			}
 
-			float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta, pType);
-			float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta, pType);
+			float leg1_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg1pt, leg1eta_SC, pType);
+			float leg1_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg1pt, leg1eta_SC, pType);
 
 			idSF_leg1 = leg1_eleID_SF;
 			idSF_leg1_eleID_up = leg1_eleReco_SF * (leg1_eleID_SF + leg1_eleID_SFerr);
@@ -2874,22 +2874,21 @@ int main (int argc, char** argv)
 			idSF_leg1_eleReco_up = (leg1_eleReco_SF + leg1_eleReco_SFerr) * leg1_eleID_SF;
 			idSF_leg1_eleReco_down = (leg1_eleReco_SF - leg1_eleReco_SFerr) * leg1_eleID_SF;
 
-			//TODO: should be super cluster eta (not available in bigntuples at the moment)
 			float leg2_eleReco_SF;
 			float leg2_eleReco_SFerr;
 			// ele RECO SFs are split into two categories: pt <= 20 and pt > 20
 			if(leg2pt <= 20){
-				leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-				leg2_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+				leg2_eleReco_SF = lepSFs[2]->get_direct_ScaleFactor(leg2pt, leg2eta_SC, pType);
+				leg2_eleReco_SFerr = lepSFs[2]->get_direct_ScaleFactorError(leg2pt, leg2eta_SC, pType);
 			}
 			else{
-				leg2_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-				leg2_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+				leg2_eleReco_SF = lepSFs[3]->get_direct_ScaleFactor(leg2pt, leg2eta_SC, pType);
+				leg2_eleReco_SFerr = lepSFs[3]->get_direct_ScaleFactorError(leg2pt, leg2eta_SC, pType);
 			}
 
 
-			float leg2_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg2pt, leg2eta, pType);
-			float leg2_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg2pt, leg2eta, pType);
+			float leg2_eleID_SF = lepSFs[4]->get_direct_ScaleFactor(leg2pt, leg2eta_SC, pType);
+			float leg2_eleID_SFerr = lepSFs[4]->get_direct_ScaleFactorError(leg2pt, leg2eta_SC, pType);
 
 			idSF_leg2 = leg2_eleID_SF;
 
@@ -3844,20 +3843,20 @@ int main (int argc, char** argv)
 				  //lepton trigger
 				  double Eff_SL_ele_Data = 1., Eff_SL_ele_MC = 1., Eff_SL_ele_Data_Err = 0., Eff_SL_ele_MC_Err = 0.;
 				  if (passSingle) {
-					Eff_SL_ele_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_SL_ele_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_SL_ele_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_SL_ele_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_SL_ele_MC = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_SL_ele_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_SL_ele_MC_Err = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), leg1eta_SC, pType);
 				  }
 
 				  //cross-trigger
 				  //e leg
 				  double Eff_cross_ele_Data = 1., Eff_cross_ele_MC = 1., Eff_cross_ele_Data_Err = 0., Eff_cross_ele_MC_Err = 0.;
 				  if (passCross) {
-					Eff_cross_ele_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_cross_ele_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-					Eff_cross_ele_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_cross_ele_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_cross_ele_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_cross_ele_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_cross_ele_MC_Err = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
 				  }
 
 				  //tau leg
@@ -3960,13 +3959,13 @@ int main (int argc, char** argv)
 				  else {
 					// dirty trick to deal with bad efficiency values in a (very) low-stat bins
 					// should only affect one bin in sf_el_2016post_HLTEle25.root
-					if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.) {
-					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
-					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
+					if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and leg1eta_SC <= -2.) {
+					  SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -leg1eta_SC, pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -leg1eta_SC, pType);
 					}
 					else {
-					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					  SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
 					}
 				  }
 
@@ -4223,8 +4222,8 @@ int main (int argc, char** argv)
 				  trigSF_tau_DM11_down  = trigSF;
 				}
 			  else if (trgRegions["legacy"]) {
-				double SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
 				trigSF = SF;
 				trigSFnoMET           = trigSF;
 				trigSFnoTau           = trigSF;
