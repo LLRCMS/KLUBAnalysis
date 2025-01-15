@@ -3843,20 +3843,20 @@ int main (int argc, char** argv)
 				  //lepton trigger
 				  double Eff_SL_ele_Data = 1., Eff_SL_ele_MC = 1., Eff_SL_ele_Data_Err = 0., Eff_SL_ele_MC_Err = 0.;
 				  if (passSingle) {
-					Eff_SL_ele_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_SL_ele_MC   = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_SL_ele_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_SL_ele_MC_Err   = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					Eff_SL_ele_Data = eTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_SL_ele_MC = eTrgSF->get_EfficiencyMC(  tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_SL_ele_Data_Err = eTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_SL_ele_MC_Err = eTrgSF->get_EfficiencyMCError(  tlv_firstLepton.Pt(), leg1eta_SC, pType);
 				  }
 
 				  //cross-trigger
 				  //e leg
 				  double Eff_cross_ele_Data = 1., Eff_cross_ele_MC = 1., Eff_cross_ele_Data_Err = 0., Eff_cross_ele_MC_Err = 0.;
 				  if (passCross) {
-					Eff_cross_ele_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_cross_ele_MC	 = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(),   tlv_firstLepton.Eta(), pType);
-					Eff_cross_ele_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					Eff_cross_ele_MC_Err	 = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(),	tlv_firstLepton.Eta(), pType);
+					Eff_cross_ele_Data = eTauTrgSF->get_EfficiencyData(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_cross_ele_MC = eTauTrgSF->get_EfficiencyMC(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_cross_ele_Data_Err = eTauTrgSF->get_EfficiencyDataError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					Eff_cross_ele_MC_Err = eTauTrgSF->get_EfficiencyMCError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
 				  }
 
 				  //tau leg
@@ -3959,13 +3959,13 @@ int main (int argc, char** argv)
 				  else {
 					// dirty trick to deal with bad efficiency values in a (very) low-stat bins
 					// should only affect one bin in sf_el_2016post_HLTEle25.root
-					if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and tlv_firstLepton.Eta() <= -2.) {
-					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
-					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -tlv_firstLepton.Eta(), pType);
+					if(PERIOD == "2016postVFP" and tlv_firstLepton.Pt() >= 100. and leg1eta_SC <= -2.) {
+					  SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), -leg1eta_SC, pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), -leg1eta_SC, pType);
 					}
 					else {
-					  SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+					  SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+					  SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
 					}
 				  }
 
@@ -4222,8 +4222,8 @@ int main (int argc, char** argv)
 				  trigSF_tau_DM11_down  = trigSF;
 				}
 			  else if (trgRegions["legacy"]) {
-				double SF     = eTrgSF->get_ScaleFactor(     tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
-				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), tlv_firstLepton.Eta(), pType);
+				double SF = eTrgSF->get_ScaleFactor(tlv_firstLepton.Pt(), leg1eta_SC, pType);
+				double SF_Err = eTrgSF->get_ScaleFactorError(tlv_firstLepton.Pt(), leg1eta_SC, pType);
 				trigSF = SF;
 				trigSFnoMET           = trigSF;
 				trigSFnoTau           = trigSF;
