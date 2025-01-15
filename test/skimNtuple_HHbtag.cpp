@@ -5779,7 +5779,8 @@ int main (int argc, char** argv)
 
   if (totalEvents != 0) cout << "efficiency = " << selectedEvents / totalEvents << endl ;
   else                  cout << "NO events found\n" ;
-  TH1F h_eff ("h_eff", "h_eff", 6 + totalEvents_QCDscale.size() + totalEvents_pdf.size() + totalEvents_alphaS.size(), 0, 6) ;
+  int h_eff_nbins = 6 + totalEvents_QCDscale.size() + totalEvents_pdf.size() + totalEvents_alphaS.size();
+  TH1F h_eff ("h_eff", "h_eff", h_eff_nbins, 0, h_eff_nbins) ;
   h_eff.SetBinContent (1, totalEvents);
   h_eff.SetBinContent (2, selectedEvents);
   h_eff.SetBinContent (3, totalNoWeightsEventsNum);
