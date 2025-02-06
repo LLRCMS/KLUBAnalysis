@@ -1600,6 +1600,13 @@ int main (int argc, char** argv)
 	  tlv_MET.SetPxPyPzE(met_phi_corr.first, met_phi_corr.second,
 						 0, std::hypot(met_phi_corr.first, met_phi_corr.second));
 	  TVector2 vMET(tlv_MET.Px(), tlv_MET.Py());
+	  
+	  theSmallTree.m_met_raw_phi   = TVector2::Phi_mpi_pi(vMET.Phi());
+	  theSmallTree.m_met_raw_et    = vMET.Mod();
+	  theSmallTree.m_METx_raw      = vMET.Px();
+	  theSmallTree.m_METy_raw      = vMET.Py();
+
+
 	  TVector2 vMUON(0., 0.);
 	  if (pairType==0) {
 		// single muon in evt, vetoing events with 3rd lepton

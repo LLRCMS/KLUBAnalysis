@@ -337,6 +337,11 @@ struct smallTree
       m_METx = 0.  ;
       m_METy = 0.  ;
 
+      m_met_raw_phi = -1. ;
+      m_met_raw_et = -1. ;
+      m_METx_raw = 0.  ;
+      m_METy_raw = 0.  ;
+
       m_metnomu_phi   = -1.;
       m_metnomu_et    = -1.;
       m_METnoMux      = 0.;
@@ -1483,6 +1488,11 @@ struct smallTree
       m_smallT->Branch ("METx", &m_METx, "METx/F") ;
       m_smallT->Branch ("METy", &m_METy, "METy/F") ;
 
+      m_smallT->Branch ("met_raw_phi", &m_met_raw_phi, "met_raw_phi/F") ;
+      m_smallT->Branch ("met_raw_et", &m_met_raw_et, "met_raw_et/F") ;
+      m_smallT->Branch ("METx_raw", &m_METx_raw, "METx_raw/F") ;
+      m_smallT->Branch ("METy_raw", &m_METy_raw, "METy_raw/F") ;
+
       m_smallT->Branch ("metnomu_phi", &m_metnomu_phi,  "metnomu_phi/F");
       m_smallT->Branch ("metnomu_et",  &m_metnomu_et,   "metnomu_et/F" );
       m_smallT->Branch ("METnoMux",    &m_METnoMux,     "METnoMux/F"   );
@@ -2588,6 +2598,11 @@ struct smallTree
   Float_t m_met_et ;
   Float_t m_METx ;
   Float_t m_METy ;
+
+  Float_t m_met_raw_phi ;
+  Float_t m_met_raw_et ;
+  Float_t m_METx_raw ;
+  Float_t m_METy_raw ;
 
   Float_t m_metnomu_phi;
   Float_t m_metnomu_et;
