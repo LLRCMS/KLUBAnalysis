@@ -23,7 +23,7 @@ STITCHING_OFF_STR="(Boolean) Drell-Yan stitching weights will *not* be used. Def
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: ${DATA_PERIOD_CHOICES}. Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
-JER_VARIATION_STR="(String) Which JER variation to consider. Defaults to the emtpy string, which corresponds to no variation. The other options are 'JERup' and 'JERdown'."
+JER_VARIATION_STR="(String) Which JER variation to consider. Defaults to the emtpy string, which corresponds to no variation. The other options are '_JERup' and '_JERdown'."
 function print_usage_submit_skims {
     USAGE="
         Run example: bash $(basename "$0") -t out_test --in_tag Jan2023 --user bfontana --dryrun
