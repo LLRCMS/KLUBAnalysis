@@ -9,6 +9,7 @@ RESUBMIT="0"
 OUT_TAG=""
 IN_TAG="Oct2023"
 DATA_PERIOD="UL18"
+JER_VARIATION=""
 DATA_USER="${USER}"
 DATA_PERIOD_CHOICES=( "UL16" "UL16APV" "UL17" "UL18" )
 
@@ -22,6 +23,7 @@ STITCHING_OFF_STR="(Boolean) Drell-Yan stitching weights will *not* be used. Def
 NO_LISTS_STR="(Boolean) Whether to run the list production script before each submission. Defaults to ${NO_LISTS}."
 DATAPERIOD_STR="(String) Which data period to consider: ${DATA_PERIOD_CHOICES}. Defaults to '${DATA_PERIOD}'."
 DATAUSER_STR="(String) Which user produced the data. Defaults to '${DATA_USER}'."
+JER_VARIATION_STR="(String) Which JER variation to consider. Defaults to the emtpy string, which corresponds to no variation. The other options are 'JERup' and 'JERdown'."
 function print_usage_submit_skims {
     USAGE="
         Run example: bash $(basename "$0") -t out_test --in_tag Jan2023 --user bfontana --dryrun
@@ -35,6 +37,7 @@ function print_usage_submit_skims {
 	-n / --no_lists                 [ ${NO_LISTS_STR} ]
 	-d / --data_period              [ ${DATAPERIOD_STR} ]
 	-u / --user                     [ ${DATAUSER_STR} ]
+	-j / --jervar                   [ ${JER_VARIATION_STR} ]
 "
     printf "${USAGE}"
 }
@@ -85,6 +88,10 @@ while [[ $# -gt 0 ]]; do
 	    DATA_USER=${2}
 	    shift; shift;
 	    ;;
+	-j|--jervar)
+	    JER_VARIATION=${2}
+	    shift; shift;
+	    ;;
 	*)  # unknown option
 	    echo "Wrong parameter ${1}."
 	    exit 1
@@ -104,6 +111,11 @@ elif [ ${DATA_PERIOD} == "UL16" ]; then
 elif [ ${DATA_PERIOD} == "UL16APV" ]; then
 	PU_DIR="weights/PUreweight/UL_Run2_PU_SF/2016APV/PU_UL2016APV_SF.txt"
 	YEAR="2016preVFP"
+fi
+
+if [ ${JER_VARIATION} != "" ] && [ ${JER_VARIATION} != "_JERdown" ] && [ ${JER_VARIATION} != "_JERup" ]; then
+	echo "The options passed to the --jervar option ('${JER_VARIATION}') is not supported.";
+	exit 1;
 fi
 
 AYEAR=${YEAR:0:4}
@@ -310,7 +322,7 @@ SIG_DIR=${IN_DIR}${DATA_PERIOD}"_Sig/"
 BKG_DIR=${IN_DIR}${DATA_PERIOD}"_MC/"
 DATA_DIR=${IN_DIR}${DATA_PERIOD}"_Data/"
 
-CFG="config/skim_${DATA_PERIOD}.cfg"
+CFG="config/skim${JER_VARIATION}_${DATA_PERIOD}.cfg"
 PREF="SKIMS_"
 TAG_DIR=${PREF}${DATA_PERIOD}"_"${OUT_TAG}
 declare -a ERRORS=()
@@ -550,10 +562,8 @@ eval `scram unsetenv -sh` # unset CMSSW environment
 declare -a LISTS_SIG=( $(/usr/bin/gfal-ls -lH ${LIST_SIG_DIR} | awk '{{printf $9" "}}') )
 cmsenv # set CMSSW environment
 
-# DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
-# MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
-DATA_LIST=( "GluGluToRad" )
-MASSES=("1000")
+DATA_LIST=( "GluGluToRad" "GluGluToBulkGrav" )
+MASSES=("250" "260" "270" "280" "300" "320" "350" "400" "450" "500" "550" "600" "650" "700" "750" "800" "850" "900" "1000" "1250" "1500" "1750" "2000" "2500" "3000")
 for ds in ${DATA_LIST[@]}; do
 	for mass in ${MASSES[@]}; do
 		pattern="${ds}.+_M-${mass}_";
